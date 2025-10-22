@@ -375,9 +375,9 @@ const errlInline = document.getElementById('errl-inline');
   function onErrlPointerDown(e){ if(!errlVisible || !dragGate) return; drag.active=true; drag.startX=e.clientX; drag.startY=e.clientY; drag.baseX=errlOffset.x; drag.baseY=errlOffset.y; const el=activeErrlEl(); el.classList.add('dragging'); el.style.transition='none'; if(el.setPointerCapture) el.setPointerCapture(e.pointerId); }
   function onErrlPointerMove(e){ if(!drag.active) return; errlOffset.x = drag.baseX + (e.clientX - drag.startX); errlOffset.y = drag.baseY + (e.clientY - drag.startY); applyErrlTransform();
     // While dragging, let Errl push bubbles around (influence center of Errl)
-    if(bubblesFX){ const el = activeErrlEl(); const r = el.getBoundingClientRect(); const cx = r.left + r.width/2; const cy = r.top + r.height/2; bubblesFX.setInfluencer(cx, cy, 120, 0.30); }
+    // disabled: influence background bubbles while dragging Errl
   }
-  function onErrlPointerUp(e){ if(!drag.active) return; drag.active=false; const el=activeErrlEl(); el.classList.remove('dragging'); el.style.transition=''; if(el.releasePointerCapture) el.releasePointerCapture(e.pointerId); if(bubblesFX){ bubblesFX.clearInfluencer(); } }
+  function onErrlPointerUp(e){ if(!drag.active) return; drag.active=false; const el=activeErrlEl(); el.classList.remove('dragging'); el.style.transition=''; if(el.releasePointerCapture) el.releasePointerCapture(e.pointerId); }
 
   /* CSS motes */
   function spawnMote(){
@@ -709,7 +709,7 @@ let fxm = null, fxRoot = null, bubblesFX = null;
 fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
       // Bubbles auto-registers itself with ErrlFX.Manager via bubbles-pixi.js
       console.info('FX: enabling bubbles with texture', bubbleTex);
-      bubblesFX = fxm.enable('bubbles', { textureUrl: bubbleTex, alpha: 0.95, minSize: 18, maxSize: 44, densityBase: 52 });
+      bubblesFX = fxm.enable('bubbles', { textureUrl: bubbleTex, alpha: 0.95, minSize: 18, maxSize: 44, densityBase: 52, pointerInfluence: false });
       if(bubblesFX && typeof bubblesFX.then==='function'){
         bubblesFX.then(inst=>{ bubblesFX = inst; bubblesFX.setSpeed(1); bubblesFX.setCountFactor(1);
           // Apply persisted settings if available

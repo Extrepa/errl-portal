@@ -12,7 +12,8 @@ class BubblesFX{
         wobble: 1.2, alpha: 0.95,
         densityBase: 36, densityDivisor: 52000,
         farRatio: 0.33, blendMode: (PIXI.BLEND_MODES && PIXI.BLEND_MODES.SCREEN) || 15,
-        respectMotion: false
+        respectMotion: false,
+        pointerInfluence: false // disable pointer push/pull by default
       }, opts);
       this.root = new PIXI.Container();
       // Insert near back (caller decides z-index by providing parent)
@@ -74,12 +75,14 @@ class BubblesFX{
       this._motion = ()=>{ if(this.opts.respectMotion){ this[mq.matches?'pause':'resume'](); } };
       if(mq.addEventListener) mq.addEventListener('change', this._motion);
       // Pointer influence
-      this._onPointerMove = (e)=>{ this._pointer.x = e.clientX; this._pointer.y = e.clientY; };
-      addEventListener('pointermove', this._onPointerMove);
+      if(this.opts.pointerInfluence){
+        this._onPointerMove = (e)=>{ this._pointer.x = e.clientX; this._pointer.y = e.clientY; };
+        addEventListener('pointermove', this._onPointerMove);
+      }
       this.resume();
       return this;
     }
-    destroy(){ removeEventListener('resize', this._onResize); removeEventListener('pointermove', this._onPointerMove); const mq=matchMedia('(prefers-reduced-motion: reduce)'); mq.removeEventListener && mq.removeEventListener('change', this._motion); this.app.ticker.remove(this._tick); if(this._si) clearInterval(this._si); this.root.destroy({children:true}); }
+    destroy(){ removeEventListener('resize', this._onResize); if(this._onPointerMove) removeEventListener('pointermove', this._onPointerMove); const mq=matchMedia('(prefers-reduced-motion: reduce)'); mq.removeEventListener && mq.removeEventListener('change', this._motion); this.app.ticker.remove(this._tick); if(this._si) clearInterval(this._si); this.root.destroy({children:true}); }
     _density(){ return Math.round(this.opts.densityBase + (innerWidth*innerHeight)/this.opts.densityDivisor); }
     rebuild(){ this.count=this._density(); this.near.removeChildren(); this.far.removeChildren(); this.sprites.length=0; const W=this.app.screen.width, H=this.app.screen.height;
       for(let i=0;i<this.count;i++){
