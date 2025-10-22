@@ -4,9 +4,9 @@ html,body{ background:transparent !important; }
 .errl-bg{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden; }
 .errl-bg .layer{ position:absolute; inset:0; background-position:center; background-size:cover; will-change:transform, background-position, opacity; }
 /* Base soft oil gradient */
-.errl-bg .base{ background-image:url('../ErrlSite_Assets/BG/BG_BaseLayer.png'); filter:saturate(110%) contrast(102%); transform:scale(1.02); }
+.errl-bg .base{ background-image:url('../assets/BG/BG_BaseLayer.png'); filter:saturate(110%) contrast(102%); transform:scale(1.02); }
 /* Wavy shimmer pass */
-.errl-bg .shimmer{ background-image:url('../ErrlSite_Assets/BG/BG_Shimmer.png'); mix-blend-mode:screen; opacity:.45; animation:errlShimmer 18s linear infinite; }
+.errl-bg .shimmer{ background-image:url('../assets/BG/BG_Shimmer.png'); mix-blend-mode:screen; opacity:.45; animation:errlShimmer 18s linear infinite; }
 @keyframes errlShimmer{ 0%{ background-position:0% 0%; } 100%{ background-position:120% 0%; } }
 /* Subtle vignette to focus content */
 .errl-bg .vignette{ background:radial-gradient(120% 80% at 50% 30%, transparent 50%, rgba(0,0,0,.35) 100%); }

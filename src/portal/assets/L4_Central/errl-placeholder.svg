@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 820">
+  <defs><filter id="gitd"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <g fill="#7b5cff" filter="url(#gitd)">
+    <path d="M65,410 C65,190 240,40 360,60 C510,85 555,210 555,325 C555,510 460,615 345,695 C285,740 210,775 155,740 C110,711 65,630 65,410 Z"/>
+  </g>
+  <g fill="#eaf2ff"><ellipse cx="320" cy="290" rx="110" ry="95" opacity=".9"/></g>
+  <g fill="#0a0a0c"><ellipse cx="285" cy="270" rx="16" ry="28"/><ellipse cx="355" cy="270" rx="16" ry="28"/><ellipse cx="320" cy="330" rx="42" ry="18"/></g>
+  <path d="M65,410 C65,190 240,40 360,60 C510,85 555,210 555,325 C555,510 460,615 345,695 C285,740 210,775 155,740 C110,711 65,630 65,410 Z" fill="none" stroke="#0a0a0c" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

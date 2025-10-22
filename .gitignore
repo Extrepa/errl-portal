@@ -1,0 +1,34 @@
+# See https://github.com/github/gitignore/blob/main/Node.gitignore
+# Dependencies
+node_modules/
+
+# Build outputs
+.dist/
+dist/
+build/
+out/
+.next/
+.vercel/
+.turbo/
+.cache/
+coverage/
+
+# Env and secrets
+.env
+.env.*
+*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / Editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Misc
+*.tsbuildinfo

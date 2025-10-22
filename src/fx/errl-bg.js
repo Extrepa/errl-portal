@@ -27,9 +27,9 @@
       const hud = create('div','errl-hud');
       hud.setAttribute('data-variant', String(opt.headerVariant===2?2:1));
       const img1 = new Image(); img1.className='hdr1';
-      img1.alt=''; img1.decoding='async'; img1.src = opt.basePath + '/ErrlSite_Assets/BG/BG_Header.png';
+      img1.alt=''; img1.decoding='async'; img1.src = opt.basePath + '/assets/BG/BG_Header.png';
       const img2 = new Image(); img2.className='hdr2';
-      img2.alt=''; img2.decoding='async'; img2.src = opt.basePath + '/ErrlSite_Assets/BG/BG_Header_2.png';
+      img2.alt=''; img2.decoding='async'; img2.src = opt.basePath + '/assets/BG/BG_Header_2.png';
       hud.append(img1, img2); document.body.appendChild(hud);
     }
 

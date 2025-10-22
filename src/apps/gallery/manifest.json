@@ -1,0 +1,103 @@
+{
+  "default": "official",
+  "albums": [
+    {
+      "id": "official",
+      "title": "Official Errl",
+      "cover": "../../portal/assets/L4_Central/errl-painted-4.svg",
+      "items": [
+        { "src": "../../portal/assets/L4_Central/errl-painted-4.svg", "title": "Errl Painted 4" },
+        { "src": "../../portal/assets/L4_Central/errl-painted-2.svg", "title": "Errl Painted 2" },
+        { "src": "../../portal/assets/L4_Central/errl-placeholder.svg", "title": "Errl Placeholder" }
+      ]
+    },
+    {
+      "id": "bubbles",
+      "title": "Bubbles & Drops",
+  "cover": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png",
+      "items": [
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png", "title": "Bubble Purp 1" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-2.png", "title": "Bubble Purp 2" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png", "title": "Bubble Purp 3" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-4.png", "title": "Bubble Purp 4" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-5.png", "title": "Bubble Purp 5" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-10.png", "title": "Bubble 10" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-11.png", "title": "Bubble 11" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-12.png", "title": "Bubble 12" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-1.png", "title": "Bubbles 1" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-5.png", "title": "Bubbles 5" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-6.png", "title": "Bubbles 6" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-7.png", "title": "Bubbles 7" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-9.png", "title": "Bubbles 9" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-10.png", "title": "Bubbles 10" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/3Bubbles-1.png", "title": "3 Bubbles 1" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/3Bubbles-2.png", "title": "3 Bubbles 2" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/2Bubbles-1.png", "title": "2 Bubbles 1" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/deco/deco-2.png", "title": "Deco 2" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/deco/deco-4.png", "title": "Deco 4" },
+        { "src": "../../assets/Bubbles_ErrlSiteDecor/deco/deco-7.png", "title": "Deco 7" }
+      ]
+    },
+    {
+      "id": "puddles",
+      "title": "Puddles & Drips",
+  "cover": "../../assets/Puddles_ErrlSiteDecor/Puddle-7.png",
+      "items": [
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-1.png", "title": "Puddle 1" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-2.png", "title": "Puddle 2" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-3.png", "title": "Puddle 3" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-4.png", "title": "Puddle 4" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-5.png", "title": "Puddle 5" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-6.png", "title": "Puddle 6" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-7.png", "title": "Puddle 7" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-8.png", "title": "Puddle 8" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-9.png", "title": "Puddle 9" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-11.png", "title": "Puddle 11" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-12.png", "title": "Puddle 12" },
+        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle 10.png", "title": "Puddle 10" }
+      ]
+    },
+    {
+      "id": "ribbons",
+      "title": "Iridescent Ribbons",
+  "cover": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon-2.png",
+      "items": [
+        { "src": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon.png", "title": "Ribbon 1" },
+        { "src": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon-2.png", "title": "Ribbon 2" },
+        { "src": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon-3.png", "title": "Ribbon 3" },
+        { "src": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon-4.png", "title": "Ribbon 4" }
+      ]
+    },
+    {
+      "id": "stars",
+      "title": "Stars & Space",
+  "cover": "../../assets/Star-4.png",
+      "items": [
+        { "src": "../../assets/Star-1.jpg", "title": "Star 1" },
+        { "src": "../../assets/Star-2.jpg", "title": "Star 2" },
+        { "src": "../../assets/Star-3.png", "title": "Star 3" },
+        { "src": "../../assets/Star-4.png", "title": "Star 4" },
+        { "src": "../../assets/Shooting-Star-2.png", "title": "Shooting Star 2" }
+      ]
+    },
+    {
+      "id": "tops",
+      "title": "Tops & Corners",
+  "cover": "../../assets/Top_Side_Bottom_Drip/TopDripBox.png",
+      "items": [
+        { "src": "../../assets/Top_Side_Bottom_Drip/TopDripBox.png", "title": "TopDripBox" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/TopDripBox-2.png", "title": "TopDripBox 2" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/TopDripBox-3.png", "title": "TopDripBox 3" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/TopLeft-Drip-Corner.png", "title": "TopLeft Drip Corner" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/TopMiddle-Drip-1.png", "title": "TopMiddle Drip 1" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/TopMiddle-Drip-2.png", "title": "TopMiddle Drip 2" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Drip-Small Left-1.png", "title": "Top Drip Small Left 1" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Drip-Small-Left-2.png", "title": "Top Drip Small Left 2" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Drip-Small-Left-3.png", "title": "Top Drip Small Left 3" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Drip-Small-Right-1.png", "title": "Top Drip Small Right 1" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Or-Bottom-Long-Drip.png", "title": "Top/Bottom Long Drip" },
+        { "src": "../../assets/Top_Side_Bottom_Drip/Tops_Corners_Random.png", "title": "Tops Corners Random" }
+      ]
+    }
+  ]
+}
