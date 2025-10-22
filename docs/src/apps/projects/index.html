@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Errl — Projects</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#e5eaf1; }
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0a0f18; color:var(--ink);}
+.header{ position:sticky; top:0; display:flex; gap:12px; align-items:center; padding:12px 16px; background:linear-gradient(180deg, rgba(10,15,24,.9), rgba(10,15,24,.6)); border-bottom:1px solid #ffffff15; backdrop-filter:saturate(110%) blur(4px); z-index:10; }
+.back{ color:#cdeafe; text-decoration:none; padding:.4em .7em; border-radius:999px; background:#ffffff0f; box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.h1{font-size:clamp(22px,4vmin,34px); font-weight:800; margin:0; opacity:.9}
+.list{ max-width:1000px; margin:6vmin auto; padding:0 16px; display:grid; gap:16px; }
+.card{ padding:16px; border-radius:14px; background:#ffffff06; border:1px solid #ffffff12; box-shadow:0 12px 30px rgba(0,0,0,.35);}
+.card h3{ margin:0 0 6px; }
+.card p{ margin:0; opacity:.9; }
+</style>
+<link rel="stylesheet" href="../../fx/errl-bg.css">
+</head>
+<body>
+  <div class="header">
+    <a class="back" href="../../portal/pixi-gl/index.html">⬅ Back to Portal</a>
+    <h1 class="h1">Projects</h1>
+  </div>
+  <div class="list" id="list"></div>
+<script>
+const projects=[
+  {title:'Portal', desc:'This landing portal and mascot showcase.'},
+  {title:'Pin Designer', desc:'Interactive enamel mockups.'},
+  {title:'Drippy Text', desc:'Playful gooey typography generator.'}
+];
+const list=document.getElementById('list');
+for(const p of projects){
+  const c=document.createElement('div'); c.className='card';
+  c.innerHTML=`<h3>${p.title}</h3><p>${p.desc}</p>`;
+  list.appendChild(c);
+}
+</script>
+<script src="../../fx/errl-bg.js"></script>
+<script>window.ErrlBG && ErrlBG.mount({ headerVariant: 1, basePath: '../..', hud: true });</script>
+</body>
+</html>

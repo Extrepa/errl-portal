@@ -1,0 +1,1 @@
+SVG icons for Gallery / About / Pin Designer.

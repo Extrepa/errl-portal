@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Errl Portal — Pixi/GL Variant (Shimmer + FX)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../fx/effects.css">
+<style>
+@font-face{ font-family:'Castellar'; src: local('Castellar'); font-style: normal; font-weight: 400 900; font-display: swap; }
+:root{ --ink:#e5eaf1; --line:#ffffff22; --errl-purp:#7b5cff; --errl-teal:#00e5ff; --errl-blue:#5aa6ff; --errl-indigo:#3a4d9e; }
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0a0f18; color:var(--ink); overflow:hidden}
+.portal{ position:fixed; inset:0; perspective:900px; }
+.layer{ position:absolute; inset:0; pointer-events:none; } .hidden{ display:none !important; }
+
+.l0{
+  background:
+    radial-gradient(120vmax 120vmax at 20% 10%, #1e1440 0%, #0b1020 60%),
+    conic-gradient(from 0deg,#1a2542,#16243d,#122033,#101a2b,#0b1020,#13243c,#1a2542);
+  animation:hueShift 120s linear infinite;
+}
+@keyframes hueShift{ 0%{filter:hue-rotate(0deg) saturate(110%);} 50%{filter:hue-rotate(60deg) saturate(120%);} 100%{filter:hue-rotate(0deg) saturate(110%);} }
+
+#gl{ position:absolute; inset:0; pointer-events:none; z-index:2; }
+
+.l2{ inset:0; overflow:hidden; z-index:1; }
+.mote{
+  position:absolute; width:10px; height:10px; border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,0) 70%);
+  opacity:0; pointer-events:none; filter:blur(.6px);
+  animation:floatY var(--dur,18s) ease-in-out var(--delay,0s) infinite;
+}
+@keyframes floatY{ 0%{transform:translateY(10vh); opacity:0;} 10%{opacity:.6;} 50%{opacity:.35;} 90%{opacity:.6;} 100%{transform:translateY(-20vh); opacity:0;} }
+
+.l3{ z-index:3; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 40px rgba(123,92,255,.08); animation:pulse 4.5s ease-in-out infinite; }
+@keyframes pulse{ 0%,100%{box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 40px rgba(123,92,255,.08);} 50%{box-shadow: inset 0 0 0 1px rgba(255,255,255,.10), inset 0 0 52px rgba(0,229,255,.12);} }
+.drip{ position:absolute; width:36vw; max-width:720px; height:14px; left:50%; transform:translateX(-50%); background:linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent); opacity:.35; top:3vh; filter:blur(.6px); }
+
+.l4{ z-index:4; display:grid; place-items:center; }
+/* reveal control for inline Errl details */
+.errl .decor{ display:none; }
+.errl.revealed .decor{ display:inline; }
+.errl{ width:min(50vmin,60vw); filter: drop-shadow(0 0 18px rgba(123,92,255,.45)) drop-shadow(0 0 48px rgba(0,229,255,.18)); transition: opacity .9s ease, transform .9s ease, filter .25s ease; pointer-events:auto; opacity:0; cursor:grab; }
+.errl.goo{ filter: url(#errl-goo) drop-shadow(0 0 18px rgba(123,92,255,.45)) drop-shadow(0 0 48px rgba(0,229,255,.18)); }
+@keyframes errlIn{ from{ opacity:0; transform:translateY(4px) scale(0.992); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); } to{ opacity:1; transform:none; } }
+.errl:hover{ transform:translateY(-2px) scale(1.01); }
+.errl.dragging{ cursor:grabbing; }
+.errl.revealed{ opacity:1; animation:errlIn 1200ms ease forwards; }
+.errl.revealed.auto{ animation:errlAutoIn 2000ms ease forwards; }
+@keyframes errlAutoIn{ from{ opacity:0; transform:translateY(2px) scale(0.995); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); } to{ opacity:1; transform:none; } }
+.halo{ position:absolute; width:46vmin; height:46vmin; border-radius:50%; left:50%; top:50%; transform:translate(-50%,-50%);
+  background: radial-gradient(circle, rgba(123,92,255,.25), rgba(0,229,255,.15) 35%, transparent 60%); filter:blur(18px); pointer-events:none; opacity:.6; transition:opacity .2s linear; }
+
+.l5{ z-index:5; display:grid; place-items:center; }
+.ui-orbit{ position:absolute; width:70vmin; height:70vmin; left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none; filter:url(#gooey-ui); }
+.btn{ position:absolute; left:50%; top:50%; pointer-events:auto; padding:0; border-radius:50%; border:0; width:96px; height:96px; background:rgba(255,255,255,.06); color:#e5eaf1; font-weight:600; font-size:14px; backdrop-filter:saturate(120%) blur(2px); transition: box-shadow .12s ease, background .12s ease; transform: translate(-50%,-50%) translate(var(--x, 0px), var(--y, 0px)) translate(var(--dx,0px), var(--dy,0px)) scale(calc(var(--s,1) * var(--sv,1))); box-shadow:0 6px 16px rgba(0,0,0,.25); overflow:hidden; position:relative; }
+.btn .puddle-ghost{ position:absolute; left:50%; top:50%; width:110%; height:110%; transform:translate(-50%,-50%) scale(1); opacity:0; transition: transform .25s ease, opacity .18s ease; pointer-events:none; z-index:2; filter: drop-shadow(0 8px 20px rgba(0,0,0,.35)); }
+/* Fallback art for initial paint (JS overrides these on load) */
+.btn[data-img="bubbles-1"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-1.png") center/contain no-repeat; }
+.btn[data-img="bubbles-2"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-2.png") center/contain no-repeat; }
+.btn[data-img="bubbles-3"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-3.png") center/contain no-repeat; }
+.btn[data-img="bubbles-4"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-4.png") center/contain no-repeat; }
+.btn[data-img="bubbles-5"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-5.png") center/contain no-repeat; }
+.btn[data-img="bubbles-6"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-6.png") center/contain no-repeat; }
+.btn:hover .puddle-ghost, .btn:focus-visible .puddle-ghost{ opacity:1; transform:translate(-50%,-50%) scale(1.18); }
+.btn span.vh{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.btn[data-img="bubbles-1"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-1.png") center/contain no-repeat; }
+.btn[data-img="bubbles-2"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-2.png") center/contain no-repeat; }
+.btn[data-img="bubbles-3"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-3.png") center/contain no-repeat; }
+.btn[data-img="bubbles-4"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-4.png") center/contain no-repeat; }
+.btn[data-img="bubbles-5"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-5.png") center/contain no-repeat; }
+.btn[data-img="bubbles-6"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-6.png") center/contain no-repeat; }
+/* Slightly larger size for Bubble-10 variants to match visual ring */
+.btn::before{ content:""; position:absolute; left:50%; top:50%; width:86%; height:86%; transform:translate(-50%,-50%) scale(var(--blob,1)); border-radius:50%; pointer-events:none; background: radial-gradient(circle at 50% 50%, rgba(123,92,255,0) 60%, rgba(123,92,255,0.45) 78%, rgba(0,229,255,0.35) 100%); animation:blobPulse 3.6s ease-in-out infinite; filter:blur(1px); }
+@keyframes blobPulse{ 0%,100%{ --blob:1; } 50%{ --blob:1.06; } }
+.btn{ background-color:transparent; background-blend-mode:normal; }
+.btn:hover{ --s: 1.06; background-color: rgba(8,10,22,.22); background-blend-mode: multiply; box-shadow:0 0 24px rgba(0,229,255,.25); filter: saturate(125%) brightness(1.05) contrast(1.06); }
+.btn .label{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); max-width:80%; text-align:center; font-weight:900; font-size:clamp(12px, 1.6vmin, 17px); line-height:1.05; color:#d7efff; letter-spacing:.01em; text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 10px rgba(0,229,255,.28); opacity:0; transition:opacity .18s ease; pointer-events:none; z-index:3; }
+.btn:hover .label, .btn:focus-visible .label{ opacity:1; }
+
+.l6{ z-index:6; display:grid; place-items:center; opacity:0; transition:opacity .5s ease; background: radial-gradient(80vmax 80vmax at 50% 30%, rgba(15,12,40,.65), rgba(5,8,18,.9)); }
+.l6.active{ opacity:1; }
+.portal-drip{ position:absolute; width:64vw; max-width:900px; height:0; top:-40vh; left:50%; transform:translateX(-50%); background:linear-gradient(180deg, rgba(123,92,255,.65), rgba(0,229,255,.5), transparent 70%); border-radius:999px 999px 0 0; animation:dripFall 1.25s ease forwards; }
+@keyframes dripFall{ 0%{ height:0; top:-40vh; } 100%{ height:140vh; top:-10vh; } }
+.sigil{ font-size: clamp(22px, 5vmin, 44px); letter-spacing: .28em; color:#cdeafe; text-shadow: 0 0 18px rgba(123,92,255,.6); opacity:0; animation:sigilIn .9s .7s ease forwards; }
+@keyframes sigilIn{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+
+.hud{ position:fixed; left:50%; transform:translateX(-50%); bottom:12px; display:flex; gap:12px; z-index:1000; direction:ltr; }
+/* Ensure HUD never mirrors */
+.hud, .hud *{ transform-style: flat; }
+body.mirror-active .hud{ transform:translateX(-50%) !important; }
+.hud .chip{ cursor:pointer; position:relative; }
+.hud .bubble{ width:56px; height:56px; border:0; border-radius:50%; background:transparent; box-shadow:0 4px 14px rgba(0,0,0,.38); animation:hubBob 3.8s ease-in-out infinite; transform-origin:center; transition: transform .18s ease; }
+.hud .bubble:hover{ transform:scale(1.14); }
+.hud .chip .label{ transition: opacity .15s ease, transform .15s ease; }
+.hud .chip:hover .label{ transform: translate(-50%,-50%) scale(1.08); }
+.hud .chip span.vh{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+@keyframes hubBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+.hud .bubble-purp-1{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png") center/contain no-repeat; }
+.hud .bubble-purp-2{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-2.png") center/contain no-repeat; }
+.hud .bubble-purp-3{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png") center/contain no-repeat; }
+.hud .bubble-purp-4{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-4.png") center/contain no-repeat; }
+.hud .bubble-purp-5{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-5.png") center/contain no-repeat; }
+/* Slightly larger primary toggle (Reveal/Hide) */
+.hud .chip[data-toggle="reveal"]{ width:64px; height:64px; }
+.hud .chip .label{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); padding:.2em .45em; border-radius:8px; font-family:'Castellar', serif; font-weight:900; font-size:12px; color:#0a0a0c; background:transparent; text-shadow: 0 0 6px rgba(255,255,255,.55), 0 0 2px rgba(255,255,255,.8); -webkit-text-stroke: .25px rgba(255,255,255,.35); opacity:0.95; white-space:nowrap; }
+.hud .chip:hover .label, .hud .chip:focus-visible .label{ opacity:1; }
+.hud .chip.toggled{ outline:2px solid rgba(0,229,255,.35); box-shadow:0 0 16px rgba(0,229,255,.25); filter:saturate(115%) brightness(1.06); }
+
+/* Dev panel */
+.devpanel{ position:fixed; right:12px; top:12px; z-index:3000; background:rgba(10,14,22,.78); color:#d7e6ff; backdrop-filter:blur(6px) saturate(115%); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 12px; font-size:12px; line-height:1.35; box-shadow:0 6px 18px rgba(0,0,0,.35); }
+.devpanel.hidden{ display:none; }
+.devpanel .row{ display:flex; gap:6px; align-items:center; margin:6px 0; }
+.devpanel label{ opacity:.9; }
+.devpanel input[type="number"]{ width:72px; background:#0e1524; color:#eaf6ff; border:1px solid #2a3550; border-radius:6px; padding:2px 6px; }
+.devpanel button{ background:#1a2340; color:#eaf6ff; border:1px solid #2a3a6a; border-radius:8px; padding:4px 8px; cursor:pointer; }
+.devpanel button:hover{ background:#213056; }
+.devpanel .n{ width:22px; height:22px; padding:0; display:inline-grid; place-items:center; }
+.devdot{ position:absolute; left:50%; top:50%; width:8px; height:8px; border-radius:50%; background:#00e5ff; box-shadow:0 0 8px #00e5ff; transform:translate(calc(-50% + var(--x)), calc(-50% + var(--y))); pointer-events:none; opacity:.85; }
+
+/* Errl Phone UI inside dev panel */
+.devpanel .phone{ position:relative; width:320px; border-radius:22px; padding:10px; background:
+  radial-gradient(160px 120px at 20% 0%, rgba(123,92,255,.20), rgba(123,92,255,0) 70%),
+  radial-gradient(220px 180px at 80% 20%, rgba(0,229,255,.14), rgba(0,229,255,0) 70%),
+  linear-gradient(175deg, rgba(12,16,28,.85), rgba(10,14,22,.85));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 10px 26px rgba(0,0,0,.45);
+}
+.devpanel .phone-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.devpanel .phone-top strong{ font-family:'Fredoka', system-ui, sans-serif; letter-spacing:.08em; font-size:13px; color:#d9ecff; text-shadow:0 1px 6px rgba(0,229,255,.25); }
+.devpanel .apps{ display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; margin-bottom:8px; }
+.devpanel .app-icon{ height:48px; border-radius:14px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); color:#eaf6ff; font-weight:700; font-size:11px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.35); transition:transform .12s ease, background .12s ease, box-shadow .12s ease; }
+ .devpanel .app-icon:hover, .devpanel .app-icon.active{ transform:translateY(-1px); background:linear-gradient(135deg, rgba(123,92,255,.20), rgba(0,229,255,.14)); box-shadow:0 6px 18px rgba(0,0,0,.45), 0 0 14px rgba(0,229,255,.28) inset, 0 0 22px rgba(123,92,255,.28) inset; }
+ /* App icon background art */
+ .devpanel .app-icon{ position:relative; overflow:hidden; }
+ .devpanel .app-icon::before{ content:""; position:absolute; inset:0; opacity:.9; background-position:center; background-size:cover; filter:saturate(110%) contrast(1.05) brightness(0.95); }
+ .devpanel .app-icon span{ position:relative; z-index:1; }
+ .devpanel .app-icon[data-app="intro"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png"); }
+ .devpanel .app-icon[data-app="orbit"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-2.png"); }
+ .devpanel .app-icon[data-app="bubbles"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png"); }
+ .devpanel .app-icon[data-app="gl"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-4.png"); }
+ .devpanel .app-icon[data-app="layers"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-5.png"); }
+ .devpanel .pages{ position:relative; border-radius:14px; padding:8px; border:1px solid rgba(255,255,255,.10); background:rgba(6,10,18,.55); max-height: 58vh; overflow:auto; }
+ .devpanel .app-page{ display:none; }
+ .devpanel .app-page.active{ display:block; }
+ .devpanel .row{ display:flex; gap:6px; align-items:center; margin:6px 0; }
+ .devpanel .section-title{ margin:6px 0 2px; font-weight:700; opacity:.9; font-size:12px; }
+ .devpanel input[type="range"]{ width:160px; }
+ .devpanel .phone-foot{ margin-top:8px; font-size:11px; opacity:.8; text-align:center; }
+ /* Mini toggles */
+ .mini-toggles{ display:flex; flex-wrap:wrap; gap:6px; }
+ .mini-btn{ border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); color:#eaf6ff; border-radius:8px; padding:3px 8px; font-size:11px; cursor:pointer; }
+ .mini-btn.toggled{ background:linear-gradient(135deg, rgba(123,92,255,.22), rgba(0,229,255,.22)); border-color:rgba(0,229,255,.45); box-shadow:0 0 10px rgba(0,229,255,.18) inset; }
+ .form-row{ display:flex; align-items:center; gap:6px; margin:6px 0; }
+ .layer-badge{ display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; border:1px solid rgba(255,255,255,.12); color:#eaf6ff; }
+ .layer-badge[data-layer="hud"]{ background:linear-gradient(135deg, rgba(0,229,255,.22), rgba(90,166,255,.18)); }
+ .layer-badge[data-layer="errl"]{ background:linear-gradient(135deg, rgba(123,92,255,.28), rgba(0,229,255,.18)); }
+ .layer-badge[data-layer="nav"]{ background:linear-gradient(135deg, rgba(0,229,255,.22), rgba(123,92,255,.20)); }
+ .layer-badge[data-layer="backfx"]{ background:linear-gradient(135deg, rgba(58,77,158,.26), rgba(90,166,255,.18)); }
+ .layer-badge[data-layer="gl"]{ background:linear-gradient(135deg, rgba(0,229,255,.24), rgba(90,166,255,.24)); }
+.feature-box{ border:2px dashed rgba(0,229,255,.35); margin:10px; padding:10px; position:relative; }
+.feature-box::before{ content:attr(id); position:absolute; top:-1.2em; left:0; font-size:.8rem; color:#0ff; background:rgba(0,0,0,.6); padding:2px 6px; border-radius:4px; }
+/* Dev overlay mode for existing layers without wrapping */
+/* Lightweight outlines (kept), plus a high-Z interactive overlay */
+body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
+
+/* Interactive overlay layer */
+#dev-overlay-layer{ position:fixed; inset:0; z-index:3500; pointer-events:none; }
+#dev-overlay-layer .box{ position:absolute; border:2px dashed rgba(0,229,255,.55); border-radius:8px; pointer-events:auto; }
+#dev-overlay-layer.element-mode .box{ cursor:move; }
+#dev-overlay-layer .box .tag{ position:absolute; left:0; top:-1.2em; background:rgba(0,0,0,.65); color:#0ff; font-size:12px; padding:2px 6px; border-radius:6px; opacity:0; transition:opacity .12s ease; }
+#dev-overlay-layer .box:hover{ background:rgba(0,229,255,.06); }
+#dev-overlay-layer .box:hover .tag, #dev-overlay-layer .box.active .tag{ opacity:1; }
+#dev-overlay-layer .box.active{ border-color:#00e5ff; box-shadow:0 0 0 2px rgba(0,229,255,.25) inset, 0 0 18px rgba(0,229,255,.25); }
+#dev-overlay-layer .ctl{ position:fixed; right:10px; top:10px; pointer-events:auto; background:rgba(10,14,22,.95); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:4px 10px; color:#cfeaff; font-size:12px; }
+#dev-overlay-layer .ctl b{ color:#0ff; }
+/* Layers panel */
+#dev-layers{ position:fixed; right:12px; top:46px; z-index:3600; width:220px; background:rgba(10,14,22,.96); border:1px solid rgba(255,255,255,.16); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.55); color:#d7e6ff; font-size:12px; display:none; }
+#dev-layers header{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.08); }
+#dev-layers ul{ list-style:none; margin:0; padding:6px; max-height:50vh; overflow:auto; }
+#dev-layers li{ display:flex; align-items:center; justify-content:space-between; gap:6px; padding:6px 6px; border-radius:8px; }
+#dev-layers li.active{ background:rgba(0,229,255,.08); }
+#dev-layers .name{ flex:1; }
+#dev-layers .btns button{ padding:2px 6px; border-radius:6px; border:1px solid #2a3a6a; background:#1a2340; color:#eaf6ff; cursor:pointer; }
+#dev-layers .btns button:hover{ background:#213056; }
+/* Chooser popover */
+#dev-chooser{ position:fixed; z-index:3600; background:rgba(10,14,22,.98); color:#d7e6ff; border:1px solid rgba(255,255,255,.14); border-radius:10px; box-shadow:0 12px 28px rgba(0,0,0,.55); padding:6px; min-width:200px; display:none; }
+#dev-chooser .item{ padding:6px 8px; border-radius:6px; cursor:pointer; }
+#dev-chooser .item small{ display:block; opacity:.75; }
+#dev-chooser .item:hover{ background:rgba(0,229,255,.10); }
+
+/* Dev edit modal */
+#dev-edit{ position:fixed; right:16px; top:80px; z-index:3600; width:380px; max-width:88vw; background:rgba(10,14,22,.92); border:1px solid rgba(255,255,255,.14); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.55); color:#d7e6ff; font-size:12px; display:none; }
+#dev-edit header{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.08); cursor:move; }
+#dev-edit header strong{ font-family:'Fredoka', system-ui, sans-serif; letter-spacing:.04em; }
+#dev-edit .body{ padding:10px; display:grid; gap:8px; }
+#dev-edit select, #dev-edit textarea{ width:100%; background:#0e1524; color:#eaf6ff; border:1px solid #2a3550; border-radius:8px; padding:6px 8px; }
+#dev-edit textarea{ min-height:120px; resize:vertical; }
+#dev-edit .row{ display:flex; gap:8px; justify-content:flex-end; }
+#dev-edit button{ background:#1a2340; color:#eaf6ff; border:1px solid #2a3a6a; border-radius:8px; padding:6px 10px; cursor:pointer; }
+#dev-edit button:hover{ background:#213056; }
+</style>
+</head>
+<body>
+<!-- SVG filter defs for gooey UI -->
+<svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute; width:0; height:0; overflow:hidden">
+  <defs>
+    <filter id="gooey-ui" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -14" result="goo"/>
+      <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+    </filter>
+    <!-- Viscous wobble for Errl (works on HTML via CSS filter:url(#...)) -->
+    <filter id="errl-goo" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feTurbulence id="errlGooNoise" type="fractalNoise" baseFrequency="0.005 0.008" numOctaves="2" seed="2" result="noise"/>
+      <feDisplacementMap id="errlGooDisp" in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+<div class="portal" id="portal" data-theme="normal">
+  <div class="layer l0" data-layer="L0"></div>
+
+  <canvas id="gl"></canvas>
+
+  <div class="layer l2" data-layer="L2" id="motesLayer"></div>
+  <div class="layer l3" data-layer="L3"><div class="drip"></div></div>
+
+  <div class="layer l4" data-layer="L4">
+    <div class="halo" id="halo"></div>
+    <!-- Inline outlined Errl (interactive regions) -->
+    <svg class="errl" id="errl" viewBox="-122.76 -122.76 1725.52 2291.52" xmlns="http://www.w3.org/2000/svg" style="display: none; opacity: 0;" aria-label="Errl silhouette">
+      <defs>
+        <filter id="gitd"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="glitterSparkle">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="noise"/>
+          <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0   0 0 0 5.5 -2.8" result="spark"/>
+          <feComposite in="spark" in2="SourceAlpha" operator="in" result="clipped"/>
+          <feBlend in="SourceGraphic" in2="clipped" mode="screen"/>
+          <animate attributeName="opacity" values="1;0.6;1" dur="1s" repeatCount="indefinite"/>
+        </filter>
+      </defs>
+      <!-- Body outline -->
+      <g fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" filter="url(#gitd)">
+        <path data-region="body" d="M717 0 L716 1 L696 1 L695 2 L682 2 L681 3 L671 3 L670 4 L661 4 L660 5 L653 5 L652 6 L645 6 L644 7 L638 7 L637 8 L631 8 L630 9 L624 9 L623 10 L618 10 L617 11 L612 11 L611 12 L606 12 L605 13 L601 13 L600 14 L596 14 L595 15 L590 15 L589 16 L585 16 L584 17 L581 17 L580 18 L577 18 L576 19 L572 19 L571 20 L568 20 L567 21 L564 21 L563 22 L560 22 L559 23 L556 23 L555 24 L553 24 L552 25 L549 25 L548 26 L545 26 L544 27 L542 27 L541 28 L538 28 L537 29 L535 29 L534 30 L532 30 L531 31 L528 31 L527 32 L525 32 L524 33 L521 33 L520 34 L518 34 L517 35 L515 35 L514 36 L512 36 L511 37 L508 37 L507 38 L505 38 L504 39 L503 39 L502 40 L500 40 L499 41 L497 41 L496 42 L494 42 L493 43 L491 43 L490 44 L488 44 L487 45 L486 45 L485 46 L483 46 L482 47 L480 47 L479 48 L478 48 L477 49 L475 49 L474 50 L473 50 L472 51 L470 51 L469 52 L468 52 L467 53 L465 53 L464 54 L462 54 L461 55 L460 55 L459 56 L458 56 L457 57 L455 57 L454 58 L453 58 L452 59 L450 59 L449 60 L448 60 L447 61 L446 61 L445 62 L443 62 L442 63 L441 63 L440 64 L439 64 L438 65 L437 65 L436 66 L434 66 L433 67 L432 67 L431 68 L430 68 L429 69 L428 69 L427 70 L426 70 L425 71 L424 71 L423 72 L422 72 L421 73 L420 73 L419 74 L418 74 L417 75 L416 75 L415 76 L414 76 L413 77 L411 77 L409 79 L407 79 L406 80 L405 80 L404 81 L403 81 L402 82 L401 82 L400 83 L399 83 L397 85 L396 85 L395 86 L394 86 L393 87 L392 87 L391 88 L390 88 L389 89 L388 89 L387 90 L386 90 L384 92 L383 92 L382 93 L381 93 L380 94 L379 94 L377 96 L376 96 L375 97 L374 97 L373 98 L372 98 L371 99 L370 99 L368 101 L367 101 L366 102 L365 102 L364 103 L363 103 L361 105 L360 105 L359 106 L358 106 L356 108 L355 108 L353 110 L352 110 L351 111 L350 111 L348 113 L347 113 L345 115 L344 115 L343 116 L342 116 L340 118 L339 118 L337 120 L336 120 L334 122 L333 122 L332 123 L331 123 L328 126 L327 126 L325 128 L324 128 L322 130 L321 130 L319 132 L318 132 L315 135 L314 135 L312 137 L311 137 L308 140 L307 140 L305 142 L304 142 L301 145 L300 145 L298 147 L297 147 L293 151 L292 151 L289 154 L288 154 L285 157 L284 157 L280 161 L279 161 L275 165 L274 165 L269 170 L268 170 L264 174 L263 174 L257 180 L256 180 L249 187 L248 187 L239 196 L238 196 L197 237 L197 238 L188 247 L188 248 L180 256 L180 257 L175 262 L175 263 L169 269 L169 270 L165 274 L165 275 L161 279 L161 280 L157 284 L157 285 L154 288 L154 289 L151 292 L151 293 L148 296 L148 297 L145 300 L145 301 L142 304 L142 305 L140 307 L140 308 L137 311 L137 312 L134 315 L134 316 L132 318 L132 319 L130 321 L130 322 L128 324 L128 325 L125 328 L125 329 L124 330 L124 331 L122 333 L122 334 L120 336 L120 337 L118 339 L118 340 L116 342 L116 343 L115 344 L115 345 L113 347 L113 348 L111 350 L111 351 L110 352 L110 353 L108 355 L108 356 L106 358 L106 359 L105 360 L105 361 L103 363 L103 364 L102 365 L102 366 L100 368 L100 369 L99 370 L99 371 L98 372 L98 373 L97 374 L97 375 L95 377 L95 378 L94 379 L94 380 L93 381 L93 382 L92 383 L92 384 L90 386 L90 387 L89 388 L89 389 L88 390 L88 391 L87 392 L87 393 L86 394 L86 395 L84 397 L84 398 L83 399 L83 401 L81 403 L81 404 L80 405 L80 406 L79 407 L79 408 L78 409 L78 410 L77 411 L77 412 L76 413 L76 415 L75 416 L75 417 L74 418 L74 419 L73 420 L73 421 L72 422 L72 423 L71 424 L71 425 L70 426 L70 427 L69 428 L69 429 L68 430 L68 431 L67 432 L67 433 L66 434 L66 436 L65 437 L65 438 L64 439 L64 440 L63 441 L63 442 L62 443 L62 445 L61 446 L61 447 L60 448 L60 449 L59 450 L59 452 L58 453 L58 454 L57 455 L57 456 L56 457 L56 459 L55 460 L55 461 L54 462 L54 464 L53 465 L53 467 L52 468 L52 469 L51 470 L51 472 L50 473 L50 474 L49 475 L49 477 L48 478 L48 479 L47 480 L47 482 L46 483 L46 485 L45 486 L45 487 L44 488 L44 490 L43 491 L43 493 L42 494 L42 496 L41 497 L41 499 L40 500 L40 501 L39 502 L39 504 L38 505 L38 507 L37 508 L37 511 L36 512 L36 514 L35 515 L35 517 L34 518 L34 520 L33 521 L33 523 L32 524 L32 527 L31 528 L31 530 L30 531 L30 534 L29 535 L29 537 L28 538 L28 541 L27 542 L27 544 L26 545 L26 548 L25 549 L25 551 L24 552 L24 555 L23 556 L23 559 L22 560 L22 563 L21 564 L21 567 L20 568 L20 571 L19 572 L19 575 L18 576 L18 580 L17 581 L17 585 L16 586 L16 589 L15 590 L15 594 L14 595 L14 600 L13 601 L13 605 L12 606 L12 611 L11 612 L11 617 L10 618 L10 623 L9 624 L9 630 L8 631 L8 636 L7 637 L7 644 L6 645 L6 652 L5 653 L5 660 L4 661 L4 670 L3 671 L3 681 L2 682 L2 696 L1 697 L1 717 L0 718 L0 763 L1 764 L1 785 L2 786 L2 799 L3 800 L3 810 L4 811 L4 820 L5 821 L5 828 L6 829 L6 836 L7 837 L7 843 L8 844 L8 850 L9 851 L9 857 L10 858 L10 863 L11 864 L11 869 L12 870 L12 875 L13 876 L13 880 L14 881 L14 885 L15 886 L15 890 L16 891 L16 895 L17 896 L17 900 L18 901 L18 904 L19 905 L19 909 L20 910 L20 913 L21 914 L21 917 L22 918 L22 921 L23 922 L23 925 L24 926 L24 928 L25 929 L25 932 L26 933 L26 936 L27 937 L27 939 L28 940 L28 943 L29 944 L29 946 L30 947 L30 950 L31 951 L31 953 L32 954 L32 956 L33 957 L33 960 L34 961 L34 963 L35 964 L35 966 L36 967 L36 969 L37 970 L37 972 L38 973 L38 975 L39 976 L39 978 L40 979 L40 981 L41 982 L41 984 L42 985 L42 987 L43 988 L43 990 L44 991 L44 993 L45 994 L45 995 L46 996 L46 998 L47 999 L47 1000 L48 1001 L48 1003 L49 1004 L49 1006 L50 1007 L50 1008 L51 1009 L51 1011 L52 1012 L52 1013 L53 1014 L53 1016 L54 1017 L54 1018 L55 1019 L55 1021 L56 1022 L56 1024 L57 1025 L57 1026 L58 1027 L58 1028 L59 1029 L59 1031 L60 1032 L60 1033 L61 1034 L61 1035 L62 1036 L62 1038 L63 1039 L63 1040 L64 1041 L64 1042 L65 1043 L65 1044 L66 1045 L66 1046 L67 1047 L67 1049 L68 1050 L68 1051 L69 1052 L69 1053 L70 1054 L70 1055 L71 1056 L71 1057 L72 1058 L72 1059 L73 1060 L73 1061 L74 1062 L74 1063 L75 1064 L75 1065 L76 1066 L76 1068 L77 1069 L77 1070 L78 1071 L78 1072 L79 1073 L79 1074 L81 1076 L81 1077 L82 1078 L82 1080 L84 1082 L84 1083 L85 1084 L85 1085 L86 1086 L86 1087 L87 1088 L87 1089 L88 1090 L88 1091 L89 1092 L89 1093 L91 1095 L91 1096 L92 1097 L92 1098 L93 1099 L93 1104 L94 1105 L94 1111 L95 1112 L95 1118 L96 1119 L96 1125 L97 1126 L97 1133 L98 1134 L98 1141 L99 1142 L99 1150 L100 1151 L100 1161 L101 1162 L101 1172 L102 1173 L102 1185 L103 1186 L103 1200 L104 1201 L104 1221 L105 1222 L105 1295 L104 1296 L104 1317 L103 1318 L103 1440 L104 1441 L104 1518 L105 1519 L105 1557 L106 1558 L106 1563 L107 1564 L107 1568 L108 1569 L108 1571 L109 1572 L109 1574 L110 1575 L110 1577 L111 1578 L111 1579 L112 1580 L112 1581 L113 1582 L113 1583 L114 1584 L114 1585 L115 1586 L115 1587 L117 1589 L117 1590 L119 1592 L119 1593 L121 1595 L121 1596 L133 1608 L134 1608 L137 1611 L138 1611 L139 1612 L140 1612 L142 1614 L143 1614 L144 1615 L145 1615 L146 1616 L147 1616 L148 1617 L149 1617 L150 1618 L151 1618 L152 1619 L154 1619 L155 1620 L157 1620 L158 1621 L161 1621 L162 1622 L166 1622 L167 1623 L177 1623 L178 1624 L182 1624 L183 1623 L192 1623 L193 1622 L197 1622 L198 1621 L200 1621 L201 1620 L203 1620 L204 1619 L206 1619 L207 1618 L209 1618 L210 1617 L211 1617 L212 1616 L213 1616 L214 1615 L215 1615 L216 1614 L217 1614 L219 1612 L220 1612 L222 1610 L223 1610 L227 1606 L228 1606 L236 1598 L236 1597 L240 1593 L240 1592 L242 1590 L242 1589 L243 1588 L243 1587 L245 1585 L245 1584 L246 1583 L246 1582 L247 1581 L247 1579 L248 1578 L248 1577 L249 1576 L249 1574 L250 1573 L250 1571 L251 1570 L251 1567 L252 1566 L252 1562 L253 1561 L253 1548 L254 1547 L254 1509 L255 1508 L255 1465 L256 1464 L256 1408 L257 1407 L257 1343 L258 1342 L258 1338 L259 1337 L259 1332 L260 1331 L260 1327 L261 1326 L261 1325 L262 1324 L262 1323 L265 1320 L266 1320 L267 1319 L269 1319 L270 1318 L273 1318 L274 1319 L276 1319 L277 1320 L278 1320 L280 1322 L281 1322 L288 1329 L288 1330 L289 1331 L289 1332 L290 1333 L290 1334 L291 1335 L291 1336 L292 1337 L292 1339 L293 1340 L293 1414 L294 1415 L293 1416 L293 1425 L294 1426 L294 1562 L295 1563 L295 1645 L296 1646 L296 1710 L297 1711 L296 1712 L297 1713 L297 1767 L298 1768 L298 1813 L299 1814 L299 1858 L300 1859 L300 1896 L301 1897 L301 1910 L302 1911 L302 1914 L303 1915 L303 1918 L304 1919 L304 1920 L305 1921 L305 1923 L306 1924 L306 1926 L307 1927 L307 1928 L308 1929 L308 1931 L309 1932 L309 1933 L310 1934 L310 1935 L311 1936 L311 1937 L312 1938 L312 1939 L313 1940 L313 1941 L314 1942 L314 1943 L315 1944 L315 1945 L316 1946 L316 1947 L317 1948 L317 1949 L319 1951 L319 1952 L321 1954 L321 1955 L323 1957 L323 1958 L326 1961 L326 1962 L330 1966 L330 1967 L346 1983 L347 1983 L351 1987 L352 1987 L355 1990 L356 1990 L358 1992 L359 1992 L361 1994 L362 1994 L363 1995 L364 1995 L366 1997 L367 1997 L368 1998 L369 1998 L370 1999 L371 1999 L372 2000 L373 2000 L374 2001 L375 2001 L376 2002 L377 2002 L378 2003 L379 2003 L380 2004 L381 2004 L382 2005 L383 2005 L384 2006 L386 2006 L387 2007 L388 2007 L389 2008 L391 2008 L392 2009 L395 2009 L396 2010 L398 2010 L399 2011 L402 2011 L403 2012 L406 2012 L407 2013 L411 2013 L412 2014 L418 2014 L419 2015 L433 2015 L434 2016 L439 2016 L440 2015 L453 2015 L454 2014 L459 2014 L460 2013 L465 2013 L466 2012 L469 2012 L470 2011 L473 2011 L474 2010 L477 2010 L478 2009 L480 2009 L481 2008 L483 2008 L484 2007 L485 2007 L486 2006 L488 2006 L489 2005 L490 2005 L491 2004 L492 2004 L493 2003 L494 2003 L495 2002 L497 2002 L498 2001 L499 2001 L500 2000 L501 2000 L503 1998 L504 1998 L505 1997 L506 1997 L508 1995 L509 1995 L510 1994 L511 1994 L513 1992 L514 1992 L516 1990 L517 1990 L520 1987 L521 1987 L525 1983 L526 1983 L542 1967 L542 1966 L547 1961 L547 1960 L549 1958 L549 1957 L551 1955 L551 1954 L553 1952 L553 1951 L555 1949 L555 1948 L556 1947 L556 1946 L557 1945 L557 1944 L558 1943 L558 1942 L559 1941 L559 1940 L561 1938 L561 1936 L562 1935 L562 1934 L563 1933 L563 1932 L564 1931 L564 1930 L565 1929 L565 1927 L566 1926 L566 1924 L567 1923 L567 1922 L568 1921 L568 1919 L569 1918 L569 1915 L570 1914 L570 1912 L571 1911 L571 1907 L572 1906 L572 1902 L573 1901 L573 1895 L574 1894 L574 1883 L575 1882 L575 1872 L574 1871 L574 1860 L573 1859 L573 1593 L574 1592 L574 1547 L573 1546 L573 1529 L574 1528 L574 1507 L575 1506 L575 1495 L576 1494 L576 1486 L577 1485 L577 1483 L578 1482 L578 1480 L579 1479 L579 1478 L580 1477 L580 1476 L586 1470 L587 1470 L588 1469 L589 1469 L590 1468 L592 1468 L593 1467 L619 1467 L620 1468 L627 1468 L628 1469 L632 1469 L633 1470 L636 1470 L637 1471 L645 1471 L646 1472 L655 1472 L656 1473 L666 1473 L667 1474 L678 1474 L679 1475 L693 1475 L694 1476 L711 1476 L712 1477 L744 1477 L745 1478 L781 1478 L782 1477 L807 1477 L808 1476 L821 1476 L822 1475 L843 1475 L844 1474 L855 1474 L856 1475 L864 1475 L865 1476 L866 1476 L869 1479 L869 1480 L870 1481 L870 1482 L871 1483 L871 1484 L872 1485 L872 1489 L873 1490 L873 1674 L874 1675 L874 1677 L873 1678 L873 1680 L874 1681 L874 1766 L875 1767 L874 1768 L874 1769 L875 1770 L875 1771 L874 1772 L875 1773 L875 1842 L876 1843 L876 1911 L877 1912 L876 1913 L877 1914 L877 1957 L878 1958 L878 1963 L879 1964 L879 1968 L880 1969 L880 1972 L881 1973 L881 1975 L882 1976 L882 1978 L883 1979 L883 1981 L884 1982 L884 1984 L885 1985 L885 1986 L886 1987 L886 1988 L887 1989 L887 1990 L888 1991 L888 1992 L889 1993 L889 1994 L891 1996 L891 1997 L892 1998 L892 1999 L894 2001 L894 2002 L896 2004 L896 2005 L900 2009 L900 2010 L913 2023 L914 2023 L917 2026 L918 2026 L920 2028 L921 2028 L923 2030 L924 2030 L926 2032 L927 2032 L928 2033 L929 2033 L930 2034 L931 2034 L932 2035 L933 2035 L934 2036 L935 2036 L936 2037 L937 2037 L938 2038 L940 2038 L941 2039 L943 2039 L944 2040 L945 2040 L946 2041 L949 2041 L950 2042 L952 2042 L953 2043 L956 2043 L957 2044 L962 2044 L963 2045 L975 2045 L976 2046 L978 2046 L979 2045 L1005 2045 L1006 2046 L1032 2046 L1033 2045 L1036 2045 L1037 2044 L1039 2044 L1040 2043 L1041 2043 L1042 2042 L1044 2042 L1045 2041 L1046 2041 L1047 2040 L1048 2040 L1049 2039 L1050 2039 L1052 2037 L1053 2037 L1054 2036 L1055 2036 L1058 2033 L1059 2033 L1071 2021 L1071 2020 L1074 2017 L1074 2016 L1076 2014 L1076 2013 L1077 2012 L1077 2011 L1079 2009 L1079 2008 L1080 2007 L1080 2006 L1081 2005 L1081 2004 L1082 2003 L1082 2002 L1083 2001 L1083 2000 L1084 1999 L1084 1998 L1085 1997 L1085 1996 L1086 1995 L1086 1994 L1087 1993 L1087 1991 L1088 1990 L1088 1989 L1089 1988 L1089 1986 L1090 1985 L1090 1984 L1091 1983 L1091 1981 L1092 1980 L1092 1977 L1093 1976 L1093 1974 L1094 1973 L1094 1970 L1095 1969 L1095 1966 L1096 1965 L1096 1960 L1097 1959 L1097 1954 L1098 1953 L1098 1886 L1099 1885 L1099 1771 L1100 1770 L1100 1768 L1099 1767 L1100 1766 L1099 1765 L1100 1764 L1099 1763 L1100 1762 L1099 1761 L1100 1760 L1100 1681 L1099 1680 L1100 1679 L1099 1678 L1100 1677 L1099 1676 L1100 1675 L1099 1674 L1100 1673 L1100 1663 L1099 1662 L1099 1498 L1100 1497 L1100 1442 L1101 1441 L1101 1406 L1102 1405 L1102 1400 L1103 1399 L1103 1397 L1104 1396 L1104 1395 L1105 1394 L1105 1392 L1107 1390 L1107 1389 L1116 1380 L1117 1380 L1118 1379 L1119 1379 L1120 1378 L1126 1378 L1127 1379 L1128 1379 L1129 1380 L1130 1380 L1134 1384 L1134 1385 L1135 1386 L1135 1388 L1136 1389 L1136 1391 L1137 1392 L1137 1397 L1138 1398 L1138 1579 L1139 1580 L1139 1635 L1140 1636 L1140 1660 L1141 1661 L1141 1665 L1142 1666 L1142 1669 L1143 1670 L1143 1672 L1144 1673 L1144 1675 L1145 1676 L1145 1677 L1146 1678 L1146 1679 L1147 1680 L1147 1681 L1148 1682 L1148 1683 L1150 1685 L1150 1686 L1152 1688 L1152 1689 L1164 1701 L1165 1701 L1167 1703 L1168 1703 L1170 1705 L1171 1705 L1172 1706 L1173 1706 L1174 1707 L1175 1707 L1176 1708 L1178 1708 L1179 1709 L1180 1709 L1181 1710 L1183 1710 L1184 1711 L1188 1711 L1189 1712 L1194 1712 L1195 1713 L1208 1713 L1209 1712 L1215 1712 L1216 1711 L1218 1711 L1219 1710 L1221 1710 L1222 1709 L1224 1709 L1225 1708 L1227 1708 L1228 1707 L1229 1707 L1230 1706 L1231 1706 L1233 1704 L1234 1704 L1235 1703 L1236 1703 L1239 1700 L1240 1700 L1250 1690 L1250 1689 L1252 1687 L1252 1686 L1254 1684 L1254 1683 L1255 1682 L1255 1681 L1256 1680 L1256 1679 L1257 1678 L1257 1677 L1258 1676 L1258 1675 L1259 1674 L1259 1672 L1260 1671 L1260 1670 L1261 1669 L1261 1666 L1262 1665 L1262 1660 L1263 1659 L1263 1612 L1264 1611 L1264 1517 L1265 1516 L1265 1405 L1266 1404 L1266 1282 L1267 1281 L1267 1277 L1268 1276 L1268 1272 L1269 1271 L1269 1269 L1270 1268 L1270 1266 L1271 1265 L1271 1263 L1272 1262 L1272 1261 L1273 1260 L1273 1259 L1274 1258 L1274 1257 L1275 1256 L1275 1255 L1276 1254 L1276 1253 L1277 1252 L1277 1251 L1280 1248 L1280 1247 L1291 1236 L1291 1235 L1298 1228 L1298 1227 L1305 1220 L1305 1219 L1310 1214 L1310 1213 L1314 1209 L1314 1208 L1318 1204 L1318 1203 L1322 1199 L1322 1198 L1326 1194 L1326 1193 L1329 1190 L1329 1189 L1333 1185 L1333 1184 L1335 1182 L1335 1181 L1338 1178 L1338 1177 L1340 1175 L1340 1174 L1343 1171 L1343 1170 L1346 1167 L1346 1166 L1348 1164 L1348 1163 L1351 1160 L1351 1159 L1353 1157 L1353 1156 L1355 1154 L1355 1153 L1357 1151 L1357 1150 L1358 1149 L1358 1148 L1360 1146 L1360 1145 L1362 1143 L1362 1142 L1364 1140 L1364 1139 L1366 1137 L1366 1136 L1368 1134 L1368 1133 L1369 1132 L1369 1131 L1371 1129 L1371 1128 L1372 1127 L1372 1126 L1374 1124 L1374 1123 L1376 1121 L1376 1120 L1377 1119 L1377 1118 L1379 1116 L1379 1115 L1380 1114 L1380 1113 L1381 1112 L1381 1111 L1382 1110 L1382 1109 L1384 1107 L1384 1106 L1385 1105 L1385 1104 L1386 1103 L1386 1102 L1387 1101 L1387 1100 L1389 1098 L1389 1097 L1390 1096 L1390 1095 L1391 1094 L1391 1093 L1393 1091 L1393 1090 L1394 1089 L1394 1088 L1395 1087 L1395 1086 L1396 1085 L1396 1084 L1397 1083 L1397 1082 L1398 1081 L1398 1080 L1399 1079 L1399 1078 L1400 1077 L1400 1076 L1401 1075 L1401 1074 L1402 1073 L1402 1072 L1403 1071 L1403 1070 L1404 1069 L1404 1068 L1405 1067 L1405 1066 L1406 1065 L1406 1064 L1407 1063 L1407 1062 L1408 1061 L1408 1060 L1409 1059 L1409 1058 L1410 1057 L1410 1056 L1411 1055 L1411 1053 L1412 1052 L1412 1051 L1413 1050 L1413 1049 L1414 1048 L1414 1047 L1415 1046 L1415 1045 L1416 1044 L1416 1043 L1417 1042 L1417 1041 L1418 1040 L1418 1038 L1419 1037 L1419 1036 L1420 1035 L1420 1034 L1421 1033 L1421 1031 L1422 1030 L1422 1029 L1423 1028 L1423 1026 L1424 1025 L1424 1024 L1425 1023 L1425 1021 L1426 1020 L1426 1019 L1427 1018 L1427 1016 L1428 1015 L1428 1014 L1429 1013 L1429 1011 L1430 1010 L1430 1009 L1431 1008 L1431 1006 L1432 1005 L1432 1004 L1433 1003 L1433 1001 L1434 1000 L1434 998 L1435 997 L1435 996 L1436 995 L1436 993 L1437 992 L1437 990 L1438 989 L1438 988 L1439 987 L1439 985 L1440 984 L1440 982 L1441 981 L1441 979 L1442 978 L1442 976 L1443 975 L1443 973 L1444 972 L1444 970 L1445 969 L1445 966 L1446 965 L1446 963 L1447 962 L1447 960 L1448 959 L1448 957 L1449 956 L1449 953 L1450 952 L1450 950 L1451 949 L1451 947 L1452 946 L1452 943 L1453 942 L1453 940 L1454 939 L1454 936 L1455 935 L1455 932 L1456 931 L1456 929 L1457 928 L1457 925 L1458 924 L1458 921 L1459 920 L1459 917 L1460 916 L1460 913 L1461 912 L1461 909 L1462 908 L1462 904 L1463 903 L1463 900 L1464 899 L1464 895 L1465 894 L1465 891 L1466 890 L1466 885 L1467 884 L1467 880 L1468 879 L1468 875 L1469 874 L1469 869 L1470 868 L1470 863 L1471 862 L1471 857 L1472 856 L1472 850 L1473 849 L1473 843 L1474 842 L1474 836 L1475 835 L1475 828 L1476 827 L1476 819 L1477 818 L1477 810 L1478 809 L1478 798 L1479 797 L1479 783 L1480 782 L1480 699 L1479 698 L1479 684 L1478 683 L1478 672 L1477 671 L1477 662 L1476 661 L1476 654 L1475 653 L1475 646 L1474 645 L1474 638 L1473 637 L1473 632 L1472 631 L1472 625 L1471 624 L1471 619 L1470 618 L1470 613 L1469 612 L1469 607 L1468 606 L1468 602 L1467 601 L1467 596 L1466 595 L1466 592 L1465 591 L1465 586 L1464 585 L1464 582 L1463 581 L1463 577 L1462 576 L1462 573 L1461 572 L1461 569 L1460 568 L1460 565 L1459 564 L1459 561 L1458 560 L1458 557 L1457 556 L1457 553 L1456 552 L1456 549 L1455 548 L1455 546 L1454 545 L1454 542 L1453 541 L1453 539 L1452 538 L1452 535 L1451 534 L1451 532 L1450 531 L1450 529 L1449 528 L1449 525 L1448 524 L1448 522 L1447 521 L1447 519 L1446 518 L1446 515 L1445 514 L1445 512 L1444 511 L1444 509 L1443 508 L1443 506 L1442 505 L1442 503 L1441 502 L1441 500 L1440 499 L1440 497 L1439 496 L1439 494 L1438 493 L1438 492 L1437 491 L1437 489 L1436 488 L1436 486 L1435 485 L1435 484 L1434 483 L1434 481 L1433 480 L1433 478 L1432 477 L1432 476 L1431 475 L1431 473 L1430 472 L1430 470 L1429 469 L1429 468 L1428 467 L1428 466 L1427 465 L1427 463 L1426 462 L1426 461 L1425 460 L1425 458 L1424 457 L1424 455 L1423 454 L1423 453 L1422 452 L1422 451 L1421 450 L1421 448 L1420 447 L1420 446 L1419 445 L1419 444 L1418 443 L1418 441 L1417 440 L1417 439 L1416 438 L1416 437 L1415 436 L1415 435 L1414 434 L1414 433 L1413 432 L1413 430 L1412 429 L1412 428 L1411 427 L1411 426 L1410 425 L1410 424 L1409 423 L1409 422 L1408 421 L1408 420 L1407 419 L1407 418 L1406 417 L1406 416 L1405 415 L1405 414 L1404 413 L1404 412 L1403 411 L1403 410 L1402 409 L1402 408 L1401 407 L1401 406 L1400 405 L1400 404 L1399 403 L1399 402 L1398 401 L1398 400 L1397 399 L1397 398 L1396 397 L1396 396 L1395 395 L1395 394 L1394 393 L1394 392 L1393 391 L1393 390 L1391 388 L1391 387 L1390 386 L1390 385 L1389 384 L1389 383 L1388 382 L1388 381 L1387 380 L1387 379 L1385 377 L1385 376 L1384 375 L1384 374 L1383 373 L1383 372 L1381 370 L1381 369 L1380 368 L1380 367 L1379 366 L1379 365 L1377 363 L1377 362 L1376 361 L1376 360 L1374 358 L1374 357 L1373 356 L1373 355 L1371 353 L1371 352 L1369 350 L1369 349 L1368 348 L1368 347 L1366 345 L1366 344 L1364 342 L1364 341 L1363 340 L1363 339 L1361 337 L1361 336 L1359 334 L1359 333 L1357 331 L1357 330 L1355 328 L1355 327 L1353 325 L1353 324 L1351 322 L1351 321 L1349 319 L1349 318 L1346 315 L1346 314 L1343 311 L1343 310 L1341 308 L1341 307 L1339 305 L1339 304 L1336 301 L1336 300 L1333 297 L1333 296 L1330 293 L1330 292 L1327 289 L1327 288 L1323 284 L1323 283 L1319 279 L1319 278 L1315 274 L1315 273 L1311 269 L1311 268 L1305 262 L1305 261 L1299 255 L1299 254 L1291 246 L1291 245 L1283 237 L1283 236 L1244 197 L1243 197 L1235 189 L1234 189 L1226 181 L1225 181 L1220 176 L1219 176 L1213 170 L1212 170 L1208 166 L1207 166 L1203 162 L1202 162 L1198 158 L1197 158 L1193 154 L1192 154 L1189 151 L1188 151 L1185 148 L1184 148 L1181 145 L1180 145 L1177 142 L1176 142 L1174 140 L1173 140 L1171 138 L1170 138 L1167 135 L1166 135 L1163 132 L1162 132 L1160 130 L1159 130 L1157 128 L1156 128 L1154 126 L1153 126 L1151 124 L1150 124 L1148 122 L1147 122 L1145 120 L1144 120 L1142 118 L1141 118 L1140 117 L1139 117 L1137 115 L1136 115 L1134 113 L1133 113 L1131 111 L1130 111 L1129 110 L1128 110 L1126 108 L1125 108 L1124 107 L1123 107 L1121 105 L1120 105 L1119 104 L1118 104 L1116 102 L1115 102 L1114 101 L1113 101 L1111 99 L1110 99 L1109 98 L1108 98 L1107 97 L1106 97 L1105 96 L1104 96 L1102 94 L1101 94 L1100 93 L1099 93 L1098 92 L1097 92 L1096 91 L1095 91 L1093 89 L1092 89 L1091 88 L1090 88 L1089 87 L1088 87 L1087 86 L1086 86 L1085 85 L1084 85 L1083 84 L1082 84 L1080 82 L1079 82 L1078 81 L1076 81 L1075 80 L1074 80 L1072 78 L1070 78 L1069 77 L1068 77 L1067 76 L1066 76 L1065 75 L1064 75 L1063 74 L1062 74 L1061 73 L1060 73 L1059 72 L1058 72 L1057 71 L1056 71 L1055 70 L1054 70 L1053 69 L1052 69 L1051 68 L1050 68 L1049 67 L1048 67 L1047 66 L1045 66 L1044 65 L1043 65 L1042 64 L1041 64 L1040 63 L1039 63 L1038 62 L1036 62 L1035 61 L1034 61 L1033 60 L1032 60 L1031 59 L1029 59 L1028 58 L1027 58 L1026 57 L1024 57 L1023 56 L1022 56 L1021 55 L1019 55 L1018 54 L1017 54 L1016 53 L1014 53 L1013 52 L1012 52 L1011 51 L1009 51 L1008 50 L1007 50 L1006 49 L1004 49 L1003 48 L1001 48 L1000 47 L999 47 L998 46 L996 46 L995 45 L993 45 L992 44 L991 44 L990 43 L988 43 L987 42 L985 42 L984 41 L982 41 L981 40 L980 40 L979 39 L976 39 L975 38 L974 38 L973 37 L970 37 L969 36 L967 36 L966 35 L964 35 L963 34 L961 34 L960 33 L957 33 L956 32 L954 32 L953 31 L951 31 L950 30 L947 30 L946 29 L944 29 L943 28 L940 28 L939 27 L937 27 L936 26 L933 26 L932 25 L929 25 L928 24 L926 24 L925 23 L922 23 L921 22 L918 22 L917 21 L914 21 L913 20 L910 20 L909 19 L905 19 L904 18 L901 18 L900 17 L896 17 L895 16 L891 16 L890 15 L886 15 L885 14 L881 14 L880 13 L876 13 L875 12 L870 12 L869 11 L864 11 L863 10 L858 10 L857 9 L851 9 L850 8 L844 8 L843 7 L837 7 L836 6 L829 6 L828 5 L820 5 L819 4 L811 4 L810 3 L800 3 L799 2 L785 2 L784 1 L764 1 L763 0 Z"/>
+        <!-- Face features -->
+        <ellipse data-region="eyeL" cx="446" cy="664" rx="45" ry="55"/>
+        <ellipse data-region="eyeR" cx="933" cy="664" rx="45" ry="55"/>
+        <ellipse data-region="mouth" cx="690" cy="825" rx="50" ry="30"/>
+      </g>
+    </svg>
+    <!-- External painted SVG (original asset) -->
+    <img id="errl-img" src="../assets/L4_Central/errl-painted-4.svg" alt="Errl" class="errl" style="display: none; opacity: 0;">
+    <!-- Inline container for interactive mode (loads the same original SVG) -->
+    <div id="errl-inline" class="errl" style="display: none; opacity: 0;"></div>
+
+  <div class="layer l5" data-layer="L5">
+    <div class="ui-orbit">
+      <button class="btn" data-pos="1" data-img="bubbles-1" title="About Errl"><span class="vh">About Errl</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">About Errl</span></button>
+      <button class="btn" data-pos="2" data-img="bubbles-2" title="Art Gallery"><span class="vh">Art Gallery</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Art Gallery</span></button>
+      <button class="btn" data-pos="3" data-img="bubbles-3" title="Projects"><span class="vh">Projects</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Projects</span></button>
+      <button class="btn" data-pos="4" data-img="bubbles-4" title="Pin Designer"><span class="vh">Errl Pin Designer</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Errl Pin Designer</span></button>
+      <button class="btn" data-pos="5" data-img="bubbles-5" title="Drippy Text Maker"><span class="vh">Drippy Text Maker</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Drippy Text Maker</span></button>
+      <button class="btn" data-pos="6" data-img="bubbles-6" title="Tools"><span class="vh">Tools</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Tools</span></button>
+    </div>
+  </div>
+
+  <div class="layer l6" data-layer="L6" id="awakening"><div class="portal-drip"></div><div class="sigil">FOR THE NOMADS</div></div>
+</div>
+
+<div class="hud" id="hud">
+  <button class="chip bubble bubble-purp-1 toggled" data-toggle="parallax" title="Parallax cursor depth"><span class="label">Parallax</span><span class="vh">Parallax: toggle pointer-based depth</span></button>
+  <button class="chip bubble bubble-purp-2 toggled" data-toggle="gl" title="WebGL shimmer + refraction"><span class="label">WebGL</span><span class="vh">WebGL: toggle PixiJS shimmer and refraction effects</span></button>
+  <button class="chip bubble bubble-purp-4" data-toggle="reveal" title="Show/Hide Errl (dbl‑click Errl swaps modes)"><span class="label">Reveal</span><span class="vh">Reveal: show or hide Errl; double click Errl to switch inline/painted</span></button>
+  <button class="chip bubble bubble-purp-3" data-toggle="bubbles" title="Bubble UI: moving → paused → hidden"><span class="label">Bubbles</span><span class="vh">Bubbles control: moving, paused, hidden</span></button>
+  <button class="chip bubble bubble-purp-5" data-toggle="mirror" title="Mirror X; double‑click: mirror both"><span class="label">Mirror</span><span class="vh">Mirror: flip horizontally; double click to flip both axes</span></button>
+</div>
+
+<!-- Dev panel -->
+<div id="devpanel" class="devpanel hidden" role="dialog" aria-label="Dev Panel">
+  <div class="phone">
+    <div class="phone-top">
+      <strong>ERRL PHONE</strong>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button id="dev-overlay" class="n" title="Toggle Dev Overlay">□</button>
+        <button id="dev-hide" class="n" title="Close">×</button>
+      </div>
+    </div>
+    <div class="apps" id="dev-apps">
+      <button class="app-icon active" data-app="hud" title="HUD">HUD</button>
+      <button class="app-icon" data-app="errl" title="Errl">Errl</button>
+      <button class="app-icon" data-app="nav" title="Nav">Nav</button>
+      <button class="app-icon" data-app="backfx" title="Back FX">Back</button>
+      <button class="app-icon" data-app="gl" title="WebGL">WebGL</button>
+    </div>
+    <div class="pages" id="dev-pages">
+      <section class="app-page active" data-app="hud">
+<div class="section-title">Layer: <span class="layer-badge" data-layer="hud">HUD</span></div>
+        <div class="mini-toggles">
+          <button class="mini-btn" id="hud-parallax">Parallax</button>
+          <button class="mini-btn" id="hud-gl">WebGL</button>
+          <button class="mini-btn" id="hud-bubbles">Bubbles</button>
+          <button class="mini-btn" id="hud-mirror">Mirror</button>
+        </div>
+        <div class="form-row"><label><input type="checkbox" id="hud-hidebar"/> Hide bottom HUD bar</label></div>
+      </section>
+      <section class="app-page" data-app="errl">
+<div class="section-title">Layer: <span class="layer-badge" data-layer="errl">Errl</span></div>
+        <div class="row"><button id="errl-toggle">Reveal / Hide</button><span style="opacity:.8">Hold M to move</span></div>
+      </section>
+      <section class="app-page" data-app="nav">
+<div class="section-title">Layer: <span class="layer-badge" data-layer="nav">Nav Bubbles</span></div>
+        <div class="row"><label>Dur(ms)</label><button class="n" data-t="dur" data-d="-250">-</button><input id="dev-dur" type="number" step="100"/><button class="n" data-t="dur" data-d="250">+</button></div>
+        <div class="row"><label>Spread(px)</label><input id="nav-spread" type="range" min="80" max="360" step="1" value="220"/><span id="nav-spread-val">220</span></div>
+        <div class="row"><label>Arc(deg)</label><input id="nav-arc" type="range" min="40" max="180" step="1" value="120"/><span id="nav-arc-val">120</span></div>
+        <div class="row"><label>Head Y%</label><input id="nav-headY" type="range" min="0.20" max="0.45" step="0.005" value="0.32"/><span id="nav-headY-val">0.32</span></div>
+        <div class="row"><label>Center X</label><input id="nav-cx" type="range" min="-600" max="600" step="1" value="-280"/><span id="nav-cx-val">-280</span></div>
+        <div class="row"><label>Stagger(ms)</label><input id="nav-stagger" type="number" min="0" step="50" value="250"/></div>
+        <div class="row"><button id="nav-replay">Replay fan</button></div>
+      </section>
+      <section class="app-page" data-app="backfx">
+<div class="section-title">Layer: <span class="layer-badge" data-layer="backfx">Background Bubbles</span></div>
+        <div class="row"><label>Speed</label><input id="bub-speed" type="range" min="0" max="2" step="0.01" value="1"/><span id="bub-speed-val">1.00</span></div>
+        <div class="row"><label>Wobble</label><input id="bub-wobble" type="range" min="0" max="2" step="0.01" value="1"/><span id="bub-wobble-val">1.00</span></div>
+        <div class="row"><label>Frequency</label><input id="bub-freq" type="range" min="0" max="2" step="0.01" value="1"/><span id="bub-freq-val">1.00</span></div>
+        <div class="row"><label>Density</label><input id="bub-density" type="range" min="0.25" max="2" step="0.01" value="1"/><span id="bub-density-val">1.00</span></div>
+        <div class="row"><label>Alpha</label><input id="bub-alpha" type="range" min="0" max="1" step="0.01" value="0.95"/><span id="bub-alpha-val">0.95</span></div>
+        <div class="row"><label>Min size</label><input id="bub-min" type="number" min="6" max="256" step="1" value="18"/> <label>Max</label><input id="bub-max" type="number" min="6" max="256" step="1" value="44"/></div>
+        <div class="row"><label>Far ratio</label><input id="bub-far" type="range" min="0.1" max="0.8" step="0.01" value="0.33"/><span id="bub-far-val">0.33</span></div>
+        <div class="row"><label>Texture</label><select id="bub-tex"><option value="orb">Orb_NeedsFriends.png</option><option value="proc">Fallback (procedural)</option></select><button id="bub-apply-tex">Apply</button></div>
+        <div class="row"><button id="bub-pause">Pause</button><button id="bub-resume">Resume</button><button id="bub-reset">Reset</button></div>
+      </section>
+      <section class="app-page" data-app="gl">
+<div class="section-title">Layer: <span class="layer-badge" data-layer="gl">WebGL</span></div>
+        <div class="row"><label>Alpha</label><input id="gl-alpha" type="range" min="0" max="1" step="0.01" value="0.20"/><span id="gl-alpha-val">0.20</span></div>
+        <div class="row"><label>Disp X</label><input id="gl-dx" type="range" min="0" max="64" step="1" value="24"/><span id="gl-dx-val">24</span></div>
+        <div class="row"><label>Disp Y</label><input id="gl-dy" type="range" min="0" max="64" step="1" value="18"/><span id="gl-dy-val">18</span></div>
+      </section>
+    </div>
+  <div class="phone-foot" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+        <div style="display:flex; gap:6px;">
+          <button id="dev-save" class="mini-btn">Save</button>
+          <button id="dev-load" class="mini-btn">Load</button>
+          <button id="dev-reset" class="mini-btn">Reset</button>
+          <button id="dev-replay" class="mini-btn">Replay Intro</button>
+        </div>
+        <span style="opacity:.8">Hotkeys: D = toggle panel</span>
+      </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.0/dist/pixi.min.js"></script>
+<script src="../../fx/fx-core.js"></script>
+<script src="../../fx/bubbles-pixi.js"></script>
+<script>
+(function(){
+  const portal = document.getElementById('portal');
+  const halo = document.getElementById('halo');
+  const motesLayer = document.getElementById('motesLayer');
+  const awakening = document.getElementById('awakening');
+  const hud = document.getElementById('hud');
+const toggles = { parallax:true, gl:true, bubbles: 'moving', mirror:false, mirrorBoth:false, errlGoo:true };
+
+const errlInline = document.getElementById('errl-inline');
+
+  // Drag/move state for Errl
+  let errlOffset = { x: 0, y: 0 };
+  let drag = { active:false, startX:0, startY:0, baseX:0, baseY:0 };
+  let dragGate = false; // hold 'M' to move Errl
+  addEventListener('keydown', (e)=>{ if(e.key==='m' || e.key==='M') dragGate=true; });
+  addEventListener('keyup',   (e)=>{ if(e.key==='m' || e.key==='M') dragGate=false; });
+  function activeErrlEl(){ return isInlineSVG ? errlInline : errlImg; }
+  function applyErrlTransform(){ const el = activeErrlEl(); if(!el) return; el.style.transform = `translate(${errlOffset.x}px, ${errlOffset.y}px)`; }
+  function onErrlPointerDown(e){ if(!errlVisible || !dragGate) return; drag.active=true; drag.startX=e.clientX; drag.startY=e.clientY; drag.baseX=errlOffset.x; drag.baseY=errlOffset.y; const el=activeErrlEl(); el.classList.add('dragging'); el.style.transition='none'; if(el.setPointerCapture) el.setPointerCapture(e.pointerId); }
+  function onErrlPointerMove(e){ if(!drag.active) return; errlOffset.x = drag.baseX + (e.clientX - drag.startX); errlOffset.y = drag.baseY + (e.clientY - drag.startY); applyErrlTransform();
+    // While dragging, let Errl push bubbles around (influence center of Errl)
+    if(bubblesFX){ const el = activeErrlEl(); const r = el.getBoundingClientRect(); const cx = r.left + r.width/2; const cy = r.top + r.height/2; bubblesFX.setInfluencer(cx, cy, 120, 0.30); }
+  }
+  function onErrlPointerUp(e){ if(!drag.active) return; drag.active=false; const el=activeErrlEl(); el.classList.remove('dragging'); el.style.transition=''; if(el.releasePointerCapture) el.releasePointerCapture(e.pointerId); if(bubblesFX){ bubblesFX.clearInfluencer(); } }
+
+  /* CSS motes */
+  function spawnMote(){
+    const m=document.createElement('div'); m.className='mote';
+    const x = Math.random()*100, size = 4 + Math.random()*8, dur = 14 + Math.random()*14, delay = Math.random()*8;
+    m.style.left = x+'vw'; m.style.bottom = (-10 + Math.random()*20)+'vh';
+    m.style.width = m.style.height = size+'px';
+    m.style.setProperty('--dur', dur+'s'); m.style.setProperty('--delay', delay+'s');
+    motesLayer.appendChild(m); setTimeout(()=>m.remove(), (dur+delay)*1000 + 2000);
+  }
+  for(let i=0;i<36;i++) spawnMote(); setInterval(()=>spawnMote(), 1100);
+
+  /* Parallax + halo */
+  const center = ()=>({ x: innerWidth/2, y: innerHeight/2 });
+  addEventListener('mousemove', (e)=>{
+    if(!toggles.parallax) return;
+    const c=center(), dx=(e.clientX-c.x)/c.x, dy=(e.clientY-c.y)/c.y;
+    portal.querySelectorAll('[data-layer]').forEach((el,i)=>{ const depth = (i-3)*4; el.style.transform = `translate3d(${dx*depth}px, ${dy*depth}px, 0)`; });
+    const dist = Math.hypot(dx,dy); halo.style.opacity = String(0.8 - Math.min(dist,0.8));
+  });
+
+  /* UI drip orbit (non-circular path) */
+  const uiOrbit = document.querySelector('.ui-orbit');
+  const btns = Array.from(uiOrbit.querySelectorAll('.btn'));
+  const layerL5 = document.querySelector('[data-layer="L5"]');
+  const devPanel = document.getElementById('devpanel');
+
+  // Nav bubble art rotation: cycle through local assets Bubbles-1..6 on each load
+  // Build URLs that work in both file:// and http(s) dev modes
+  function assetUrl(path){
+    // Build a URL relative to this HTML file so dev servers that don't mount at / work too
+    if(/^https?:$/i.test(location.protocol)){
+      const rel = `../../ErrlSite_Assets/${path}`;
+      return new URL(rel, location.href).href;
+    }
+    const abs = '/Users/extrepa/Projects/epic-mascot-portal/src/ErrlSite_Assets/' + path;
+    return 'file://' + abs; // direct file path
+  }
+  function skinUrl(name){ return assetUrl(`Bubbles_ErrlSiteDecor/${name}`); }
+  const NAV_SKINS = [
+    skinUrl('Bubbles-1.png'),
+    skinUrl('Bubbles-2.png'),
+    skinUrl('Bubbles-3.png'),
+    skinUrl('Bubbles-4.png'),
+    skinUrl('Bubbles-5.png'),
+    skinUrl('Bubbles-6.png')
+  ];
+  function assignNavBubbleSkins(){
+    let start = +(localStorage.getItem('nav_skin_idx')||0);
+    const n = btns.length;
+    for(let i=0;i<n;i++){
+      const url = NAV_SKINS[(start+i)%NAV_SKINS.length];
+      const b = btns[i];
+      b.removeAttribute('data-img'); // ensure CSS attribute backgrounds don't win
+      b.style.setProperty('background-image', `url("${url}")`);
+      b.style.setProperty('background-position', 'center');
+      b.style.setProperty('background-size', 'contain');
+      b.style.setProperty('background-repeat', 'no-repeat');
+      const ghost = b.querySelector('.puddle-ghost'); if(ghost){
+        ghost.style.setProperty('background-image', `url("${url}")`);
+        ghost.style.setProperty('background-position', 'center');
+        ghost.style.setProperty('background-size', 'contain');
+        ghost.style.setProperty('background-repeat', 'no-repeat');
+      }
+    }
+    localStorage.setItem('nav_skin_idx', String((start+1)%NAV_SKINS.length));
+  }
+  assignNavBubbleSkins();
+  // Hide nav layer until intro begins
+  if(layerL5) layerL5.style.display = 'none';
+  let last = performance.now(); let driftT = 0; let introActive = true; let navIntroStarted = false;
+  let bubbleState = 'running'; // running → paused → hidden
+  // Fan layout params and final positions
+  let navSpread = 220; // px radius
+  let navArcDeg = 120; // total arc
+  let navStagger = 250; // ms between entries
+  let headYRatio = 0.32; // 32% from top of Errl bounding box
+  // Global offset of the entire nav cluster relative to Errl center (negative = left)
+  let navCenterOffsetX = -280; // tweak as desired
+  let finalFanLocal = null; // [{x,y}] fan endpoints relative to screen center
+  let orbitActive = false; let t0 = 0; let orbitSpeed = 0.28; let orbitPhase = null;
+  const BUBBLE_MARGIN = 56; // keep bubbles within viewport (half size + padding)
+  function safeRadiusAt(centerX, centerY, off){
+    const ax = centerX + off.dx; // anchor for fan/orbit
+    const ay = centerY + off.dy;
+    const m = BUBBLE_MARGIN;
+    const left = ax - m, right = innerWidth - ax - m, top = ay - m, bottom = innerHeight - ay - m;
+    return Math.max(40, Math.min(navSpread, left, right, top, bottom));
+  }
+  function fanTargets(n, spread, arcDeg){
+    const out = [];
+    if(n<=1){ out.push({x:0, y:-spread}); return out; }
+    const arcRad = arcDeg * Math.PI/180;
+    const start = -arcRad/2;
+    const step = (n>1)? arcRad/(n-1) : 0;
+    for(let i=0;i<n;i++){
+      const a = start + step*i;
+      out.push({ x: spread * Math.sin(a), y: -spread * Math.cos(a) });
+    }
+    return out;
+  }
+  // --- Simple viscous physics for nav bubbles (spring-to-target + collisions) ---
+  const physics = { enabled:true, radius:52, stiffness:8.0, damping:0.86, bounce:0.35 };
+  const phys = btns.map(()=>({ px:0, py:0, vx:0, vy:0, tx:0, ty:0, init:false }));
+  function stepPhysics(sec){ if(!physics.enabled) return; const n=phys.length;
+    // Integrate towards targets
+    for(let i=0;i<n;i++){ const p=phys[i]; if(!p.init){ p.px=p.tx; p.py=p.ty; p.init=true; }
+      const ax = (p.tx - p.px) * physics.stiffness;
+      const ay = (p.ty - p.py) * physics.stiffness;
+      p.vx = (p.vx + ax*sec) * physics.damping;
+      p.vy = (p.vy + ay*sec) * physics.damping;
+      p.px += p.vx;
+      p.py += p.vy;
+    }
+    // Pairwise collision resolve
+    const R = physics.radius; const minD = R*2;
+    for(let i=0;i<n;i++){
+      for(let j=i+1;j<n;j++){
+        const a=phys[i], b=phys[j];
+        let dx=b.px - a.px, dy=b.py - a.py; let d=Math.hypot(dx,dy);
+        if(d>0 && d<minD){ const nx=dx/d, ny=dy/d; const overlap=(minD-d)*0.5; a.px-=nx*overlap; a.py-=ny*overlap; b.px+=nx*overlap; b.py+=ny*overlap;
+          // bounce along normal
+          const rvx=b.vx - a.vx, rvy=b.vy - a.vy; const vn = rvx*nx + rvy*ny;
+          if(vn<0){ const imp = -(1+physics.bounce)*vn*0.5; a.vx -= imp*nx; a.vy -= imp*ny; b.vx += imp*nx; b.vy += imp*ny; }
+        }
+      }
+    }
+    // Apply to DOM
+    for(let i=0;i<n;i++){ btns[i].style.setProperty('--x', phys[i].px.toFixed(2)+'px'); btns[i].style.setProperty('--y', phys[i].py.toFixed(2)+'px'); }
+  }
+
+  function uiTick(now){
+    const dt = Math.min(60, now - last); last = now;
+    const sec = dt/1000;
+    driftT += sec;
+    // Anchor UI at Errl center for stable local coordinates
+    const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
+    let cx = innerWidth/2, cy = innerHeight/2;
+    if(active){ const r = active.getBoundingClientRect(); if(r.width>0 && r.height>0){ cx = r.left + r.width/2; cy = r.top + r.height/2; } }
+    uiOrbit.style.left = (cx + navCenterOffsetX) + 'px';
+    uiOrbit.style.top  = (cy - 8) + 'px';
+    if(orbitActive){
+      t0 += sec * orbitSpeed;
+      const n = btns.length;
+      const off = currentHeadOffset();
+      const ocx = cx + navCenterOffsetX; const ocy = cy - 8;
+      const R = safeRadiusAt(ocx, ocy, off);
+      for(let i=0;i<n;i++){
+        const base = (orbitPhase && orbitPhase[i]!=null) ? orbitPhase[i] : i*(Math.PI*2/n);
+        const a = t0 + base;
+        const x = off.dx + R * Math.cos(a);
+        const y = off.dy + R * Math.sin(a);
+        phys[i].tx = x; phys[i].ty = y;
+      }
+      stepPhysics(sec);
+    }
+    requestAnimationFrame(uiTick);
+  }
+  const media = matchMedia('(prefers-reduced-motion: reduce)');
+  if(!media.matches){ requestAnimationFrame(uiTick); }
+
+  // Nav buttons click
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const pos = b.dataset.pos;
+      if(pos==='1') window.location.href='../../apps/about/index.html';
+      if(pos==='2') window.location.href='../../apps/gallery/index.html';
+      if(pos==='3') window.location.href='../../apps/projects/index.html';
+      if(pos==='4') window.location.href='../../apps/pin-designer/index.html';
+      if(pos==='5') window.location.href='../../apps/drippy-text/index.html';
+      if(pos==='6') window.location.href='../../apps/tools/index.html';
+    });
+  });
+
+
+  /* Secret sequence and SVG toggling */
+  const seq = ['eyeL','mouth','eyeR']; 
+  let prog = 0;
+  let lastClickTime = 0;
+  let isInlineSVG = false;
+  let errlVisible = false; // start hidden
+const errlImg = document.getElementById('errl-img');
+
+  // Robust loader: prefer painted SVG, fall back to inline on error
+  function ensurePaintedLoaded(){
+    return new Promise((resolve,reject)=>{
+      if(!errlImg){ reject(new Error('errl-img missing')); return; }
+      if(errlImg.complete && errlImg.naturalWidth>0){ resolve(); return; }
+      const onOk=()=>{ errlImg.removeEventListener('load', onOk); errlImg.removeEventListener('error', onBad); resolve(); };
+      const onBad=()=>{ errlImg.removeEventListener('load', onOk); errlImg.removeEventListener('error', onBad); reject(new Error('painted SVG failed')); };
+      errlImg.addEventListener('load', onOk);
+      errlImg.addEventListener('error', onBad);
+    });
+  }
+
+  // Attach drag events to both modes
+  errlImg.addEventListener('pointerdown', onErrlPointerDown);
+  errlImg.addEventListener('pointermove', onErrlPointerMove);
+  errlImg.addEventListener('pointerup', onErrlPointerUp);
+  errlInline.addEventListener('pointerdown', onErrlPointerDown);
+  errlInline.addEventListener('pointermove', onErrlPointerMove);
+  errlInline.addEventListener('pointerup', onErrlPointerUp);
+
+  const revealBtn = () => hud.querySelector('[data-toggle="reveal"]');
+  const revealLabel = () => hud.querySelector('[data-toggle="reveal"] .label');
+
+  async function ensureInlineLoaded(){
+    if(errlInline.childElementCount > 0) return;
+    // First, try cloning the built-in static inline silhouette present in this document
+    const staticSvg = document.getElementById('errl');
+    if(staticSvg){
+      const clone = staticSvg.cloneNode(true);
+      clone.id = 'errl-inline-svg';
+      clone.style.display = '';
+      clone.style.opacity = '';
+      errlInline.innerHTML = '';
+      errlInline.appendChild(clone);
+      return;
+    }
+    // Fallback: fetch packaged painted SVG
+    try{
+      const res = await fetch('../assets/L4_Central/errl-painted-4.svg');
+      const svgText = await res.text();
+      errlInline.innerHTML = svgText;
+    }catch(e){ console.warn('Failed to load inline SVG', e); }
+  }
+  
+  function getRegionFromEvent(ev){
+    const path = ev.composedPath ? ev.composedPath() : [];
+    for(const el of path){ if(el && el.dataset && el.dataset.region) return el.dataset.region; }
+    return null;
+  }
+
+  function isErrlClick(e) {
+    const activeErrl = isInlineSVG ? errlInline : errlImg;
+    const rect = activeErrl.getBoundingClientRect();
+    return errlVisible && e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+  }
+
+async function showErrl(useInline=false, updateHud=true){
+    try{
+      if(useInline){
+        await ensureInlineLoaded();
+        errlVisible = true;
+        errlImg.style.display='none'; errlInline.style.display='block'; errlInline.style.opacity='1'; isInlineSVG=true;
+      } else {
+        // Try painted first; if it fails, fall back to inline
+        await ensurePaintedLoaded().catch(async ()=>{ await ensureInlineLoaded(); useInline=true; });
+        errlVisible = true;
+        if(useInline){ errlImg.style.display='none'; errlInline.style.display='block'; errlInline.style.opacity='1'; isInlineSVG=true; }
+        else { errlInline.style.display='none'; errlImg.style.display='block'; requestAnimationFrame(()=> errlImg.style.opacity='1'); isInlineSVG=false; }
+        // Apply gooey filter/class
+        const active = isInlineSVG ? errlInline : errlImg; active.classList.toggle('goo', !!toggles.errlGoo);
+      }
+    }catch(e){
+      console.warn('Errl load failed; attempting inline fallback.', e);
+      await ensureInlineLoaded();
+      errlVisible = true; isInlineSVG=true; errlImg.style.display='none'; errlInline.style.display='block'; errlInline.style.opacity='1';
+    }
+    applyErrlTransform();
+    if(updateHud){ const lab = revealLabel(); if(lab) lab.textContent='Hide'; const b=revealBtn(); if(b) b.classList.add('toggled'); }
+  }
+function hideErrl(silent=false){
+    errlVisible = false;
+    // cancel drag if active
+    drag.active=false; const el=activeErrlEl(); if(el){ el.classList.remove('dragging'); el.style.transition=''; }
+    errlImg.style.opacity='0'; errlInline.style.opacity='0';
+    setTimeout(()=>{ errlImg.style.display='none'; errlInline.style.display='none'; }, 900);
+    if(!silent){ const lab = revealLabel(); if(lab) lab.textContent='Reveal'; const b=revealBtn(); if(b) b.classList.remove('toggled'); }
+  }
+  async function toggleErrlVisibility(){ if(errlVisible) hideErrl(false); else showErrl(false,true); }
+
+  addEventListener('click', (e)=>{
+    const currentTime = Date.now();
+    
+    // Detect double-click on Errl to hide (silent w.r.t HUD)
+    if (isErrlClick(e)) {
+      if (currentTime - lastClickTime < 400) {
+        hideErrl(true); // do not alter Reveal toggle UI
+        lastClickTime = 0; 
+        return;
+      }
+      lastClickTime = currentTime;
+    }
+    
+    // Handle secret sequence only when inline SVG is active
+    if(isInlineSVG){
+      const part = getRegionFromEvent(e);
+      if(!part){ prog = 0; }
+      else if(part===seq[prog]){ prog++; if(prog===seq.length){ prog=0; openPortal(); } }
+      else { prog = (part===seq[0]) ? 1 : 0; }
+    }
+    
+    if(toggles.gl) spawnRipple(e.clientX, e.clientY);
+  });
+
+  // Double-click near portal center to reveal
+  portal.addEventListener('dblclick', (e)=>{
+    const c = {x: innerWidth/2, y: innerHeight/2};
+    const d = Math.hypot(e.clientX - c.x, e.clientY - c.y);
+    const thresh = Math.min(innerWidth, innerHeight) * 0.18;
+    const hudRect = hud.getBoundingClientRect();
+    const inHud = e.clientY >= hudRect.top;
+    if(!inHud && d < thresh && !errlVisible){ showErrl(false, true); }
+  });
+
+  function openPortal(){ awakening.classList.add('active'); setTimeout(()=>awakening.classList.remove('active'), 2200); }
+
+  /* === PIXI / WebGL === */
+  let app, stage, disp, dispFilter, overlay, ripples=[];
+let fxm = null, fxRoot = null, bubblesFX = null;
+  const canvas = document.getElementById('gl');
+  function initGL(){
+    try{
+      app = new PIXI.Application({ view: canvas, resizeTo: window, backgroundAlpha: 0, antialias: true, powerPreference: "high-performance", autoDensity: true, resolution: Math.min(devicePixelRatio||1, 2) });
+      stage = app.stage;
+
+      // FX root below overlay
+      fxRoot = new PIXI.Container(); stage.addChildAt(fxRoot, 0);
+
+      // Always try to use the external PNG orb; BubblesFX falls back to a procedural texture if load fails
+      const bubbleTex = assetUrl('fx/Orb_NeedsFriends.png');
+      // overlay to refract
+      const tex = gradientTexture(innerWidth, innerHeight);
+      overlay = new PIXI.Sprite(tex); overlay.alpha = 0.20; overlay.blendMode = PIXI.BLEND_MODES.SCREEN; stage.addChild(overlay);
+
+      // displacement (procedural noise to avoid data-URL issues)
+      const noiseTex = makeNoiseTexture(256,256);
+      disp = new PIXI.Sprite(noiseTex); disp.texture.baseTexture.wrapMode = PIXI.WRAP_MODES.REPEAT; disp.scale.set(2.2); stage.addChild(disp);
+      dispFilter = (PIXI.DisplacementFilter? new PIXI.DisplacementFilter(disp) : new PIXI.filters.DisplacementFilter(disp)); dispFilter.scale.x = 24; dispFilter.scale.y = 18; overlay.filters = [dispFilter];
+
+      // Initialize FX manager + bubbles
+fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
+      // Bubbles auto-registers itself with ErrlFX.Manager via bubbles-pixi.js
+      console.info('FX: enabling bubbles with texture', bubbleTex);
+      bubblesFX = fxm.enable('bubbles', { textureUrl: bubbleTex, alpha: 0.95, minSize: 18, maxSize: 44, densityBase: 52 });
+      if(bubblesFX && typeof bubblesFX.then==='function'){
+        bubblesFX.then(inst=>{ bubblesFX = inst; bubblesFX.setSpeed(1); bubblesFX.setCountFactor(1);
+          // Apply persisted settings if available
+          try{ if(BUB && BUB.params){ const p=BUB.params; inst.setSpeed(p.speed??1); inst.setWobbleMult(p.wobble??1); inst.setFreqMult(p.freq??1); inst.setCountFactor(p.density??1); inst.set({ alpha:p.alpha??0.95, minSize:p.min??18, maxSize:p.max??44, farRatio:p.far??0.33, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null) }); } }catch(e){}
+        }).catch(()=>{});
+      } else if(bubblesFX){
+        bubblesFX.setSpeed(1); bubblesFX.setCountFactor(1);
+        try{ if(BUB && BUB.params){ const p=BUB.params; bubblesFX.setSpeed(p.speed??1); bubblesFX.setWobbleMult(p.wobble??1); bubblesFX.setFreqMult(p.freq??1); bubblesFX.setCountFactor(p.density??1); bubblesFX.set({ alpha:p.alpha??0.95, minSize:p.min??18, maxSize:p.max??44, farRatio:p.far??0.33, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null) }); } }catch(e){}
+      } else if(window.ErrlFX && window.ErrlFX.Bubbles){
+        // Fallback: construct directly if registry lookup failed for any reason
+        const inst = new window.ErrlFX.Bubbles(app, fxRoot, { textureUrl: bubbleTex, alpha: 0.95, minSize: 18, maxSize: 44, densityBase: 52 });
+        const maybe = inst.init && inst.init();
+        if(maybe && typeof maybe.then==='function'){ maybe.then(()=>{ inst.setSpeed(1); inst.setCountFactor(1); try{ if(BUB && BUB.params){ const p=BUB.params; inst.setSpeed(p.speed??1); inst.setWobbleMult(p.wobble??1); inst.setFreqMult(p.freq??1); inst.setCountFactor(p.density??1); inst.set({ alpha:p.alpha??0.95, minSize:p.min??18, maxSize:p.max??44, farRatio:p.far??0.33, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null) }); } }catch(e){} }).catch(()=>{}); }
+        bubblesFX = inst;
+      }
+
+      app.ticker.add((delta)=>{
+        disp.x += 0.35 * delta; disp.y += 0.25 * delta;
+        for(let i=ripples.length-1;i>=0;i--){ const r = ripples[i]; r.life -= delta; r.g.scale.x += 0.08 * delta; r.g.scale.y += 0.08 * delta; r.g.alpha *= 0.96; if(r.life<=0){ stage.removeChild(r.g); ripples.splice(i,1); } }
+      });
+
+      addEventListener('resize', ()=>{ overlay.texture = gradientTexture(innerWidth, innerHeight); overlay.width = innerWidth; overlay.height = innerHeight; });
+    }catch(e){ console.warn('WebGL init failed; falling back.', e); toggles.gl=false; canvas.style.display='none'; }
+  }
+
+  // --- Gooey animation driver (vary displacement by pointer + time) ---
+  let ptr={x:innerWidth/2, y:innerHeight/2};
+  addEventListener('mousemove', (e)=>{ ptr.x=e.clientX; ptr.y=e.clientY; });
+  function tickGoo(t){
+    try{
+      const disp = document.getElementById('errlGooDisp');
+      const turb = document.getElementById('errlGooNoise');
+      const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
+      if(disp && turb && active && toggles.errlGoo){
+        const r = active.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; const d = Math.hypot(ptr.x-cx, ptr.y-cy);
+        const norm = Math.max(0, Math.min(1, 1 - d/Math.max(r.width,r.height)));
+        const scale = 8 + norm*22; // 8..30
+        disp.setAttribute('scale', String(scale.toFixed(2)));
+        const bfX = 0.004 + 0.003*Math.sin(t*0.0008);
+        const bfY = 0.006 + 0.004*Math.cos(t*0.0011);
+        turb.setAttribute('baseFrequency', bfX.toFixed(4)+' '+bfY.toFixed(4));
+      }
+    }catch(e){}
+    requestAnimationFrame(tickGoo);
+  }
+  requestAnimationFrame(tickGoo);
+
+  function gradientTexture(w,h){
+    const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+    const rad=g.createRadialGradient(w*0.5,h*0.45, Math.min(w,h)*0.05, w*0.5,h*0.5, Math.max(w,h)*0.6);
+    rad.addColorStop(0,'rgba(255,255,255,0.25)'); rad.addColorStop(0.35,'rgba(200,240,255,0.10)'); rad.addColorStop(1,'rgba(255,255,255,0)');
+    g.fillStyle=rad; g.fillRect(0,0,w,h); return PIXI.Texture.from(c);
+  }
+
+  function makeNoiseTexture(w,h){
+    const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+    const img=g.createImageData(w,h); const d=img.data; for(let i=0;i<w*h;i++){ const v=Math.random()*255|0; d[i*4]=v; d[i*4+1]=v; d[i*4+2]=v; d[i*4+3]=255; }
+    g.putImageData(img,0,0); return PIXI.Texture.from(c);
+  }
+
+  function spawnRipple(x,y){
+    if(!app) return;
+    const g = new PIXI.Graphics(); g.position.set(x,y); g.alpha = 0.85; g.blendMode = PIXI.BLEND_MODES.ADD; g.scale.set(0.6);
+    g.lineStyle(3, 0xFFFFFF, 0.9); g.drawCircle(0,0,8); stage.addChild(g);
+    ripples.push({ g, life: 24 });
+  }
+
+  hud.addEventListener('click', (e)=>{
+    const b=e.target.closest('[data-toggle]'); if(!b) return;
+    const key=b.dataset.toggle;
+    if(key==='parallax'){ toggles.parallax=!toggles.parallax; b.classList.toggle('toggled', toggles.parallax); if(!toggles.parallax){ portal.querySelectorAll('[data-layer]').forEach(el=>el.style.transform='none'); } }
+    if(key==='gl'){ toggles.gl=!toggles.gl; b.classList.toggle('toggled', toggles.gl); canvas.style.display = toggles.gl ? 'block' : 'none'; if(toggles.gl && !app) initGL(); if(fxm){ toggles.gl ? fxm.resumeAll() : fxm.pauseAll(); } }
+    if(key==='bubbles'){
+      // Cycle nav bubble layer visibility: moving (shown) → hidden → moving
+      const l5 = document.querySelector('[data-layer="L5"]');
+      const label = b.querySelector('.label');
+      if(toggles.bubbles==='moving'){
+        toggles.bubbles='hidden'; l5.style.display = 'none'; if(label) label.textContent = 'Hidden';
+      } else {
+        toggles.bubbles='moving'; l5.style.display = 'grid'; if(label) label.textContent = 'Bubbles';
+      }
+    }
+    if(key==='reveal'){ 
+      toggleErrlVisibility();
+      const label = b.querySelector('.label'); if(label) label.textContent = errlVisible ? 'Hide' : 'Reveal';
+      b.classList.toggle('toggled', errlVisible);
+    }
+    if(key==='mirror'){ toggles.mirror=!toggles.mirror; b.classList.toggle('toggled', toggles.mirror); if(mirrorApplyTimer) clearTimeout(mirrorApplyTimer); mirrorApplyTimer = setTimeout(()=>{ applyMirror(); mirrorApplyTimer=null; }, 180); }
+  });
+
+  // Secret double-click on Mirror to flip both axes
+  const mirrorBtn = hud.querySelector('[data-toggle="mirror"]');
+  function applyMirror(){
+    const target = document.getElementById('portal');
+    if(!target) return;
+    target.style.transformOrigin = '50% 50%';
+    if(toggles.mirrorBoth){ target.style.transform = 'scale(-1,-1)'; document.body.classList.add('mirror-active'); }
+    else if(toggles.mirror){ target.style.transform = 'scaleX(-1)'; document.body.classList.add('mirror-active'); }
+    else { target.style.transform = 'none'; document.body.classList.remove('mirror-active'); }
+  }
+  let mirrorApplyTimer = null;
+  mirrorBtn.addEventListener('dblclick', ()=>{ if(mirrorApplyTimer){ clearTimeout(mirrorApplyTimer); mirrorApplyTimer=null; } toggles.mirrorBoth = !toggles.mirrorBoth; applyMirror(); });
+
+
+  // Intro: auto-reveal after 5s; then bring in nav bubbles one-by-one along a swoop path
+  const autoRevealDelay = 1000;
+  function entryPath(u, R){
+    // u in [0,1] around a lopsided loop (bulge up-left)
+    const t = -Math.PI + u * Math.PI * 2;
+    const rx = R * 1.05, ry = R * 0.78;
+    const x = rx * Math.cos(t) + 0.22 * rx * Math.cos(3*t - 0.6);
+    const y = ry * Math.sin(t) + 0.18 * ry * Math.sin(4*t + 0.3);
+    return { x, y };
+  }
+  function getMouthPos(){
+    const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
+    if(!active){ return { x: innerWidth/2, y: innerHeight/2 }; }
+    const r = active.getBoundingClientRect();
+    // Normalized mouth location derived from inline silhouette viewBox (cx=690, cy=825)
+    const nx = 0.471, ny = 0.414;
+    return { x: r.left + r.width*nx, y: r.top + r.height*ny };
+  }
+  function getHeadAnchorPos(){
+    // Anchor at head center area: horizontally at Errl center, vertically headYRatio from top
+    const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
+    if(!active){ return { x: innerWidth/2, y: innerHeight/2 }; }
+    const r = active.getBoundingClientRect();
+    const cx = r.left + r.width/2;
+    const cy = r.top + r.height*headYRatio;
+    return { x: cx, y: cy };
+  }
+  function currentMouthOffset(){
+    const m=getMouthPos();
+    const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
+    let cx = innerWidth/2, cy = innerHeight/2;
+    if(active){ const r = active.getBoundingClientRect(); if(r.width>0 && r.height>0){ cx = r.left + r.width/2; cy = r.top + r.height/2; } }
+    return { dx: m.x - cx, dy: m.y - cy };
+  }
+  function currentHeadOffset(){
+    const h=getHeadAnchorPos();
+    const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
+    let cx = innerWidth/2, cy = innerHeight/2;
+    if(active){ const r = active.getBoundingClientRect(); if(r.width>0 && r.height>0){ cx = r.left + r.width/2; cy = r.top + r.height/2; } }
+    return { dx: h.x - cx, dy: h.y - cy };
+  }
+  function easeInOutCubic(t){ return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2; }
+  function easeOutQuad(t){ return 1 - (1 - t)*(1 - t); }
+// Tunable nav-intro settings
+const NAV_INTRO = {
+    dur: 4000,
+    lift: 0,
+    wobbleAmp: 0,
+    origin: 'center' // 'center' | 'mouth'
+  };
+  function nearestAngleForTarget(tx, ty, R){
+    // Search for the orbit angle whose position is closest to (tx,ty)
+    let bestT = 0, bestD = Infinity; const steps = 720; // 0.5 deg steps
+    for(let k=0;k<steps;k++){
+      const t = -Math.PI + (k/steps)*Math.PI*2;
+      const r = dripRadius(t, R);
+      const x = r * Math.cos(t), y = r * Math.sin(t);
+      const d = (x-tx)*(x-tx) + (y-ty)*(y-ty);
+      if(d < bestD){ bestD=d; bestT=t; }
+    }
+    return bestT;
+  }
+// Dev state (persisted)
+  const DEV = { enabled:false, params:null };
+  const LS_KEY = 'errl_dev_nav';
+  function devLoad(){ try{ const raw=localStorage.getItem(LS_KEY); if(!raw) return; const obj=JSON.parse(raw); if(obj.params) DEV.params=obj.params; }catch(e){} }
+  function devSave(){ const obj={ params: DEV.params }; localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
+  function getIntroParams(){ const p=Object.assign({}, NAV_INTRO, DEV.params||{}); return p; }
+
+  // Persisted params for Background Bubbles FX
+  const BUB = { params:null };
+  const LS_BUB = 'errl_bubbles_fx';
+  function bubLoad(){ try{ const raw=localStorage.getItem(LS_BUB); if(!raw) return; BUB.params = JSON.parse(raw)||null; }catch(e){} }
+  function bubSave(){ try{ localStorage.setItem(LS_BUB, JSON.stringify(BUB.params||{})); }catch(e){} }
+  function bubSnapshotFromUI(){
+    const g=(id,def)=>{ const el=document.getElementById(id); return el? (el.type==='number'? +el.value : +el.value || def) : def; };
+    const s=(id)=>{ const el=document.getElementById(id); return el? el.value : null; };
+    BUB.params = {
+      speed: g('bub-speed',1), wobble:g('bub-wobble',1), freq:g('bub-freq',1), density:g('bub-density',1),
+      alpha: g('bub-alpha',0.95), min: g('bub-min',18), max: g('bub-max',44), far: g('bub-far',0.33), tex: s('bub-tex')||'orb'
+    };
+    bubSave();
+  }
+  function showDevDots(){ uiOrbit.querySelectorAll('.devdot').forEach(n=>n.remove()); if(!finalFanLocal) return; const off=currentHeadOffset(); for(const t of finalFanLocal){ const d=document.createElement('div'); d.className='devdot'; d.style.setProperty('--x', (off.dx + t.x)+'px'); d.style.setProperty('--y', (off.dy + t.y)+'px'); uiOrbit.appendChild(d); } }
+
+  devLoad();
+
+  // Start orbit immediately without intro fan-in animation
+  function startOrbitImmediately(){
+    if(navIntroStarted) return; navIntroStarted = true; introActive = false;
+    if(layerL5) layerL5.style.display = 'grid';
+    const n = btns.length;
+    // Precompute fan endpoints and matching orbit phases
+    finalFanLocal = fanTargets(n, navSpread, navArcDeg);
+    orbitPhase = finalFanLocal.map(p=> Math.atan2(p.y, p.x));
+    showDevDots();
+    // Snapshot current head offset to anchor locally
+    const off = currentHeadOffset();
+    // Clamp to safe radius relative to current anchor
+    const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
+    let cx = innerWidth/2, cy = innerHeight/2;
+    if(active){ const r = active.getBoundingClientRect(); if(r.width>0 && r.height>0){ cx = r.left + r.width/2; cy = r.top + r.height/2; } }
+    const ocx = cx + navCenterOffsetX; const ocy = cy - 8;
+    const safeR = safeRadiusAt(ocx, ocy, off);
+    for(let i=0;i<n;i++){
+      const b = btns[i]; const local = finalFanLocal[i];
+      const rLen = Math.hypot(local.x, local.y) || 1; const scale = Math.min(1, safeR / rLen);
+      const tx = off.dx + local.x*scale; const ty = off.dy + local.y*scale;
+      // Apply immediate DOM state
+      b.style.opacity = '1';
+      b.style.setProperty('--sv', '1');
+      b.style.setProperty('--x', tx.toFixed(2)+'px');
+      b.style.setProperty('--y', ty.toFixed(2)+'px');
+      b.style.setProperty('--dx','0px');
+      b.style.setProperty('--dy','0px');
+      // Seed physics at endpoints so orbit can take over smoothly
+      const ph = phys[i]; if(ph){ ph.tx = tx; ph.ty = ty; ph.px = tx; ph.py = ty; ph.vx = 0; ph.vy = 0; ph.init = true; }
+    }
+    t0 = 0; orbitActive = true;
+  }
+
+  async function startNavIntro(){
+    if(navIntroStarted) return; navIntroStarted = true; introActive = true;
+    if(layerL5) layerL5.style.display = 'grid';
+    const P = getIntroParams();
+    const n = btns.length; const baseDelay = (navStagger || 250); const dur = P.dur;
+    // Start all stacked at true center (0,0 in ui-orbit)
+    btns.forEach(b=>{ b.style.opacity='0'; b.style.setProperty('--sv','0.9'); b.style.setProperty('--x','0px'); b.style.setProperty('--y','0px'); b.style.setProperty('--dx','0px'); b.style.setProperty('--dy','0px'); });
+    // Precompute fan endpoints relative to center
+    finalFanLocal = fanTargets(n, navSpread, navArcDeg);
+    // Precompute per-button orbit phase so orbit begins exactly where the fan ends
+    orbitPhase = finalFanLocal.map(p=> Math.atan2(p.y, p.x));
+    showDevDots();
+    let finished = 0;
+    for(let i=0;i<n;i++){
+      setTimeout(()=>{
+        const b = btns[i];
+        // Snapshot current head offset to avoid drifting target while animating this bubble
+        const off = currentHeadOffset();
+        const mouthOff = currentMouthOffset();
+        const origin = (getIntroParams().origin==='mouth') ? mouthOff : {dx:0,dy:0};
+        const local = finalFanLocal[i];
+        // Clamp target to viewport by scaling vector to a safe radius
+        const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
+        let cx = innerWidth/2, cy = innerHeight/2; if(active){ const r = active.getBoundingClientRect(); if(r.width>0 && r.height>0){ cx = r.left + r.width/2; cy = r.top + r.height/2; } }
+        const ocx = cx + navCenterOffsetX; const ocy = cy - 8; const safeR = safeRadiusAt(ocx, ocy, off);
+        const rLen = Math.hypot(local.x, local.y) || 1; const scale = Math.min(1, safeR / rLen);
+        // Start all from the same origin point
+        const sx = origin.dx, sy = origin.dy;
+        b.style.setProperty('--x', sx.toFixed(2)+'px');
+        b.style.setProperty('--y', sy.toFixed(2)+'px');
+        const txTarget = off.dx + local.x*scale, tyTarget = off.dy + local.y*scale;
+        const tStart = performance.now();
+        function step(now){
+          const pLin = Math.min(1, (now - tStart)/dur);
+          const p = easeInOutCubic(pLin);
+          // Ensure exact center at start: swirl and wobble ramp up from 0
+          const swirl = 0.9 * Math.sin(p * Math.PI) * p; // 0 at p=0,0 at p=1, peak mid
+          const lift = getIntroParams().lift * (p*p); // ease-in lift
+          const vx = txTarget - sx, vy = tyTarget - sy;
+          const vlen = Math.hypot(vx,vy) || 1;
+          let px = sx + vx * p - (vy/vlen) * swirl;
+          let py = sy + vy * p + (vx/vlen) * swirl + lift;
+          const wob = getIntroParams().wobbleAmp * Math.sin(p * Math.PI * 1.2 + i*0.6) * (p*p);
+          px += -(vy/vlen) * wob;
+          py +=  (vx/vlen) * wob;
+          b.style.setProperty('--x', px.toFixed(2)+'px');
+          b.style.setProperty('--y', py.toFixed(2)+'px');
+          const sv = 0.5 + 0.5*p; b.style.setProperty('--sv', sv.toFixed(3));
+          b.style.opacity = String(Math.min(1, 0.25 + p*0.9));
+        if(pLin < 1){ requestAnimationFrame(step); } else { finished++; if(finished===n){ introActive=false; t0=0; orbitActive=true; // seed physics targets at current endpoints
+            for(let k=0;k<n;k++){ const ph=phys[k]; if(ph){ ph.tx = finalFanLocal[k].x + currentHeadOffset().dx; ph.ty = finalFanLocal[k].y + currentHeadOffset().dy; ph.px = ph.tx; ph.py = ph.ty; ph.vx=0; ph.vy=0; ph.init=true; } }
+          } }
+        }
+        requestAnimationFrame(step);
+      }, i*baseDelay);
+    }
+  }
+  // Dev panel behavior
+  const $ = (id)=> document.getElementById(id);
+  function toggleDev(show){ devPanel.classList.toggle('hidden', show===false); if(show===true) devPanel.classList.remove('hidden'); }
+  function populateDev(){ const P=getIntroParams(); const dur=$('dev-dur'); if(dur) dur.value=P.dur; const ns=$('nav-spread'), na=$('nav-arc'), nh=$('nav-headY'), nsv=$('nav-spread-val'), nav=$('nav-arc-val'), nhv=$('nav-headY-val'), nst=$('nav-stagger'); const nc=$('nav-cx'), ncv=$('nav-cx-val'); if(ns){ ns.value=String(navSpread); nsv.textContent=String(navSpread); } if(na){ na.value=String(navArcDeg); nav.textContent=String(navArcDeg); } if(nh){ nh.value=String(headYRatio); nhv.textContent=String(headYRatio.toFixed(2)); } if(nst){ nst.value=String(navStagger); } if(nc){ const off = (DEV.params && typeof DEV.params.cxOff==='number')? DEV.params.cxOff : navCenterOffsetX; nc.value=String(off); ncv.textContent=String(off); navCenterOffsetX = off; } }
+  function saveParamsFromPanel(){ DEV.params={ dur:+$('dev-dur').value, cxOff:+$('nav-cx').value }; devSave(); }
+  function replayIntro(){ // soft replay
+    introActive=true; navIntroStarted=false; if(layerL5) layerL5.style.display='grid'; btns.forEach(b=>{ b.style.opacity='0'; b.style.setProperty('--sv','0.9'); }); startNavIntro(); }
+  // Dev overlay runtime boxes
+  let devOverlayOn = false; let devOverlayEl = null; let devOverlayUp = null; let devOverlayMode = 'layer'; // 'layer' | 'element'
+  const LAYER_NAMES = {
+    'L0':'Background',
+    'L1':'Subsurface (future)',
+    'L2':'Motes',
+    'L3':'Drip Frame',
+    'L4':'Errl',
+    'L5':'Nav Bubbles',
+    'L6':'Awakening Overlay',
+    HUD:'HUD',
+    GL:'WebGL Shimmer',
+    ORBIT:'UI Orbit'
+  };
+  const LAYER_DESCRIPTIONS = {
+    L0:'Animated cosmic gradient backdrop (hue-shifting).',
+    L1:'Reserved layer for subsurface/ambient depth elements (currently unused).',
+    L2:'CSS “motes” particles drifting upward; small twinkles.',
+    L3:'Top streak/drip frame decoration around the portal.',
+    L4:'Central Errl silhouette (inline/painted), draggable, interactive regions.',
+    L5:'Orbiting navigation bubbles — fan-in, orbit, click to navigate.',
+    L6:'“Awakening” overlay: portal drip and FOR THE NOMADS sigil.',
+    HUD:'Bottom HUD chips: Parallax/WebGL/Reveal/Bubbles/Mirror.',
+    GL:'PixiJS shimmer + refraction overlay with displacement.',
+    ORBIT:'Invisible container that positions/nav animates the bubble buttons.'
+  };
+  function devOverlayTargets(){
+    const t=[];
+    if(devOverlayMode==='layer'){
+      document.querySelectorAll('[data-layer]').forEach(el=>{
+        const key = el.getAttribute('data-layer'); const label = LAYER_NAMES[key] || key; t.push({ el, key, label });
+      });
+      const hudEl=document.getElementById('hud'); if(hudEl) t.push({ el:hudEl, key:'HUD', label:LAYER_NAMES.HUD });
+      const glEl=document.getElementById('gl'); if(glEl) t.push({ el:glEl, key:'GL', label:LAYER_NAMES.GL });
+      const orbit=document.querySelector('.ui-orbit'); if(orbit) t.push({ el:orbit, key:'ORBIT', label:LAYER_NAMES.ORBIT });
+      const act = activeErrlEl && activeErrlEl(); if(act) t.push({ el:act, key:'L4', label:LAYER_NAMES['L4'] });
+    } else {
+      const add=(el,key,label)=>{ if(el){ const r=el.getBoundingClientRect(); if(r.width>0 && r.height>0) t.push({ el, key, label }); } };
+      // HUD chips
+      document.querySelectorAll('#hud .chip').forEach((el)=> add(el, 'HUD:'+el.querySelector('.label')?.textContent||'Chip', 'HUD: '+(el.querySelector('.label')?.textContent||'Chip')));
+      // Nav buttons
+      document.querySelectorAll('.ui-orbit .btn').forEach((el,i)=> add(el, 'NAV:'+((el.getAttribute('title'))||('Button '+(i+1))), 'Nav: '+(el.getAttribute('title')||('Button '+(i+1)))));
+      // Errl regions (if inline available)
+      const inline = document.querySelector('#errl-inline svg, #errl');
+      if(inline){ inline.querySelectorAll('[data-region]').forEach((el)=> add(el, 'ERRL-REGION:'+el.getAttribute('data-region'), 'Errl region: '+el.getAttribute('data-region'))); }
+    }
+    return t;
+  }
+  let devChooserEl=null; function hideChooser(){ if(devChooserEl){ devChooserEl.style.display='none'; } }
+  let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','L3','L4','L5','L6']; const hiddenLayers=new Set();
+  function applyLayerStack(){ layersOrder.forEach((k,idx)=>{ const el=document.querySelector(`[data-layer="${k}"]`); if(el){ el.style.zIndex = String(200+idx); } }); }
+  function toggleLayerVisibility(k){ const el=document.querySelector(`[data-layer="${k}"]`); if(!el) return; if(hiddenLayers.has(k)){ hiddenLayers.delete(k); el.style.display = (k==='L5'?'grid':''); } else { hiddenLayers.add(k); el.style.display='none'; } buildLayersPanel(); }
+  function moveLayer(k,dir){ const i=layersOrder.indexOf(k); if(i<0) return; const j = i + (dir==='up'?-1:1); if(j<0 || j>=layersOrder.length) return; const tmp=layersOrder[i]; layersOrder[i]=layersOrder[j]; layersOrder[j]=tmp; applyLayerStack(); buildLayersPanel(); }
+  function buildLayersPanel(){ if(!devLayersEl) return; const ul=devLayersEl.querySelector('ul'); ul.innerHTML=''; for(const k of [...layersOrder].reverse()){ const li=document.createElement('li'); li.classList.toggle('active', selectedKey===k); const name=document.createElement('div'); name.className='name'; name.textContent=LAYER_NAMES[k]||k; name.title=name.textContent; name.onclick=()=>{ selectedKey=k; devOverlayApply(); }; li.appendChild(name); const btns=document.createElement('div'); btns.className='btns'; const eye=document.createElement('button'); eye.textContent = hiddenLayers.has(k)? 'Show':'Hide'; eye.title='Toggle visibility'; eye.onclick=()=> toggleLayerVisibility(k); btns.appendChild(eye); const up=document.createElement('button'); up.textContent='↑'; up.title='Raise'; up.onclick=()=> moveLayer(k,'up'); btns.appendChild(up); const down=document.createElement('button'); down.textContent='↓'; down.title='Lower'; down.onclick=()=> moveLayer(k,'down'); btns.appendChild(down); li.appendChild(btns); ul.appendChild(li); } devLayersEl.style.display='block'; }
+  function devOverlayApply(){ if(!devOverlayOn) return; if(!devOverlayEl){ devOverlayEl=document.createElement('div'); devOverlayEl.id='dev-overlay-layer'; document.body.appendChild(devOverlayEl); }
+    devOverlayEl.classList.toggle('element-mode', devOverlayMode==='element');
+    devOverlayEl.innerHTML=''; hideChooser();
+    const targets = devOverlayTargets();
+    // Mode pill
+    const ctl=document.createElement('div'); ctl.className='ctl'; ctl.textContent = 'Overlay: '; const b=document.createElement('b'); b.textContent=(devOverlayMode==='layer'?'Layers':'Elements'); ctl.appendChild(b); ctl.title='Click to toggle overlay mode'; ctl.onclick=()=>{ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }; devOverlayEl.appendChild(ctl);
+    // Layers stack panel (only in layer mode)
+    if(devOverlayMode==='layer'){
+      if(!devLayersEl){ devLayersEl=document.createElement('div'); devLayersEl.id='dev-layers'; devLayersEl.innerHTML='<header><strong>Layers</strong><div><button id="dev-layers-close" title="Hide">×</button></div></header><ul></ul>'; document.body.appendChild(devLayersEl); devLayersEl.querySelector('#dev-layers-close').onclick=()=> devLayersEl.style.display='none'; }
+      applyLayerStack();
+      buildLayersPanel();
+    } else { if(devLayersEl) devLayersEl.style.display='none'; }
+    const boxes=[]; // keep refs for hit-testing
+    for(const {el, key, label:pretty} of targets){
+      const r = el.getBoundingClientRect();
+      const box = document.createElement('div'); box.className='box'; box.style.left=r.left+'px'; box.style.top=r.top+'px'; box.style.width=r.width+'px'; box.style.height=r.height+'px';
+      box.dataset.key = key||'#'; box.dataset.label = pretty||key||'#'; box.dataset.left=r.left; box.dataset.top=r.top; box.dataset.width=r.width; box.dataset.height=r.height;
+      box.title = LAYER_DESCRIPTIONS[key] || pretty || key || '#';
+      const label=document.createElement('div'); label.className='tag'; label.textContent=pretty||key||'#'; label.title = box.title; box.appendChild(label);
+      box.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        if(devOverlayMode==='element'){ // select only; open with double-click
+          selectedKey = box.dataset.key; boxes.forEach(b=>b.classList.toggle('active', b===box)); return;
+        }
+        const x=ev.clientX, y=ev.clientY; const under = boxes.filter(b=> x>=+b.dataset.left && x<=+b.dataset.left+ +b.dataset.width && y>=+b.dataset.top && y<=+b.dataset.top+ +b.dataset.height);
+        if(ev.shiftKey){ showChooser(x,y, under.map(b=>({key:b.dataset.key, label:b.dataset.label}))); return; }
+        // single click just selects highlight in layer mode; open with double-click
+        selectedKey = box.dataset.key; boxes.forEach(b=>b.classList.toggle('active', b===box));
+      });
+      box.addEventListener('dblclick', ()=> gotoTag(box.dataset.key));
+      // Drag-to-move in element mode for Nav bubbles and Errl
+      let dragS=null; box.addEventListener('pointerdown', (e)=>{
+        if(devOverlayMode!=='element' || !e.metaKey) return; // require Cmd for drag
+        e.preventDefault(); dragS={x:e.clientX,y:e.clientY, key:box.dataset.key, elRef: (targets.find(t=>t.label===box.dataset.label || t.key===box.dataset.key)||{}).el };
+        box.setPointerCapture && box.setPointerCapture(e.pointerId);
+      });
+      box.addEventListener('pointermove', (e)=>{
+        if(!dragS) return; const dx=e.clientX-dragS.x, dy=e.clientY-dragS.y; applyDevMove(dragS.key, dragS.elRef, dx, dy); box.classList.add('active');
+      });
+      box.addEventListener('pointerup', (e)=>{
+        if(!dragS) return; const dx=e.clientX-dragS.x, dy=e.clientY-dragS.y; finalizeDevMove(dragS.key, dx, dy); dragS=null;
+      });
+      devOverlayEl.appendChild(box); boxes.push(box);
+    }
+  }
+  function gotoTag(key){ const map={ HUD:'hud', GL:'gl', ORBIT:'nav', 'L5':'nav', 'L4':'errl', 'L2':'backfx' }; const page = map[key] || (key&&key.startsWith('L')? 'layers' : (key?.startsWith('NAV:')?'nav' : key?.startsWith('ERRL-REGION:')?'errl' : key?.startsWith('HUD:')?'hud' : null)); if(page){ const btn = document.querySelector(`#dev-apps .app-icon[data-app=\"${page}\"]`); if(btn) btn.click(); } openDevEdit(key); }
+  function showChooser(x,y,items){ if(!devChooserEl){ devChooserEl=document.createElement('div'); devChooserEl.id='dev-chooser'; document.body.appendChild(devChooserEl); }
+    devChooserEl.innerHTML='';
+    for(const it of items){ const row=document.createElement('div'); row.className='item'; row.textContent=it.label; row.title=LAYER_DESCRIPTIONS[it.key]||it.label; row.onclick=()=>{ hideChooser(); gotoTag(it.key); }; devChooserEl.appendChild(row); }
+    devChooserEl.style.left = Math.min(x, innerWidth-220)+'px'; devChooserEl.style.top = Math.min(y, innerHeight-180)+'px'; devChooserEl.style.display='block';
+  }
+  function applyDevMove(key, el, dx, dy){ if(!el) return; if(/^NAV:/.test(key)){ el.style.setProperty('--dx', dx.toFixed(0)+'px'); el.style.setProperty('--dy', dy.toFixed(0)+'px'); }
+    else if(/^ERRL/.test(key) || key==='L4'){ errlOffset.x = Math.round(dx); errlOffset.y = Math.round(dy); applyErrlTransform(); }
+  }
+  function finalizeDevMove(key, dx, dy){ const prompt = `Move ${key} by (${Math.round(dx)}, ${Math.round(dy)}) pixels and persist this layout change.`; openDevEdit(key); const ta = document.querySelector('#dev-edit textarea, #dev-edit #dev-edit-prompt'); if(ta) ta.value = prompt + '\n\nIf nav bubble, set CSS vars --dx/--dy on that button; if Errl, update errlOffset defaults.'; }
+
+  // Dev edit helper modal → copies an Agent edit request to clipboard
+  let devEditEl=null;
+  function devEditTargetsFor(key){
+    const rel = 'src/Errl_Portal_Starter_Kit_v1/pixi-gl/Errl_Portal_Scaffold_Pixi.html';
+    const map={
+      HUD:[rel], ORBIT:[rel], L0:[rel], L1:[rel], L2:['src/fx/bubbles-pixi.js', rel], L3:[rel], L4:[rel, 'src/Errl_Portal_Starter_Kit_v1/assets/L4_Central/errl-painted-4.svg'], L5:[rel], L6:[rel], GL:[rel, 'src/fx/fx-core.js', 'src/fx/bubbles-pixi.js']
+    };
+    if(/^HUD:/.test(key)) return map.HUD;
+    if(/^NAV:/.test(key)) return [rel];
+    if(/^ERRL-REGION:/.test(key)) return map.L4;
+    return map[key] || [rel];
+  }
+  function openDevEdit(key){ if(!devEditEl){ devEditEl=document.createElement('div'); devEditEl.id='dev-edit'; devEditEl.innerHTML=`<header id=\"dev-edit-handle\"><strong>Dev Edit</strong><button id=\"dev-edit-close\">×</button></header><div class=\"body\"><div>Target: <b id=\"dev-edit-target\"></b></div><label>Primary file<select id=\"dev-edit-file\"></select></label><label>Prompt<textarea id=\"dev-edit-prompt\" placeholder=\"Describe the change. Example: Increase background bubbles speed and density by 20%.\"></textarea></label><div class=\"row\"><button id=\"dev-edit-copy\">Copy request</button><button id=\"dev-edit-hide\">Hide</button></div><div style=\"opacity:.75; font-size:11px;\">Tip: Press O to toggle overlay. Paste the copied request here in chat to apply the change.</div></div>`; document.body.appendChild(devEditEl);
+      devEditEl.querySelector('#dev-edit-close').onclick=()=> devEditEl.style.display='none';
+      devEditEl.querySelector('#dev-edit-hide').onclick=()=> devEditEl.style.display='none';
+      // Drag the modal by header
+      (function(){ const h=devEditEl.querySelector('#dev-edit-handle'); let s=null; h.addEventListener('pointerdown',(e)=>{ s={x:e.clientX,y:e.clientY,l:devEditEl.offsetLeft,t:devEditEl.offsetTop}; devEditEl.setPointerCapture && devEditEl.setPointerCapture(e.pointerId); }); h.addEventListener('pointermove',(e)=>{ if(!s) return; const nx=s.l+(e.clientX-s.x), ny=s.t+(e.clientY-s.y); devEditEl.style.left=nx+'px'; devEditEl.style.top=ny+'px'; devEditEl.style.right=''; }); h.addEventListener('pointerup',()=>{ s=null; }); })();
+      devEditEl.querySelector('#dev-edit-copy').onclick=()=>{
+        const file = devEditEl.querySelector('#dev-edit-file').value;
+        const prompt = devEditEl.querySelector('#dev-edit-prompt').value||'';
+        const payload = `ERRL_EDIT_REQUEST\n{"target":"${tag}","file":"${file}","prompt":${JSON.stringify(prompt)}}`;
+        navigator.clipboard && navigator.clipboard.writeText(payload).catch(()=>{});
+        console.log(payload);
+      };
+    }
+    devEditEl.style.display='block';
+    const label = LAYER_NAMES[key] || key; devEditEl.querySelector('#dev-edit-target').textContent = label;
+    const sel = devEditEl.querySelector('#dev-edit-file'); sel.innerHTML='';
+    for(const p of devEditTargetsFor(key)){ const o=document.createElement('option'); o.value=p; o.textContent=p; sel.appendChild(o); }
+    devEditEl.querySelector('#dev-edit-prompt').value='';
+  }
+  function devOverlayToggle(on){ devOverlayOn = (on==null? !devOverlayOn : !!on); document.body.classList.toggle('dev-mode', devOverlayOn); if(devOverlayOn){ devOverlayApply(); if(!devOverlayUp){ devOverlayUp = ()=> devOverlayApply(); addEventListener('resize', devOverlayUp); } } else { if(devOverlayEl) devOverlayEl.remove(); devOverlayEl=null; if(devOverlayUp) removeEventListener('resize', devOverlayUp); devOverlayUp=null; } }
+  document.addEventListener('keydown', (e)=>{ if(e.key==='d' || e.key==='D'){ DEV.enabled=!DEV.enabled; toggleDev(!DEV.enabled?false:true); populateDev(); } if(e.key==='o' || e.key==='O'){ devOverlayToggle(); } if(e.key==='e' || e.key==='E'){ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }});
+  { const e=$('dev-hide'); if(e) e.onclick=()=> toggleDev(false); }
+  { const e=$('dev-overlay'); if(e) e.onclick=()=> devOverlayToggle(); }
+  { const e=$('dev-save'); if(e) e.onclick=()=>{ saveParamsFromPanel(); populateDev(); }; }
+  { const e=$('dev-load'); if(e) e.onclick=()=>{ devLoad(); populateDev(); showDevDots(); }; }
+  { const e=$('dev-reset'); if(e) e.onclick=()=>{ DEV.params=null; devSave(); populateDev(); showDevDots(); }; }
+  { const e=$('dev-replay'); if(e) e.onclick=()=> replayIntro(); }
+  devPanel.addEventListener('click', (e)=>{ const b=e.target.closest('button.n'); if(!b) return; const t=b.dataset.t, d=+b.dataset.d; const map={dur:'dev-dur'}; const id=map[t]; if(!id) return; const el=$(id); el.value = String((+el.value||0) + d); saveParamsFromPanel(); populateDev(); });
+
+  // Dev phone tabs + controls
+  function initDevPhone(){
+    const apps = Array.from(document.querySelectorAll('#dev-apps .app-icon'));
+    bubLoad(); // load persisted bubbles params early
+    const pages = Array.from(document.querySelectorAll('#dev-pages .app-page'));
+    function activate(name){ apps.forEach(a=>a.classList.toggle('active', a.dataset.app===name)); pages.forEach(p=>p.classList.toggle('active', p.dataset.app===name)); }
+    apps.forEach(a=> a.addEventListener('click', ()=> activate(a.dataset.app)));
+    // HUD mini toggles
+    const hudPar = document.getElementById('hud-parallax');
+    const hudGL = document.getElementById('hud-gl');
+    const hudBub = document.getElementById('hud-bubbles');
+    const hudMir = document.getElementById('hud-mirror');
+    const hudHide = document.getElementById('hud-hidebar');
+    function syncHUD(){ hudPar?.classList.toggle('toggled', !!toggles.parallax); hudGL?.classList.toggle('toggled', !!toggles.gl); hudBub?.classList.toggle('toggled', toggles.bubbles!=='hidden'); hudMir?.classList.toggle('toggled', !!(toggles.mirror||toggles.mirrorBoth)); if(hudHide){ hudHide.checked = (document.getElementById('hud')?.style.display==='none'); } }
+    function setParallax(on){ toggles.parallax=!!on; if(!on){ portal.querySelectorAll('[data-layer]').forEach(el=>el.style.transform='none'); } syncHUD(); }
+    function setGL(on){ toggles.gl=!!on; const canvas=document.getElementById('gl'); canvas.style.display = on? 'block':'none'; if(on && !app) initGL(); if(fxm){ on? fxm.resumeAll(): fxm.pauseAll(); } if(on) applyBubFromUI(); syncHUD(); }
+    function setBubbles(on){ const l5=document.querySelector('[data-layer="L5"]'); if(on){ toggles.bubbles='moving'; if(l5) l5.style.display='grid'; } else { toggles.bubbles='hidden'; if(l5) l5.style.display='none'; } syncHUD(); }
+    function cycleMirror(){ if(toggles.mirrorBoth){ toggles.mirrorBoth=false; toggles.mirror=false; } else if(toggles.mirror){ toggles.mirror=false; toggles.mirrorBoth=true; } else { toggles.mirror=true; } applyMirror(); syncHUD(); }
+    hudPar && hudPar.addEventListener('click', ()=> setParallax(!toggles.parallax));
+    hudGL && hudGL.addEventListener('click', ()=> setGL(!toggles.gl));
+    hudBub && hudBub.addEventListener('click', ()=> setBubbles(toggles.bubbles==='hidden'));
+    hudMir && hudMir.addEventListener('click', cycleMirror);
+    hudHide && hudHide.addEventListener('change', ()=>{ const hb=document.getElementById('hud'); if(hb) hb.style.display = hudHide.checked? 'none':''; });
+    syncHUD();
+    // Nav fan controls
+    const ns = document.getElementById('nav-spread'); const na = document.getElementById('nav-arc'); const nh = document.getElementById('nav-headY'); const nst = document.getElementById('nav-stagger');
+    const nsv = document.getElementById('nav-spread-val'); const navv = document.getElementById('nav-arc-val'); const nhv = document.getElementById('nav-headY-val');
+    const nc = document.getElementById('nav-cx'); const ncv = document.getElementById('nav-cx-val');
+    function applyNav(){ if(ns){ navSpread = +ns.value; nsv.textContent = String(navSpread); } if(na){ navArcDeg = +na.value; navv.textContent = String(navArcDeg); } if(nh){ headYRatio = +nh.value; nhv.textContent = (+nh.value).toFixed(2); } if(nst){ navStagger = +nst.value; } if(nc){ navCenterOffsetX = +nc.value; ncv.textContent = String(navCenterOffsetX); } finalFanLocal = fanTargets(btns.length, navSpread, navArcDeg); orbitPhase = finalFanLocal.map(p=> Math.atan2(p.y, p.x)); showDevDots(); }
+    ns && ns.addEventListener('input', ()=>{ applyNav(); replayIntro(); });
+    na && na.addEventListener('input', ()=>{ applyNav(); replayIntro(); });
+    nh && nh.addEventListener('input', ()=>{ applyNav(); replayIntro(); });
+    nc && nc.addEventListener('input', ()=>{ applyNav(); });
+    nst && nst.addEventListener('change', ()=>{ applyNav(); });
+    document.getElementById('nav-replay')?.addEventListener('click', ()=>{ applyNav(); replayIntro(); });
+    applyNav();
+    // Bubbles controls (if available)
+    const bub = ()=> bubblesFX;
+    function applyBubFromUI(){ if(!BUB.params) return; const p=BUB.params; if(bub()){ bub().setSpeed(p.speed); bub().setWobbleMult(p.wobble); bub().setFreqMult(p.freq); bub().setCountFactor(p.density); bub().set({ alpha:p.alpha, minSize:p.min, maxSize:p.max, farRatio:p.far, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null) }); } }
+    function bindRange(id, labelId, on){ const el=$(id); const lab=$(labelId); if(!el||!lab) return; const update=()=>{ const v=+el.value; lab.textContent=v.toFixed(2); on(v); bubSnapshotFromUI(); }; el.addEventListener('input', update); update(); }
+    bindRange('bub-speed','bub-speed-val',(v)=>{ if(bub()) bub().setSpeed(v); });
+    bindRange('bub-wobble','bub-wobble-val',(v)=>{ if(bub()) bub().setWobbleMult(v); });
+    bindRange('bub-freq','bub-freq-val',(v)=>{ if(bub()) bub().setFreqMult(v); });
+    bindRange('bub-density','bub-density-val',(v)=>{ if(bub()) bub().setCountFactor(v); });
+    bindRange('bub-alpha','bub-alpha-val',(v)=>{ if(bub()) bub().set({alpha:v}); });
+    // Size + far ratio
+    (function(){ const mi=$('bub-min'), ma=$('bub-max'), fr=$('bub-far'), frv=$('bub-far-val'); if(mi&&ma){ const apply=()=>{ const min=Math.max(6, Math.min(+mi.value||18, +ma.value||44)); const max=Math.max(min+1, +ma.value||44); mi.value=String(min); ma.value=String(max); if(bub()) bub().set({minSize:min, maxSize:max}); bubSnapshotFromUI(); }; mi.addEventListener('change', apply); ma.addEventListener('change', apply); }
+      if(fr&&frv){ const upd=()=>{ frv.textContent=(+fr.value).toFixed(2); if(bub()) bub().set({farRatio:+fr.value}); bubSnapshotFromUI(); }; fr.addEventListener('input', upd); upd(); }
+    })();
+    // Texture swap + controls
+    (function(){ const sel=$('bub-tex'), btn=$('bub-apply-tex'); if(sel&&btn){ if(BUB.params && BUB.params.tex){ sel.value=BUB.params.tex; }
+      btn.addEventListener('click', ()=>{ const choice=sel.value; const url = (choice==='orb')? assetUrl('fx/Orb_NeedsFriends.png') : null; if(bub()) bub().set({ textureUrl:url }).catch(()=>{}); BUB.params = Object.assign({}, BUB.params||{}, { tex: choice }); bubSave(); }); } })();
+    // Pause/Resume/Reset
+    (function(){ const p=$('bub-pause'), r=$('bub-resume'), z=$('bub-reset'); if(p) p.onclick=()=>{ if(bub()) bub().pause(); }; if(r) r.onclick=()=>{ if(bub()) bub().resume(); }; if(z) z.onclick=()=>{ if(bub()){ bub().set({minSize:18,maxSize:44,alpha:0.95,farRatio:0.33}); bub().setSpeed(1); bub().setWobbleMult(1); bub().setFreqMult(1); bub().setCountFactor(1); } if($('bub-tex')) $('bub-tex').value='orb'; const set=(id,val)=>{ const el=$(id); if(el) el.value=String(val); }; set('bub-speed',1); set('bub-wobble',1); set('bub-freq',1); set('bub-density',1); set('bub-alpha',0.95); set('bub-min',18); set('bub-max',44); set('bub-far',0.33); bubSnapshotFromUI(); }; })();
+    // GL controls
+    function bindGL(id, labId, getter, setter, fmt=(x)=>x.toFixed(2)){ const el=$(id), lab=$(labId); if(!el||!lab) return; const update=()=>{ if(!toggles.gl || !app){ lab.textContent='—'; return; } const v=+el.value; lab.textContent=fmt(v); setter(v); }; el.addEventListener('input', update); // init
+      const initVal = getter(); if(initVal!=null){ el.value = String(initVal); lab.textContent = fmt(+el.value); } update(); }
+    bindGL('gl-alpha','gl-alpha-val', ()=> overlay? overlay.alpha : 0.20, (v)=>{ if(overlay) overlay.alpha = v; });
+    bindGL('gl-dx','gl-dx-val', ()=> dispFilter? dispFilter.scale.x : 24, (v)=>{ if(dispFilter) dispFilter.scale.x = v; }, (x)=> String(Math.round(x)) );
+    bindGL('gl-dy','gl-dy-val', ()=> dispFilter? dispFilter.scale.y : 18, (v)=>{ if(dispFilter) dispFilter.scale.y = v; }, (x)=> String(Math.round(x)) );
+    // Layer toggles
+    document.querySelectorAll('.layer-toggle').forEach(cb=>{
+      cb.addEventListener('change', ()=>{
+        const id = cb.dataset.layer; const layer = document.querySelector(`[data-layer="${id}"]`);
+        if(layer){ if(cb.checked){ layer.style.display = (id==='L5' ? 'grid' : ''); } else { layer.style.display='none'; } }
+      });
+    });
+  }
+
+  initDevPhone();
+
+  // Kick things off
+  setTimeout(()=>{ if(!errlVisible) { showErrl(false, true); setTimeout(startOrbitImmediately, 500); } }, autoRevealDelay);
+
+  if(window.PIXI && PIXI.utils.isWebGLSupported()) initGL(); else { document.getElementById('gl').style.display='none'; }
+})();
+</script>
+</body>
+</html>

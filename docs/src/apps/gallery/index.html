@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Errl — Art Gallery</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#e5eaf1; }
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0a0f18; color:var(--ink);}
+.header{ position:sticky; top:0; display:flex; gap:12px; align-items:center; padding:12px 16px; background:linear-gradient(180deg, rgba(10,15,24,.9), rgba(10,15,24,.6)); border-bottom:1px solid #ffffff15; backdrop-filter:saturate(110%) blur(4px); z-index:10; }
+.back{ color:#cdeafe; text-decoration:none; padding:.4em .7em; border-radius:999px; background:#ffffff0f; box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.h1{font-size:clamp(22px,4vmin,34px); font-weight:800; margin:0; opacity:.9}
+.toolbar{ margin-left:auto; display:flex; gap:8px; align-items:center; opacity:.8; }
+.albums{ position:sticky; top:54px; z-index:5; padding:8px 12px; display:flex; gap:8px; overflow:auto; background:linear-gradient(180deg, rgba(10,15,24,.7), rgba(10,15,24,.0)); border-bottom:1px solid #ffffff10; }
+.albums button{ padding:.45em .7em; border-radius:999px; border:1px solid #ffffff1a; background:#0e1626; color:#cfe9ff; cursor:pointer; }
+.albums button.active{ outline:2px solid rgba(0,229,255,.35); }
+.grid{ column-width: 320px; column-gap: 14px; padding: 18px; }
+.item{ break-inside: avoid; margin:0 0 14px; background:#08101e; border-radius:14px; border:1px solid #ffffff12; box-shadow:0 12px 30px rgba(0,0,0,.35); overflow:hidden; }
+.item img{ display:block; width:100%; height:auto; background:#0a0f18; filter: saturate(108%); }
+.item .meta{ padding:8px 10px; font-size:12px; opacity:.8; display:flex; justify-content:space-between; }
+.sentinel{ height: 1px; }
+</style>
+<link rel="stylesheet" href="../../fx/errl-bg.css">
+</head>
+<body>
+  <div class="header">
+    <a class="back" href="../../Errl_Portal_Starter_Kit_v1/pixi-gl/Errl_Portal_Scaffold_Pixi.html">⬅ Back to Portal</a>
+    <h1 class="h1">Errl — Art Gallery</h1>
+    <div class="toolbar">
+      <label style="font-size:12px">Page size <input id="pageSize" type="number" min="10" max="200" value="40" style="width:60px"></label>
+    </div>
+  </div>
+  <div class="albums" id="albums" hidden></div>
+  <div id="grid" class="grid"></div>
+  <div id="sentinel" class="sentinel"></div>
+<script>
+// Lazy, virtualized gallery supporting albums via manifest.json
+// Manifest formats supported:
+// 1) Array: [{src, w, h, title, author}, ...]
+// 2) Object: { albums: [{ id, title, cover, items:[...] }], default: "id" }
+const grid = document.getElementById('grid');
+const albumsBar = document.getElementById('albums');
+const sentinel = document.getElementById('sentinel');
+const pageSizeInput = document.getElementById('pageSize');
+let manifest = null; let items = []; let page = 0; let loading=false; let pageSize = +pageSizeInput.value;
+pageSizeInput.addEventListener('change', ()=>{ pageSize = Math.max(10, Math.min(200, +pageSizeInput.value||40)); });
+
+async function loadManifest(){
+  try{
+    const res = await fetch('manifest.json', {cache:'no-cache'});
+    if(res.ok){ manifest = await res.json(); return; }
+  }catch(e){ /* ignore */ }
+  // Fallback single album with demo tiles
+  manifest = { albums:[{ id:'demo', title:'Demo', items: Array.from({length: 200}, (_,i)=>({ src: '../../ErrlSite_Assets/Star-4.png', w:512, h:512, title:`Placeholder ${i+1}` })) }], default:'demo' };
+}
+
+function selectAlbum(id){
+  const alb = (manifest && manifest.albums) ? manifest.albums.find(a=>a.id===id) : null;
+  items = alb ? alb.items : Array.isArray(manifest) ? manifest : [];
+  page = 0; grid.innerHTML = ''; if(obs) obs.disconnect(); obs.observe(sentinel);
+  document.querySelectorAll('.albums button').forEach(b=>b.classList.toggle('active', b.dataset.id===id));
+  renderNext();
+}
+
+function buildAlbums(){
+  if(Array.isArray(manifest)) { albumsBar.hidden = true; items = manifest; return; }
+  if(!manifest || !manifest.albums) return;
+  albumsBar.hidden = false; albumsBar.innerHTML = '';
+  for(const a of manifest.albums){
+    const b=document.createElement('button'); b.textContent=a.title||a.id; b.dataset.id=a.id; if(a.id===(manifest.default||manifest.albums[0].id)) b.classList.add('active');
+    b.addEventListener('click', ()=> selectAlbum(a.id));
+    albumsBar.appendChild(b);
+  }
+}
+
+function renderNext(){
+  if(loading) return; loading=true;
+  const start = page*pageSize; const end = Math.min(start+pageSize, items.length);
+  for(let i=start;i<end;i++){
+    const it = items[i];
+    const a = document.createElement('article'); a.className='item';
+    const img = new Image(); img.loading='lazy'; img.decoding='async'; img.src = it.src; img.alt = it.title||'Errl artwork';
+    a.appendChild(img);
+    const meta = document.createElement('div'); meta.className='meta'; meta.innerHTML = `<span>${it.title||''}</span><span>${(it.author||'').slice(0,32)}</span>`; a.appendChild(meta);
+    grid.appendChild(a);
+  }
+  page++; loading=false;
+  if(end>=items.length) obs.disconnect();
+}
+
+let obs = new IntersectionObserver(entries=>{ if(entries.some(e=>e.isIntersecting)) renderNext(); }, {rootMargin:'1200px 0px'});
+(async()=>{ await loadManifest(); buildAlbums();
+  const first = Array.isArray(manifest) ? null : (manifest.default || (manifest.albums && manifest.albums[0] && manifest.albums[0].id));
+  if(first) selectAlbum(first); else { items = Array.isArray(manifest) ? manifest : []; renderNext(); obs.observe(sentinel); }
+})();
+</script>
+<script src="../../fx/errl-bg.js"></script>
+<script>window.ErrlBG && ErrlBG.mount({ headerVariant: 2, basePath: '../..', hud: true });</script>
+</body>
+</html>

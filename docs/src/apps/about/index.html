@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Errl — About</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#e5eaf1; }
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0a0f18; color:var(--ink);}
+.main{min-height:100%; display:grid; grid-template-rows:auto 1fr;}
+.header{ position:sticky; top:0; display:flex; gap:12px; align-items:center; padding:12px 16px; background:linear-gradient(180deg, rgba(10,15,24,.9), rgba(10,15,24,.65)); border-bottom:1px solid #ffffff15; backdrop-filter:saturate(110%) blur(4px); }
+.back{ color:#cdeafe; text-decoration:none; padding:.4em .7em; border-radius:999px; background:#ffffff0f; box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.content{max-width:1000px; margin:6vmin auto; padding:0 16px;}
+.h1{font-size:clamp(28px,5vmin,44px); font-weight:800; letter-spacing:.01em; margin:0 0 16px;}
+.p{opacity:.9; line-height:1.6;}
+.card{ margin-top:24px; padding:16px; border-radius:14px; background:#ffffff06; border:1px solid #ffffff12; box-shadow:0 12px 30px rgba(0,0,0,.35);}
+</style>
+<link rel="stylesheet" href="../../fx/errl-bg.css">
+</head>
+<body>
+<div class="main">
+  <div class="header">
+    <a class="back" href="../../portal/pixi-gl/index.html">⬅ Back to Portal</a>
+    <div style="opacity:.8;">About Errl</div>
+  </div>
+  <div class="content">
+    <h1 class="h1">About Errl</h1>
+    <p class="p">This page will introduce Errl, the mascot and companion of the portal. We’ll add story, concept art, and credits here.</p>
+    <div class="card">
+      Coming soon: timeline, inspirations, and links.
+    </div>
+</div>
+</div>
+<script src="../../fx/errl-bg.js"></script>
+<script>window.ErrlBG && ErrlBG.mount({ headerVariant: 2, basePath: '../..', hud: true });</script>
+</body>
+</html>
