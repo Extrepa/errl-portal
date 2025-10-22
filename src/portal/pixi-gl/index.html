@@ -408,13 +408,9 @@ const errlInline = document.getElementById('errl-inline');
   // Nav bubble art rotation: cycle through local assets Bubbles-1..6 on each load
   // Build URLs that work in both file:// and http(s) dev modes
   function assetUrl(path){
-    // Build a URL relative to this HTML file so dev servers that don't mount at / work too
-    if(/^https?:$/i.test(location.protocol)){
-      const rel = `../../ErrlSite_Assets/${path}`;
-      return new URL(rel, location.href).href;
-    }
-    const abs = '/Users/extrepa/Projects/epic-mascot-portal/src/ErrlSite_Assets/' + path;
-    return 'file://' + abs; // direct file path
+    // Build a URL relative to this HTML file so it works on GitHub Pages and local dev
+    const rel = `../../assets/${path}`;
+    return new URL(rel, location.href).href;
   }
   function skinUrl(name){ return assetUrl(`Bubbles_ErrlSiteDecor/${name}`); }
   const NAV_SKINS = [
@@ -1116,9 +1112,9 @@ const NAV_INTRO = {
   // Dev edit helper modal → copies an Agent edit request to clipboard
   let devEditEl=null;
   function devEditTargetsFor(key){
-    const rel = 'src/Errl_Portal_Starter_Kit_v1/pixi-gl/Errl_Portal_Scaffold_Pixi.html';
+    const rel = 'src/portal/pixi-gl/index.html';
     const map={
-      HUD:[rel], ORBIT:[rel], L0:[rel], L1:[rel], L2:['src/fx/bubbles-pixi.js', rel], L3:[rel], L4:[rel, 'src/Errl_Portal_Starter_Kit_v1/assets/L4_Central/errl-painted-4.svg'], L5:[rel], L6:[rel], GL:[rel, 'src/fx/fx-core.js', 'src/fx/bubbles-pixi.js']
+      HUD:[rel], ORBIT:[rel], L0:[rel], L1:[rel], L2:['src/fx/bubbles-pixi.js', rel], L3:[rel], L4:[rel, 'src/portal/assets/L4_Central/errl-painted-4.svg'], L5:[rel], L6:[rel], GL:[rel, 'src/fx/fx-core.js', 'src/fx/bubbles-pixi.js']
     };
     if(/^HUD:/.test(key)) return map.HUD;
     if(/^NAV:/.test(key)) return [rel];
