@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../fx/effects.css">
+<link rel="stylesheet" href="../../fx/hue-effects.css">
 <style>
 @font-face{ font-family:'Castellar'; src: local('Castellar'); font-style: normal; font-weight: 400 900; font-display: swap; }
 :root{ --ink:#e5eaf1; --line:#ffffff22; --errl-purp:#7b5cff; --errl-teal:#00e5ff; --errl-blue:#5aa6ff; --errl-indigo:#3a4d9e; }
@@ -24,7 +25,8 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 }
 @keyframes hueShift{ 0%{filter:hue-rotate(0deg) saturate(110%);} 50%{filter:hue-rotate(60deg) saturate(120%);} 100%{filter:hue-rotate(0deg) saturate(110%);} }
 
-#gl{ position:absolute; inset:0; pointer-events:none; z-index:2; }
+#gl{ position:absolute; inset:0; pointer-events:none; }
+.l1{ z-index:2; }
 
 .l2{ inset:0; overflow:hidden; z-index:1; }
 .mote{
@@ -56,8 +58,10 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 
 .l5{ z-index:5; display:grid; place-items:center; }
 .ui-orbit{ position:absolute; width:70vmin; height:70vmin; left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none; filter:url(#gooey-ui); }
-.btn{ position:absolute; left:50%; top:50%; pointer-events:auto; padding:0; border-radius:50%; border:0; width:96px; height:96px; background:rgba(255,255,255,.06); color:#e5eaf1; font-weight:600; font-size:14px; backdrop-filter:saturate(120%) blur(2px); transition: box-shadow .12s ease, background .12s ease; transform: translate(-50%,-50%) translate(var(--x, 0px), var(--y, 0px)) translate(var(--dx,0px), var(--dy,0px)) scale(calc(var(--s,1) * var(--sv,1))); box-shadow:0 6px 16px rgba(0,0,0,.25); overflow:hidden; position:relative; }
-.btn .puddle-ghost{ position:absolute; left:50%; top:50%; width:110%; height:110%; transform:translate(-50%,-50%) scale(1); opacity:0; transition: transform .25s ease, opacity .18s ease; pointer-events:none; z-index:2; filter: drop-shadow(0 8px 20px rgba(0,0,0,.35)); }
+.btn{ position:absolute; left:50%; top:50%; pointer-events:auto; padding:var(--rim, 8px); border-radius:50%; border:0; width:var(--btn-size, 96px); height:var(--btn-size, 96px); background:rgba(255,255,255,.06); color:#e5eaf1; font-weight:600; font-size:14px; backdrop-filter:saturate(120%) blur(2px); transition: box-shadow .12s ease, background .12s ease; transform: translate(-50%,-50%) translate(var(--x, 0px), var(--y, 0px)) translate(var(--dx,0px), var(--dy,0px)) scale(calc(var(--s,1) * var(--sv,1))); box-shadow:0 6px 16px rgba(0,0,0,.25); overflow:hidden; position:relative; background-origin: content-box; background-clip: content-box; }
+.btn .puddle-ghost{ position:absolute; left:50%; top:50%; width:calc(100% - 2*var(--rim, 8px)); height:calc(100% - 2*var(--rim, 8px)); border-radius:50%; transform:translate(-50%,-50%) scale(1); opacity:0; transition: transform .25s ease, opacity .18s ease; pointer-events:none; z-index:2; filter: drop-shadow(0 8px 20px rgba(0,0,0,.35)); }
+/* Inner image layer with feathered edge to hide asset rims */
+.btn .puddle-img{ position:absolute; left:50%; top:50%; width:calc(100% - 2*var(--rim, 8px)); height:calc(100% - 2*var(--rim, 8px)); transform:translate(-50%,-50%); border-radius:50%; z-index:1; background-position:center; background-repeat:no-repeat; background-size:120%; -webkit-mask-image: radial-gradient(circle, #000 72%, transparent 82%); mask-image: radial-gradient(circle, #000 72%, transparent 82%); }
 /* Fallback art for initial paint (JS overrides these on load) */
 .btn[data-img="bubbles-1"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-1.png") center/contain no-repeat; }
 .btn[data-img="bubbles-2"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-2.png") center/contain no-repeat; }
@@ -65,7 +69,7 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 .btn[data-img="bubbles-4"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-4.png") center/contain no-repeat; }
 .btn[data-img="bubbles-5"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-5.png") center/contain no-repeat; }
 .btn[data-img="bubbles-6"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-6.png") center/contain no-repeat; }
-.btn:hover .puddle-ghost, .btn:focus-visible .puddle-ghost{ opacity:1; transform:translate(-50%,-50%) scale(1.18); }
+.btn:hover .puddle-ghost, .btn:focus-visible .puddle-ghost{ opacity:1; transform:translate(-50%,-50%) scale(1.08); }
 .btn span.vh{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .btn[data-img="bubbles-1"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-1.png") center/contain no-repeat; }
 .btn[data-img="bubbles-2"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-2.png") center/contain no-repeat; }
@@ -222,7 +226,7 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
 <div class="portal" id="portal" data-theme="normal">
   <div class="layer l0" data-layer="L0"></div>
 
-  <canvas id="gl"></canvas>
+  <div class="layer l1" data-layer="GL"><canvas id="gl"></canvas></div>
 
   <div class="layer l2" data-layer="L2" id="motesLayer"></div>
   <div class="layer l3" data-layer="L3"><div class="drip"></div></div>
@@ -336,6 +340,35 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
         <div class="row"><label>Alpha</label><input id="gl-alpha" type="range" min="0" max="1" step="0.01" value="0.20"/><span id="gl-alpha-val">0.20</span></div>
         <div class="row"><label>Disp X</label><input id="gl-dx" type="range" min="0" max="64" step="1" value="24"/><span id="gl-dx-val">24</span></div>
         <div class="row"><label>Disp Y</label><input id="gl-dy" type="range" min="0" max="64" step="1" value="18"/><span id="gl-dy-val">18</span></div>
+        
+        <div class="section-title" style="margin-top: 15px;">Hue Effects</div>
+        <div class="row">
+          <label>Target</label>
+          <select id="hue-target"></select>
+          <label style="margin-left: auto;"><input type="checkbox" id="hue-enabled" checked/> Enabled</label>
+        </div>
+        <div class="row"><label>Hue</label><input id="hue-shift" type="range" min="0" max="360" step="1" value="0"/><span id="hue-shift-val">0°</span></div>
+        <div class="row"><label>Saturation</label><input id="hue-saturation" type="range" min="0" max="2" step="0.01" value="1.0"/><span id="hue-saturation-val">100%</span></div>
+        <div class="row"><label>Intensity</label><input id="hue-intensity" type="range" min="0" max="1" step="0.01" value="1.0"/><span id="hue-intensity-val">100%</span></div>
+        
+        <div class="row">
+          <label>Themes</label>
+          <select id="hue-theme">
+            <option value="normal">Normal</option>
+            <option value="warm">Warm</option>
+            <option value="cool">Cool</option>
+            <option value="electric">Electric</option>
+            <option value="sunset">Sunset</option>
+            <option value="ocean">Ocean</option>
+            <option value="forest">Forest</option>
+          </select>
+        </div>
+        
+        <div class="row">
+          <button id="hue-animate">Animate Hue</button>
+          <button id="hue-reset">Reset Target</button>
+          <button id="hue-reset-all" style="margin-left:auto;">Reset All</button>
+        </div>
       </section>
     </div>
   <div class="phone-foot" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
@@ -353,6 +386,8 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
 <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.0/dist/pixi.min.js"></script>
 <script src="../../fx/fx-core.js"></script>
 <script src="../../fx/bubbles-pixi.js"></script>
+<script src="../../fx/hue-filter.js"></script>
+<script src="../../fx/hue-controller.js"></script>
 <script>
 (function(){
   const portal = document.getElementById('portal');
@@ -360,6 +395,8 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
   const motesLayer = document.getElementById('motesLayer');
   const awakening = document.getElementById('awakening');
   const hud = document.getElementById('hud');
+  // Hide HUD by default; toggle with 'H'
+  if(hud) hud.style.display='none';
 const toggles = { parallax:true, gl:true, bubbles: 'moving', mirror:false, mirrorBoth:false, errlGoo:true };
 
 const errlInline = document.getElementById('errl-inline');
@@ -428,14 +465,20 @@ const errlInline = document.getElementById('errl-inline');
       const url = NAV_SKINS[(start+i)%NAV_SKINS.length];
       const b = btns[i];
       b.removeAttribute('data-img'); // ensure CSS attribute backgrounds don't win
-      b.style.setProperty('background-image', `url("${url}")`);
-      b.style.setProperty('background-position', 'center');
-      b.style.setProperty('background-size', 'contain');
-      b.style.setProperty('background-repeat', 'no-repeat');
+      // Ensure inner image layer exists
+      let inner = b.querySelector('.puddle-img');
+      if(!inner){ inner = document.createElement('span'); inner.className = 'puddle-img'; b.prepend(inner); }
+      // Clear any background on the button itself; use inner layer instead
+      b.style.removeProperty('background-image');
+      // Apply to inner layer (with mask)
+      inner.style.setProperty('background-image', `url("${url}")`);
+      inner.style.setProperty('background-position', 'center');
+      inner.style.setProperty('background-size', '120%');
+      inner.style.setProperty('background-repeat', 'no-repeat');
       const ghost = b.querySelector('.puddle-ghost'); if(ghost){
         ghost.style.setProperty('background-image', `url("${url}")`);
         ghost.style.setProperty('background-position', 'center');
-        ghost.style.setProperty('background-size', 'contain');
+        ghost.style.setProperty('background-size', '120%');
         ghost.style.setProperty('background-repeat', 'no-repeat');
       }
     }
@@ -454,7 +497,11 @@ const errlInline = document.getElementById('errl-inline');
   // Global offset of the entire nav cluster relative to Errl center (negative = left)
   let navCenterOffsetX = -280; // tweak as desired
   let finalFanLocal = null; // [{x,y}] fan endpoints relative to screen center
-  let orbitActive = false; let t0 = 0; let orbitSpeed = 0.28; let orbitPhase = null;
+  let orbitActive = false; let t0 = 0; let orbitSpeed = 0.14; let orbitPhase = null;
+  // Smoothed anchor offset to prevent jitter from rapid Errl layout/filters
+  let offSmooth = { dx: 0, dy: 0 };
+  // Smooth orbit radius to avoid jitter when clamped near edges
+  let orbitRadius = null;
   const BUBBLE_MARGIN = 56; // keep bubbles within viewport (half size + padding)
   function safeRadiusAt(centerX, centerY, off){
     const ax = centerX + off.dx; // anchor for fan/orbit
@@ -475,32 +522,29 @@ const errlInline = document.getElementById('errl-inline');
     }
     return out;
   }
-  // --- Simple viscous physics for nav bubbles (spring-to-target + collisions) ---
-  const physics = { enabled:true, radius:52, stiffness:8.0, damping:0.86, bounce:0.35 };
+  // --- Overdamped easing for nav bubbles (no velocity bounce) ---
+  const physics = { enabled:true, radius:52, relax:0.18, collide:true };
   const phys = btns.map(()=>({ px:0, py:0, vx:0, vy:0, tx:0, ty:0, init:false }));
+  // Adapt physics radius to actual button size (helps on mobile where buttons may scale)
+  function updatePhysicsRadius(){ const b=btns[0]; if(!b) return; const w=b.getBoundingClientRect().width||96; let rim=8; try{ const cs=getComputedStyle(b); rim = parseFloat(cs.getPropertyValue('--rim')) || 8; }catch(e){} physics.radius = Math.max(24, Math.min(76, w*0.5 - rim - 6)); }
+  // Responsive nav button sizing based on viewport (smaller overall)
+  function updateBtnSize(){ const base=Math.min(innerWidth, innerHeight); const sz = Math.round(Math.max(60, Math.min(96, base*0.10))); document.documentElement.style.setProperty('--btn-size', sz+'px'); }
+  addEventListener('resize', ()=>{ updateBtnSize(); updatePhysicsRadius(); });
+  updateBtnSize(); updatePhysicsRadius();
   function stepPhysics(sec){ if(!physics.enabled) return; const n=phys.length;
-    // Integrate towards targets
+    const k = physics.relax; // frame-based relaxation
     for(let i=0;i<n;i++){ const p=phys[i]; if(!p.init){ p.px=p.tx; p.py=p.ty; p.init=true; }
-      const ax = (p.tx - p.px) * physics.stiffness;
-      const ay = (p.ty - p.py) * physics.stiffness;
-      p.vx = (p.vx + ax*sec) * physics.damping;
-      p.vy = (p.vy + ay*sec) * physics.damping;
-      p.px += p.vx;
-      p.py += p.vy;
+      p.px += (p.tx - p.px) * k;
+      p.py += (p.ty - p.py) * k;
     }
-    // Pairwise collision resolve
-    const R = physics.radius; const minD = R*2;
-    for(let i=0;i<n;i++){
-      for(let j=i+1;j<n;j++){
-        const a=phys[i], b=phys[j];
-        let dx=b.px - a.px, dy=b.py - a.py; let d=Math.hypot(dx,dy);
-        if(d>0 && d<minD){ const nx=dx/d, ny=dy/d; const overlap=(minD-d)*0.5; a.px-=nx*overlap; a.py-=ny*overlap; b.px+=nx*overlap; b.py+=ny*overlap;
-          // bounce along normal
-          const rvx=b.vx - a.vx, rvy=b.vy - a.vy; const vn = rvx*nx + rvy*ny;
-          if(vn<0){ const imp = -(1+physics.bounce)*vn*0.5; a.vx -= imp*nx; a.vy -= imp*ny; b.vx += imp*nx; b.vy += imp*ny; }
+    // Gentle separation only (no bounce)
+    if(physics.collide){ const R = physics.radius; const minD = R*2; for(let i=0;i<n;i++){
+        for(let j=i+1;j<n;j++){
+          const a=phys[i], b=phys[j];
+          let dx=b.px - a.px, dy=b.py - a.py; let d=Math.hypot(dx,dy);
+          if(d>0 && d<minD){ const nx=dx/d, ny=dy/d; const overlap=(minD-d)*0.5; a.px-=nx*overlap; a.py-=ny*overlap; b.px+=nx*overlap; b.py+=ny*overlap; }
         }
-      }
-    }
+      } }
     // Apply to DOM
     for(let i=0;i<n;i++){ btns[i].style.setProperty('--x', phys[i].px.toFixed(2)+'px'); btns[i].style.setProperty('--y', phys[i].py.toFixed(2)+'px'); }
   }
@@ -518,14 +562,18 @@ const errlInline = document.getElementById('errl-inline');
     if(orbitActive){
       t0 += sec * orbitSpeed;
       const n = btns.length;
-      const off = currentHeadOffset();
+      // Smooth the head anchor offset to mitigate jitter from subtle Errl effects
+      const rawOff = currentHeadOffset();
+      offSmooth.dx += (rawOff.dx - offSmooth.dx) * 0.12;
+      offSmooth.dy += (rawOff.dy - offSmooth.dy) * 0.12;
       const ocx = cx + navCenterOffsetX; const ocy = cy - 8;
-      const R = safeRadiusAt(ocx, ocy, off);
+      const Rnow = safeRadiusAt(ocx, ocy, offSmooth);
+      orbitRadius = (orbitRadius==null)? Rnow : (orbitRadius + (Rnow - orbitRadius)*0.12);
       for(let i=0;i<n;i++){
         const base = (orbitPhase && orbitPhase[i]!=null) ? orbitPhase[i] : i*(Math.PI*2/n);
         const a = t0 + base;
-        const x = off.dx + R * Math.cos(a);
-        const y = off.dy + R * Math.sin(a);
+        const x = offSmooth.dx + orbitRadius * Math.cos(a);
+        const y = offSmooth.dy + orbitRadius * Math.sin(a);
         phys[i].tx = x; phys[i].ty = y;
       }
       stepPhysics(sec);
@@ -732,7 +780,25 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
       });
 
       addEventListener('resize', ()=>{ overlay.texture = gradientTexture(innerWidth, innerHeight); overlay.width = innerWidth; overlay.height = innerHeight; });
+      
+      // Initialize hue controller integration
+      initHueIntegration();
     }catch(e){ console.warn('WebGL init failed; falling back.', e); toggles.gl=false; canvas.style.display='none'; }
+  }
+  
+  // Hue controller WebGL integration
+  function initHueIntegration() {
+    if (window.ErrlHueController) {
+      // Register WebGL references so controller can target layers
+      if (overlay) window.ErrlHueController.registerWebGLLayer('glOverlay', overlay);
+      if (bubblesFX && bubblesFX.sprites) window.ErrlHueController.registerWebGLLayer('bgBubbles', bubblesFX);
+      // Also re-register when bubblesFX resolves async
+      if (bubblesFX && typeof bubblesFX.then==='function'){
+        bubblesFX.then(inst=>{
+          window.ErrlHueController.registerWebGLLayer('bgBubbles', inst);
+        }).catch(()=>{});
+      }
+    }
   }
 
   // --- Gooey animation driver (vary displacement by pointer + time) ---
@@ -1048,7 +1114,7 @@ const NAV_INTRO = {
     return t;
   }
   let devChooserEl=null; function hideChooser(){ if(devChooserEl){ devChooserEl.style.display='none'; } }
-  let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','L3','L4','L5','L6']; const hiddenLayers=new Set();
+let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3','L4','L5','L6']; const hiddenLayers=new Set();
   function applyLayerStack(){ layersOrder.forEach((k,idx)=>{ const el=document.querySelector(`[data-layer="${k}"]`); if(el){ el.style.zIndex = String(200+idx); } }); }
   function toggleLayerVisibility(k){ const el=document.querySelector(`[data-layer="${k}"]`); if(!el) return; if(hiddenLayers.has(k)){ hiddenLayers.delete(k); el.style.display = (k==='L5'?'grid':''); } else { hiddenLayers.add(k); el.style.display='none'; } buildLayersPanel(); }
   function moveLayer(k,dir){ const i=layersOrder.indexOf(k); if(i<0) return; const j = i + (dir==='up'?-1:1); if(j<0 || j>=layersOrder.length) return; const tmp=layersOrder[i]; layersOrder[i]=layersOrder[j]; layersOrder[j]=tmp; applyLayerStack(); buildLayersPanel(); }
@@ -1141,7 +1207,12 @@ const NAV_INTRO = {
     devEditEl.querySelector('#dev-edit-prompt').value='';
   }
   function devOverlayToggle(on){ devOverlayOn = (on==null? !devOverlayOn : !!on); document.body.classList.toggle('dev-mode', devOverlayOn); if(devOverlayOn){ devOverlayApply(); if(!devOverlayUp){ devOverlayUp = ()=> devOverlayApply(); addEventListener('resize', devOverlayUp); } } else { if(devOverlayEl) devOverlayEl.remove(); devOverlayEl=null; if(devOverlayUp) removeEventListener('resize', devOverlayUp); devOverlayUp=null; } }
-  document.addEventListener('keydown', (e)=>{ if(e.key==='d' || e.key==='D'){ DEV.enabled=!DEV.enabled; toggleDev(!DEV.enabled?false:true); populateDev(); } if(e.key==='o' || e.key==='O'){ devOverlayToggle(); } if(e.key==='e' || e.key==='E'){ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }});
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='d' || e.key==='D'){ DEV.enabled=!DEV.enabled; toggleDev(!DEV.enabled?false:true); populateDev(); }
+    if(e.key==='o' || e.key==='O'){ devOverlayToggle(); }
+    if(e.key==='e' || e.key==='E'){ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }
+    if(e.key==='h' || e.key==='H'){ const hb=document.getElementById('hud'); if(hb){ const hide = hb.style.display!== 'none' ? true : false; hb.style.display = hide? 'none' : ''; const chk=document.getElementById('hud-hidebar'); if(chk) chk.checked = (hb.style.display==='none'); } }
+  });
   { const e=$('dev-hide'); if(e) e.onclick=()=> toggleDev(false); }
   { const e=$('dev-overlay'); if(e) e.onclick=()=> devOverlayToggle(); }
   { const e=$('dev-save'); if(e) e.onclick=()=>{ saveParamsFromPanel(); populateDev(); }; }
@@ -1210,6 +1281,123 @@ const NAV_INTRO = {
     bindGL('gl-alpha','gl-alpha-val', ()=> overlay? overlay.alpha : 0.20, (v)=>{ if(overlay) overlay.alpha = v; });
     bindGL('gl-dx','gl-dx-val', ()=> dispFilter? dispFilter.scale.x : 24, (v)=>{ if(dispFilter) dispFilter.scale.x = v; }, (x)=> String(Math.round(x)) );
     bindGL('gl-dy','gl-dy-val', ()=> dispFilter? dispFilter.scale.y : 18, (v)=>{ if(dispFilter) dispFilter.scale.y = v; }, (x)=> String(Math.round(x)) );
+    
+    // Hue controls
+    function initHueControls() {
+      if (!window.ErrlHueController) return;
+      
+      const hueTarget = $('hue-target');
+      const hueEnabled = $('hue-enabled');
+      const hueShift = $('hue-shift');
+      const hueShiftVal = $('hue-shift-val');
+      const hueSat = $('hue-saturation');
+      const hueSatVal = $('hue-saturation-val');
+      const hueInt = $('hue-intensity');
+      const hueIntVal = $('hue-intensity-val');
+      const hueTheme = $('hue-theme');
+      const hueAnimate = $('hue-animate');
+      const hueReset = $('hue-reset');
+      const hueResetAll = $('hue-reset-all');
+      
+      // Populate target list
+      if (hueTarget) {
+        hueTarget.innerHTML = '';
+        const layers = window.ErrlHueController.getLayers();
+        for (const {key, label} of layers) {
+          const opt = document.createElement('option');
+          opt.value = key; opt.textContent = label;
+          hueTarget.appendChild(opt);
+        }
+        hueTarget.value = 'nav';
+        window.ErrlHueController.setTarget('nav');
+      }
+      
+      function syncFromLayer(layer){
+        const L = layer || (hueTarget? hueTarget.value : window.ErrlHueController.currentTarget);
+        window.ErrlHueController.setTarget(L);
+        const st = window.ErrlHueController.layers[L];
+        if (hueShift) hueShift.value = st.hue;
+        if (hueSat) hueSat.value = st.saturation;
+        if (hueInt) hueInt.value = st.intensity;
+        if (hueEnabled) hueEnabled.checked = !!st.enabled;
+        updateLabels(L);
+      }
+      
+      function updateLabels(layer){
+        const L = layer || (hueTarget? hueTarget.value : window.ErrlHueController.currentTarget);
+        const s = window.ErrlHueController.layers[L];
+        if (hueShiftVal) hueShiftVal.textContent = Math.round(s.hue) + '°';
+        if (hueSatVal) hueSatVal.textContent = Math.round(s.saturation * 100) + '%';
+        if (hueIntVal) hueIntVal.textContent = Math.round(s.intensity * 100) + '%';
+      }
+      
+      hueTarget && hueTarget.addEventListener('change', ()=> syncFromLayer(hueTarget.value));
+      hueEnabled && hueEnabled.addEventListener('change', ()=>{ const L=hueTarget.value; window.ErrlHueController.setEnabled(hueEnabled.checked, L); });
+      
+      // Hue slider
+      if (hueShift) {
+        hueShift.addEventListener('input', () => {
+          const L = hueTarget.value; window.ErrlHueController.setHue(+hueShift.value, L);
+          updateLabels(L);
+        });
+      }
+      
+      // Saturation slider
+      if (hueSat) {
+        hueSat.addEventListener('input', () => {
+          const L = hueTarget.value; window.ErrlHueController.setSaturation(+hueSat.value, L);
+          updateLabels(L);
+        });
+      }
+      
+      // Intensity slider
+      if (hueInt) {
+        hueInt.addEventListener('input', () => {
+          const L = hueTarget.value; window.ErrlHueController.setIntensity(+hueInt.value, L);
+          updateLabels(L);
+        });
+      }
+      
+      // Theme selector
+      if (hueTheme) {
+        hueTheme.addEventListener('change', () => {
+          const L = hueTarget.value; window.ErrlHueController.applyTheme(L, hueTheme.value);
+          syncFromLayer(L);
+        });
+      }
+      
+      // Animation toggle
+      if (hueAnimate) {
+        hueAnimate.addEventListener('click', () => {
+          const L = hueTarget.value;
+          window.ErrlHueController.toggleAnimation(1, L);
+          hueAnimate.textContent = window.ErrlHueController.animation.active ? 'Stop Animation' : 'Animate Hue';
+        });
+      }
+      
+      // Reset buttons
+      if (hueReset) {
+        hueReset.addEventListener('click', () => {
+          const L = hueTarget.value;
+          window.ErrlHueController.reset(L);
+          syncFromLayer(L);
+          if (hueAnimate) hueAnimate.textContent = 'Animate Hue';
+        });
+      }
+      if (hueResetAll) {
+        hueResetAll.addEventListener('click', () => {
+          window.ErrlHueController.reset(null);
+          syncFromLayer(hueTarget.value);
+          if (hueAnimate) hueAnimate.textContent = 'Animate Hue';
+        });
+      }
+      
+      // Initial sync
+      syncFromLayer('nav');
+    }
+    
+    // Initialize hue controls after a short delay to ensure controller is ready
+    setTimeout(initHueControls, 100);
     // Layer toggles
     document.querySelectorAll('.layer-toggle').forEach(cb=>{
       cb.addEventListener('change', ()=>{
