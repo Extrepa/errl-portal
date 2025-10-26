@@ -1,12 +1,17 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  root: '.',
+  root: './src',
+  base: '/errl-portal/',
+  build: {
+    outDir: '../dist',
+    emptyOutDir: true
+  },
   server: {
-    open: '/src/portal/pixi-gl/index.html',
+    open: '/portal/pixi-gl/index.html',
     fs: { strict: false }
   },
   preview: {
-    open: '/src/portal/pixi-gl/index.html'
+    open: '/portal/pixi-gl/index.html'
   }
 })

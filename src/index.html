@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Errl Portal</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .portal {
+            max-width: 600px;
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .links {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .link {
+            display: block;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="portal">
+        <h1>Errl Portal</h1>
+        <p>Welcome to the trippy, playful world of Errl!</p>
+        
+        <div class="links">
+            <a href="./portal/pixi-gl/index.html" class="link">
+                <strong>Main Portal</strong><br>
+                Interactive WebGL experience with Errl
+            </a>
+            <a href="./apps/drippy-text/index.html" class="link">
+                <strong>Drippy Text</strong><br>
+                Text effects and animations
+            </a>
+            <a href="./apps/tools/index.html" class="link">
+                <strong>Tools</strong><br>
+                Development and creation tools
+            </a>
+            <a href="./fx/hue-examples.html" class="link">
+                <strong>Effects Gallery</strong><br>
+                Visual effects and shaders
+            </a>
+        </div>
+    </div>
+</body>
+</html>
