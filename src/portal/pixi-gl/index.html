@@ -765,13 +765,25 @@ const errlInline = document.getElementById('errl-inline');
   let offSmooth = { dx: 0, dy: 0 };
   // Smooth orbit radius to avoid jitter when clamped near edges
   let orbitRadius = null;
-  const BUBBLE_MARGIN = 56; // keep bubbles within viewport (half size + padding)
+  // Mobile detection and dynamic bubble margins
+  const isMobile = () => innerWidth <= 768 || 'ontouchstart' in window;
+  const getBubbleMargin = () => isMobile() ? 28 : 56; // Smaller margin on mobile
+  
   function safeRadiusAt(centerX, centerY, off){
     const ax = centerX + off.dx; // anchor for fan/orbit
     const ay = centerY + off.dy;
-    const m = BUBBLE_MARGIN;
-    const left = ax - m, right = innerWidth - ax - m, top = ay - m, bottom = innerHeight - ay - m;
-    return Math.max(40, Math.min(navSpread, left, right, top, bottom));
+    const m = getBubbleMargin();
+    
+    // On mobile, allow bubbles to move off-screen more freely
+    if (isMobile()) {
+      // Much more permissive boundaries - allow most of the bubble to go off screen
+      const left = ax + m, right = innerWidth - ax + m, top = ay + m, bottom = innerHeight - ay + m;
+      return Math.max(60, Math.min(navSpread * 1.5, left, right, top, bottom)); // Allow 1.5x spread on mobile
+    } else {
+      // Desktop: keep bubbles mostly on screen
+      const left = ax - m, right = innerWidth - ax - m, top = ay - m, bottom = innerHeight - ay - m;
+      return Math.max(40, Math.min(navSpread, left, right, top, bottom));
+    }
   }
   function fanTargets(n, spread, arcDeg){
     const out = [];
@@ -820,7 +832,14 @@ const errlInline = document.getElementById('errl-inline');
     const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
     let cx = innerWidth/2, cy = innerHeight/2;
     if(active){ const r = active.getBoundingClientRect(); if(r.width>0 && r.height>0){ cx = r.left + r.width/2; cy = r.top + r.height/2; } }
-    uiOrbit.style.left = (cx + navCenterOffsetX) + 'px';
+    
+    // Adjust center offset for mobile - center the orbit properly
+    let centerOffsetX = navCenterOffsetX;
+    if (isMobile()) {
+      centerOffsetX = 0; // Center the orbit on mobile
+    }
+    
+    uiOrbit.style.left = (cx + centerOffsetX) + 'px';
     uiOrbit.style.top  = (cy - 8) + 'px';
     if(orbitActive){
       t0 += sec * orbitSpeed;
@@ -829,7 +848,13 @@ const errlInline = document.getElementById('errl-inline');
       const rawOff = currentHeadOffset();
       offSmooth.dx += (rawOff.dx - offSmooth.dx) * 0.12;
       offSmooth.dy += (rawOff.dy - offSmooth.dy) * 0.12;
-      const ocx = cx + navCenterOffsetX; const ocy = cy - 8;
+      // Adjust center offset for mobile
+      let centerOffsetX = navCenterOffsetX;
+      if (isMobile()) {
+        centerOffsetX = 0; // Center the orbit on mobile
+      }
+      
+      const ocx = cx + centerOffsetX; const ocy = cy - 8;
       const Rnow = safeRadiusAt(ocx, ocy, offSmooth);
       orbitRadius = (orbitRadius==null)? Rnow : (orbitRadius + (Rnow - orbitRadius)*0.12);
       for(let i=0;i<n;i++){
@@ -1358,7 +1383,13 @@ const NAV_INTRO = {
     const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
     let cx = innerWidth/2, cy = innerHeight/2;
     if(active){ const r = active.getBoundingClientRect(); if(r.width>0 && r.height>0){ cx = r.left + r.width/2; cy = r.top + r.height/2; } }
-    const ocx = cx + navCenterOffsetX; const ocy = cy - 8;
+    // Adjust center offset for mobile
+    let centerOffsetX = navCenterOffsetX;
+    if (isMobile()) {
+      centerOffsetX = 0; // Center the orbit on mobile
+    }
+    
+    const ocx = cx + centerOffsetX; const ocy = cy - 8;
     const safeR = safeRadiusAt(ocx, ocy, off);
     for(let i=0;i<n;i++){
       const b = btns[i]; const local = finalFanLocal[i];
@@ -1401,7 +1432,13 @@ const NAV_INTRO = {
         // Clamp target to viewport by scaling vector to a safe radius
         const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
         let cx = innerWidth/2, cy = innerHeight/2; if(active){ const r = active.getBoundingClientRect(); if(r.width>0 && r.height>0){ cx = r.left + r.width/2; cy = r.top + r.height/2; } }
-        const ocx = cx + navCenterOffsetX; const ocy = cy - 8; const safeR = safeRadiusAt(ocx, ocy, off);
+        // Adjust center offset for mobile
+        let centerOffsetX = navCenterOffsetX;
+        if (isMobile()) {
+          centerOffsetX = 0; // Center the orbit on mobile
+        }
+        
+        const ocx = cx + centerOffsetX; const ocy = cy - 8; const safeR = safeRadiusAt(ocx, ocy, off);
         const rLen = Math.hypot(local.x, local.y) || 1; const scale = Math.min(1, safeR / rLen);
         // Start all from the same origin point
         const sx = origin.dx, sy = origin.dy;
