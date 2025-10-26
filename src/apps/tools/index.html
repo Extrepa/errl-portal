@@ -27,9 +27,58 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 .grid2 .row-resize, .grid2 .col-resize{ display:none !important; }
 
 /* Mobile: same, but ensure comfortable default heights */
+/* Mobile responsive improvements */
 @media (max-width: 900px){
-  .box{ min-height: 50vh; }
-  .box .row-resize{ height: 10px; }
+  :root { --outer-pad: 16px; } /* Reduce padding on mobile */
+  
+  .header { padding: 12px var(--outer-pad); }
+  .toolbar { padding: 12px var(--outer-pad); flex-wrap: wrap; }
+  
+  .box { min-height: 50vh; }
+  .box .row-resize { height: 12px; } /* Larger touch target */
+  .box .col-resize { width: 12px; height: 64px; } /* Larger touch target */
+  
+  .grid2 {
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: 20px;
+  }
+  
+  .grid2 .box {
+    min-height: 40vh; /* Smaller minimum height */
+  }
+  
+  .toolbar label {
+    font-size: 14px;
+  }
+  
+  .toolbar input[type="range"] {
+    width: 100px;
+  }
+}
+
+@media (max-width: 600px){
+  :root { --outer-pad: 12px; }
+  
+  .h1 { font-size: clamp(18px, 5vw, 28px); }
+  
+  .toolbar {
+    gap: 8px;
+  }
+  
+  .toolbar .rebtn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  .box header {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .box header .controls a.dl {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
 }
 
 .box{ position:relative; display:flex; flex-direction:column; border-radius:16px; background:#ffffff06; border:1px solid #ffffff14; box-shadow:0 12px 30px rgba(0,0,0,.38); overflow:hidden; 

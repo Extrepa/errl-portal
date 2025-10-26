@@ -89,6 +89,76 @@ code {
   padding: 6px 10px;
   font-size: 12px;
 }
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  body {
+    padding: 12px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .demo-section {
+    margin: 20px 0;
+    padding: 15px;
+  }
+  
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .control-group {
+    min-width: auto;
+  }
+  
+  input[type="range"] {
+    width: 100%;
+  }
+  
+  .theme-buttons {
+    justify-content: center;
+  }
+  
+  .theme-buttons button {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 6px;
+  }
+  
+  .preview-box {
+    width: 100%;
+    max-width: 300px;
+    margin: 15px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 8px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  .demo-section {
+    margin: 15px 0;
+    padding: 12px;
+  }
+  
+  .theme-buttons {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .theme-buttons button {
+    width: 100%;
+  }
+}
 </style>
 <link rel="stylesheet" href="hue-effects.css">
 </head>

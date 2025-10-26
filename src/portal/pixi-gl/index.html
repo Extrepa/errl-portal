@@ -46,6 +46,69 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 .errl .decor{ display:none; }
 .errl.revealed .decor{ display:inline; }
 .errl{ width:min(50vmin,60vw); filter: drop-shadow(0 0 18px rgba(123,92,255,.45)) drop-shadow(0 0 48px rgba(0,229,255,.18)); transition: opacity .9s ease, transform .9s ease, filter .25s ease; pointer-events:auto; opacity:0; cursor:grab; }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .errl { 
+    width: min(70vmin, 85vw); /* Larger on mobile for easier interaction */
+    cursor: pointer; /* Use pointer instead of grab on mobile */
+  }
+  
+  .ui-orbit { 
+    width: 80vmin; 
+    height: 80vmin; /* Slightly larger orbit on mobile */
+  }
+  
+  .btn { 
+    --btn-size: 72px; /* Larger touch targets */
+    min-height: 44px; /* iOS minimum touch target */
+    min-width: 44px;
+  }
+  
+  .hud .bubble { 
+    width: 48px; 
+    height: 48px; /* Slightly smaller HUD buttons to fit better */
+  }
+  
+  .devpanel {
+    right: 8px;
+    top: 8px;
+    max-width: calc(100vw - 16px);
+    font-size: 11px;
+  }
+  
+  .devpanel .phone {
+    width: min(300px, calc(100vw - 32px));
+  }
+  
+  /* Make coin smaller on mobile to avoid overwhelming */
+  .coin {
+    font-size: min(150px, 25vmin);
+  }
+}
+
+@media (max-width: 480px) {
+  .errl {
+    width: min(75vmin, 90vw); /* Even larger on small screens */
+  }
+  
+  .btn {
+    --btn-size: 64px;
+  }
+  
+  .hud .bubble {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .coin {
+    font-size: min(120px, 20vmin);
+  }
+  
+  .devpanel {
+    font-size: 10px;
+  }
+}
 .errl.goo{ filter: url(#errl-goo) drop-shadow(0 0 18px rgba(123,92,255,.45)) drop-shadow(0 0 48px rgba(0,229,255,.18)); }
 @keyframes errlIn{ from{ opacity:0; transform:translateY(4px) scale(0.992); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); } to{ opacity:1; transform:none; } }
 .errl:hover{ transform:translateY(-2px) scale(1.01); }

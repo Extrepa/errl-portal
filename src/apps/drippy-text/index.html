@@ -14,6 +14,44 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 .back{ color:#cdeafe; text-decoration:none; padding:.4em .7em; border-radius:999px; background:#ffffff0f; box-shadow:0 2px 8px rgba(0,0,0,.35);} 
 .h1{font-size:clamp(22px,4vmin,34px); font-weight:800; margin:0; opacity:.9}
 .frame{ margin: 3vmin auto; width:min(1200px,94vw); height: calc(100vh - 100px); border-radius:16px; overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,.45); border:1px solid #ffffff18; background:radial-gradient(80% 60% at 50% 30%, #141a3a, #0a0f18); }
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .h1 {
+    font-size: clamp(18px, 5vw, 28px);
+  }
+  
+  .back {
+    padding: 0.3em 0.6em;
+    font-size: 14px;
+  }
+  
+  .frame {
+    margin: 2vmin auto;
+    width: 96vw;
+    height: calc(100vh - 80px);
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 8px 12px;
+  }
+  
+  .frame {
+    margin: 1vmin auto;
+    width: 98vw;
+    height: calc(100vh - 70px);
+    border-radius: 8px;
+  }
+}
 .frame iframe{ width:100%; height:100%; border:0; background:#0a0f18; }
 </style>
 <link rel="stylesheet" href="../../fx/errl-bg.css">

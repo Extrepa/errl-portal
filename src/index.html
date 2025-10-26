@@ -56,6 +56,46 @@
             border-color: rgba(255, 255, 255, 0.4);
             transform: translateY(-2px);
         }
+        
+        /* Mobile responsive improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .portal {
+                max-width: 100%;
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .links {
+                gap: 0.75rem;
+            }
+            
+            .link {
+                padding: 0.75rem;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .portal {
+                padding: 0.5rem;
+            }
+            
+            .link {
+                padding: 0.6rem;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
