@@ -27,9 +27,23 @@
       const hud = create('div','errl-hud');
       hud.setAttribute('data-variant', String(opt.headerVariant===2?2:1));
       const img1 = new Image(); img1.className='hdr1';
-      img1.alt=''; img1.decoding='async'; img1.src = opt.basePath + '/assets/BG/BG_Header.png';
+      img1.alt=''; img1.decoding='async';
+      // Try multiple candidate filenames to match repo assets
+      const hdr1Candidates = [
+        opt.basePath + '/assets/BG/BG_Header.png',
+        opt.basePath + '/assets/BG/BG_Header-.png',
+        opt.basePath + '/assets/BG/BG_Header_Almost.png'
+      ];
+      const hdr2Candidates = [
+        opt.basePath + '/assets/BG/BG_Header_2.png',
+        opt.basePath + '/assets/BG/BG_Header--.png',
+        opt.basePath + '/assets/BG/BG_Header-.png'
+      ];
+      function applyFallback(el, list){ let i=0; const next=()=>{ if(i<list.length){ el.src=list[i++]; } }; el.onerror = next; next(); }
+      applyFallback(img1, hdr1Candidates);
       const img2 = new Image(); img2.className='hdr2';
-      img2.alt=''; img2.decoding='async'; img2.src = opt.basePath + '/assets/BG/BG_Header_2.png';
+      img2.alt=''; img2.decoding='async';
+      applyFallback(img2, hdr2Candidates);
       hud.append(img1, img2); document.body.appendChild(hud);
     }
 

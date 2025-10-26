@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Errl Buddy — Prototype</title>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { background: radial-gradient(80% 60% at 50% 35%, #12182a, #0a0f18 60%); color: #e5eaf1; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { position: fixed; inset: 0; display: grid; grid-template-rows: auto 1fr; }
+    .toolbar { display:flex; gap:8px; align-items:center; padding:10px 14px; background:linear-gradient(180deg, rgba(12,18,32,.8), rgba(10,15,24,.6)); border-bottom:1px solid #ffffff1a; }
+    .toolbar .btn { padding:6px 10px; border-radius:8px; border:1px solid #ffffff22; background:#10182a; color:#d7eaff; font-weight:700; cursor:pointer; }
+    .toolbar .btn[aria-pressed="true"] { background:#152038; }
+    #stage { position:relative; overflow:hidden; }
+    /* On-canvas HUD text */
+    .hud { position:absolute; left:10px; bottom:10px; font: 12px/1.4 system-ui, sans-serif; color:#9ecbff; opacity:.9; background:#00000040; padding:6px 8px; border-radius:8px; border:1px solid #ffffff20; }
+    /* Shop */
+    .shop { position:absolute; top:56px; right:12px; width:260px; max-width:calc(100% - 24px); background:linear-gradient(180deg, rgba(12,18,32,.92), rgba(10,15,24,.88)); border:1px solid #ffffff22; border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.45); display:none; }
+    .shop.visible { display:block; }
+    .shop header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; color:#cfe9ff; font-weight:800; border-bottom:1px solid #ffffff22; }
+    .shop .body { padding:10px 12px; display:grid; gap:8px; }
+    .shop .item { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:10px; background:#ffffff0a; border:1px solid #ffffff18; }
+    .shop .item .meta { display:flex; flex-direction:column; gap:2px; font-size:12px; }
+    .shop .item .title { font-weight:700; color:#e6f3ff; }
+    .shop .item .desc { opacity:.85; color:#cbdfff; }
+    .shop .item .price { font-weight:800; color:#ffe17a; }
+  </style>
+  <script src="https://unpkg.com/pixi.js@7.4.0/dist/pixi.min.js"></script>
+  <script src="https://unpkg.com/matter-js@0.19.0/build/matter.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="toolbar">
+      <button id="spawnBall" class="btn">Spawn ball</button>
+      <button id="spawnCoin" class="btn">Spawn coin</button>
+      <button id="poke" class="btn">Poke</button>
+      <button id="toggleGravity" class="btn" aria-pressed="false">Gravity: On</button>
+      <div style="flex:1"></div>
+      <button id="shopToggle" class="btn" aria-pressed="false">Shop</button>
+      <button id="loadCoinRain" class="btn">Load coin-rain script</button>
+      <button id="reset" class="btn">Reset</button>
+    </div>
+    <div id="stage"></div>
+    <aside id="shop" class="shop" role="dialog" aria-modal="false" aria-label="Shop">
+      <header>
+        <span>Shop</span>
+        <button id="closeShop" class="btn">Close</button>
+      </header>
+      <div class="body">
+        <div class="item">
+          <div class="meta"><span class="title">Coin Pack</span><span class="desc">Drop 5 coins above Errl</span></div>
+          <button class="btn buy" data-item="coinpack" data-cost="5">$5</button>
+        </div>
+        <div class="item">
+          <div class="meta"><span class="title">Bomb</span><span class="desc">Boom at Errl's position</span></div>
+          <button class="btn buy" data-item="bomb" data-cost="25">$25</button>
+        </div>
+        <div class="item">
+          <div class="meta"><span class="title">Ball x10</span><span class="desc">Flood the arena</span></div>
+          <button class="btn buy" data-item="ball10" data-cost="10">$10</button>
+        </div>
+        <div class="item">
+          <div class="meta"><span class="title">Zero-G (5s)</span><span class="desc">Disable gravity briefly</span></div>
+          <button class="btn buy" data-item="zerog5" data-cost="15">$15</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <div class="hud"><span id="moneyHud">$0</span> — Drag Errl with mouse. Throw to bounce. Use buttons to play.</div>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

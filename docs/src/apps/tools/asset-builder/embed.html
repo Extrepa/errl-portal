@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Errl Asset Builder (Embed)</title>
+    <link rel="icon" href="public/favicon.svg" />
+    <link rel="stylesheet" href="src/styles.css" />
+    <!-- Minifiers via CDN (optional). If unavailable, app will fallback to pass-through. -->
+    <script src="https://cdn.jsdelivr.net/npm/terser/dist/bundle.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/csso/dist/csso.min.js" defer></script>
+    <style>
+      html, body { height: 100%; }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <img src="public/favicon.svg" alt="logo" class="logo" />
+      <h1>Errl Asset Builder</h1>
+      <div class="spacer"></div>
+      <label class="toggle">
+        <input type="checkbox" id="liveToggle" />
+        <span>Live Preview</span>
+      </label>
+      <button id="compileBtn" class="primary">Compile</button>
+      <button id="downloadHtmlBtn">Download HTML</button>
+      <button id="downloadCssBtn">Download CSS</button>
+      <button id="downloadJsBtn">Download JS</button>
+    </header>
+
+    <main class="grid">
+      <div class="left">
+        <section class="pane">
+          <h2>HTML</h2>
+          <textarea id="htmlInput" spellcheck="false" placeholder="<!-- Write HTML here -->"><div class="app">Hello from HTML</div></textarea>
+        </section>
+        <section class="pane">
+          <h2>CSS</h2>
+          <textarea id="cssInput" spellcheck="false" placeholder="/* Write CSS here */
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+"></textarea>
+        </section>
+        <section class="pane">
+          <h2>JavaScript</h2>
+          <textarea id="jsInput" spellcheck="false" placeholder="// Write JS here
+console.log('Hello from Errl Asset Builder');
+"></textarea>
+        </section>
+      </div>
+      <section class="preview-pane">
+        <h2>Preview</h2>
+        <iframe id="preview" sandbox="allow-scripts allow-same-origin" title="Preview"></iframe>
+        <pre id="status" class="status" aria-live="polite"></pre>
+      </section>
+    </main>
+
+    <script src="src/main.js"></script>
+  </body>
+</html>

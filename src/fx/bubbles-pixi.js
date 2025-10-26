@@ -88,23 +88,23 @@ class BubblesFX{
       for(let i=0;i<this.count;i++){
         const layer=(i%Math.round(1/this.opts.farRatio)===0)?this.far:this.near;
         const s=new PIXI.Sprite(this.tex);
-        if(s.texture?.baseTexture){ s.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.LINEAR; s.texture.baseTexture.mipmap = PIXI.MIPMAP_MODES.ON; }
+        if(s.texture && s.texture.baseTexture){ s.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.LINEAR; s.texture.baseTexture.mipmap = PIXI.MIPMAP_MODES.ON; }
         s.anchor.set(.5); s.roundPixels = true; s.blendMode=this.opts.blendMode; s.alpha=this.opts.alpha;
         s.x=Math.random()*W; s.y=Math.random()*H;
         const size=this.opts.minSize+Math.random()*(this.opts.maxSize-this.opts.minSize);
         // since we crop to square, scale from tex width
-        s.scale.set(size / (this.tex?.width||64));
+        s.scale.set(size / ((this.tex && this.tex.width)||64));
         s.v=this.opts.minSpeed+Math.random()*(this.opts.maxSpeed-this.opts.minSpeed);
         s.w=Math.random()*this.opts.wobble+.3; s.f=this.opts.minFreq+Math.random()*(this.opts.maxFreq-this.opts.minFreq); s.t=Math.random()*Math.PI*2; s._dir = (Math.random() < 0.5 ? -1 : 1);
         layer.addChild(s); this.sprites.push(s);
       }
     }
-    _advance(dt){ const sp = Math.max(0, this._speed); const wob = Math.max(0, this._wobbleMult); if(sp<=0 && wob<=0 && !this._pointer?.x && !this._influencer) return; const W=this.app.screen.width, H=this.app.screen.height; for(const s of this.sprites){ const parallax=(s.parent===this.far)?0.7:1.0; if(sp>0) s.y -= s.v*dt*parallax*sp; if(wob>0){ s.x += Math.sin((s.t += (s.f*this._freqMult)*0.02*dt)) * (s.w*wob) * parallax; }
+    _advance(dt){ const sp = Math.max(0, this._speed); const wob = Math.max(0, this._wobbleMult); if(sp<=0 && wob<=0 && !(this._pointer && this._pointer.x) && !this._influencer) return; const W=this.app.screen.width, H=this.app.screen.height; for(const s of this.sprites){ const parallax=(s.parent===this.far)?0.7:1.0; if(sp>0) s.y -= s.v*dt*parallax*sp; if(wob>0){ s.x += Math.sin((s.t += (s.f*this._freqMult)*0.02*dt)) * (s.w*wob) * parallax; }
         // Pointer or external influencer push/pull influence (gentle). Influencer repels.
         const p = this._influencer || this._pointer; if(p && p.x!=null){ const effR = (this._influenceRadius!=null? this._influenceRadius : this._radius); const effF = (this._influenceForce!=null? this._influenceForce : this._force); const dx=p.x - s.x, dy=p.y - s.y; const d=Math.hypot(dx,dy); if(d < effR){ const inf = 1 - d/effR; const nx = dx/(d||1), ny = dy/(d||1); const m = effF * inf * parallax * dt; const sign = (this._influencer ? 1 : s._dir); s.x += nx * m * sign; s.y += ny * m * sign; } }
         if(s.y<-80){ s.y=H+Math.random()*120; s.x=Math.random()*W; }
       } }
-    _update(){ const dt = Math.max(0.5, Math.min(3, (this.app.ticker?.deltaMS || 16.667)/16.667)); this._advance(dt); }
+    _update(){ const deltaMS = (this.app.ticker && this.app.ticker.deltaMS) || 16.667; const dt = Math.max(0.5, Math.min(3, deltaMS/16.667)); this._advance(dt); }
     _updateRAF(ts){ if(this._lastTS==null) this._lastTS=ts; const ms = ts - this._lastTS; this._lastTS = ts; const dt = Math.max(0.5, Math.min(3, ms/16.667)); this._advance(dt); requestAnimationFrame(this._raf); }
     set(params={}){
       const prev = { ...this.opts };

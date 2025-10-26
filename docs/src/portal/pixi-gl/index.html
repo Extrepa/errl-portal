@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../fx/effects.css">
+<link rel="stylesheet" href="../../fx/hue-effects.css">
 <style>
 @font-face{ font-family:'Castellar'; src: local('Castellar'); font-style: normal; font-weight: 400 900; font-display: swap; }
 :root{ --ink:#e5eaf1; --line:#ffffff22; --errl-purp:#7b5cff; --errl-teal:#00e5ff; --errl-blue:#5aa6ff; --errl-indigo:#3a4d9e; }
@@ -24,7 +25,8 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 }
 @keyframes hueShift{ 0%{filter:hue-rotate(0deg) saturate(110%);} 50%{filter:hue-rotate(60deg) saturate(120%);} 100%{filter:hue-rotate(0deg) saturate(110%);} }
 
-#gl{ position:absolute; inset:0; pointer-events:none; z-index:2; }
+#gl{ position:absolute; inset:0; pointer-events:none; }
+.l1{ z-index:2; }
 
 .l2{ inset:0; overflow:hidden; z-index:1; }
 .mote{
@@ -56,8 +58,10 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 
 .l5{ z-index:5; display:grid; place-items:center; }
 .ui-orbit{ position:absolute; width:70vmin; height:70vmin; left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none; filter:url(#gooey-ui); }
-.btn{ position:absolute; left:50%; top:50%; pointer-events:auto; padding:0; border-radius:50%; border:0; width:96px; height:96px; background:rgba(255,255,255,.06); color:#e5eaf1; font-weight:600; font-size:14px; backdrop-filter:saturate(120%) blur(2px); transition: box-shadow .12s ease, background .12s ease; transform: translate(-50%,-50%) translate(var(--x, 0px), var(--y, 0px)) translate(var(--dx,0px), var(--dy,0px)) scale(calc(var(--s,1) * var(--sv,1))); box-shadow:0 6px 16px rgba(0,0,0,.25); overflow:hidden; position:relative; }
-.btn .puddle-ghost{ position:absolute; left:50%; top:50%; width:110%; height:110%; transform:translate(-50%,-50%) scale(1); opacity:0; transition: transform .25s ease, opacity .18s ease; pointer-events:none; z-index:2; filter: drop-shadow(0 8px 20px rgba(0,0,0,.35)); }
+.btn{ position:absolute; left:50%; top:50%; pointer-events:auto; padding:var(--rim, 8px); border-radius:50%; border:0; width:var(--btn-size, 96px); height:var(--btn-size, 96px); background:rgba(255,255,255,.06); color:#e5eaf1; font-weight:600; font-size:14px; backdrop-filter:saturate(120%) blur(2px); transition: box-shadow .12s ease, background .12s ease; transform: translate(-50%,-50%) translate(var(--x, 0px), var(--y, 0px)) translate(var(--dx,0px), var(--dy,0px)) scale(calc(var(--s,1) * var(--sv,1))); box-shadow:0 6px 16px rgba(0,0,0,.25); overflow:hidden; position:relative; background-origin: content-box; background-clip: content-box; }
+.btn .puddle-ghost{ position:absolute; left:50%; top:50%; width:calc(100% - 2*var(--rim, 8px)); height:calc(100% - 2*var(--rim, 8px)); border-radius:50%; transform:translate(-50%,-50%) scale(1); opacity:0; transition: transform .25s ease, opacity .18s ease; pointer-events:none; z-index:2; filter: drop-shadow(0 8px 20px rgba(0,0,0,.35)); }
+/* Inner image layer with feathered edge to hide asset rims */
+.btn .puddle-img{ position:absolute; left:50%; top:50%; width:calc(100% - 2*var(--rim, 8px)); height:calc(100% - 2*var(--rim, 8px)); transform:translate(-50%,-50%); border-radius:50%; z-index:1; background-position:center; background-repeat:no-repeat; background-size:120%; -webkit-mask-image: radial-gradient(circle, #000 72%, transparent 82%); mask-image: radial-gradient(circle, #000 72%, transparent 82%); }
 /* Fallback art for initial paint (JS overrides these on load) */
 .btn[data-img="bubbles-1"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-1.png") center/contain no-repeat; }
 .btn[data-img="bubbles-2"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-2.png") center/contain no-repeat; }
@@ -65,7 +69,7 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 .btn[data-img="bubbles-4"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-4.png") center/contain no-repeat; }
 .btn[data-img="bubbles-5"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-5.png") center/contain no-repeat; }
 .btn[data-img="bubbles-6"] .puddle-ghost{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-6.png") center/contain no-repeat; }
-.btn:hover .puddle-ghost, .btn:focus-visible .puddle-ghost{ opacity:1; transform:translate(-50%,-50%) scale(1.18); }
+.btn:hover .puddle-ghost, .btn:focus-visible .puddle-ghost{ opacity:1; transform:translate(-50%,-50%) scale(1.08); }
 .btn span.vh{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .btn[data-img="bubbles-1"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-1.png") center/contain no-repeat; }
 .btn[data-img="bubbles-2"]{ background: url("../../assets/Bubbles_ErrlSiteDecor/Bubbles-2.png") center/contain no-repeat; }
@@ -201,6 +205,159 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
 #dev-edit .row{ display:flex; gap:8px; justify-content:flex-end; }
 #dev-edit button{ background:#1a2340; color:#eaf6ff; border:1px solid #2a3a6a; border-radius:8px; padding:6px 10px; cursor:pointer; }
 #dev-edit button:hover{ background:#213056; }
+
+/* Circular 3D spinning coin with Errl's face */
+  .coin {
+  --thick: 0.1em;
+  font-size: 200px;
+  width: var(--thick);
+  height: 1em;
+  background: radial-gradient(circle at 30% 35%, #0d0d12 0%, #000 65%);
+  margin: auto;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) perspective(900px) rotateY(0turn);
+  transform-origin: 50% 50%;
+  will-change: transform;
+  /* JS drives rotation; keep CSS idle */
+  transform-style: preserve-3d;
+  z-index: 2000;
+  pointer-events: none;
+  box-shadow: 0 0 18px rgba(123,92,255,.35), 0 0 36px rgba(0,229,255,.18);
+}
+
+/* Aura glow ring */
+.coin .aura{
+  position:absolute;
+  inset:-0.18em;
+  border-radius:50%;
+  background: conic-gradient(from 0deg,#ff004c,#ffa300,#ffee00,#53f900,#00e5ff,#7b5cff,#ff00b1,#ff004c);
+  filter: blur(18px) saturate(120%);
+  opacity:.6;
+  pointer-events:none;
+  animation: spinAura 3s linear infinite;
+}
+@keyframes spinAura { to { transform: rotate(1turn); } }
+
+.coin .side {
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
+  border-radius: 50%;
+  left: 50%; top: 50%; margin: 0;
+  transform-origin: 50% 50%;
+  text-align: center;
+  line-height: 1;
+  backface-visibility: hidden;
+  background: radial-gradient(circle at 35% 30%, #0d0d12 0%, #000 70%);
+  border: 2px solid rgba(255,255,255,.12);
+  box-shadow: 0 0 10px rgba(123,92,255,.3), 0 0 22px rgba(0,229,255,.18);
+}
+/* Edge strip (rim) centered between faces */
+.coin::before {
+  content: "";
+  position:absolute;
+  left:50%; top:50%;
+  width: var(--thick);
+  height: 1em;
+  transform: translate(-50%, -50%) rotateY(90deg);
+  backface-visibility: hidden;
+  background: radial-gradient(circle at 35% 30%, #0d0d12 0%, #000 70%);
+  border: 2px solid rgba(255,255,255,.12);
+  box-shadow: 0 0 10px rgba(123,92,255,.3), 0 0 22px rgba(0,229,255,.18);
+  border-radius: 50%;
+}
+
+.coin .side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.05em;
+}
+
+.coin .side svg {
+  width: 80%;
+  height: 80%;
+  transform: scale(1);
+  position: relative;
+  z-index: 1;
+}
+/* hide body silhouette inside the coin; we only want the face */
+.coin .side svg [data-region="body"]{ display:none; }
+/* solid fill to avoid any “hollow” look */
+.coin .side::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:#000;
+  z-index:0;
+}
+
+/* Force black Errl body with light outline on both sides */
+.coin .side svg [data-region="body"] {
+  fill: #000;
+  stroke: rgba(229,238,247,1);
+  stroke-width: 7;
+}
+
+.coin .side.heads svg [data-region="face"] {
+  fill: rgba(255,255,255,.1);
+  stroke: rgba(255,255,255,.8);
+  stroke-width: 3;
+}
+
+.coin .side.heads svg [data-region="eyeL"],
+.coin .side.heads svg [data-region="eyeR"] {
+  fill: rgba(255,255,255,.9);
+  stroke: rgba(255,255,255,.6);
+  stroke-width: 2;
+}
+
+.coin .side.heads svg [data-region="mouth"] {
+  fill: rgba(255,255,255,.2);
+  stroke: rgba(255,255,255,.8);
+  stroke-width: 3;
+}
+
+.coin .side.tails svg [data-region="face"] {
+  fill: rgba(200,200,200,.1);
+  stroke: rgba(200,200,200,.6);
+  stroke-width: 3;
+}
+
+.coin .side.tails svg [data-region="eyeL"],
+.coin .side.tails svg [data-region="eyeR"] {
+  fill: rgba(200,200,200,.7);
+  stroke: rgba(200,200,200,.5);
+  stroke-width: 2;
+}
+
+.coin .side.tails svg [data-region="mouth"] {
+  fill: rgba(200,200,200,.2);
+  stroke: rgba(200,200,200,.6);
+  stroke-width: 3;
+}
+
+@keyframes rotate_4001510 {
+  to {
+    transform: translate(-50%, -50%) perspective(900px) rotateY(1turn);
+  }
+}
+
+.svg_back {
+  transform: scaleX(-1);
+}
+
+/* Front and back faces of the coin */
+.coin .side.heads {
+  transform: translate(-50%, -50%) translateZ(calc(var(--thick) / 2)) rotateY(0deg);
+}
+.coin .side.tails {
+  transform: translate(-50%, -50%) translateZ(calc(-1 * var(--thick) / 2)) rotateY(180deg);
+}
 </style>
 </head>
 <body>
@@ -217,12 +374,16 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
       <feTurbulence id="errlGooNoise" type="fractalNoise" baseFrequency="0.005 0.008" numOctaves="2" seed="2" result="noise"/>
       <feDisplacementMap id="errlGooDisp" in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
+    <!-- Clip path for Errl-shaped coin -->
+    <clipPath id="errl-clip" clipPathUnits="objectBoundingBox">
+      <path d="M0.473 0 L0.472 0.0004 L0.458 0.0004 L0.458 0.0009 L0.450 0.0009 L0.449 0.0013 L0.442 0.0013 L0.441 0.0017 L0.435 0.0017 L0.434 0.0022 L0.429 0.0022 L0.428 0.0026 L0.423 0.0026 L0.422 0.0031 L0.408 0.0031 L0.408 0.0035 L0.394 0.0035 L0.394 0.0039 L0.339 0.0039 L0.338 0.0043 L0.319 0.0043 L0.318 0.0048 L0.306 0.0048 L0.305 0.0052 L0.296 0.0052 L0.295 0.0057 L0.287 0.0057 L0.286 0.0061 L0.280 0.0061 L0.279 0.0065 L0.274 0.0065 L0.273 0.0070 L0.268 0.0070 L0.267 0.0074 L0.264 0.0074 L0.263 0.0078 L0.255 0.0078 L0.254 0.0083 L0.242 0.0083 L0.241 0.0087 L0.226 0.0087 L0.225 0.0091 L0.208 0.0091 L0.207 0.0096 L0.187 0.0096 L0.186 0.0100 L0.163 0.0100 L0.162 0.0104 L0.136 0.0104 L0.135 0.0109 L0.105 0.0109 L0.104 0.0113 L0.071 0.0113 L0.070 0.0117 L0.033 0.0117 L0.032 0.0122 L0.0 0.0122 L0.0 0.165 L0.032 0.165 L0.032 0.170 L0.070 0.170 L0.070 0.174 L0.104 0.174 L0.104 0.178 L0.135 0.178 L0.135 0.183 L0.162 0.183 L0.162 0.187 L0.186 0.187 L0.186 0.191 L0.207 0.191 L0.207 0.196 L0.225 0.196 L0.225 0.200 L0.241 0.200 L0.241 0.204 L0.254 0.204 L0.254 0.209 L0.263 0.209 L0.263 0.213 L0.267 0.213 L0.267 0.217 L0.273 0.217 L0.273 0.222 L0.279 0.222 L0.279 0.226 L0.286 0.226 L0.286 0.230 L0.295 0.230 L0.295 0.235 L0.305 0.235 L0.305 0.239 L0.318 0.239 L0.318 0.243 L0.338 0.243 L0.338 0.248 L0.394 0.248 L0.394 0.252 L0.408 0.252 L0.408 0.257 L0.422 0.257 L0.422 0.261 L0.428 0.261 L0.428 0.265 L0.434 0.265 L0.434 0.270 L0.441 0.270 L0.441 0.274 L0.449 0.274 L0.449 0.278 L0.458 0.278 L0.458 0.283 L0.472 0.283 L0.472 0.287 L0.473 0.287 L0.473 0.330 L0.472 0.330 L0.472 0.339 L0.458 0.339 L0.458 0.343 L0.449 0.343 L0.449 0.348 L0.441 0.348 L0.441 0.352 L0.434 0.352 L0.434 0.357 L0.428 0.357 L0.428 0.361 L0.422 0.361 L0.422 0.365 L0.408 0.365 L0.408 0.370 L0.394 0.370 L0.394 0.374 L0.389 0.374 L0.388 0.378 L0.379 0.378 L0.378 0.383 L0.366 0.383 L0.365 0.387 L0.351 0.387 L0.350 0.391 L0.333 0.391 L0.332 0.396 L0.312 0.396 L0.311 0.400 L0.287 0.400 L0.286 0.404 L0.258 0.404 L0.257 0.409 L0.225 0.409 L0.224 0.413 L0.187 0.413 L0.186 0.417 L0.144 0.417 L0.143 0.422 L0.095 0.422 L0.094 0.426 L0.040 0.426 L0.039 0.430 L0.0 0.430 L0.0 0.570 L0.039 0.570 L0.039 0.574 L0.094 0.574 L0.094 0.578 L0.143 0.578 L0.143 0.583 L0.186 0.583 L0.186 0.587 L0.224 0.587 L0.224 0.591 L0.257 0.591 L0.257 0.596 L0.286 0.596 L0.286 0.600 L0.311 0.600 L0.311 0.604 L0.332 0.604 L0.332 0.609 L0.350 0.609 L0.350 0.613 L0.365 0.613 L0.365 0.617 L0.378 0.617 L0.378 0.622 L0.388 0.622 L0.388 0.626 L0.394 0.626 L0.394 0.630 L0.408 0.630 L0.408 0.635 L0.422 0.635 L0.422 0.639 L0.428 0.639 L0.428 0.643 L0.434 0.643 L0.434 0.648 L0.441 0.648 L0.441 0.652 L0.449 0.652 L0.449 0.657 L0.458 0.657 L0.458 0.661 L0.472 0.661 L0.472 0.665 L0.473 0.665 L0.473 0.708 L0.472 0.708 L0.472 0.713 L0.458 0.713 L0.458 0.717 L0.449 0.717 L0.449 0.722 L0.441 0.722 L0.441 0.726 L0.434 0.726 L0.434 0.730 L0.428 0.730 L0.428 0.735 L0.422 0.735 L0.422 0.739 L0.408 0.739 L0.408 0.743 L0.394 0.743 L0.394 0.748 L0.388 0.748 L0.388 0.752 L0.378 0.752 L0.378 0.757 L0.365 0.757 L0.365 0.761 L0.350 0.761 L0.350 0.765 L0.332 0.765 L0.332 0.770 L0.311 0.770 L0.311 0.774 L0.286 0.774 L0.286 0.778 L0.257 0.778 L0.257 0.783 L0.224 0.783 L0.224 0.787 L0.186 0.787 L0.186 0.791 L0.143 0.791 L0.143 0.796 L0.094 0.796 L0.094 0.800 L0.039 0.800 L0.039 0.804 L0.0 0.804 L0.0 0.965 L0.039 0.965 L0.039 0.970 L0.070 0.970 L0.070 0.974 L0.104 0.974 L0.104 0.978 L0.135 0.978 L0.135 0.983 L0.162 0.983 L0.162 0.987 L0.186 0.987 L0.186 0.991 L0.207 0.991 L0.207 0.996 L0.225 0.996 L0.225 1.0 L1.0 1.0 L1.0 0.996 L0.775 0.996 L0.775 0.991 L0.793 0.991 L0.793 0.987 L0.814 0.987 L0.814 0.983 L0.838 0.983 L0.838 0.978 L0.865 0.978 L0.865 0.974 L0.896 0.974 L0.896 0.970 L0.930 0.970 L0.930 0.965 L0.961 0.965 L0.961 0.804 L1.0 0.804 L1.0 0.800 L0.961 0.800 L0.961 0.796 L0.906 0.796 L0.906 0.791 L0.857 0.791 L0.857 0.787 L0.814 0.787 L0.814 0.783 L0.776 0.783 L0.776 0.778 L0.743 0.778 L0.743 0.774 L0.714 0.774 L0.714 0.770 L0.689 0.770 L0.689 0.765 L0.668 0.765 L0.668 0.761 L0.650 0.761 L0.650 0.757 L0.635 0.757 L0.635 0.752 L0.622 0.752 L0.622 0.748 L0.612 0.748 L0.612 0.743 L0.606 0.743 L0.606 0.739 L0.592 0.739 L0.592 0.735 L0.578 0.735 L0.578 0.730 L0.566 0.730 L0.566 0.726 L0.559 0.726 L0.559 0.722 L0.551 0.722 L0.551 0.717 L0.542 0.717 L0.542 0.713 L0.528 0.713 L0.528 0.708 L0.527 0.708 L0.527 0.665 L0.528 0.665 L0.528 0.661 L0.542 0.661 L0.542 0.657 L0.551 0.657 L0.551 0.652 L0.559 0.652 L0.559 0.648 L0.566 0.648 L0.566 0.643 L0.572 0.643 L0.572 0.639 L0.578 0.639 L0.578 0.635 L0.592 0.635 L0.592 0.630 L0.606 0.630 L0.606 0.626 L0.612 0.626 L0.612 0.622 L0.622 0.622 L0.622 0.617 L0.635 0.617 L0.635 0.613 L0.650 0.613 L0.650 0.609 L0.668 0.609 L0.668 0.604 L0.689 0.604 L0.689 0.600 L0.714 0.600 L0.714 0.596 L0.743 0.596 L0.743 0.591 L0.776 0.591 L0.776 0.587 L0.814 0.587 L0.814 0.583 L0.857 0.583 L0.857 0.578 L0.906 0.578 L0.906 0.574 L0.961 0.574 L0.961 0.570 L1.0 0.570 L1.0 0.430 L0.961 0.430 L0.961 0.426 L0.906 0.426 L0.906 0.422 L0.857 0.422 L0.857 0.417 L0.814 0.417 L0.814 0.413 L0.776 0.413 L0.776 0.409 L0.743 0.409 L0.743 0.404 L0.714 0.404 L0.714 0.400 L0.689 0.400 L0.689 0.396 L0.668 0.396 L0.668 0.391 L0.650 0.391 L0.650 0.387 L0.635 0.387 L0.635 0.383 L0.621 0.383 L0.621 0.378 L0.612 0.378 L0.612 0.374 L0.606 0.374 L0.606 0.370 L0.592 0.370 L0.592 0.365 L0.578 0.365 L0.578 0.361 L0.572 0.361 L0.572 0.357 L0.566 0.357 L0.566 0.352 L0.559 0.352 L0.559 0.348 L0.551 0.348 L0.551 0.343 L0.542 0.343 L0.542 0.339 L0.528 0.339 L0.528 0.330 L0.527 0.330 L0.527 0.287 L0.528 0.287 L0.528 0.278 L0.542 0.278 L0.542 0.274 L0.551 0.274 L0.551 0.270 L0.559 0.270 L0.559 0.265 L0.566 0.265 L0.566 0.261 L0.572 0.261 L0.572 0.257 L0.578 0.257 L0.578 0.252 L0.592 0.252 L0.592 0.248 L0.606 0.248 L0.606 0.243 L0.612 0.243 L0.612 0.239 L0.622 0.239 L0.622 0.235 L0.635 0.235 L0.635 0.230 L0.650 0.230 L0.650 0.226 L0.668 0.226 L0.668 0.222 L0.689 0.222 L0.689 0.217 L0.714 0.217 L0.714 0.213 L0.743 0.213 L0.743 0.209 L0.776 0.209 L0.776 0.204 L0.814 0.204 L0.814 0.200 L0.857 0.200 L0.857 0.196 L0.906 0.196 L0.906 0.191 L0.961 0.191 L0.961 0.187 L1.0 0.187 L1.0 0.183 L0.961 0.183 L0.961 0.178 L0.930 0.178 L0.930 0.174 L0.896 0.174 L0.896 0.170 L0.865 0.170 L0.865 0.165 L0.838 0.165 L0.838 0.161 L0.814 0.161 L0.814 0.157 L0.793 0.157 L0.793 0.152 L0.775 0.152 L0.775 0.148 L0.759 0.148 L0.759 0.143 L0.746 0.143 L0.746 0.139 L0.734 0.139 L0.734 0.135 L0.725 0.135 L0.725 0.130 L0.717 0.130 L0.717 0.126 L0.710 0.126 L0.710 0.122 L0.705 0.122 L0.705 0.117 L0.701 0.117 L0.701 0.113 L0.697 0.113 L0.697 0.109 L0.695 0.109 L0.695 0.104 L0.691 0.104 L0.691 0.100 L0.689 0.100 L0.689 0.096 L0.686 0.096 L0.686 0.091 L0.683 0.091 L0.683 0.087 L0.681 0.087 L0.681 0.083 L0.679 0.083 L0.679 0.078 L0.676 0.078 L0.676 0.074 L0.675 0.074 L0.675 0.070 L0.672 0.070 L0.672 0.065 L0.671 0.065 L0.671 0.061 L0.669 0.061 L0.669 0.057 L0.667 0.057 L0.667 0.052 L0.666 0.052 L0.666 0.048 L0.664 0.048 L0.664 0.043 L0.662 0.043 L0.662 0.039 L0.661 0.039 L0.661 0.035 L0.659 0.035 L0.659 0.031 L0.658 0.031 L0.658 0.026 L0.656 0.026 L0.656 0.022 L0.655 0.022 L0.655 0.017 L0.653 0.017 L0.653 0.013 L0.652 0.013 L0.652 0.009 L0.650 0.009 L0.650 0.004 L0.649 0.004 L0.649 0.0 L0.527 0.0 Z"/>
+    </clipPath>
   </defs>
 </svg>
 <div class="portal" id="portal" data-theme="normal">
   <div class="layer l0" data-layer="L0"></div>
 
-  <canvas id="gl"></canvas>
+  <div class="layer l1" data-layer="GL"><canvas id="gl"></canvas></div>
 
   <div class="layer l2" data-layer="L2" id="motesLayer"></div>
   <div class="layer l3" data-layer="L3"><div class="drip"></div></div>
@@ -251,7 +412,7 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
       </g>
     </svg>
     <!-- External painted SVG (original asset) -->
-    <img id="errl-img" src="../assets/L4_Central/errl-painted-4.svg" alt="Errl" class="errl" style="display: none; opacity: 0;">
+<img id="errl-img" src="../assets/L4_Central/errl-painted-2.svg" alt="Errl" class="errl" style="display: none; opacity: 0;">
     <!-- Inline container for interactive mode (loads the same original SVG) -->
     <div id="errl-inline" class="errl" style="display: none; opacity: 0;"></div>
 
@@ -275,6 +436,7 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
   <button class="chip bubble bubble-purp-4" data-toggle="reveal" title="Show/Hide Errl (dbl‑click Errl swaps modes)"><span class="label">Reveal</span><span class="vh">Reveal: show or hide Errl; double click Errl to switch inline/painted</span></button>
   <button class="chip bubble bubble-purp-3" data-toggle="bubbles" title="Bubble UI: moving → paused → hidden"><span class="label">Bubbles</span><span class="vh">Bubbles control: moving, paused, hidden</span></button>
   <button class="chip bubble bubble-purp-5" data-toggle="mirror" title="Mirror X; double‑click: mirror both"><span class="label">Mirror</span><span class="vh">Mirror: flip horizontally; double click to flip both axes</span></button>
+  <button class="chip bubble bubble-purp-2" data-toggle="coin" title="Flip Coin"><span class="label">Coin</span><span class="vh">Coin: show/hide spinning coin</span></button>
 </div>
 
 <!-- Dev panel -->
@@ -292,11 +454,11 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
       <button class="app-icon" data-app="errl" title="Errl">Errl</button>
       <button class="app-icon" data-app="nav" title="Nav">Nav</button>
       <button class="app-icon" data-app="backfx" title="Back FX">Back</button>
-      <button class="app-icon" data-app="gl" title="WebGL">WebGL</button>
+      <button class="app-icon" data-app="gl" title="Overlay FX">Overlay FX</button>
     </div>
     <div class="pages" id="dev-pages">
       <section class="app-page active" data-app="hud">
-<div class="section-title">Layer: <span class="layer-badge" data-layer="hud">HUD</span></div>
+<div class="section-title">HUD</div>
         <div class="mini-toggles">
           <button class="mini-btn" id="hud-parallax">Parallax</button>
           <button class="mini-btn" id="hud-gl">WebGL</button>
@@ -306,11 +468,23 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
         <div class="form-row"><label><input type="checkbox" id="hud-hidebar"/> Hide bottom HUD bar</label></div>
       </section>
       <section class="app-page" data-app="errl">
-<div class="section-title">Layer: <span class="layer-badge" data-layer="errl">Errl</span></div>
-        <div class="row"><button id="errl-toggle">Reveal / Hide</button><span style="opacity:.8">Hold M to move</span></div>
+<div class="section-title">Errl</div>
+        <div class="row"><button id="errl-toggle">Toggle Visibility</button><span style="opacity:.8">Hold M to move</span></div>
+        
+        <div class="section-title" style="margin-top:8px;">Errl Color (Hue)</div>
+        <div class="row"><label><input type="checkbox" id="errl-hue-enabled" checked/> Color Effects Enabled</label></div>
+        <div class="row"><label>Errl Hue</label><input id="errl-hue" type="range" min="0" max="360" step="1" value="0"/><span id="errl-hue-val">0°</span></div>
+        <div class="row"><label>Errl Saturation</label><input id="errl-sat" type="range" min="0" max="2" step="0.01" value="1.0"/><span id="errl-sat-val">100%</span></div>
+        <div class="row"><label>Errl Blend</label><input id="errl-int" type="range" min="0" max="1" step="0.01" value="1.0"/><span id="errl-int-val">100%</span></div>
+        <div class="row"><label>Theme</label><select id="errl-hue-theme"><option value="normal">Normal</option><option value="warm">Warm</option><option value="cool">Cool</option><option value="electric">Electric</option><option value="sunset">Sunset</option><option value="ocean">Ocean</option><option value="forest">Forest</option></select><button id="errl-hue-animate">Animate</button><button id="errl-hue-reset" style="margin-left:auto;">Reset</button></div>
+        
+        <div class="section-title" style="margin-top:8px;">Errl Goo (wobble)</div>
+        <div class="row"><label><input type="checkbox" id="errl-goo-enabled" checked/> Goo Enabled</label></div>
+        <div class="row"><label>Displacement Strength</label><input id="errl-goo-strength" type="range" min="0" max="2" step="0.01" value="1.00"/><span id="errl-goo-strength-val">1.00</span></div>
+        <div class="row"><label>Wobble Speed</label><input id="errl-goo-wobble" type="range" min="0" max="2" step="0.01" value="1.00"/><span id="errl-goo-wobble-val">1.00</span></div>
       </section>
       <section class="app-page" data-app="nav">
-<div class="section-title">Layer: <span class="layer-badge" data-layer="nav">Nav Bubbles</span></div>
+<div class="section-title">Nav Bubbles</div>
         <div class="row"><label>Dur(ms)</label><button class="n" data-t="dur" data-d="-250">-</button><input id="dev-dur" type="number" step="100"/><button class="n" data-t="dur" data-d="250">+</button></div>
         <div class="row"><label>Spread(px)</label><input id="nav-spread" type="range" min="80" max="360" step="1" value="220"/><span id="nav-spread-val">220</span></div>
         <div class="row"><label>Arc(deg)</label><input id="nav-arc" type="range" min="40" max="180" step="1" value="120"/><span id="nav-arc-val">120</span></div>
@@ -318,9 +492,22 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
         <div class="row"><label>Center X</label><input id="nav-cx" type="range" min="-600" max="600" step="1" value="-280"/><span id="nav-cx-val">-280</span></div>
         <div class="row"><label>Stagger(ms)</label><input id="nav-stagger" type="number" min="0" step="50" value="250"/></div>
         <div class="row"><button id="nav-replay">Replay fan</button></div>
+        
+        <div class="section-title" style="margin-top:8px;">Hue — Nav Bubbles</div>
+        <div class="row"><label><input type="checkbox" id="nav-hue-enabled" checked/> Enabled</label></div>
+        <div class="row"><label>Hue</label><input id="nav-hue" type="range" min="0" max="360" step="1" value="0"/><span id="nav-hue-val">0°</span></div>
+        <div class="row"><label>Saturation</label><input id="nav-sat" type="range" min="0" max="2" step="0.01" value="1.0"/><span id="nav-sat-val">100%</span></div>
+        <div class="row"><label>Intensity</label><input id="nav-int" type="range" min="0" max="1" step="0.01" value="1.0"/><span id="nav-int-val">100%</span></div>
+        <div class="row"><label>Theme</label><select id="nav-hue-theme"><option value="normal">Normal</option><option value="warm">Warm</option><option value="cool">Cool</option><option value="electric">Electric</option><option value="sunset">Sunset</option><option value="ocean">Ocean</option><option value="forest">Forest</option></select><button id="nav-hue-animate">Animate</button><button id="nav-hue-reset" style="margin-left:auto;">Reset</button></div>
+        
+        <div class="section-title" style="margin-top:8px;">Goo — Nav Bubbles</div>
+        <div class="row"><label><input type="checkbox" id="nav-goo-enabled" checked/> Goo Enabled</label></div>
+        <div class="row"><label>Blur</label><input id="nav-goo-blur" type="range" min="0" max="16" step="0.1" value="6"/><span id="nav-goo-blur-val">6.0</span></div>
+        <div class="row"><label>Intensity</label><input id="nav-goo-mult" type="range" min="6" max="40" step="1" value="24"/><span id="nav-goo-mult-val">24</span></div>
+        <div class="row"><label>Threshold</label><input id="nav-goo-thresh" type="range" min="-30" max="-1" step="1" value="-14"/><span id="nav-goo-thresh-val">-14</span></div>
       </section>
       <section class="app-page" data-app="backfx">
-<div class="section-title">Layer: <span class="layer-badge" data-layer="backfx">Background Bubbles</span></div>
+<div class="section-title">Background Bubbles</div>
         <div class="row"><label>Speed</label><input id="bub-speed" type="range" min="0" max="2" step="0.01" value="1"/><span id="bub-speed-val">1.00</span></div>
         <div class="row"><label>Wobble</label><input id="bub-wobble" type="range" min="0" max="2" step="0.01" value="1"/><span id="bub-wobble-val">1.00</span></div>
         <div class="row"><label>Frequency</label><input id="bub-freq" type="range" min="0" max="2" step="0.01" value="1"/><span id="bub-freq-val">1.00</span></div>
@@ -328,14 +515,51 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
         <div class="row"><label>Alpha</label><input id="bub-alpha" type="range" min="0" max="1" step="0.01" value="0.95"/><span id="bub-alpha-val">0.95</span></div>
         <div class="row"><label>Min size</label><input id="bub-min" type="number" min="6" max="256" step="1" value="18"/> <label>Max</label><input id="bub-max" type="number" min="6" max="256" step="1" value="44"/></div>
         <div class="row"><label>Far ratio</label><input id="bub-far" type="range" min="0.1" max="0.8" step="0.01" value="0.33"/><span id="bub-far-val">0.33</span></div>
+        <div class="row"><label>Size change rate (Hz)</label><input id="bub-sizefreq" type="range" min="0" max="1" step="0.01" value="0"/><span id="bub-sizefreq-val">0.00</span></div>
+        <div class="row"><label>Jumbo chance</label><input id="bub-jumbochance" type="range" min="0" max="0.5" step="0.01" value="0.00"/><span id="bub-jumbochance-val">0.00</span></div>
+        <div class="row"><label>Jumbo scale</label><input id="bub-jumboscale" type="range" min="1.0" max="2.5" step="0.05" value="1.60"/><span id="bub-jumboscale-val">1.60</span></div>
         <div class="row"><label>Texture</label><select id="bub-tex"><option value="orb">Orb_NeedsFriends.png</option><option value="proc">Fallback (procedural)</option></select><button id="bub-apply-tex">Apply</button></div>
-        <div class="row"><button id="bub-pause">Pause</button><button id="bub-resume">Resume</button><button id="bub-reset">Reset</button></div>
+        <div class="row"><button id="bub-pause">Pause</button><button id="bub-resume">Resume</button><button id="bub-reset">Reset</button><button id="bub-randomize" style="margin-left:auto;">Randomize</button></div>
       </section>
       <section class="app-page" data-app="gl">
-<div class="section-title">Layer: <span class="layer-badge" data-layer="gl">WebGL</span></div>
+<div class="section-title">Overlay FX</div>
         <div class="row"><label>Alpha</label><input id="gl-alpha" type="range" min="0" max="1" step="0.01" value="0.20"/><span id="gl-alpha-val">0.20</span></div>
         <div class="row"><label>Disp X</label><input id="gl-dx" type="range" min="0" max="64" step="1" value="24"/><span id="gl-dx-val">24</span></div>
         <div class="row"><label>Disp Y</label><input id="gl-dy" type="range" min="0" max="64" step="1" value="18"/><span id="gl-dy-val">18</span></div>
+        
+        <div class="section-title" style="margin-top: 15px;">Visual Effects</div>
+        <div class="row">
+          <label>Target</label>
+          <select id="hue-target"></select>
+        </div>
+        
+        <!-- Contextual controls: HUE (WebGL/CSS) -->
+        <div id="hue-controls">
+          <div class="row" style="align-items:center; gap:10px;">
+            <label style="margin-left:auto;"><input type="checkbox" id="hue-enabled" checked/> <span id="hue-enabled-label">Enabled</span></label>
+          </div>
+          <div class="row"><label id="hue-label">Hue</label><input id="hue-shift" type="range" min="0" max="360" step="1" value="0"/><span id="hue-shift-val">0°</span></div>
+          <div class="row"><label id="sat-label">Saturation</label><input id="hue-saturation" type="range" min="0" max="2" step="0.01" value="1.0"/><span id="hue-saturation-val">100%</span></div>
+          <div class="row"><label id="int-label">Intensity</label><input id="hue-intensity" type="range" min="0" max="1" step="0.01" value="1.0"/><span id="hue-intensity-val">100%</span></div>
+          <div class="row">
+            <label>Theme</label>
+            <select id="hue-theme">
+              <option value="normal">Normal</option>
+              <option value="warm">Warm</option>
+              <option value="cool">Cool</option>
+              <option value="electric">Electric</option>
+              <option value="sunset">Sunset</option>
+              <option value="ocean">Ocean</option>
+              <option value="forest">Forest</option>
+            </select>
+          </div>
+          <div class="row">
+            <button id="hue-animate">Animate</button>
+            <button id="hue-reset">Reset Target</button>
+            <button id="hue-reset-all" style="margin-left:auto;">Reset All</button>
+          </div>
+        </div>
+        
       </section>
     </div>
   <div class="phone-foot" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
@@ -350,9 +574,18 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.0/dist/pixi.min.js"></script>
+<script>
+// Load PixiJS from CDN with local fallback
+(function(){
+  function add(src){ var s=document.createElement('script'); s.src=src; document.head.appendChild(s); return s; }
+  var cdn = add('https://cdn.jsdelivr.net/npm/pixi.js@7.4.0/dist/pixi.min.js');
+  cdn.onerror = function(){ add('../../vendor/pixi.min.js'); };
+})();
+</script>
 <script src="../../fx/fx-core.js"></script>
 <script src="../../fx/bubbles-pixi.js"></script>
+<script src="../../fx/hue-filter.js"></script>
+<script src="../../fx/hue-controller.js"></script>
 <script>
 (function(){
   const portal = document.getElementById('portal');
@@ -360,7 +593,11 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
   const motesLayer = document.getElementById('motesLayer');
   const awakening = document.getElementById('awakening');
   const hud = document.getElementById('hud');
-const toggles = { parallax:true, gl:true, bubbles: 'moving', mirror:false, mirrorBoth:false, errlGoo:true };
+  // Hide HUD by default; toggle with 'H'
+if(hud) hud.style.display='';
+const toggles = { parallax:true, gl:true, bubbles: 'moving', mirror:false, mirrorBoth:false, errlGoo:true, coin:false };
+// Goo effect tuning (dev-panel adjustable)
+const GOO = { enabled: true, mult: 1.00, wobble: 1.00 };
 
 const errlInline = document.getElementById('errl-inline');
 
@@ -428,14 +665,20 @@ const errlInline = document.getElementById('errl-inline');
       const url = NAV_SKINS[(start+i)%NAV_SKINS.length];
       const b = btns[i];
       b.removeAttribute('data-img'); // ensure CSS attribute backgrounds don't win
-      b.style.setProperty('background-image', `url("${url}")`);
-      b.style.setProperty('background-position', 'center');
-      b.style.setProperty('background-size', 'contain');
-      b.style.setProperty('background-repeat', 'no-repeat');
+      // Ensure inner image layer exists
+      let inner = b.querySelector('.puddle-img');
+      if(!inner){ inner = document.createElement('span'); inner.className = 'puddle-img'; b.prepend(inner); }
+      // Clear any background on the button itself; use inner layer instead
+      b.style.removeProperty('background-image');
+      // Apply to inner layer (with mask)
+      inner.style.setProperty('background-image', `url("${url}")`);
+      inner.style.setProperty('background-position', 'center');
+      inner.style.setProperty('background-size', '120%');
+      inner.style.setProperty('background-repeat', 'no-repeat');
       const ghost = b.querySelector('.puddle-ghost'); if(ghost){
         ghost.style.setProperty('background-image', `url("${url}")`);
         ghost.style.setProperty('background-position', 'center');
-        ghost.style.setProperty('background-size', 'contain');
+        ghost.style.setProperty('background-size', '120%');
         ghost.style.setProperty('background-repeat', 'no-repeat');
       }
     }
@@ -454,7 +697,11 @@ const errlInline = document.getElementById('errl-inline');
   // Global offset of the entire nav cluster relative to Errl center (negative = left)
   let navCenterOffsetX = -280; // tweak as desired
   let finalFanLocal = null; // [{x,y}] fan endpoints relative to screen center
-  let orbitActive = false; let t0 = 0; let orbitSpeed = 0.28; let orbitPhase = null;
+  let orbitActive = false; let t0 = 0; let orbitSpeed = 0.14; let orbitPhase = null;
+  // Smoothed anchor offset to prevent jitter from rapid Errl layout/filters
+  let offSmooth = { dx: 0, dy: 0 };
+  // Smooth orbit radius to avoid jitter when clamped near edges
+  let orbitRadius = null;
   const BUBBLE_MARGIN = 56; // keep bubbles within viewport (half size + padding)
   function safeRadiusAt(centerX, centerY, off){
     const ax = centerX + off.dx; // anchor for fan/orbit
@@ -475,32 +722,29 @@ const errlInline = document.getElementById('errl-inline');
     }
     return out;
   }
-  // --- Simple viscous physics for nav bubbles (spring-to-target + collisions) ---
-  const physics = { enabled:true, radius:52, stiffness:8.0, damping:0.86, bounce:0.35 };
+  // --- Overdamped easing for nav bubbles (no velocity bounce) ---
+  const physics = { enabled:true, radius:52, relax:0.18, collide:true };
   const phys = btns.map(()=>({ px:0, py:0, vx:0, vy:0, tx:0, ty:0, init:false }));
+  // Adapt physics radius to actual button size (helps on mobile where buttons may scale)
+  function updatePhysicsRadius(){ const b=btns[0]; if(!b) return; const w=b.getBoundingClientRect().width||96; let rim=8; try{ const cs=getComputedStyle(b); rim = parseFloat(cs.getPropertyValue('--rim')) || 8; }catch(e){} physics.radius = Math.max(24, Math.min(76, w*0.5 - rim - 6)); }
+  // Responsive nav button sizing based on viewport (smaller overall)
+  function updateBtnSize(){ const base=Math.min(innerWidth, innerHeight); const sz = Math.round(Math.max(60, Math.min(96, base*0.10))); document.documentElement.style.setProperty('--btn-size', sz+'px'); }
+  addEventListener('resize', ()=>{ updateBtnSize(); updatePhysicsRadius(); });
+  updateBtnSize(); updatePhysicsRadius();
   function stepPhysics(sec){ if(!physics.enabled) return; const n=phys.length;
-    // Integrate towards targets
+    const k = physics.relax; // frame-based relaxation
     for(let i=0;i<n;i++){ const p=phys[i]; if(!p.init){ p.px=p.tx; p.py=p.ty; p.init=true; }
-      const ax = (p.tx - p.px) * physics.stiffness;
-      const ay = (p.ty - p.py) * physics.stiffness;
-      p.vx = (p.vx + ax*sec) * physics.damping;
-      p.vy = (p.vy + ay*sec) * physics.damping;
-      p.px += p.vx;
-      p.py += p.vy;
+      p.px += (p.tx - p.px) * k;
+      p.py += (p.ty - p.py) * k;
     }
-    // Pairwise collision resolve
-    const R = physics.radius; const minD = R*2;
-    for(let i=0;i<n;i++){
-      for(let j=i+1;j<n;j++){
-        const a=phys[i], b=phys[j];
-        let dx=b.px - a.px, dy=b.py - a.py; let d=Math.hypot(dx,dy);
-        if(d>0 && d<minD){ const nx=dx/d, ny=dy/d; const overlap=(minD-d)*0.5; a.px-=nx*overlap; a.py-=ny*overlap; b.px+=nx*overlap; b.py+=ny*overlap;
-          // bounce along normal
-          const rvx=b.vx - a.vx, rvy=b.vy - a.vy; const vn = rvx*nx + rvy*ny;
-          if(vn<0){ const imp = -(1+physics.bounce)*vn*0.5; a.vx -= imp*nx; a.vy -= imp*ny; b.vx += imp*nx; b.vy += imp*ny; }
+    // Gentle separation only (no bounce)
+    if(physics.collide){ const R = physics.radius; const minD = R*2; for(let i=0;i<n;i++){
+        for(let j=i+1;j<n;j++){
+          const a=phys[i], b=phys[j];
+          let dx=b.px - a.px, dy=b.py - a.py; let d=Math.hypot(dx,dy);
+          if(d>0 && d<minD){ const nx=dx/d, ny=dy/d; const overlap=(minD-d)*0.5; a.px-=nx*overlap; a.py-=ny*overlap; b.px+=nx*overlap; b.py+=ny*overlap; }
         }
-      }
-    }
+      } }
     // Apply to DOM
     for(let i=0;i<n;i++){ btns[i].style.setProperty('--x', phys[i].px.toFixed(2)+'px'); btns[i].style.setProperty('--y', phys[i].py.toFixed(2)+'px'); }
   }
@@ -518,14 +762,18 @@ const errlInline = document.getElementById('errl-inline');
     if(orbitActive){
       t0 += sec * orbitSpeed;
       const n = btns.length;
-      const off = currentHeadOffset();
+      // Smooth the head anchor offset to mitigate jitter from subtle Errl effects
+      const rawOff = currentHeadOffset();
+      offSmooth.dx += (rawOff.dx - offSmooth.dx) * 0.12;
+      offSmooth.dy += (rawOff.dy - offSmooth.dy) * 0.12;
       const ocx = cx + navCenterOffsetX; const ocy = cy - 8;
-      const R = safeRadiusAt(ocx, ocy, off);
+      const Rnow = safeRadiusAt(ocx, ocy, offSmooth);
+      orbitRadius = (orbitRadius==null)? Rnow : (orbitRadius + (Rnow - orbitRadius)*0.12);
       for(let i=0;i<n;i++){
         const base = (orbitPhase && orbitPhase[i]!=null) ? orbitPhase[i] : i*(Math.PI*2/n);
         const a = t0 + base;
-        const x = off.dx + R * Math.cos(a);
-        const y = off.dy + R * Math.sin(a);
+        const x = offSmooth.dx + orbitRadius * Math.cos(a);
+        const y = offSmooth.dy + orbitRadius * Math.sin(a);
         phys[i].tx = x; phys[i].ty = y;
       }
       stepPhysics(sec);
@@ -595,7 +843,7 @@ const errlImg = document.getElementById('errl-img');
     }
     // Fallback: fetch packaged painted SVG
     try{
-      const res = await fetch('../assets/L4_Central/errl-painted-4.svg');
+      const res = await fetch('../assets/L4_Central/errl-painted-2.svg');
       const svgText = await res.text();
       errlInline.innerHTML = svgText;
     }catch(e){ console.warn('Failed to load inline SVG', e); }
@@ -619,6 +867,8 @@ async function showErrl(useInline=false, updateHud=true){
         await ensureInlineLoaded();
         errlVisible = true;
         errlImg.style.display='none'; errlInline.style.display='block'; errlInline.style.opacity='1'; isInlineSVG=true;
+        // Apply gooey filter/class for inline mode
+        errlInline.classList.toggle('goo', !!toggles.errlGoo);
       } else {
         // Try painted first; if it fails, fall back to inline
         await ensurePaintedLoaded().catch(async ()=>{ await ensureInlineLoaded(); useInline=true; });
@@ -632,6 +882,8 @@ async function showErrl(useInline=false, updateHud=true){
       console.warn('Errl load failed; attempting inline fallback.', e);
       await ensureInlineLoaded();
       errlVisible = true; isInlineSVG=true; errlImg.style.display='none'; errlInline.style.display='block'; errlInline.style.opacity='1';
+      // Ensure gooey filter/class is applied on fallback
+      errlInline.classList.toggle('goo', !!toggles.errlGoo);
     }
     applyErrlTransform();
     if(updateHud){ const lab = revealLabel(); if(lab) lab.textContent='Hide'; const b=revealBtn(); if(b) b.classList.add('toggled'); }
@@ -696,6 +948,8 @@ let fxm = null, fxRoot = null, bubblesFX = null;
 
       // Always try to use the external PNG orb; BubblesFX falls back to a procedural texture if load fails
       const bubbleTex = assetUrl('fx/Orb_NeedsFriends.png');
+      // Snapshot current UI state for bubbles so we can apply immediately on init
+      try{ if(typeof bubSnapshotFromUI === 'function') bubSnapshotFromUI(); }catch(e){}
       // overlay to refract
       const tex = gradientTexture(innerWidth, innerHeight);
       overlay = new PIXI.Sprite(tex); overlay.alpha = 0.20; overlay.blendMode = PIXI.BLEND_MODES.SCREEN; stage.addChild(overlay);
@@ -732,7 +986,73 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
       });
 
       addEventListener('resize', ()=>{ overlay.texture = gradientTexture(innerWidth, innerHeight); overlay.width = innerWidth; overlay.height = innerHeight; });
+      
+      // Initialize hue controller integration
+      initHueIntegration();
+      initGlDevControls();
     }catch(e){ console.warn('WebGL init failed; falling back.', e); toggles.gl=false; canvas.style.display='none'; }
+  }
+  
+  // Hue controller WebGL integration
+  function initHueIntegration() {
+    if (window.ErrlHueController) {
+      // Register WebGL references so controller can target layers
+      if (overlay) window.ErrlHueController.registerWebGLLayer('glOverlay', overlay);
+      if (bubblesFX && bubblesFX.sprites) window.ErrlHueController.registerWebGLLayer('bgBubbles', bubblesFX);
+      // Also re-register when bubblesFX resolves async
+      if (bubblesFX && typeof bubblesFX.then==='function'){
+        bubblesFX.then(inst=>{
+          window.ErrlHueController.registerWebGLLayer('bgBubbles', inst);
+        }).catch(()=>{});
+      }
+    }
+  }
+  // Wait for Hue controller (TS module) to load before wiring GL + panel bindings
+  function whenHueReady(cb){ if(window.ErrlHueController) { try{ cb(); } catch(e){} } else { setTimeout(()=> whenHueReady(cb), 60); } }
+
+  // Dev panel: context-sensitive controls for Hue/Goo
+  function initGlDevControls(){
+    const ctrl = window.ErrlHueController;
+    const sel = document.getElementById('hue-target');
+    if(!sel || !ctrl) return;
+    // Populate targets (GL + key objects)
+    const wanted = ['bgBubbles','glOverlay','nav','errl'];
+    sel.innerHTML = '';
+    for(const k of wanted){ const opt=document.createElement('option'); opt.value=k; opt.textContent=(k==='bgBubbles'?'Bubbles':(k==='glOverlay'?'Overlay':(k==='nav'?'The Orbit':(k==='errl'?'Errl':k)))); sel.appendChild(opt); }
+    sel.value = 'glOverlay'; ctrl.setTarget('glOverlay');
+
+    const labHue = document.getElementById('hue-label');
+    const labSat = document.getElementById('sat-label');
+    const labInt = document.getElementById('int-label');
+    const hueEnabled = document.getElementById('hue-enabled');
+    const hueShift = document.getElementById('hue-shift');
+    const hueSat = document.getElementById('hue-saturation');
+    const hueInt = document.getElementById('hue-intensity');
+    const hueTheme = document.getElementById('hue-theme');
+
+    const $t = (id)=>document.getElementById(id);
+    const VALS = { hue: $t('hue-shift-val'), sat: $t('hue-saturation-val'), inten: $t('hue-intensity-val') };
+
+    function labelsFor(target){ if(target==='bgBubbles'){ labHue.textContent='Bubbles Hue'; labSat.textContent='Bubbles Saturation'; labInt.textContent='Bubbles Intensity'; }
+      else if(target==='glOverlay'){ labHue.textContent='Overlay Hue'; labSat.textContent='Overlay Saturation'; labInt.textContent='Overlay Intensity'; }
+      else { labHue.textContent='Hue'; labSat.textContent='Saturation'; labInt.textContent='Intensity'; } }
+
+    function syncHueUI(layer){ const st = ctrl.layers[layer]; if(!st) return; if(hueEnabled) hueEnabled.checked = !!st.enabled; if(hueShift){ hueShift.value = String(st.hue||0); VALS.hue.textContent = (st.hue|0)+'°'; }
+      if(hueSat){ hueSat.value = String(st.saturation??1); VALS.sat.textContent = Math.round((st.saturation??1)*100)+'%'; }
+      if(hueInt){ hueInt.value = String(st.intensity??1); VALS.inten.textContent = Math.round((st.intensity??1)*100)+'%'; } }
+
+    function onTargetChange(){ const tgt = sel.value; ctrl.setTarget(tgt); labelsFor(tgt); syncHueUI(tgt); }
+    sel.addEventListener('change', onTargetChange);
+
+    // Hue handlers
+    if(hueEnabled) hueEnabled.addEventListener('change', ()=> ctrl.setEnabled(!!hueEnabled.checked, sel.value));
+    if(hueShift) hueShift.addEventListener('input', ()=>{ ctrl.setHue(+hueShift.value, sel.value); VALS.hue.textContent = (Math.round(+hueShift.value))+'°'; });
+    if(hueSat) hueSat.addEventListener('input', ()=>{ ctrl.setSaturation(+hueSat.value, sel.value); VALS.sat.textContent = Math.round(+hueSat.value*100)+'%'; });
+    if(hueInt) hueInt.addEventListener('input', ()=>{ ctrl.setIntensity(+hueInt.value, sel.value); VALS.inten.textContent = Math.round(+hueInt.value*100)+'%'; });
+    if(hueTheme) hueTheme.addEventListener('change', ()=> ctrl.applyTheme(sel.value, hueTheme.value));
+
+    // Initial state
+    onTargetChange();
   }
 
   // --- Gooey animation driver (vary displacement by pointer + time) ---
@@ -746,10 +1066,10 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
       if(disp && turb && active && toggles.errlGoo){
         const r = active.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; const d = Math.hypot(ptr.x-cx, ptr.y-cy);
         const norm = Math.max(0, Math.min(1, 1 - d/Math.max(r.width,r.height)));
-        const scale = 8 + norm*22; // 8..30
+        const scale = 8 + norm * (22 * (GOO.mult||1)); // strength multiplier
         disp.setAttribute('scale', String(scale.toFixed(2)));
-        const bfX = 0.004 + 0.003*Math.sin(t*0.0008);
-        const bfY = 0.006 + 0.004*Math.cos(t*0.0011);
+        const bfX = 0.004 + (0.003*(GOO.wobble||1)) * Math.sin(t*0.0008);
+        const bfY = 0.006 + (0.004*(GOO.wobble||1)) * Math.cos(t*0.0011);
         turb.setAttribute('baseFrequency', bfX.toFixed(4)+' '+bfY.toFixed(4));
       }
     }catch(e){}
@@ -777,6 +1097,60 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
     ripples.push({ g, life: 24 });
   }
 
+let coinEl = null;
+let coinRAF = null;
+const COIN_SPEED = -0.12; // deg per ms (~3s per turn) negative = clockwise
+function startCoinSpin(){
+  if(coinRAF) cancelAnimationFrame(coinRAF);
+  const step = (t)=>{
+    if(!coinEl){ coinRAF=null; return; }
+    const deg = (t*COIN_SPEED)%360;
+    coinEl.style.transform = `translate(-50%, -50%) perspective(900px) rotateY(${deg.toFixed(2)}deg)`;
+    const inv = (1 - Math.cos((deg*Math.PI)/180)) * 0.5; // 0->1->0 per turn
+    coinEl.style.filter = `invert(${inv.toFixed(2)})`;
+    coinRAF = requestAnimationFrame(step);
+  };
+  coinRAF = requestAnimationFrame(step);
+}
+function showCoin(){ if(coinEl) return; const wrap=document.createElement('div'); wrap.innerHTML = `
+<div class="coin">
+  <div class="aura" aria-hidden="true"></div>
+  <div class="side heads">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="-122.76 -122.76 1725.52 2291.52" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">
+      <g id="region-face">
+        <path data-region="face" d="M541 197 L542 196 L581 196 L582 197 L599 197 L600 198 L609 198 L610 199 L618 199 L619 200 L626 200 L627 201 L633 201 L634 202 L639 202 L640 203 L646 203 L647 204 L652 204 L653 205 L657 205 L658 206 L662 206 L663 207 L667 207 L668 208 L671 208 L672 209 L675 209 L676 210 L679 210 L680 211 L683 211 L684 212 L687 212 L688 213 L690 213 L691 214 L694 214 L695 215 L697 215 L698 216 L700 216 L701 217 L704 217 L705 218 L707 218 L708 219 L710 219 L711 220 L713 220 L714 221 L716 221 L717 222 L719 222 L720 223 L722 223 L723 224 L725 224 L726 225 L728 225 L729 226 L731 226 L732 227 L733 227 L734 228 L736 228 L737 229 L738 229 L739 230 L741 230 L742 231 L744 231 L745 232 L746 232 L747 233 L748 233 L749 234 L751 234 L752 235 L753 235 L754 236 L755 236 L756 237 L757 237 L758 238 L760 238 L761 239 L762 239 L763 240 L764 240 L765 241 L766 241 L767 242 L768 242 L769 243 L770 243 L771 244 L773 244 L774 245 L775 245 L776 246 L777 246 L778 247 L779 247 L780 248 L781 248 L782 249 L783 249 L784 250 L785 250 L786 251 L787 251 L788 252 L789 252 L790 253 L791 253 L793 255 L794 255 L795 256 L796 256 L797 257 L798 257 L799 258 L800 258 L802 260 L803 260 L804 261 L805 261 L806 262 L807 262 L809 264 L810 264 L811 265 L812 265 L814 267 L815 267 L816 268 L817 268 L819 270 L820 270 L821 271 L822 271 L824 273 L825 273 L827 275 L828 275 L830 277 L831 277 L833 279 L834 279 L836 281 L837 281 L840 284 L841 284 L843 286 L844 286 L847 289 L848 289 L850 291 L851 291 L854 294 L855 294 L858 297 L859 297 L863 301 L864 301 L869 306 L870 306 L874 310 L875 310 L880 315 L881 315 L890 324 L891 324 L892 325 L892 326 L893 326 L919 352 L919 353 L929 363 L929 364 L933 368 L933 369 L939 375 L939 376 L943 380 L943 381 L947 385 L947 386 L950 389 L950 390 L952 392 L952 393 L955 396 L955 397 L958 400 L958 401 L960 403 L960 404 L963 407 L963 408 L965 410 L965 411 L967 413 L967 414 L969 416 L969 417 L971 419 L971 420 L972 421 L972 422 L974 424 L974 425 L976 427 L976 428 L977 429 L977 430 L979 432 L979 433 L980 434 L980 435 L982 437 L982 438 L983 439 L983 440 L985 442 L985 443 L986 444 L986 445 L987 446 L987 447 L988 448 L988 449 L990 451 L990 452 L991 453 L991 454 L992 455 L992 456 L993 457 L993 458 L994 459 L994 460 L995 461 L995 462 L996 463 L996 464 L997 465 L997 466 L998 467 L998 468 L999 469 L999 470 L1000 471 L1000 472 L1001 473 L1001 474 L1002 475 L1002 476 L1003 477 L1003 478 L1004 479 L1004 481 L1005 482 L1005 483 L1006 484 L1006 485 L1007 486 L1007 487 L1008 488 L1008 489 L1009 490 L1009 492 L1010 493 L1010 494 L1011 495 L1011 497 L1012 498 L1012 499 L1013 500 L1013 501 L1014 502 L1014 504 L1015 505 L1015 507 L1016 508 L1016 509 L1017 510 L1017 512 L1018 513 L1018 515 L1019 516 L1019 518 L1020 519 L1020 521 L1021 522 L1021 523 L1022 524 L1022 526 L1023 527 L1023 529 L1024 530 L1024 532 L1025 533 L1025 535 L1026 536 L1026 538 L1027 539 L1027 541 L1028 542 L1028 545 L1029 546 L1029 548 L1030 549 L1030 552 L1031 553 L1031 555 L1032 556 L1032 559 L1033 560 L1033 563 L1034 564 L1034 567 L1035 568 L1035 571 L1036 572 L1036 576 L1037 577 L1037 581 L1038 582 L1038 585 L1039 586 L1039 591 L1040 592 L1040 596 L1041 597 L1041 602 L1042 603 L1042 608 L1043 609 L1043 615 L1044 616 L1044 622 L1045 623 L1045 631 L1046 632 L1046 641 L1047 642 L1047 655 L1048 656 L1048 709 L1047 710 L1047 723 L1046 724 L1046 733 L1045 734 L1045 742 L1044 743 L1044 749 L1043 750 L1043 756 L1042 757 L1042 762 L1041 763 L1041 768 L1040 769 L1040 773 L1039 774 L1039 778 L1038 779 L1038 783 L1037 784 L1037 788 L1036 789 L1036 793 L1035 794 L1035 797 L1034 798 L1034 801 L1033 802 L1033 805 L1032 806 L1032 808 L1031 809 L1031 812 L1030 813 L1030 816 L1029 817 L1029 819 L1028 820 L1028 822 L1027 823 L1027 825 L1026 826 L1026 828 L1025 829 L1025 831 L1024 832 L1024 835 L1023 836 L1023 837 L1022 838 L1022 840 L1021 841 L1021 843 L1020 844 L1020 846 L1019 847 L1019 849 L1018 850 L1018 851 L1017 852 L1017 854 L1016 855 L1016 857 L1015 858 L1015 860 L1014 861 L1014 862 L1013 863 L1013 865 L1012 866 L1012 867 L1011 868 L1011 870 L1010 871 L1010 872 L1009 873 L1009 874 L1008 875 L1008 876 L1007 877 L1007 879 L1006 880 L1006 881 L1005 882 L1005 883 L1004 884 L1004 885 L1003 886 L1003 887 L1002 888 L1002 889 L1001 890 L1001 892 L1000 893 L1000 894 L999 895 L999 896 L998 897 L998 898 L997 899 L997 900 L996 901 L996 902 L995 903 L995 904 L994 905 L994 906 L993 907 L993 908 L992 909 L992 910 L991 911 L991 912 L989 914 L989 915 L988 916 L988 917 L987 918 L987 919 L986 920 L986 921 L984 923 L984 924 L983 925 L983 926 L981 928 L981 929 L980 930 L980 931 L979 932 L979 933 L977 935 L977 936 L975 938 L975 939 L974 940 L974 941 L972 943 L972 944 L971 945 L971 946 L969 948 L969 949 L967 951 L967 952 L965 954 L965 955 L963 957 L963 958 L960 961 L960 962 L958 964 L958 965 L955 968 L955 969 L952 972 L952 973 L950 975 L950 976 L946 980 L946 981 L943 984 L943 985 L939 989 L939 990 L934 995 L934 996 L928 1002 L928 1003 L919 1012 L919 1013 L894 1038 L893 1038 L893 1039 L892 1040 L891 1040 L882 1049 L881 1049 L875 1055 L874 1055 L870 1059 L869 1059 L865 1063 L864 1063 L860 1067 L859 1067 L856 1070 L855 1070 L851 1074 L850 1074 L848 1076 L847 1076 L844 1079 L843 1079 L841 1081 L840 1081 L838 1083 L837 1083 L835 1085 L834 1085 L832 1087 L831 1087 L829 1089 L828 1089 L826 1091 L825 1091 L823 1093 L822 1093 L820 1095 L819 1095 L818 1096 L817 1096 L815 1098 L814 1098 L813 1099 L812 1099 L810 1101 L809 1101 L808 1102 L807 1102 L805 1104 L804 1104 L803 1105 L802 1105 L801 1106 L800 1106 L799 1107 L798 1107 L796 1109 L795 1109 L794 1110 L793 1110 L792 1111 L791 1111 L790 1112 L789 1112 L788 1113 L787 1113 L785 1115 L784 1115 L783 1116 L782 1116 L781 1117 L780 1117 L779 1118 L778 1118 L777 1119 L776 1119 L775 1120 L774 1120 L773 1121 L772 1121 L771 1122 L769 1122 L768 1123 L767 1123 L766 1124 L765 1124 L764 1125 L763 1125 L762 1126 L760 1126 L759 1127 L758 1127 L757 1128 L756 1128 L755 1129 L753 1129 L752 1130 L751 1130 L750 1131 L749 1131 L748 1132 L746 1132 L745 1133 L744 1133 L743 1134 L742 1134 L741 1135 L739 1135 L738 1136 L736 1136 L735 1137 L734 1137 L733 1138 L731 1138 L730 1139 L729 1139 L728 1140 L726 1140 L725 1141 L723 1141 L722 1142 L720 1142 L719 1143 L717 1143 L716 1144 L714 1144 L713 1145 L711 1145 L710 1146 L708 1146 L707 1147 L704 1147 L703 1148 L701 1148 L700 1149 L697 1149 L696 1150 L694 1150 L693 1151 L690 1151 L689 1152 L687 1152 L686 1153 L683 1153 L682 1154 L679 1154 L678 1155 L675 1155 L674 1156 L671 1156 L670 1157 L667 1157 L666 1158 L662 1158 L661 1159 L657 1159 L656 1160 L652 1160 L651 1161 L647 1161 L646 1162 L641 1162 L640 1163 L634 1163 L633 1164 L627 1164 L626 1165 L619 1165 L618 1166 L610 1166 L609 1167 L598 1167 L597 1168 L578 1168 L577 1169 L545 1169 L544 1168 L526 1168 L525 1167 L514 1167 L513 1166 L505 1166 L504 1165 L497 1165 L496 1164 L490 1164 L489 1163 L483 1163 L482 1162 L478 1162 L477 1161 L472 1161 L471 1160 L467 1160 L466 1159 L462 1159 L461 1158 L458 1158 L457 1157 L454 1157 L453 1156 L449 1156 L448 1155 L445 1155 L444 1154 L442 1154 L441 1153 L438 1153 L437 1152 L434 1152 L433 1151 L430 1151 L429 1150 L427 1150 L426 1149 L424 1149 L423 1148 L420 1148 L419 1147 L417 1147 L416 1146 L414 1146 L413 1145 L411 1145 L410 1144 L407 1144 L406 1143 L404 1143 L403 1142 L402 1142 L401 1141 L399 1141 L398 1140 L396 1140 L395 1139 L393 1139 L392 1138 L391 1138 L390 1137 L388 1137 L387 1136 L386 1136 L385 1135 L383 1135 L382 1134 L381 1134 L380 1133 L378 1133 L377 1132 L376 1132 L375 1131 L374 1131 L373 1130 L371 1130 L370 1129 L369 1129 L368 1128 L367 1128 L366 1127 L364 1127 L363 1126 L362 1126 L361 1125 L360 1125 L359 1124 L358 1124 L357 1123 L356 1123 L355 1122 L353 1122 L352 1121 L351 1121 L350 1120 L349 1120 L348 1119 L347 1119 L346 1118 L345 1118 L344 1117 L343 1117 L342 1116 L341 1116 L340 1115 L339 1115 L338 1114 L337 1114 L335 1112 L334 1112 L333 1111 L332 1111 L331 1110 L330 1110 L329 1109 L328 1109 L327 1108 L326 1108 L324 1106 L323 1106 L322 1105 L321 1105 L320 1104 L319 1104 L318 1103 L317 1103 L315 1101 L314 1101 L313 1100 L312 1100 L310 1098 L309 1098 L308 1097 L307 1097 L305 1095 L304 1095 L303 1094 L302 1094 L300 1092 L299 1092 L297 1090 L296 1090 L294 1088 L293 1088 L291 1086 L290 1086 L287 1083 L286 1083 L284 1081 L283 1081 L281 1079 L280 1079 L278 1077 L277 1077 L274 1074 L273 1074 L270 1071 L269 1071 L265 1067 L264 1067 L261 1064 L260 1064 L256 1060 L255 1060 L251 1056 L250 1056 L243 1049 L242 1049 L235 1042 L234 1042 L202 1010 L202 1009 L195 1002 L195 1001 L188 994 L188 993 L183 988 L183 987 L180 984 L180 983 L177 980 L177 979 L174 976 L174 975 L171 972 L171 971 L167 967 L167 966 L165 964 L165 963 L163 961 L163 960 L161 958 L161 957 L159 955 L159 954 L157 952 L157 951 L155 949 L155 948 L153 946 L153 945 L151 943 L151 942 L149 940 L149 939 L148 938 L148 937 L146 935 L146 934 L144 932 L144 931 L143 930 L143 929 L142 928 L142 927 L140 925 L140 924 L139 923 L139 922 L138 921 L138 920 L137 919 L137 918 L135 916 L135 915 L134 914 L134 913 L133 912 L133 911 L132 910 L132 909 L131 908 L131 907 L130 906 L130 905 L129 904 L129 903 L128 902 L128 901 L126 899 L126 898 L125 897 L125 896 L124 895 L124 894 L123 893 L123 891 L122 890 L122 889 L121 888 L121 887 L120 886 L120 885 L119 884 L119 883 L118 882 L118 881 L117 880 L117 878 L116 877 L116 876 L115 875 L115 873 L114 872 L114 871 L113 870 L113 869 L112 868 L112 866 L111 865 L111 864 L110 863 L110 861 L109 860 L109 859 L108 858 L108 856 L107 855 L107 853 L106 852 L106 851 L105 850 L105 848 L104 847 L104 845 L103 844 L103 843 L102 842 L102 840 L101 839 L101 837 L100 836 L100 834 L99 833 L99 831 L98 830 L98 828 L97 827 L97 824 L96 823 L96 821 L95 820 L95 817 L94 816 L94 813 L93 812 L93 810 L92 809 L92 806 L91 805 L91 802 L90 801 L90 798 L89 797 L89 794 L88 793 L88 790 L87 789 L87 785 L86 784 L86 781 L85 780 L85 776 L84 775 L84 771 L83 770 L83 765 L82 764 L82 759 L81 758 L81 753 L80 752 L80 746 L79 745 L79 738 L78 737 L78 728 L77 727 L77 716 L76 715 L76 693 L75 692 L75 671 L76 670 L76 650 L77 649 L77 637 L78 636 L78 628 L79 627 L79 620 L80 619 L80 613 L81 612 L81 606 L82 605 L82 600 L83 599 L83 595 L84 594 L84 590 L85 589 L85 585 L86 584 L86 580 L87 579 L87 576 L88 575 L88 572 L89 571 L89 568 L90 567 L90 564 L91 563 L91 560 L92 559 L92 556 L93 555 L93 552 L94 551 L94 549 L95 548 L95 545 L96 544 L96 542 L97 541 L97 538 L98 537 L98 535 L99 534 L99 532 L100 531 L100 529 L101 528 L101 526 L102 525 L102 523 L103 522 L103 520 L104 519 L104 518 L105 517 L105 515 L106 514 L106 512 L107 511 L107 510 L108 509 L108 507 L109 506 L109 505 L110 504 L110 502 L111 501 L111 500 L112 499 L112 497 L113 496 L113 495 L114 494 L114 492 L115 491 L115 490 L116 489 L116 488 L117 487 L117 485 L118 484 L118 483 L119 482 L119 481 L120 480 L120 479 L121 478 L121 476 L123 474 L123 472 L124 471 L124 470 L125 469 L125 468 L126 467 L126 466 L127 465 L127 464 L128 463 L128 462 L129 461 L129 460 L131 458 L131 457 L132 456 L132 455 L133 454 L133 453 L134 452 L134 451 L135 450 L135 449 L136 448 L136 447 L138 445 L138 444 L139 443 L139 442 L140 441 L140 440 L141 439 L141 438 L143 436 L143 435 L144 434 L144 433 L146 431 L146 430 L147 429 L147 428 L149 426 L149 425 L151 423 L151 422 L153 420 L153 419 L155 417 L155 416 L156 415 L156 414 L158 412 L158 411 L160 409 L160 408 L162 406 L162 405 L165 402 L165 401 L167 399 L167 398 L170 395 L170 394 L173 391 L173 390 L176 387 L176 386 L179 383 L179 382 L183 378 L183 377 L188 372 L188 371 L193 366 L193 365 L200 358 L200 357 L235 322 L236 322 L236 321 L237 320 L238 320 L244 314 L245 314 L250 309 L251 309 L256 304 L257 304 L261 300 L262 300 L265 297 L266 297 L270 293 L271 293 L273 291 L274 291 L277 288 L278 288 L280 286 L281 286 L284 283 L285 283 L287 281 L288 281 L290 279 L291 279 L293 277 L294 277 L296 275 L297 275 L299 273 L300 273 L302 271 L303 271 L304 270 L305 270 L307 268 L308 268 L309 267 L310 267 L312 265 L313 265 L314 264 L315 264 L317 262 L318 262 L319 261 L320 261 L322 259 L323 259 L324 258 L325 258 L326 257 L327 257 L329 255 L330 255 L331 254 L332 254 L333 253 L334 253 L335 252 L336 252 L337 251 L338 251 L339 250 L340 250 L341 249 L342 249 L343 248 L344 248 L345 247 L346 247 L347 246 L348 246 L349 245 L350 245 L351 244 L352 244 L353 243 L354 243 L355 242 L357 242 L358 241 L359 241 L360 240 L361 240 L362 239 L363 239 L364 238 L365 238 L366 237 L367 237 L368 236 L370 236 L371 235 L372 235 L373 234 L374 234 L375 233 L377 233 L378 232 L379 232 L380 231 L382 231 L383 230 L384 230 L385 229 L387 229 L388 228 L389 228 L390 227 L392 227 L393 226 L395 226 L396 225 L398 225 L399 224 L401 224 L402 223 L404 223 L405 222 L407 222 L408 221 L410 221 L411 220 L413 220 L414 219 L416 219 L417 218 L419 218 L420 217 L422 217 L423 216 L426 216 L427 215 L429 215 L430 214 L432 214 L433 213 L436 213 L437 212 L440 212 L441 211 L444 211 L445 210 L448 210 L449 209 L452 209 L453 208 L456 208 L457 207 L461 207 L462 206 L466 206 L467 205 L471 205 L472 204 L476 204 L477 203 L483 203 L484 202 L489 202 L490 201 L496 201 L497 200 L504 200 L505 199 L513 199 L514 198 L525 198 L526 197 Z" fill="#000000" stroke="#e5eef7" stroke-width="6" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+      </g>
+      <g id="region-eyeL">
+        <path data-region="eyeL" d="M318 405 L317 406 L313 406 L312 407 L310 407 L309 408 L307 408 L306 409 L304 409 L303 410 L302 410 L301 411 L299 411 L298 412 L297 412 L295 414 L294 414 L293 415 L292 415 L291 416 L290 416 L287 419 L286 419 L284 421 L283 421 L281 423 L280 423 L276 427 L275 427 L270 432 L269 432 L257 444 L257 445 L252 450 L252 451 L249 454 L249 455 L246 458 L246 459 L244 461 L244 462 L242 464 L242 465 L240 467 L240 468 L238 470 L238 471 L237 472 L237 473 L236 474 L236 475 L235 476 L235 477 L233 479 L233 480 L232 481 L232 482 L231 483 L231 485 L230 486 L230 487 L229 488 L229 489 L228 490 L228 492 L227 493 L227 494 L226 495 L226 497 L225 498 L225 499 L224 500 L224 502 L223 503 L223 505 L222 506 L222 509 L221 510 L221 512 L220 513 L220 516 L219 517 L219 520 L218 521 L218 525 L217 526 L217 531 L216 532 L216 540 L215 541 L215 563 L216 564 L216 572 L217 573 L217 578 L218 579 L218 582 L219 583 L219 586 L220 587 L220 589 L221 590 L221 593 L222 594 L222 595 L223 596 L223 598 L224 599 L224 601 L225 602 L225 603 L226 604 L226 605 L227 606 L227 608 L228 609 L228 610 L229 611 L229 612 L230 613 L230 614 L231 615 L231 616 L232 617 L232 618 L233 619 L233 620 L234 621 L234 622 L235 623 L235 624 L236 625 L236 626 L237 627 L237 628 L239 630 L239 631 L240 632 L240 633 L242 635 L242 636 L244 638 L244 639 L246 641 L246 642 L248 644 L248 645 L250 647 L250 648 L253 651 L253 652 L256 655 L256 656 L260 660 L260 661 L271 672 L271 673 L276 678 L277 678 L284 685 L285 685 L288 688 L289 688 L292 691 L293 691 L296 694 L297 694 L299 696 L300 696 L301 697 L302 697 L304 699 L305 699 L306 700 L307 700 L308 701 L309 701 L310 702 L311 702 L312 703 L314 703 L315 704 L316 704 L317 705 L319 705 L320 706 L322 706 L323 707 L326 707 L327 708 L332 708 L333 709 L345 709 L346 708 L348 708 L349 707 L351 707 L352 706 L353 706 L354 705 L355 705 L356 704 L357 704 L359 702 L360 702 L369 693 L369 692 L372 689 L372 688 L375 685 L375 684 L376 683 L376 682 L377 681 L377 680 L379 678 L379 677 L380 676 L380 675 L381 674 L381 673 L382 672 L382 670 L383 669 L383 668 L384 667 L384 666 L385 665 L385 663 L386 662 L386 661 L387 660 L387 658 L388 657 L388 655 L389 654 L389 653 L390 652 L390 650 L391 649 L391 646 L392 645 L392 643 L393 642 L393 639 L394 638 L394 636 L395 635 L395 632 L396 631 L396 627 L397 626 L397 622 L398 621 L398 617 L399 616 L399 610 L400 609 L400 603 L401 602 L401 595 L402 594 L402 584 L403 583 L403 570 L404 569 L404 527 L403 526 L403 514 L402 513 L402 505 L401 504 L401 498 L400 497 L400 492 L399 491 L399 486 L398 485 L398 482 L397 481 L397 478 L396 477 L396 474 L395 473 L395 471 L394 470 L394 468 L393 467 L393 465 L392 464 L392 462 L391 461 L391 460 L390 459 L390 457 L389 456 L389 455 L388 454 L388 453 L387 452 L387 450 L386 449 L386 448 L385 447 L385 446 L384 445 L384 444 L382 442 L382 441 L381 440 L381 439 L379 437 L379 436 L378 435 L378 434 L375 431 L375 430 L369 424 L369 423 L367 421 L366 421 L361 416 L360 416 L357 413 L356 413 L355 412 L354 412 L352 410 L351 410 L350 409 L348 409 L347 408 L346 408 L345 407 L342 407 L341 406 L338 406 L337 405 Z" fill="#000000" stroke="#e5eef7" stroke-width="6" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+      </g>
+      <g id="region-eyeR">
+        <path data-region="eyeR" d="M726 396 L725 397 L719 397 L718 398 L715 398 L714 399 L711 399 L710 400 L708 400 L707 401 L706 401 L705 402 L704 402 L703 403 L702 403 L701 404 L699 404 L697 406 L696 406 L695 407 L694 407 L693 408 L692 408 L690 410 L689 410 L687 412 L686 412 L682 416 L681 416 L677 420 L676 420 L668 428 L667 428 L663 432 L663 433 L654 442 L654 443 L650 447 L650 448 L647 451 L647 452 L644 455 L644 456 L643 457 L643 458 L640 461 L640 462 L639 463 L639 464 L637 466 L637 467 L635 469 L635 470 L634 471 L634 472 L633 473 L633 474 L631 476 L631 477 L630 478 L630 479 L629 480 L629 481 L628 482 L628 483 L627 484 L627 485 L626 486 L626 487 L625 488 L625 490 L624 491 L624 492 L623 493 L623 495 L622 496 L622 497 L621 498 L621 500 L620 501 L620 503 L619 504 L619 505 L618 506 L618 508 L617 509 L617 512 L616 513 L616 515 L615 516 L615 518 L614 519 L614 522 L613 523 L613 526 L612 527 L612 531 L611 532 L611 537 L610 538 L610 544 L609 545 L609 558 L608 559 L608 566 L609 567 L609 579 L610 580 L610 586 L611 587 L611 591 L612 592 L612 595 L613 596 L613 598 L614 599 L614 602 L615 603 L615 605 L616 606 L616 608 L617 609 L617 611 L618 612 L618 613 L619 614 L619 616 L620 617 L620 618 L621 619 L621 621 L622 622 L622 623 L623 624 L623 625 L624 626 L624 627 L625 628 L625 629 L626 630 L626 632 L628 634 L628 635 L629 636 L629 637 L630 638 L630 639 L632 641 L632 642 L633 643 L633 644 L635 646 L635 647 L637 649 L637 650 L639 652 L639 653 L642 656 L642 657 L645 660 L645 661 L649 665 L649 666 L664 681 L665 681 L670 686 L671 686 L674 689 L675 689 L678 692 L679 692 L681 694 L682 694 L683 695 L684 695 L686 697 L687 697 L688 698 L689 698 L690 699 L691 699 L692 700 L693 700 L694 701 L695 701 L696 702 L697 702 L698 703 L700 703 L701 704 L703 704 L704 705 L706 705 L707 706 L710 706 L711 707 L714 707 L715 708 L720 708 L721 709 L736 709 L737 708 L740 708 L741 707 L743 707 L744 706 L746 706 L747 705 L748 705 L749 704 L750 704 L751 703 L752 703 L753 702 L754 702 L757 699 L758 699 L771 686 L771 685 L774 682 L774 681 L776 679 L776 678 L778 676 L778 675 L779 674 L779 673 L780 672 L780 671 L782 669 L782 668 L783 667 L783 666 L784 665 L784 664 L785 663 L785 662 L786 661 L786 660 L787 659 L787 658 L788 657 L788 655 L789 654 L789 653 L790 652 L790 650 L791 649 L791 647 L792 646 L792 644 L793 643 L793 642 L794 641 L794 638 L795 637 L795 635 L796 634 L796 631 L797 630 L797 628 L798 627 L798 624 L799 623 L799 620 L800 619 L800 616 L801 615 L801 611 L802 610 L802 606 L803 605 L803 600 L804 599 L804 593 L805 592 L805 585 L806 584 L806 575 L807 574 L807 557 L808 556 L808 531 L807 530 L807 514 L806 513 L806 504 L805 503 L805 497 L804 496 L804 491 L803 490 L803 486 L802 485 L802 481 L801 480 L801 477 L800 476 L800 473 L799 472 L799 469 L798 468 L798 466 L797 465 L797 463 L796 462 L796 459 L795 458 L795 457 L794 456 L794 454 L793 453 L793 451 L792 450 L792 449 L791 448 L791 446 L790 445 L790 444 L789 443 L789 442 L788 441 L788 440 L787 439 L787 438 L786 437 L786 436 L785 435 L785 434 L783 432 L783 431 L782 430 L782 429 L779 426 L779 425 L777 423 L777 422 L772 417 L772 416 L767 411 L766 411 L762 407 L761 407 L759 405 L758 405 L757 404 L756 404 L754 402 L753 402 L752 401 L750 401 L749 400 L748 400 L747 399 L745 399 L744 398 L741 398 L740 397 L734 397 L733 396 Z" fill="#000000" stroke="#e5eef7" stroke-width="6" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+      </g>
+      <g id="region-mouth">
+        <path data-region="mouth" d="M467 932 L466 933 L454 933 L453 934 L445 934 L444 935 L438 935 L437 936 L432 936 L431 937 L427 937 L426 938 L422 938 L421 939 L418 939 L417 940 L414 940 L413 941 L411 941 L410 942 L408 942 L407 943 L404 943 L403 944 L402 944 L401 945 L399 945 L398 946 L396 946 L395 947 L394 947 L393 948 L391 948 L390 949 L389 949 L388 950 L387 950 L386 951 L385 951 L384 952 L383 952 L382 953 L381 953 L379 955 L378 955 L376 957 L375 957 L373 959 L372 959 L361 970 L361 971 L359 973 L359 974 L358 975 L358 976 L357 977 L357 979 L356 980 L356 982 L355 983 L355 997 L356 998 L356 1001 L357 1002 L357 1003 L358 1004 L358 1006 L359 1007 L359 1008 L360 1009 L360 1010 L362 1012 L362 1013 L363 1014 L363 1015 L368 1020 L368 1021 L372 1025 L373 1025 L377 1029 L378 1029 L380 1031 L381 1031 L383 1033 L384 1033 L386 1035 L387 1035 L388 1036 L389 1036 L391 1038 L392 1038 L393 1039 L394 1039 L395 1040 L397 1040 L398 1041 L399 1041 L400 1042 L401 1042 L402 1043 L404 1043 L405 1044 L406 1044 L407 1045 L409 1045 L410 1046 L412 1046 L413 1047 L415 1047 L416 1048 L418 1048 L419 1049 L422 1049 L423 1050 L426 1050 L427 1051 L431 1051 L432 1052 L437 1052 L438 1053 L444 1053 L445 1054 L455 1054 L456 1055 L486 1055 L487 1054 L497 1054 L498 1053 L505 1053 L506 1052 L511 1052 L512 1051 L517 1051 L518 1050 L522 1050 L523 1049 L527 1049 L528 1048 L531 1048 L532 1047 L536 1047 L537 1046 L539 1046 L540 1045 L543 1045 L544 1044 L547 1044 L548 1043 L550 1043 L551 1042 L554 1042 L555 1041 L557 1041 L558 1040 L560 1040 L561 1039 L563 1039 L564 1038 L566 1038 L567 1037 L568 1037 L569 1036 L571 1036 L572 1035 L574 1035 L575 1034 L577 1034 L578 1033 L579 1033 L580 1032 L582 1032 L583 1031 L584 1031 L585 1030 L586 1030 L587 1029 L589 1029 L590 1028 L591 1028 L592 1027 L593 1027 L594 1026 L595 1026 L596 1025 L597 1025 L598 1024 L599 1024 L600 1023 L601 1023 L602 1022 L603 1022 L605 1020 L606 1020 L607 1019 L608 1019 L610 1017 L611 1017 L612 1016 L613 1016 L615 1014 L616 1014 L619 1011 L620 1011 L623 1008 L624 1008 L633 999 L633 998 L636 995 L636 994 L637 993 L637 992 L638 991 L638 990 L639 989 L639 986 L640 985 L640 980 L639 979 L639 976 L638 975 L638 974 L636 972 L636 971 L630 965 L629 965 L626 962 L625 962 L623 960 L622 960 L620 958 L619 958 L618 957 L617 957 L616 956 L615 956 L614 955 L613 955 L612 954 L611 954 L610 953 L608 953 L607 952 L606 952 L605 951 L603 951 L602 950 L600 950 L599 949 L597 949 L596 948 L594 948 L593 947 L591 947 L590 946 L587 946 L586 945 L584 945 L583 944 L580 944 L579 943 L576 943 L575 942 L572 942 L571 941 L567 941 L566 940 L562 940 L561 939 L557 939 L556 938 L551 938 L550 937 L545 937 L544 936 L537 936 L536 935 L528 935 L527 934 L517 934 L516 933 L501 933 L500 932 Z" fill="#000000" stroke="#e5eef7" stroke-width="6" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+  <div class="side tails"></div>
+</div>`; coinEl = wrap.firstElementChild; document.body.appendChild(coinEl);
+  (async()=>{
+    try{
+      const res = await fetch('../assets/L4_Central/errl-face-2.svg');
+      const svgText = await res.text();
+      const heads = coinEl.querySelector('.side.heads');
+      const tails = coinEl.querySelector('.side.tails');
+      if(heads&&tails){
+        heads.innerHTML = svgText;
+        tails.innerHTML = svgText;
+        const setSize=(el)=>{ const s=el.querySelector('svg'); if(s){ s.setAttribute('width','100%'); s.setAttribute('height','100%'); } };
+        setSize(heads); setSize(tails);
+        const tSvg = tails.querySelector('svg'); if(tSvg) tSvg.classList.add('svg_back');
+      }
+    }catch(e){ console.warn('Failed to load coin face SVG', e); }
+  })();
+  startCoinSpin(); }
+function hideCoin(){ if(coinRAF){ cancelAnimationFrame(coinRAF); coinRAF=null; } if(coinEl){ coinEl.remove(); coinEl=null; } }
+
   hud.addEventListener('click', (e)=>{
     const b=e.target.closest('[data-toggle]'); if(!b) return;
     const key=b.dataset.toggle;
@@ -798,6 +1172,10 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
       b.classList.toggle('toggled', errlVisible);
     }
     if(key==='mirror'){ toggles.mirror=!toggles.mirror; b.classList.toggle('toggled', toggles.mirror); if(mirrorApplyTimer) clearTimeout(mirrorApplyTimer); mirrorApplyTimer = setTimeout(()=>{ applyMirror(); mirrorApplyTimer=null; }, 180); }
+    if(key==='coin'){
+      toggles.coin = !toggles.coin; b.classList.toggle('toggled', toggles.coin);
+      if(toggles.coin) showCoin(); else hideCoin();
+    }
   });
 
   // Secret double-click on Mirror to flip both axes
@@ -893,7 +1271,8 @@ const NAV_INTRO = {
     const s=(id)=>{ const el=document.getElementById(id); return el? el.value : null; };
     BUB.params = {
       speed: g('bub-speed',1), wobble:g('bub-wobble',1), freq:g('bub-freq',1), density:g('bub-density',1),
-      alpha: g('bub-alpha',0.95), min: g('bub-min',18), max: g('bub-max',44), far: g('bub-far',0.33), tex: s('bub-tex')||'orb'
+      alpha: g('bub-alpha',0.95), min: g('bub-min',18), max: g('bub-max',44), far: g('bub-far',0.33), tex: s('bub-tex')||'orb',
+      sizefreq: g('bub-sizefreq',0), jumbochance: g('bub-jumbochance',0), jumboscale: g('bub-jumboscale',1.6)
     };
     bubSave();
   }
@@ -1038,7 +1417,7 @@ const NAV_INTRO = {
     } else {
       const add=(el,key,label)=>{ if(el){ const r=el.getBoundingClientRect(); if(r.width>0 && r.height>0) t.push({ el, key, label }); } };
       // HUD chips
-      document.querySelectorAll('#hud .chip').forEach((el)=> add(el, 'HUD:'+el.querySelector('.label')?.textContent||'Chip', 'HUD: '+(el.querySelector('.label')?.textContent||'Chip')));
+      document.querySelectorAll('#hud .chip').forEach((el)=> add(el, 'HUD:'+((el.querySelector('.label')? el.querySelector('.label').textContent : 'Chip')), 'HUD: '+((el.querySelector('.label')? el.querySelector('.label').textContent : 'Chip'))));
       // Nav buttons
       document.querySelectorAll('.ui-orbit .btn').forEach((el,i)=> add(el, 'NAV:'+((el.getAttribute('title'))||('Button '+(i+1))), 'Nav: '+(el.getAttribute('title')||('Button '+(i+1)))));
       // Errl regions (if inline available)
@@ -1048,7 +1427,7 @@ const NAV_INTRO = {
     return t;
   }
   let devChooserEl=null; function hideChooser(){ if(devChooserEl){ devChooserEl.style.display='none'; } }
-  let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','L3','L4','L5','L6']; const hiddenLayers=new Set();
+let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3','L4','L5','L6']; const hiddenLayers=new Set();
   function applyLayerStack(){ layersOrder.forEach((k,idx)=>{ const el=document.querySelector(`[data-layer="${k}"]`); if(el){ el.style.zIndex = String(200+idx); } }); }
   function toggleLayerVisibility(k){ const el=document.querySelector(`[data-layer="${k}"]`); if(!el) return; if(hiddenLayers.has(k)){ hiddenLayers.delete(k); el.style.display = (k==='L5'?'grid':''); } else { hiddenLayers.add(k); el.style.display='none'; } buildLayersPanel(); }
   function moveLayer(k,dir){ const i=layersOrder.indexOf(k); if(i<0) return; const j = i + (dir==='up'?-1:1); if(j<0 || j>=layersOrder.length) return; const tmp=layersOrder[i]; layersOrder[i]=layersOrder[j]; layersOrder[j]=tmp; applyLayerStack(); buildLayersPanel(); }
@@ -1098,7 +1477,7 @@ const NAV_INTRO = {
       devOverlayEl.appendChild(box); boxes.push(box);
     }
   }
-  function gotoTag(key){ const map={ HUD:'hud', GL:'gl', ORBIT:'nav', 'L5':'nav', 'L4':'errl', 'L2':'backfx' }; const page = map[key] || (key&&key.startsWith('L')? 'layers' : (key?.startsWith('NAV:')?'nav' : key?.startsWith('ERRL-REGION:')?'errl' : key?.startsWith('HUD:')?'hud' : null)); if(page){ const btn = document.querySelector(`#dev-apps .app-icon[data-app=\"${page}\"]`); if(btn) btn.click(); } openDevEdit(key); }
+  function gotoTag(key){ const map={ HUD:'hud', GL:'gl', ORBIT:'nav', 'L5':'nav', 'L4':'errl', 'L2':'backfx' }; const page = map[key] || (key&&key.startsWith('L')? 'layers' : ((key&&key.startsWith('NAV:'))?'nav' : ((key&&key.startsWith('ERRL-REGION:'))?'errl' : ((key&&key.startsWith('HUD:'))?'hud' : null)))); if(page){ const btn = document.querySelector(`#dev-apps .app-icon[data-app=\"${page}\"]`); if(btn) btn.click(); } }
   function showChooser(x,y,items){ if(!devChooserEl){ devChooserEl=document.createElement('div'); devChooserEl.id='dev-chooser'; document.body.appendChild(devChooserEl); }
     devChooserEl.innerHTML='';
     for(const it of items){ const row=document.createElement('div'); row.className='item'; row.textContent=it.label; row.title=LAYER_DESCRIPTIONS[it.key]||it.label; row.onclick=()=>{ hideChooser(); gotoTag(it.key); }; devChooserEl.appendChild(row); }
@@ -1107,41 +1486,17 @@ const NAV_INTRO = {
   function applyDevMove(key, el, dx, dy){ if(!el) return; if(/^NAV:/.test(key)){ el.style.setProperty('--dx', dx.toFixed(0)+'px'); el.style.setProperty('--dy', dy.toFixed(0)+'px'); }
     else if(/^ERRL/.test(key) || key==='L4'){ errlOffset.x = Math.round(dx); errlOffset.y = Math.round(dy); applyErrlTransform(); }
   }
-  function finalizeDevMove(key, dx, dy){ const prompt = `Move ${key} by (${Math.round(dx)}, ${Math.round(dy)}) pixels and persist this layout change.`; openDevEdit(key); const ta = document.querySelector('#dev-edit textarea, #dev-edit #dev-edit-prompt'); if(ta) ta.value = prompt + '\n\nIf nav bubble, set CSS vars --dx/--dy on that button; if Errl, update errlOffset defaults.'; }
+  function finalizeDevMove(key, dx, dy){ const msg = `Move ${key} by (${Math.round(dx)}, ${Math.round(dy)})px`; console.log('[DEV]', msg); }
 
-  // Dev edit helper modal → copies an Agent edit request to clipboard
-  let devEditEl=null;
-  function devEditTargetsFor(key){
-    const rel = 'src/portal/pixi-gl/index.html';
-    const map={
-      HUD:[rel], ORBIT:[rel], L0:[rel], L1:[rel], L2:['src/fx/bubbles-pixi.js', rel], L3:[rel], L4:[rel, 'src/portal/assets/L4_Central/errl-painted-4.svg'], L5:[rel], L6:[rel], GL:[rel, 'src/fx/fx-core.js', 'src/fx/bubbles-pixi.js']
-    };
-    if(/^HUD:/.test(key)) return map.HUD;
-    if(/^NAV:/.test(key)) return [rel];
-    if(/^ERRL-REGION:/.test(key)) return map.L4;
-    return map[key] || [rel];
-  }
-  function openDevEdit(key){ if(!devEditEl){ devEditEl=document.createElement('div'); devEditEl.id='dev-edit'; devEditEl.innerHTML=`<header id=\"dev-edit-handle\"><strong>Dev Edit</strong><button id=\"dev-edit-close\">×</button></header><div class=\"body\"><div>Target: <b id=\"dev-edit-target\"></b></div><label>Primary file<select id=\"dev-edit-file\"></select></label><label>Prompt<textarea id=\"dev-edit-prompt\" placeholder=\"Describe the change. Example: Increase background bubbles speed and density by 20%.\"></textarea></label><div class=\"row\"><button id=\"dev-edit-copy\">Copy request</button><button id=\"dev-edit-hide\">Hide</button></div><div style=\"opacity:.75; font-size:11px;\">Tip: Press O to toggle overlay. Paste the copied request here in chat to apply the change.</div></div>`; document.body.appendChild(devEditEl);
-      devEditEl.querySelector('#dev-edit-close').onclick=()=> devEditEl.style.display='none';
-      devEditEl.querySelector('#dev-edit-hide').onclick=()=> devEditEl.style.display='none';
-      // Drag the modal by header
-      (function(){ const h=devEditEl.querySelector('#dev-edit-handle'); let s=null; h.addEventListener('pointerdown',(e)=>{ s={x:e.clientX,y:e.clientY,l:devEditEl.offsetLeft,t:devEditEl.offsetTop}; devEditEl.setPointerCapture && devEditEl.setPointerCapture(e.pointerId); }); h.addEventListener('pointermove',(e)=>{ if(!s) return; const nx=s.l+(e.clientX-s.x), ny=s.t+(e.clientY-s.y); devEditEl.style.left=nx+'px'; devEditEl.style.top=ny+'px'; devEditEl.style.right=''; }); h.addEventListener('pointerup',()=>{ s=null; }); })();
-      devEditEl.querySelector('#dev-edit-copy').onclick=()=>{
-        const file = devEditEl.querySelector('#dev-edit-file').value;
-        const prompt = devEditEl.querySelector('#dev-edit-prompt').value||'';
-        const payload = `ERRL_EDIT_REQUEST\n{"target":"${tag}","file":"${file}","prompt":${JSON.stringify(prompt)}}`;
-        navigator.clipboard && navigator.clipboard.writeText(payload).catch(()=>{});
-        console.log(payload);
-      };
-    }
-    devEditEl.style.display='block';
-    const label = LAYER_NAMES[key] || key; devEditEl.querySelector('#dev-edit-target').textContent = label;
-    const sel = devEditEl.querySelector('#dev-edit-file'); sel.innerHTML='';
-    for(const p of devEditTargetsFor(key)){ const o=document.createElement('option'); o.value=p; o.textContent=p; sel.appendChild(o); }
-    devEditEl.querySelector('#dev-edit-prompt').value='';
-  }
+  // Dev edit helper modal disabled for now (stability)
+  function openDevEdit(){ /* no-op */ }
   function devOverlayToggle(on){ devOverlayOn = (on==null? !devOverlayOn : !!on); document.body.classList.toggle('dev-mode', devOverlayOn); if(devOverlayOn){ devOverlayApply(); if(!devOverlayUp){ devOverlayUp = ()=> devOverlayApply(); addEventListener('resize', devOverlayUp); } } else { if(devOverlayEl) devOverlayEl.remove(); devOverlayEl=null; if(devOverlayUp) removeEventListener('resize', devOverlayUp); devOverlayUp=null; } }
-  document.addEventListener('keydown', (e)=>{ if(e.key==='d' || e.key==='D'){ DEV.enabled=!DEV.enabled; toggleDev(!DEV.enabled?false:true); populateDev(); } if(e.key==='o' || e.key==='O'){ devOverlayToggle(); } if(e.key==='e' || e.key==='E'){ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }});
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='d' || e.key==='D'){ DEV.enabled=!DEV.enabled; toggleDev(!DEV.enabled?false:true); populateDev(); }
+    if(e.key==='o' || e.key==='O'){ devOverlayToggle(); }
+    if(e.key==='e' || e.key==='E'){ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }
+    if(e.key==='h' || e.key==='H'){ const hb=document.getElementById('hud'); if(hb){ const hide = hb.style.display!== 'none' ? true : false; hb.style.display = hide? 'none' : ''; const chk=document.getElementById('hud-hidebar'); if(chk) chk.checked = (hb.style.display==='none'); } }
+  });
   { const e=$('dev-hide'); if(e) e.onclick=()=> toggleDev(false); }
   { const e=$('dev-overlay'); if(e) e.onclick=()=> devOverlayToggle(); }
   { const e=$('dev-save'); if(e) e.onclick=()=>{ saveParamsFromPanel(); populateDev(); }; }
@@ -1163,7 +1518,7 @@ const NAV_INTRO = {
     const hudBub = document.getElementById('hud-bubbles');
     const hudMir = document.getElementById('hud-mirror');
     const hudHide = document.getElementById('hud-hidebar');
-    function syncHUD(){ hudPar?.classList.toggle('toggled', !!toggles.parallax); hudGL?.classList.toggle('toggled', !!toggles.gl); hudBub?.classList.toggle('toggled', toggles.bubbles!=='hidden'); hudMir?.classList.toggle('toggled', !!(toggles.mirror||toggles.mirrorBoth)); if(hudHide){ hudHide.checked = (document.getElementById('hud')?.style.display==='none'); } }
+    function syncHUD(){ if(hudPar) hudPar.classList.toggle('toggled', !!toggles.parallax); if(hudGL) hudGL.classList.toggle('toggled', !!toggles.gl); if(hudBub) hudBub.classList.toggle('toggled', toggles.bubbles!=='hidden'); if(hudMir) hudMir.classList.toggle('toggled', !!(toggles.mirror||toggles.mirrorBoth)); if(hudHide){ var hb=document.getElementById('hud'); hudHide.checked = (hb && hb.style.display==='none'); } }
     function setParallax(on){ toggles.parallax=!!on; if(!on){ portal.querySelectorAll('[data-layer]').forEach(el=>el.style.transform='none'); } syncHUD(); }
     function setGL(on){ toggles.gl=!!on; const canvas=document.getElementById('gl'); canvas.style.display = on? 'block':'none'; if(on && !app) initGL(); if(fxm){ on? fxm.resumeAll(): fxm.pauseAll(); } if(on) applyBubFromUI(); syncHUD(); }
     function setBubbles(on){ const l5=document.querySelector('[data-layer="L5"]'); if(on){ toggles.bubbles='moving'; if(l5) l5.style.display='grid'; } else { toggles.bubbles='hidden'; if(l5) l5.style.display='none'; } syncHUD(); }
@@ -1184,11 +1539,11 @@ const NAV_INTRO = {
     nh && nh.addEventListener('input', ()=>{ applyNav(); replayIntro(); });
     nc && nc.addEventListener('input', ()=>{ applyNav(); });
     nst && nst.addEventListener('change', ()=>{ applyNav(); });
-    document.getElementById('nav-replay')?.addEventListener('click', ()=>{ applyNav(); replayIntro(); });
+    (function(){ var nr=document.getElementById('nav-replay'); if(nr) nr.addEventListener('click', ()=>{ applyNav(); replayIntro(); }); })();
     applyNav();
     // Bubbles controls (if available)
     const bub = ()=> bubblesFX;
-    function applyBubFromUI(){ if(!BUB.params) return; const p=BUB.params; if(bub()){ bub().setSpeed(p.speed); bub().setWobbleMult(p.wobble); bub().setFreqMult(p.freq); bub().setCountFactor(p.density); bub().set({ alpha:p.alpha, minSize:p.min, maxSize:p.max, farRatio:p.far, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null) }); } }
+    function applyBubFromUI(){ if(!BUB.params) return; const p=BUB.params; if(bub()){ bub().setSpeed(p.speed); bub().setWobbleMult(p.wobble); bub().setFreqMult(p.freq); bub().setCountFactor(p.density); bub().set({ alpha:p.alpha, minSize:p.min, maxSize:p.max, farRatio:p.far, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null), sizeJitterFreq: p.sizefreq||0, jumboChance: p.jumbochance||0, jumboScale: p.jumboscale||1.6 }); } }
     function bindRange(id, labelId, on){ const el=$(id); const lab=$(labelId); if(!el||!lab) return; const update=()=>{ const v=+el.value; lab.textContent=v.toFixed(2); on(v); bubSnapshotFromUI(); }; el.addEventListener('input', update); update(); }
     bindRange('bub-speed','bub-speed-val',(v)=>{ if(bub()) bub().setSpeed(v); });
     bindRange('bub-wobble','bub-wobble-val',(v)=>{ if(bub()) bub().setWobbleMult(v); });
@@ -1198,18 +1553,134 @@ const NAV_INTRO = {
     // Size + far ratio
     (function(){ const mi=$('bub-min'), ma=$('bub-max'), fr=$('bub-far'), frv=$('bub-far-val'); if(mi&&ma){ const apply=()=>{ const min=Math.max(6, Math.min(+mi.value||18, +ma.value||44)); const max=Math.max(min+1, +ma.value||44); mi.value=String(min); ma.value=String(max); if(bub()) bub().set({minSize:min, maxSize:max}); bubSnapshotFromUI(); }; mi.addEventListener('change', apply); ma.addEventListener('change', apply); }
       if(fr&&frv){ const upd=()=>{ frv.textContent=(+fr.value).toFixed(2); if(bub()) bub().set({farRatio:+fr.value}); bubSnapshotFromUI(); }; fr.addEventListener('input', upd); upd(); }
+      const sf=$('bub-sizefreq'), sfv=$('bub-sizefreq-val'); if(sf&&sfv){ const updSF=()=>{ sfv.textContent=(+sf.value).toFixed(2); if(bub()) bub().set({ sizeJitterFreq:+sf.value }); bubSnapshotFromUI(); }; sf.addEventListener('input', updSF); updSF(); }
+      const jc=$('bub-jumbochance'), jcv=$('bub-jumbochance-val'); if(jc&&jcv){ const updJC=()=>{ jcv.textContent=(+jc.value).toFixed(2); if(bub()) bub().set({ jumboChance:+jc.value }); bubSnapshotFromUI(); }; jc.addEventListener('input', updJC); updJC(); }
+      const js=$('bub-jumboscale'), jsv=$('bub-jumboscale-val'); if(js&&jsv){ const updJS=()=>{ jsv.textContent=(+js.value).toFixed(2); if(bub()) bub().set({ jumboScale:+js.value }); bubSnapshotFromUI(); }; js.addEventListener('input', updJS); updJS(); }
     })();
     // Texture swap + controls
     (function(){ const sel=$('bub-tex'), btn=$('bub-apply-tex'); if(sel&&btn){ if(BUB.params && BUB.params.tex){ sel.value=BUB.params.tex; }
       btn.addEventListener('click', ()=>{ const choice=sel.value; const url = (choice==='orb')? assetUrl('fx/Orb_NeedsFriends.png') : null; if(bub()) bub().set({ textureUrl:url }).catch(()=>{}); BUB.params = Object.assign({}, BUB.params||{}, { tex: choice }); bubSave(); }); } })();
-    // Pause/Resume/Reset
-    (function(){ const p=$('bub-pause'), r=$('bub-resume'), z=$('bub-reset'); if(p) p.onclick=()=>{ if(bub()) bub().pause(); }; if(r) r.onclick=()=>{ if(bub()) bub().resume(); }; if(z) z.onclick=()=>{ if(bub()){ bub().set({minSize:18,maxSize:44,alpha:0.95,farRatio:0.33}); bub().setSpeed(1); bub().setWobbleMult(1); bub().setFreqMult(1); bub().setCountFactor(1); } if($('bub-tex')) $('bub-tex').value='orb'; const set=(id,val)=>{ const el=$(id); if(el) el.value=String(val); }; set('bub-speed',1); set('bub-wobble',1); set('bub-freq',1); set('bub-density',1); set('bub-alpha',0.95); set('bub-min',18); set('bub-max',44); set('bub-far',0.33); bubSnapshotFromUI(); }; })();
+    // Pause/Resume/Reset/Randomize
+    (function(){ const p=$('bub-pause'), r=$('bub-resume'), z=$('bub-reset'), rnd=$('bub-randomize');
+      if(p) p.onclick=()=>{ if(bub()) bub().pause(); };
+      if(r) r.onclick=()=>{ if(bub()) bub().resume(); };
+      if(z) z.onclick=()=>{
+        if(bub()){
+          bub().resume();
+          bub().set({minSize:18,maxSize:44,alpha:0.95,farRatio:0.33, sizeJitterFreq:0, jumboChance:0, jumboScale:1.6});
+          bub().setSpeed(1); bub().setWobbleMult(1); bub().setFreqMult(1); bub().setCountFactor(1);
+        }
+        if($('bub-tex')) $('bub-tex').value='orb';
+        const set=(id,val)=>{ const el=$(id); if(el) el.value=String(val); };
+        set('bub-speed',1); set('bub-wobble',1); set('bub-freq',1); set('bub-density',1);
+        set('bub-alpha',0.95); set('bub-min',18); set('bub-max',44); set('bub-far',0.33);
+        set('bub-sizefreq',0); set('bub-jumbochance',0); set('bub-jumboscale',1.6);
+        bubSnapshotFromUI(); applyBubFromUI();
+      };
+      if(rnd) rnd.onclick=()=>{
+        const rand=(a,b,step=0.01)=> Math.round((a + Math.random()*(b-a))/step)*step;
+        const setV=(id,val,fmt)=>{ const el=$(id), lab=$(id+'-val'); if(el){ el.value=String(val); if(lab){ lab.textContent = (fmt?fmt(val):val.toFixed(2)); } } };
+        setV('bub-speed', rand(0,2,0.01));
+        setV('bub-wobble', rand(0,2,0.01));
+        setV('bub-freq', rand(0,2,0.01));
+        setV('bub-density', rand(0.25,2,0.01));
+        setV('bub-alpha', rand(0.3,1,0.01));
+        const min = Math.round(rand(8,28,1)); const max = Math.max(min+4, Math.round(rand(min+4,64,1)));
+        const mi=$( 'bub-min'); if(mi) mi.value=String(min);
+        const ma=$( 'bub-max'); if(ma) ma.value=String(max);
+        setV('bub-far', rand(0.1,0.7,0.01));
+        setV('bub-sizefreq', rand(0,1,0.01));
+        setV('bub-jumbochance', rand(0,0.5,0.01));
+        setV('bub-jumboscale', rand(1.1,2.2,0.05));
+        const tex=$( 'bub-tex'); if(tex){ tex.value = (Math.random()<0.7 ? 'orb' : 'proc'); }
+        bubSnapshotFromUI(); applyBubFromUI();
+      };
+    })();
     // GL controls
     function bindGL(id, labId, getter, setter, fmt=(x)=>x.toFixed(2)){ const el=$(id), lab=$(labId); if(!el||!lab) return; const update=()=>{ if(!toggles.gl || !app){ lab.textContent='—'; return; } const v=+el.value; lab.textContent=fmt(v); setter(v); }; el.addEventListener('input', update); // init
       const initVal = getter(); if(initVal!=null){ el.value = String(initVal); lab.textContent = fmt(+el.value); } update(); }
     bindGL('gl-alpha','gl-alpha-val', ()=> overlay? overlay.alpha : 0.20, (v)=>{ if(overlay) overlay.alpha = v; });
     bindGL('gl-dx','gl-dx-val', ()=> dispFilter? dispFilter.scale.x : 24, (v)=>{ if(dispFilter) dispFilter.scale.x = v; }, (x)=> String(Math.round(x)) );
     bindGL('gl-dy','gl-dy-val', ()=> dispFilter? dispFilter.scale.y : 18, (v)=>{ if(dispFilter) dispFilter.scale.y = v; }, (x)=> String(Math.round(x)) );
+    
+    // Per-layer Hue controls (Errl, Nav)
+    function bindHueSection(prefix, layer){
+      if(!window.ErrlHueController) return;
+      const get = (id)=> document.getElementById(`${prefix}-${id}`);
+      const elEnabled = get('hue-enabled');
+      const elHue = get('hue');
+      const elHueVal = get('hue-val');
+      const elSat = get('sat');
+      const elSatVal = get('sat-val');
+      const elInt = get('int');
+      const elIntVal = get('int-val');
+      const elTheme = get('hue-theme');
+      const elAnim = get('hue-animate');
+      const elReset = get('hue-reset');
+      const sync = ()=>{
+        const st = window.ErrlHueController.layers[layer]; if(!st) return;
+        if(elEnabled) elEnabled.checked = !!st.enabled;
+        if(elHue){ elHue.value = String(st.hue||0); if(elHueVal) elHueVal.textContent = (st.hue|0)+'°'; }
+        if(elSat){ elSat.value = String(st.saturation??1); if(elSatVal) elSatVal.textContent = Math.round((st.saturation??1)*100)+'%'; }
+        if(elInt){ elInt.value = String(st.intensity??1); if(elIntVal) elIntVal.textContent = Math.round((st.intensity??1)*100)+'%'; }
+      };
+      elEnabled && elEnabled.addEventListener('change', ()=> window.ErrlHueController.setEnabled(!!elEnabled.checked, layer));
+      elHue && elHue.addEventListener('input', ()=>{ window.ErrlHueController.setHue(+elHue.value, layer); if(elHueVal) elHueVal.textContent = (Math.round(+elHue.value))+'°'; });
+      elSat && elSat.addEventListener('input', ()=>{ window.ErrlHueController.setSaturation(+elSat.value, layer); if(elSatVal) elSatVal.textContent = Math.round(+elSat.value*100)+'%'; });
+      elInt && elInt.addEventListener('input', ()=>{ window.ErrlHueController.setIntensity(+elInt.value, layer); if(elIntVal) elIntVal.textContent = Math.round(+elInt.value*100)+'%'; });
+      elTheme && elTheme.addEventListener('change', ()=> window.ErrlHueController.applyTheme(layer, elTheme.value));
+      elAnim && elAnim.addEventListener('click', ()=>{ const L=layer; window.ErrlHueController.toggleAnimation(1, L); elAnim.textContent = window.ErrlHueController.animation.active ? 'Stop Animation' : 'Animate'; });
+      elReset && elReset.addEventListener('click', ()=>{ window.ErrlHueController.reset(layer); sync(); if(elAnim) elAnim.textContent='Animate'; });
+      sync();
+      return sync;
+    }
+    // Bind hue sections (may run before TS module loads; ensure retry)
+    function ensureHueBindings(){ if(window.ErrlHueController){ bindHueSection('errl','errl'); bindHueSection('nav','nav'); } else { setTimeout(ensureHueBindings, 80); } }
+    ensureHueBindings();
+    
+    // Errl Goo controls
+    (function(){
+      const LS_GOO = 'errl_goo_cfg';
+      function gooLoad(){ try{ const raw=localStorage.getItem(LS_GOO); if(!raw) return; const o=JSON.parse(raw); if(o){ if(typeof o.mult==='number') GOO.mult=o.mult; if(typeof o.wobble==='number') GOO.wobble=o.wobble; if(typeof o.enabled==='boolean') { GOO.enabled=o.enabled; toggles.errlGoo=o.enabled; } } }catch(e){} }
+      function gooSave(){ try{ localStorage.setItem(LS_GOO, JSON.stringify({ mult:GOO.mult, wobble:GOO.wobble, enabled: !!toggles.errlGoo })) }catch(e){} }
+      gooLoad();
+      const gEn = document.getElementById('errl-goo-enabled');
+      const gS = document.getElementById('errl-goo-strength');
+      const gSV = document.getElementById('errl-goo-strength-val');
+      const gW = document.getElementById('errl-goo-wobble');
+      const gWV = document.getElementById('errl-goo-wobble-val');
+      if(gEn){ gEn.checked = !!toggles.errlGoo; gEn.addEventListener('change', ()=>{ toggles.errlGoo = !!gEn.checked; gooSave(); }); }
+      const syncVals = ()=>{ if(gS){ gS.value=String(GOO.mult.toFixed(2)); if(gSV) gSV.textContent=Number(gS.value).toFixed(2); } if(gW){ gW.value=String(GOO.wobble.toFixed(2)); if(gWV) gWV.textContent=Number(gW.value).toFixed(2); } };
+      syncVals();
+      gS && gS.addEventListener('input', ()=>{ GOO.mult = +gS.value; if(gSV) gSV.textContent = (+gS.value).toFixed(2); gooSave(); });
+      gW && gW.addEventListener('input', ()=>{ GOO.wobble = +gW.value; if(gWV) gWV.textContent = (+gW.value).toFixed(2); gooSave(); });
+    })();
+    
+    // Nav Goo controls (for #gooey-ui)
+    (function(){
+      const ui = document.querySelector('.ui-orbit');
+      const filt = document.getElementById('gooey-ui');
+      if(!filt || !ui) return;
+      const blur = filt.querySelector('feGaussianBlur');
+      const mat = filt.querySelector('feColorMatrix');
+      const LS = 'errl_nav_goo_cfg';
+      const state = { enabled:true, blur: +((blur && blur.getAttribute('stdDeviation'))||6), mult: 24, thresh: -14 };
+      // try parse matrix
+      try{ const vals=((mat && mat.getAttribute('values'))||'').trim().split(/\s+/).map(Number); if(vals.length>=20){ state.mult = vals[18]||24; state.thresh = vals[19]||-14; } }catch(e){}
+      function save(){ try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){} }
+      function load(){ try{ const raw=localStorage.getItem(LS); if(!raw) return; const o=JSON.parse(raw); if(o){ if(typeof o.enabled==='boolean') state.enabled=o.enabled; if(typeof o.blur==='number') state.blur=o.blur; if(typeof o.mult==='number') state.mult=o.mult; if(typeof o.thresh==='number') state.thresh=o.thresh; } }catch(e){} }
+      function apply(){ if(blur) blur.setAttribute('stdDeviation', String(state.blur)); if(mat){ const vals=[1,0,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0, state.mult, state.thresh]; mat.setAttribute('values', vals.join(' ')); } ui.style.filter = state.enabled ? 'url(#gooey-ui)' : 'none'; }
+      load(); apply();
+      const en = document.getElementById('nav-goo-enabled');
+      const b = document.getElementById('nav-goo-blur'); const bV = document.getElementById('nav-goo-blur-val');
+      const m = document.getElementById('nav-goo-mult'); const mV = document.getElementById('nav-goo-mult-val');
+      const t = document.getElementById('nav-goo-thresh'); const tV = document.getElementById('nav-goo-thresh-val');
+      if(en){ en.checked = !!state.enabled; en.addEventListener('change', ()=>{ state.enabled=!!en.checked; apply(); save(); }); }
+      if(b){ b.value=String(state.blur); bV && (bV.textContent=Number(state.blur).toFixed(1)); b.addEventListener('input', ()=>{ state.blur=+b.value; bV && (bV.textContent=Number(b.value).toFixed(1)); apply(); save(); }); }
+      if(m){ m.value=String(state.mult); mV && (mV.textContent=String(state.mult)); m.addEventListener('input', ()=>{ state.mult=+m.value; mV && (mV.textContent=String(state.mult)); apply(); save(); }); }
+      if(t){ t.value=String(state.thresh); tV && (tV.textContent=String(state.thresh)); t.addEventListener('input', ()=>{ state.thresh=+t.value; tV && (tV.textContent=String(state.thresh)); apply(); save(); }); }
+    })();
+
     // Layer toggles
     document.querySelectorAll('.layer-toggle').forEach(cb=>{
       cb.addEventListener('change', ()=>{
@@ -1217,9 +1688,11 @@ const NAV_INTRO = {
         if(layer){ if(cb.checked){ layer.style.display = (id==='L5' ? 'grid' : ''); } else { layer.style.display='none'; } }
       });
     });
-  }
+    }
 
-  initDevPhone();
+  ;initDevPhone();
+  // Also ensure GL hue controls wire up once controller is ready (even if GL not yet started)
+  whenHueReady(()=>{ try{ initHueIntegration(); initGlDevControls(); }catch(e){} });
 
   // Kick things off
   setTimeout(()=>{ if(!errlVisible) { showErrl(false, true); setTimeout(startOrbitImmediately, 500); } }, autoRevealDelay);
