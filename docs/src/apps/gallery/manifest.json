@@ -1,102 +1,999 @@
 {
-  "default": "official",
+  "default": "recent",
   "albums": [
     {
-      "id": "official",
-      "title": "Official Errl",
-      "cover": "../../portal/assets/L4_Central/errl-painted-4.svg",
+      "id": "recent",
+      "title": "Recent Generations",
+      "cover": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_1.jpg",
       "items": [
-        { "src": "../../portal/assets/L4_Central/errl-painted-4.svg", "title": "Errl Painted 4" },
-        { "src": "../../portal/assets/L4_Central/errl-painted-2.svg", "title": "Errl Painted 2" },
-        { "src": "../../portal/assets/L4_Central/errl-placeholder.svg", "title": "Errl Placeholder" }
-      ]
-    },
-    {
-      "id": "bubbles",
-      "title": "Bubbles & Drops",
-  "cover": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png",
-      "items": [
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png", "title": "Bubble Purp 1" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-2.png", "title": "Bubble Purp 2" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png", "title": "Bubble Purp 3" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-4.png", "title": "Bubble Purp 4" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-5.png", "title": "Bubble Purp 5" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-10.png", "title": "Bubble 10" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-11.png", "title": "Bubble 11" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubble-12.png", "title": "Bubble 12" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-1.png", "title": "Bubbles 1" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-5.png", "title": "Bubbles 5" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-6.png", "title": "Bubbles 6" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-7.png", "title": "Bubbles 7" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-9.png", "title": "Bubbles 9" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/Bubbles-10.png", "title": "Bubbles 10" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/3Bubbles-1.png", "title": "3 Bubbles 1" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/3Bubbles-2.png", "title": "3 Bubbles 2" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/2Bubbles-1.png", "title": "2 Bubbles 1" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/deco/deco-2.png", "title": "Deco 2" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/deco/deco-4.png", "title": "Deco 4" },
-        { "src": "../../assets/Bubbles_ErrlSiteDecor/deco/deco-7.png", "title": "Deco 7" }
-      ]
-    },
-    {
-      "id": "puddles",
-      "title": "Puddles & Drips",
-  "cover": "../../assets/Puddles_ErrlSiteDecor/Puddle-7.png",
-      "items": [
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-1.png", "title": "Puddle 1" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-2.png", "title": "Puddle 2" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-3.png", "title": "Puddle 3" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-4.png", "title": "Puddle 4" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-5.png", "title": "Puddle 5" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-6.png", "title": "Puddle 6" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-7.png", "title": "Puddle 7" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-8.png", "title": "Puddle 8" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-9.png", "title": "Puddle 9" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-11.png", "title": "Puddle 11" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle-12.png", "title": "Puddle 12" },
-        { "src": "../../assets/Puddles_ErrlSiteDecor/Puddle 10.png", "title": "Puddle 10" }
-      ]
-    },
-    {
-      "id": "ribbons",
-      "title": "Iridescent Ribbons",
-  "cover": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon-2.png",
-      "items": [
-        { "src": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon.png", "title": "Ribbon 1" },
-        { "src": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon-2.png", "title": "Ribbon 2" },
-        { "src": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon-3.png", "title": "Ribbon 3" },
-        { "src": "../../assets/Sideways_Ribbon_ErrlSite/IridescentRibbon-4.png", "title": "Ribbon 4" }
-      ]
-    },
-    {
-      "id": "stars",
-      "title": "Stars & Space",
-  "cover": "../../assets/Star-4.png",
-      "items": [
-        { "src": "../../assets/Star-1.jpg", "title": "Star 1" },
-        { "src": "../../assets/Star-2.jpg", "title": "Star 2" },
-        { "src": "../../assets/Star-3.png", "title": "Star 3" },
-        { "src": "../../assets/Star-4.png", "title": "Star 4" },
-        { "src": "../../assets/Shooting-Star-2.png", "title": "Shooting Star 2" }
-      ]
-    },
-    {
-      "id": "tops",
-      "title": "Tops & Corners",
-  "cover": "../../assets/Top_Side_Bottom_Drip/TopDripBox.png",
-      "items": [
-        { "src": "../../assets/Top_Side_Bottom_Drip/TopDripBox.png", "title": "TopDripBox" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/TopDripBox-2.png", "title": "TopDripBox 2" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/TopDripBox-3.png", "title": "TopDripBox 3" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/TopLeft-Drip-Corner.png", "title": "TopLeft Drip Corner" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/TopMiddle-Drip-1.png", "title": "TopMiddle Drip 1" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/TopMiddle-Drip-2.png", "title": "TopMiddle Drip 2" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Drip-Small Left-1.png", "title": "Top Drip Small Left 1" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Drip-Small-Left-2.png", "title": "Top Drip Small Left 2" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Drip-Small-Left-3.png", "title": "Top Drip Small Left 3" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Drip-Small-Right-1.png", "title": "Top Drip Small Right 1" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/Top-Or-Bottom-Long-Drip.png", "title": "Top/Bottom Long Drip" },
-        { "src": "../../assets/Top_Side_Bottom_Drip/Tops_Corners_Random.png", "title": "Tops Corners Random" }
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_1.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 1"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_2.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 2"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_3.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 3"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_4.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 4"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_5.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 5"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_6.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 6"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_7.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 7"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_8.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 8"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_9.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 9"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_10.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 10"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_11.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 11"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_12.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 12"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_13.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 13"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_14.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 14"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_15.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 15"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_16.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 16"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_17.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 17"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_18.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 18"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_19.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 19"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_20.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 20"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_21.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 21"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_22.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 22"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_23.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 23"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_24.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 24"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_25.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 25"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_26.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 26"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_27.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 27"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_28.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 28"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_29.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 29"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_30.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 30"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_31.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 31"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_32.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 32"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_33.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 33"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_34.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 34"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_35.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 35"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_36.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 36"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_37.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 37"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_38.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 38"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_39.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 39"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_40.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 40"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_41.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 41"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_42.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 42"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_43.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 43"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_44.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 44"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_45.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 45"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_46.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 46"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_47.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 47"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_48.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 48"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_49.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 49"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_50.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 50"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_51.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 51"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_52.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 52"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_53.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 53"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_54.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 54"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_55.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 55"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_56.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 56"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_57.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 57"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_58.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 58"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_59.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 59"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_60.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 60"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_61.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 61"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_62.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 62"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_63.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 63"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_64.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 64"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_65.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 65"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_66.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 66"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_67.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 67"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_68.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 68"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_69.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 69"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_70.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 70"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_71.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 71"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_72.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 72"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_73.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 73"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_74.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 74"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_75.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 75"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_76.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 76"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_77.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 77"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_78.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 78"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_79.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 79"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_80.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 80"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_81.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 81"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_82.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 82"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_83.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 83"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_84.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 84"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_85.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 85"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_86.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 86"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_87.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 87"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_88.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 88"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_89.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 89"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_90.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 90"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_91.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 91"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_92.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 92"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_93.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 93"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_94.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 94"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_95.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 95"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_96.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 96"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_97.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 97"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_98.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 98"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_99.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 99"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_100.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 100"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_101.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 101"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_102.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 102"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_103.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 103"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_104.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 104"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_105.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 105"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_106.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 106"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_107.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 107"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_108.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 108"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_109.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 109"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_110.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 110"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_111.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 111"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_112.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 112"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_113.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 113"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_114.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 114"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_115.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 115"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_116.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 116"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_117.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 117"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_118.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 118"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_119.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 119"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_120.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 120"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_121.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 121"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_122.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 122"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_123.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 123"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_124.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 124"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_125.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 125"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_126.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 126"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_127.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 127"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_128.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 128"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_129.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 129"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_130.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 130"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_131.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 131"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_132.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 132"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_133.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 133"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_134.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 134"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_135.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 135"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_136.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 136"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_137.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 137"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_138.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 138"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_139.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 139"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_140.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 140"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_141.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 141"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_142.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 142"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_143.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 143"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_144.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 144"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_145.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 145"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_146.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 146"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_147.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 147"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_148.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 148"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_149.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 149"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_150.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 150"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_151.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 151"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_152.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 152"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_153.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 153"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_154.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 154"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_155.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 155"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_156.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 156"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_157.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 157"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_158.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 158"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_159.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 159"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_160.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 160"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_161.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 161"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_162.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 162"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_163.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 163"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_164.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 164"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_165.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 165"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_166.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 166"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_167.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 167"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_168.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 168"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_169.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 169"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_170.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 170"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_171.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 171"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_172.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 172"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_173.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 173"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_174.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 174"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_175.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 175"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_176.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 176"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_177.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 177"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_178.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 178"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_179.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 179"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_180.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 180"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_181.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 181"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_182.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 182"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_183.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 183"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_184.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 184"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_185.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 185"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_186.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 186"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_187.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 187"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_188.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 188"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_189.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 189"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_190.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 190"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_191.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 191"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_192.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 192"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_193.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 193"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_194.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 194"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_195.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 195"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_196.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 196"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_197.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 197"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_198.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 198"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_199.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 199"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_200.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 200"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_201.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 201"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_202.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 202"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_203.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 203"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_204.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 204"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_205.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 205"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_206.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 206"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_207.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 207"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_208.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 208"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_209.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 209"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_210.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 210"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_211.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 211"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_212.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 212"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_213.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 213"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_214.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 214"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_215.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 215"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_216.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 216"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_217.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 217"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_218.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 218"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_219.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 219"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_220.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 220"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_221.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 221"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_222.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 222"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_223.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 223"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_224.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 224"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_225.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 225"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_226.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 226"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_227.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 227"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_228.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 228"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_229.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 229"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_230.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 230"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_231.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 231"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_232.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 232"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_233.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 233"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_234.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 234"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_235.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 235"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_236.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 236"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_237.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 237"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_238.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 238"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_239.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 239"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_240.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 240"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_241.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 241"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_242.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 242"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_243.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 243"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_244.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 244"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_245.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 245"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_246.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 246"
+        },
+        {
+          "src": "../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_247.jpg",
+          "title": "Errl OpenArt 2025Oct JPEG 247"
+        }
       ]
     }
   ]

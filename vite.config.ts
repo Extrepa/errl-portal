@@ -4,15 +4,15 @@ import { resolve } from 'node:path';
 // Vite multi-page build rooted at src/
 export default defineConfig({
   root: 'src',
-  base: process.env.NODE_ENV === 'production' ? '/errl-portal/' : './',
+  base: '/',
   build: {
     outDir: resolve(process.cwd(), 'dist'),
     emptyOutDir: true,
     rollupOptions: {
       input: {
         portal: resolve(process.cwd(), 'src/portal/pixi-gl/index.html'),
-        about: resolve(process.cwd(), 'src/apps/about/index.html'),
-        drippy: resolve(process.cwd(), 'src/apps/drippy-text/index.html'),
+        about: resolve(process.cwd(), 'src/about.html'),
+        appsAbout: resolve(process.cwd(), 'src/apps/about.html'),
         tools: resolve(process.cwd(), 'src/apps/tools/index.html'),
         gallery: resolve(process.cwd(), 'src/apps/gallery/index.html'),
         projects: resolve(process.cwd(), 'src/apps/projects/index.html'),

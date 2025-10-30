@@ -1,0 +1,18 @@
+/* Errl background layers + HUD drip */
+/* Make page backgrounds transparent so the effect is visible */
+html,body{ background:transparent !important; }
+.errl-bg{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden; }
+.errl-bg .layer{ position:absolute; inset:0; background-position:center; background-size:cover; will-change:transform, background-position, opacity; }
+/* Base soft oil gradient */
+.errl-bg .base{ background-image:url('../assets/BG/BG_BaseLayer.png'); filter:saturate(110%) contrast(102%); transform:scale(1.02); }
+/* Wavy shimmer pass */
+.errl-bg .shimmer{ background-image:url('../assets/BG/BG_Shimmer.png'); mix-blend-mode:screen; opacity:.45; animation:errlShimmer 18s linear infinite; }
+@keyframes errlShimmer{ 0%{ background-position:0% 0%; } 100%{ background-position:120% 0%; } }
+/* Subtle vignette to focus content */
+.errl-bg .vignette{ background:radial-gradient(120% 80% at 50% 30%, transparent 50%, rgba(0,0,0,.35) 100%); }
+
+/* HUD Drip overlay (top, under page headers) */
+.errl-hud{ position:fixed; left:0; top:0; width:100%; z-index:9; pointer-events:none; }
+.errl-hud img{ display:block; width:100%; height:auto; filter:drop-shadow(0 8px 16px rgba(0,0,0,.45)); transform:translateZ(0); will-change:transform; }
+.errl-hud[data-variant="1"] .hdr2{ display:none; }
+.errl-hud[data-variant="2"] .hdr1{ display:none; }

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>About | Errl / Extrepa Continuum</title>
+  <base href="../../src/apps/about/">
+</head>
+<body>
+  <script>
+    // Redirect to source page while preserving location if served from repo root
+    const target = new URL('index.html', document.baseURI).href;
+    location.replace(target);
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=../../src/apps/about/index.html">
+  </noscript>
+</body>
+</html>

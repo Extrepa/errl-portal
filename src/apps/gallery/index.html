@@ -10,8 +10,236 @@
 :root{ --ink:#e5eaf1; }
 *{box-sizing:border-box} html,body{height:100%;margin:0}
 body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0a0f18; color:var(--ink);}
-.header{ position:sticky; top:0; display:flex; gap:12px; align-items:center; padding:12px 16px; background:linear-gradient(180deg, rgba(10,15,24,.9), rgba(10,15,24,.6)); border-bottom:1px solid #ffffff15; backdrop-filter:saturate(110%) blur(4px); z-index:10; }
-.back{ color:#cdeafe; text-decoration:none; padding:.4em .7em; border-radius:999px; background:#ffffff0f; box-shadow:0 2px 8px rgba(0,0,0,.35);}
+/* ===== HEADER SHELL ===== */
+.errl-header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background: 
+    linear-gradient(135deg, 
+      rgba(220,220,240,0.95) 0%, 
+      rgba(180,180,200,0.9) 25%, 
+      rgba(160,160,180,0.9) 50%, 
+      rgba(180,180,200,0.9) 75%, 
+      rgba(220,220,240,0.95) 100%
+    ),
+    linear-gradient(45deg, 
+      rgba(255,255,255,0.3) 0%, 
+      transparent 30%, 
+      transparent 70%, 
+      rgba(255,255,255,0.3) 100%
+    );
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.4),
+    0 1px 0 rgba(255,255,255,0.4) inset,
+    0 -1px 0 rgba(0,0,0,0.2) inset;
+  border-bottom: 1px solid rgba(120,120,140,0.6);
+  padding: 0.75rem 1rem;
+  z-index: 999;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Roboto", sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.errl-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===== LEFT SIDE: BACK TO PORTAL ===== */
+.errl-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  background: linear-gradient(135deg, 
+    #ff0080 0%, #8000ff 25%, #0080ff 50%, #00ff80 75%, #ff8000 100%);
+  background-size: 200% 200%;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.55rem 0.9rem 0.6rem;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.3),
+    0 1px 0 rgba(255,255,255,0.3) inset;
+  text-decoration: none;
+  position: relative;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  animation: rainbow-flow 3s linear infinite;
+}
+
+@keyframes rainbow-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.errl-home-btn:hover {
+  box-shadow:
+    0 6px 16px rgba(0,0,0,0.4),
+    0 1px 0 rgba(255,255,255,0.4) inset;
+  transform: translateY(-1px);
+  transition: all .2s ease;
+}
+
+/* ===== CENTER: NAV BUBBLES ===== */
+.errl-nav {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* ===== BUBBLE-LINK BUTTONS ===== */
+.errl-bubble-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 6.5rem;
+  max-width: 10rem;
+  padding: 0.6rem 0.9rem 0.7rem;
+
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+  color: #e8e8e8;
+  text-decoration: none;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+
+  background: 
+    linear-gradient(135deg, 
+      rgba(100,100,120,0.9) 0%, 
+      rgba(60,60,80,0.9) 25%, 
+      rgba(40,40,60,0.9) 50%, 
+      rgba(60,60,80,0.9) 75%, 
+      rgba(100,100,120,0.9) 100%
+    ),
+    linear-gradient(45deg, 
+      rgba(255,255,255,0.1) 0%, 
+      transparent 30%, 
+      transparent 70%, 
+      rgba(255,255,255,0.1) 100%
+    );
+
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.3),
+    0 1px 0 rgba(255,255,255,0.2) inset,
+    0 -1px 0 rgba(0,0,0,0.3) inset;
+}
+
+/* LED Strip Outline */
+.errl-bubble-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 999px;
+  padding: 2px;
+  background: linear-gradient(90deg, 
+    rgba(0,255,255,0.6) 0%, 
+    rgba(255,0,255,0.6) 25%, 
+    rgba(255,255,0,0.6) 50%, 
+    rgba(0,255,0,0.6) 75%, 
+    rgba(0,255,255,0.6) 100%
+  );
+  background-size: 200% 100%;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+  animation: led-flow 2s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes led-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Active state for current page */
+.errl-bubble-btn.active {
+  background: 
+    linear-gradient(135deg, 
+      rgba(140,140,160,0.95) 0%, 
+      rgba(100,100,130,0.95) 25%, 
+      rgba(80,80,110,0.95) 50%, 
+      rgba(100,100,130,0.95) 75%, 
+      rgba(140,140,160,0.95) 100%
+    ),
+    linear-gradient(45deg, 
+      rgba(255,255,255,0.2) 0%, 
+      transparent 30%, 
+      transparent 70%, 
+      rgba(255,255,255,0.2) 100%
+    );
+  
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  
+  box-shadow:
+    0 6px 16px rgba(0,0,0,0.4),
+    0 1px 0 rgba(255,255,255,0.3) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset;
+}
+
+/* Different LED pattern for active button */
+.errl-bubble-btn.active::before {
+  background: 
+    radial-gradient(circle at 0% 50%, rgba(255,255,255,0.8) 0%, transparent 25%),
+    radial-gradient(circle at 25% 50%, rgba(255,255,255,0.8) 0%, transparent 25%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 25%),
+    radial-gradient(circle at 75% 50%, rgba(255,255,255,0.8) 0%, transparent 25%),
+    radial-gradient(circle at 100% 50%, rgba(255,255,255,0.8) 0%, transparent 25%);
+  background-size: 20% 100%;
+  animation: led-pulse 1s ease-in-out infinite alternate;
+  opacity: 0.9;
+}
+
+@keyframes led-pulse {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Chrome shine highlight */
+.errl-bubble-btn::after {
+  content: "";
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  top: 15%;
+  height: 25%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, 
+    rgba(255,255,255,0.6) 0%, 
+    rgba(255,255,255,0.3) 50%, 
+    rgba(255,255,255,0) 100%
+  );
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.errl-bubble-btn:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow:
+    0 6px 16px rgba(0,0,0,0.4),
+    0 1px 0 rgba(255,255,255,0.3) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset;
+  transition: all .2s ease;
+}
+
+.errl-bubble-btn:hover::before {
+  animation-duration: 1s;
+}
+
 .h1{font-size:clamp(22px,4vmin,34px); font-weight:800; margin:0; opacity:.9}
 .toolbar{ margin-left:auto; display:flex; gap:8px; align-items:center; opacity:.8; }
 .albums{ position:sticky; top:54px; z-index:5; padding:8px 12px; display:flex; gap:8px; overflow:auto; background:linear-gradient(180deg, rgba(10,15,24,.7), rgba(10,15,24,.0)); border-bottom:1px solid #ffffff10; }
@@ -21,18 +249,32 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 .item{ break-inside: avoid; margin:0 0 14px; background:#08101e; border-radius:14px; border:1px solid #ffffff12; box-shadow:0 12px 30px rgba(0,0,0,.35); overflow:hidden; }
 .item img{ display:block; width:100%; height:auto; background:#0a0f18; filter: saturate(108%); }
 .item .meta{ padding:8px 10px; font-size:12px; opacity:.8; display:flex; justify-content:space-between; }
-.sentinel{ height: 1px; }
+  .sentinel{ height: 1px; }
+  /* Hover preview overlay (shows after 2s hover) */
+  .hover-preview{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.55); z-index:2000; }
+  .hover-preview.visible{ display:flex; }
+  .hover-preview img{ max-width:85vw; max-height:85vh; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.15) inset; }
 </style>
 <link rel="stylesheet" href="../../fx/errl-bg.css">
 </head>
 <body>
-  <div class="header">
-    <a class="back" href="../../Errl_Portal_Starter_Kit_v1/pixi-gl/Errl_Portal_Scaffold_Pixi.html">⬅ Back to Portal</a>
-    <h1 class="h1">Errl — Art Gallery</h1>
-    <div class="toolbar">
-      <label style="font-size:12px">Page size <input id="pageSize" type="number" min="10" max="200" value="40" style="width:60px"></label>
+  <header class="errl-header">
+    <div class="errl-header-content">
+      <a class="errl-home-btn" href="../../portal/pixi-gl/index.html">← Back to Portal</a>
+      
+      <nav class="errl-nav">
+        <a class="errl-bubble-btn" href="../../../about.html">About Errl</a>
+        <a class="errl-bubble-btn active" href="../gallery/index.html">Gallery</a>
+        <a class="errl-bubble-btn" href="../projects/index.html">Projects</a>
+        <a class="errl-bubble-btn" href="../pin-designer/index.html">Pin Designer</a>
+        <a class="errl-bubble-btn" href="../tools/index.html">Tools</a>
+      </nav>
+      
+      <div class="toolbar">
+        <label style="font-size:12px; color:#333">Page size <input id="pageSize" type="number" min="10" max="200" value="40" style="width:60px"></label>
+      </div>
     </div>
-  </div>
+  </header>
   <div class="albums" id="albums" hidden></div>
   <div id="grid" class="grid"></div>
   <div id="sentinel" class="sentinel"></div>
@@ -53,8 +295,9 @@ async function loadManifest(){
     const res = await fetch('manifest.json', {cache:'no-cache'});
     if(res.ok){ manifest = await res.json(); return; }
   }catch(e){ /* ignore */ }
-  // Fallback single album with demo tiles
-  manifest = { albums:[{ id:'demo', title:'Demo', items: Array.from({length: 200}, (_,i)=>({ src: '../../ErrlSite_Assets/Star-4.png', w:512, h:512, title:`Placeholder ${i+1}` })) }], default:'demo' };
+  // Fallback: build Recent Generations album dynamically (works with file://)
+  const TOTAL = 247; // number of JPEGs extracted
+  manifest = { albums:[{ id:'recent', title:'Recent Generations', items: Array.from({length: TOTAL}, (_,i)=>({ src: `../../assets/Recent_Generations/Errl_OpenArt_2025Oct_JPEG_${i+1}.jpg`, title:`Errl OpenArt 2025Oct JPEG ${i+1}` })) }], default:'recent' };
 }
 
 function selectAlbum(id){
@@ -84,11 +327,41 @@ function renderNext(){
     const a = document.createElement('article'); a.className='item';
     const img = new Image(); img.loading='lazy'; img.decoding='async'; img.src = it.src; img.alt = it.title||'Errl artwork';
     a.appendChild(img);
+    attachHoverPreview(img);
     const meta = document.createElement('div'); meta.className='meta'; meta.innerHTML = `<span>${it.title||''}</span><span>${(it.author||'').slice(0,32)}</span>`; a.appendChild(meta);
     grid.appendChild(a);
   }
   page++; loading=false;
   if(end>=items.length) obs.disconnect();
+}
+
+// Delayed hover preview (2s) for larger view
+let hoverTimer = null;
+let hoverPreviewEl = null;
+function getHoverPreview(){
+  if(!hoverPreviewEl){
+    hoverPreviewEl = document.createElement('div');
+    hoverPreviewEl.className = 'hover-preview';
+    hoverPreviewEl.addEventListener('click', hideHoverPreview);
+    document.body.appendChild(hoverPreviewEl);
+  }
+  return hoverPreviewEl;
+}
+function showHoverPreview(src){
+  const el = getHoverPreview();
+  el.innerHTML = '';
+  const im = new Image(); im.src = src; im.alt = 'Preview';
+  el.appendChild(im);
+  el.classList.add('visible');
+  const onEsc = (e)=>{ if(e.key==='Escape'){ hideHoverPreview(); window.removeEventListener('keydown', onEsc); } };
+  window.addEventListener('keydown', onEsc);
+  const onScroll = ()=>{ hideHoverPreview(); window.removeEventListener('scroll', onScroll); };
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+function hideHoverPreview(){ if(hoverTimer){ clearTimeout(hoverTimer); hoverTimer=null; } if(hoverPreviewEl){ hoverPreviewEl.classList.remove('visible'); hoverPreviewEl.innerHTML=''; } }
+function attachHoverPreview(img){
+  img.addEventListener('mouseenter', ()=>{ if(hoverTimer) clearTimeout(hoverTimer); hoverTimer = setTimeout(()=> showHoverPreview(img.src), 2000); });
+  img.addEventListener('mouseleave', hideHoverPreview);
 }
 
 let obs = new IntersectionObserver(entries=>{ if(entries.some(e=>e.isIntersecting)) renderNext(); }, {rootMargin:'1200px 0px'});
