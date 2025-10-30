@@ -4,15 +4,48 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Projects | Errl</title>
-  <base href="../../src/apps/projects/">
+  <link rel="stylesheet" href="../../fx/errl-bg.css">
+  <style>
+    body { margin: 0; padding: 20px; font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(135deg, #0a0f18 0%, #1a1f2d 100%); color: #e5eef7; min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .back-link { display: inline-block; margin: 20px 0; padding: 10px 20px; background: rgba(255, 0, 128, 0.2); border: 1px solid rgba(255, 0, 128, 0.4); border-radius: 8px; color: #ff0080; text-decoration: none; transition: all 0.2s; }
+    .back-link:hover { background: rgba(255, 0, 128, 0.3); transform: translateY(-2px); }
+    h1 { font-size: 2.5rem; margin: 20px 0; background: linear-gradient(135deg, #ff0080, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; }
+    .projects { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin-top: 30px; }
+    .project-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+    .project-card:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); }
+    .project-card h3 { margin: 0 0 10px; font-size: 1.3rem; }
+    .project-card p { margin: 0 0 15px; opacity: 0.8; font-size: 0.95rem; }
+    .project-card a { display: inline-block; padding: 8px 16px; background: rgba(0, 229, 255, 0.2); border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 6px; color: #00e5ff; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+    .project-card a:hover { background: rgba(0, 229, 255, 0.3); }
+  </style>
 </head>
 <body>
-  <script>
-    const target = new URL('index.html', document.baseURI).href;
-    location.replace(target);
-  </script>
-  <noscript>
-    <meta http-equiv="refresh" content="0; url=../../src/apps/projects/index.html">
-  </noscript>
+  <div class="container">
+    <a href="../../index.html" class="back-link">← Back to Portal</a>
+    <h1>Projects</h1>
+    <div class="projects">
+      <div class="project-card">
+        <h3>Errl Head Coin</h3>
+        <p>Interactive coin flip animations featuring Errl's iconic face.</p>
+        <a href="./errl-head-coin/index.html">View Project →</a>
+      </div>
+      <div class="project-card">
+        <h3>Errl Head Coin v2</h3>
+        <p>Enhanced version with improved physics and visuals.</p>
+        <a href="./errl-head-coin-v2/index.html">View Project →</a>
+      </div>
+      <div class="project-card">
+        <h3>Errl Head Coin v3</h3>
+        <p>Third iteration with advanced effects.</p>
+        <a href="./errl-head-coin-v3/index.html">View Project →</a>
+      </div>
+      <div class="project-card">
+        <h3>Errl Head Coin v4</h3>
+        <p>Latest version with refined animations.</p>
+        <a href="./errl-head-coin-v4/index.html">View Project →</a>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
