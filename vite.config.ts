@@ -10,6 +10,7 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
+        main: resolve(process.cwd(), 'src/index.html'),
         portal: resolve(process.cwd(), 'src/portal/pixi-gl/index.html'),
         about: resolve(process.cwd(), 'src/about.html'),
         appsAbout: resolve(process.cwd(), 'src/apps/about.html'),
