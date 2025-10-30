@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Errl Hue Controls - Examples</title>
+<style>
+body { 
+  font-family: system-ui; 
+  background: #0a0f18; 
+  color: #e5eaf1; 
+  padding: 20px;
+  line-height: 1.6;
+}
+
+.demo-section {
+  margin: 30px 0;
+  padding: 20px;
+  border: 1px solid #2a3550;
+  border-radius: 10px;
+  background: rgba(10, 14, 22, 0.8);
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 150px;
+}
+
+label {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+input[type="range"] {
+  width: 150px;
+}
+
+button {
+  background: #1a2340;
+  color: #eaf6ff;
+  border: 1px solid #2a3a6a;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background: #213056;
+}
+
+button.active {
+  background: linear-gradient(135deg, rgba(123,92,255,.22), rgba(0,229,255,.22));
+  border-color: rgba(0,229,255,.45);
+}
+
+.preview-box {
+  width: 200px;
+  height: 100px;
+  border-radius: 10px;
+  margin: 10px 0;
+  background: linear-gradient(45deg, #7b5cff, #00e5ff);
+  transition: filter 0.3s ease;
+}
+
+code {
+  background: rgba(0,0,0,0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.theme-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.theme-buttons button {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  body {
+    padding: 12px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .demo-section {
+    margin: 20px 0;
+    padding: 15px;
+  }
+  
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .control-group {
+    min-width: auto;
+  }
+  
+  input[type="range"] {
+    width: 100%;
+  }
+  
+  .theme-buttons {
+    justify-content: center;
+  }
+  
+  .theme-buttons button {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 6px;
+  }
+  
+  .preview-box {
+    width: 100%;
+    max-width: 300px;
+    margin: 15px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 8px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  .demo-section {
+    margin: 15px 0;
+    padding: 12px;
+  }
+  
+  .theme-buttons {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .theme-buttons button {
+    width: 100%;
+  }
+}
+</style>
+<link rel="stylesheet" href="hue-effects.css">
+</head>
+<body>
+
+<h1>Errl Hue Control System</h1>
+<p>Interactive demonstration of the hue rotation system for WebGL and CSS effects.</p>
+
+<div class="demo-section">
+  <h2>Basic Hue Controls</h2>
+  <p>Adjust the hue, saturation, and intensity of effects:</p>
+  
+  <div class="controls">
+    <div class="control-group">
+      <label>Hue: <span id="hue-display">0°</span></label>
+      <input type="range" id="hue-control" min="0" max="360" value="0">
+    </div>
+    <div class="control-group">
+      <label>Saturation: <span id="saturation-display">100%</span></label>
+      <input type="range" id="saturation-control" min="0" max="2" step="0.01" value="1.0">
+    </div>
+    <div class="control-group">
+      <label>Intensity: <span id="intensity-display">100%</span></label>
+      <input type="range" id="intensity-control" min="0" max="1" step="0.01" value="1.0">
+    </div>
+  </div>
+  
+  <div class="preview-box hue-controlled" id="preview-box"></div>
+  
+  <p><strong>Code:</strong></p>
+  <code>ErrlHueController.setHue(180); // Blue shift</code><br>
+  <code>ErrlHueController.setSaturation(1.5); // More vibrant</code><br>
+  <code>ErrlHueController.setIntensity(0.7); // Subtle effect</code>
+</div>
+
+<div class="demo-section">
+  <h2>Preset Themes</h2>
+  <p>Quick presets for different color moods:</p>
+  
+  <div class="theme-buttons">
+    <button onclick="applyTheme('normal')">Normal</button>
+    <button onclick="applyTheme('warm')">Warm</button>
+    <button onclick="applyTheme('cool')">Cool</button>
+    <button onclick="applyTheme('electric')">Electric</button>
+    <button onclick="applyTheme('sunset')">Sunset</button>
+    <button onclick="applyTheme('ocean')">Ocean</button>
+    <button onclick="applyTheme('forest')">Forest</button>
+  </div>
+  
+  <p><strong>Code:</strong></p>
+  <code>ErrlHueController.applyTheme('ocean');</code>
+</div>
+
+<div class="demo-section">
+  <h2>Animation Controls</h2>
+  <p>Animate hue rotation automatically:</p>
+  
+  <div class="controls">
+    <button id="animate-btn" onclick="toggleAnimation()">Start Animation</button>
+    <button onclick="ErrlHueController.reset()">Reset All</button>
+  </div>
+  
+  <p><strong>Code:</strong></p>
+  <code>ErrlHueController.startAnimation(1); // Speed 1</code><br>
+  <code>ErrlHueController.stopAnimation();</code>
+</div>
+
+<div class="demo-section">
+  <h2>CSS Classes</h2>
+  <p>Apply hue effects using CSS classes:</p>
+  
+  <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+    <div class="preview-box hue-cycle-slow" style="width: 150px; height: 60px;"></div>
+    <div class="preview-box hue-cycle-medium" style="width: 150px; height: 60px;"></div>
+    <div class="preview-box hue-cycle-fast" style="width: 150px; height: 60px;"></div>
+    <div class="preview-box hue-cycle-pulse" style="width: 150px; height: 60px;"></div>
+  </div>
+  
+  <p><strong>CSS Classes:</strong></p>
+  <code>.hue-cycle-slow</code> - 30s cycle<br>
+  <code>.hue-cycle-medium</code> - 15s cycle<br>
+  <code>.hue-cycle-fast</code> - 8s cycle<br>
+  <code>.hue-cycle-pulse</code> - 4s pulse
+</div>
+
+<div class="demo-section">
+  <h2>Integration with Portal</h2>
+  <p>In your main portal, the hue system automatically applies to:</p>
+  <ul>
+    <li><strong>WebGL Bubbles:</strong> Background floating bubbles with shader-based hue rotation</li>
+    <li><strong>CSS Elements:</strong> Background layers, motes, HUD elements, navigation buttons</li>
+    <li><strong>Overlay Effects:</strong> Shimmer and refraction overlays</li>
+    <li><strong>Errl Character:</strong> Main character hue shifts (when not using WebGL)</li>
+  </ul>
+  
+  <p><strong>Developer Panel:</strong> Press <code>D</code> in the main portal to access hue controls in the WebGL section.</p>
+</div>
+
+<script type="module" src="hue-controller.ts"></script>
+<script>
+// Initialize the demo
+let animationActive = false;
+
+function updateDisplays() {
+  const settings = ErrlHueController.getSettings();
+  document.getElementById('hue-display').textContent = Math.round(settings.hue) + '°';
+  document.getElementById('saturation-display').textContent = Math.round(settings.saturation * 100) + '%';
+  document.getElementById('intensity-display').textContent = Math.round(settings.intensity * 100) + '%';
+}
+
+// Bind controls
+document.getElementById('hue-control').addEventListener('input', (e) => {
+  ErrlHueController.setHue(+e.target.value);
+  updateDisplays();
+});
+
+document.getElementById('saturation-control').addEventListener('input', (e) => {
+  ErrlHueController.setSaturation(+e.target.value);
+  updateDisplays();
+});
+
+document.getElementById('intensity-control').addEventListener('input', (e) => {
+  ErrlHueController.setIntensity(+e.target.value);
+  updateDisplays();
+});
+
+function applyTheme(theme) {
+  ErrlHueController.applyTheme(theme);
+  // Update sliders to reflect theme values
+  const settings = ErrlHueController.getSettings();
+  document.getElementById('hue-control').value = settings.hue;
+  document.getElementById('saturation-control').value = settings.saturation;  
+  document.getElementById('intensity-control').value = settings.intensity;
+  updateDisplays();
+  
+  // Visual feedback
+  document.querySelectorAll('.theme-buttons button').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase() === theme);
+  });
+}
+
+function toggleAnimation() {
+  const btn = document.getElementById('animate-btn');
+  ErrlHueController.toggleAnimation(1);
+  animationActive = ErrlHueController.animation.active;
+  btn.textContent = animationActive ? 'Stop Animation' : 'Start Animation';
+  btn.classList.toggle('active', animationActive);
+}
+
+// Listen for hue updates
+document.addEventListener('hueUpdate', updateDisplays);
+
+// Initialize displays
+updateDisplays();
+</script>
+
+</body>
+</html>

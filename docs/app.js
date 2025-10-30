@@ -1,0 +1,790 @@
+// ===== Canvas Particle Field (Stars) =====
+const canvas = document.getElementById("bgParticles");
+const ctx = canvas.getContext("2d");
+
+// ===== Rising Bubbles (Canvas) =====
+const rise = document.getElementById('riseBubbles');
+const rctx = rise.getContext('2d');
+let RB = {
+  speed: 1.0,
+  alpha: 0.95,
+  density: 1.0,
+  wobble: 1.0,
+  freq: 1.0,
+  minSize: 14,
+  maxSize: 36,
+  sizeHz: 0.0,
+  jumboChance: 0.1,
+  jumboScale: 1.6,
+  layers: [ { kind:'pack', tex:null }, { kind:'proc', tex:null } ],
+  items: [],
+};
+function rbResize(){ rise.width = innerWidth * devicePixelRatio; rise.height = innerHeight * devicePixelRatio; rise.style.width = innerWidth+'px'; rise.style.height = innerHeight+'px'; rctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+rbResize(); addEventListener('resize', rbResize);
+function rbTexFromPack(){ const paths=[1,2,3,4,5,6].map(i=>`../src/assets/Bubbles_ErrlSiteDecor/Bubbles-${i}.png`); const imgs=paths.map(p=>{ const im=new Image(); im.onload=()=>{ try{ rbRebuild(); }catch{} }; im.src=p; return im; }); return imgs; }
+function rbMakeProc(size=64){ const c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'); const grd=g.createRadialGradient(size*0.45,size*0.42,size*0.05,size*0.5,size*0.5,size*0.48); grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.2,'rgba(130,200,255,0.9)'); grd.addColorStop(0.6,'rgba(110,160,255,0.4)'); grd.addColorStop(1,'rgba(110,160,255,0.0)'); g.fillStyle=grd; g.beginPath(); g.arc(size/2,size/2,size*0.48,0,Math.PI*2); g.fill(); return c; }
+RB.layers[0].tex = [rbMakeProc(96)]; RB.layers[1].tex = [rbMakeProc(64)];
+function rbRebuild(){ const base = Math.round(140 * RB.density); RB.items.length=0; for (let i=0;i<base;i++){ const layer=(i%2); const texArr=RB.layers[layer].tex; const tex = texArr[Math.floor(Math.random()*texArr.length)]; const s = RB.minSize + Math.random()*(RB.maxSize-RB.minSize); RB.items.push({ x: Math.random()*innerWidth, y: Math.random()*innerHeight, vx:(Math.random()-0.5)*0.4, vy: -(0.30+Math.random()*0.9), size:s, baseSize:s, phase:Math.random()*Math.PI*2, tex, layer }); } }
+rbRebuild();
+function rbDraw(){ rctx.clearRect(0,0,innerWidth,innerHeight); rctx.globalAlpha = RB.alpha; rctx.globalCompositeOperation='lighter'; for(const it of RB.items){ const wob = Math.sin((it.phase += 0.02*RB.freq)) * 1.2 * RB.wobble; it.x += wob; it.y += it.vy * RB.speed; // size jitter
+  if (RB.sizeHz>0){ const k=1+0.12*Math.sin(it.phase*RB.sizeHz*3.2); it.size = it.baseSize*k; }
+  // wrap to bottom
+  if (it.y < -80){ it.y = innerHeight + 40 + Math.random()*80; it.x = Math.random()*innerWidth; }
+  const s = it.size;
+  if (it.tex instanceof HTMLImageElement && it.tex.complete) {
+    rctx.drawImage(it.tex, Math.round(it.x - s/2), Math.round(it.y - s/2), s, s);
+  } else if (it.tex && it.tex.getContext) {
+    rctx.drawImage(it.tex, Math.round(it.x - s/2), Math.round(it.y - s/2), s, s);
+  } else {
+    // procedural circle fallback
+    const grd=rctx.createRadialGradient(it.x-0.1*s,it.y-0.12*s, s*0.05, it.x, it.y, s*0.5);
+    grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.25,'rgba(130,200,255,0.8)'); grd.addColorStop(0.7,'rgba(110,160,255,0.35)'); grd.addColorStop(1,'rgba(110,160,255,0)');
+    rctx.fillStyle=grd; rctx.beginPath(); rctx.arc(it.x,it.y,s*0.5,0,Math.PI*2); rctx.fill();
+  }
+}
+requestAnimationFrame(rbDraw);
+}
+rbDraw();
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const glCanvas = document.getElementById("errlWebGL");
+  if (glCanvas) {
+    glCanvas.width = window.innerWidth;
+    glCanvas.height = window.innerHeight;
+  }
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+// Tunables controlled by panel
+let particleSpeedScale = 1.0;
+let particleAlpha = 0.9;
+let particleDensityScale = 1.0;
+
+let BASE_PARTICLE_COUNT = (window.innerWidth * window.innerHeight < 800*800) ? 120 : 200;
+let particles = [];
+
+function initParticles() {
+  const count = Math.floor(BASE_PARTICLE_COUNT * particleDensityScale);
+  particles = Array.from({ length: count }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.2,
+    vy: (Math.random() - 0.5) * 0.2,
+    r: 1.5 + Math.random() * 2.5,
+  }));
+}
+initParticles();
+
+function drawParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (const p of particles) {
+    p.x += p.vx * particleSpeedScale;
+    p.y += p.vy * particleSpeedScale;
+
+    // wrap
+    if (p.x < 0) p.x += canvas.width;
+    if (p.x > canvas.width) p.x -= canvas.width;
+    if (p.y < 0) p.y += canvas.height;
+    if (p.y > canvas.height) p.y -= canvas.height;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(130,160,255,${particleAlpha})`;
+    ctx.shadowColor = "rgba(130,160,255,1)";
+    ctx.shadowBlur = 12;
+    ctx.fill();
+  }
+
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// Burst button spawns a quick swarm
+function burstParticles() {
+  const N = 220; // bigger burst
+  for (let i = 0; i < N; i++) {
+    particles.push({
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      vx: (Math.random() - 0.5) * 3.2,
+      vy: (Math.random() - 0.5) * 3.2,
+      r: 2 + Math.random() * 3,
+    });
+  }
+  // let them slowly fade out
+  setTimeout(() => {
+    particles.splice(BASE_PARTICLE_COUNT);
+  }, 1100);
+}
+
+
+// ===== Orbiting Menu Bubbles around Errl =====
+const navOrbit = document.getElementById('navOrbit');
+const bubbles = [...(navOrbit ? navOrbit.querySelectorAll('.bubble') : document.querySelectorAll('.bubble'))];
+// index bubbles for GL sync
+bubbles.forEach((b, i) => b.dataset.orbIndex = String(i));
+const errl = document.getElementById("errl");
+
+// Nav orbit controls
+let navOrbitSpeed = 1.0; // 0..2
+let navRadiusScale = 1.0; // 0.6..1.6
+
+// Simple sticky physics for nav bubbles (stick + bounce)
+let navStick=0.002, navDamp=0.92, navDrip=0.0, navFlow=1.0;
+const navVel = new Map();
+function updateBubbles(t) {
+  const rect = errl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  bubbles.forEach((b, i) => {
+    const baseAngle = parseFloat(b.dataset.angle);
+    const dist = parseFloat(b.dataset.dist) * navRadiusScale;
+
+    // orbit: direction alternates per bubble
+    const angleDeg = baseAngle + (t * 0.00003 * navOrbitSpeed * navFlow * (i % 2 === 0 ? 1 : -1)) * 360;
+    const rad = (angleDeg * Math.PI) / 180;
+
+    let x = cx + Math.cos(rad) * dist;
+    let y = cy + Math.sin(rad) * dist;
+    // sticky forces among neighbors
+    const v = navVel.get(b) || {vx:0, vy:0};
+    for (let j=0;j<bubbles.length;j++){
+      if (j===i) continue; const bj=bubbles[j]; const rx=parseFloat(bj.style.left)||0; const ry=parseFloat(bj.style.top)||0; const dx=rx - x, dy=ry - y; const d=Math.hypot(dx,dy)||1;
+      const target = 86; // desired bubble spacing
+      const diff = target - d; // positive => attract, negative => repel
+      if (Math.abs(diff) < 60){ const k = navStick*diff; v.vx += (dx/d)*k; v.vy += (dy/d)*k; }
+    }
+    // damping and apply
+    v.vx *= navDamp; v.vy *= navDamp; x += v.vx; y += v.vy + navDrip*0.3; navVel.set(b, v);
+
+    b.style.left = x + "px";
+    b.style.top = y + "px";
+    b.style.transform = "translate(-50%, -50%)";
+  });
+
+  // notify GL layer to sync orb positions
+  if (window.errlGLSyncOrbs) window.errlGLSyncOrbs();
+  requestAnimationFrame(updateBubbles);
+}
+requestAnimationFrame(updateBubbles);
+
+// Nav Goo+ wiring
+(function(){
+  const w=document.getElementById('navWiggle');
+  const f=document.getElementById('navFlow');
+  const d=document.getElementById('navDrip');
+  const v=document.getElementById('navVisc');
+  function apply(){ navStick = 0.0005 + parseFloat(w?.value||0.6)*0.004; navFlow = parseFloat(f?.value||1.0); navDrip=parseFloat(d?.value||0.0); navDamp = 0.80 + (parseFloat(v?.value||0.9)*0.18); }
+  ;[w,f,d,v].forEach(el=> el && el.addEventListener('input', apply)); apply();
+})();
+
+// hover -> GL orb squish
+bubbles.forEach(b => {
+  b.addEventListener('mouseenter', () => { if (window.errlGLOrbHover) window.errlGLOrbHover(+b.dataset.orbIndex, true); });
+  b.addEventListener('mouseleave', () => { if (window.errlGLOrbHover) window.errlGLOrbHover(+b.dataset.orbIndex, false); });
+});
+
+
+// ===== Aura / goo color shift driven by panel sliders =====
+const auraEl = document.getElementById("errlGoo");
+const auraPulseSlider = document.getElementById("auraPulse");
+const auraHueSlider = document.getElementById("auraHue");
+
+function updateAura() {
+  if (!auraPulseSlider || !auraHueSlider) return;
+  const hue = auraHueSlider.value; // 0-360
+  const pulse = parseFloat(auraPulseSlider.value); // 0-1
+
+  // masked aura follows Errl shape
+  const auraMask = document.getElementById('errlAuraMask');
+  if (auraMask) {
+    auraMask.style.background = `radial-gradient(circle at 50% 35%, hsla(${hue},100%,60%,${0.25 + pulse * 0.6}) 0%, rgba(0,0,0,0) 66%)`;
+    auraMask.style.filter = `blur(${24 + Math.round(32*pulse)}px)`;
+    auraMask.style.opacity = String(0.45 + 0.4*pulse);
+  }
+  // legacy oval goo (kept for fallback)
+  if (auraEl && auraPulseSlider) {
+    auraEl.style.background = `radial-gradient(circle at 50% 30%, hsla(${hue},100%,60%,${0.3 + pulse * 0.6}) 0%, rgba(0,0,0,0) 70%)`;
+    const gooAnim = auraEl.getAnimations()[0];
+    if (gooAnim) gooAnim.playbackRate = 0.5 + pulse * 1.5;
+  }
+}
+if (auraPulseSlider && auraHueSlider){
+  [auraPulseSlider, auraHueSlider].forEach(slider => slider.addEventListener("input", updateAura));
+  updateAura();
+}
+
+
+// ===== Panel -> particles & nav bindings =====
+const bgSpeed = document.getElementById("bgSpeed");
+const bgDensity = document.getElementById("bgDensity");
+const bgAlpha = document.getElementById("bgAlpha");
+const navOrbitSpeedEl = document.getElementById('navOrbitSpeed');
+const navRadiusEl = document.getElementById('navRadius');
+const glOrbsToggle = document.getElementById('glOrbsToggle');
+const rotateSkinsBtn = document.getElementById('rotateSkins');
+const glAlphaEl = document.getElementById('glAlpha');
+const glDXEl = document.getElementById('glDX');
+const glDYEl = document.getElementById('glDY');
+// BG bubbles advanced controls
+const bubWobble = document.getElementById('bubWobble');
+const bubFreq   = document.getElementById('bubFreq');
+const bubMin    = document.getElementById('bubMin');
+const bubMax    = document.getElementById('bubMax');
+const bubFar    = document.getElementById('bubFar');
+const bubSizeHz = document.getElementById('bubSizeHz');
+const bubJumboPct = document.getElementById('bubJumboPct');
+const bubJumboScale = document.getElementById('bubJumboScale');
+const bubTexSel = document.getElementById('bubTex');
+const bubApplyTex = document.getElementById('bubApplyTex');
+const bubUpload = document.getElementById('bubUpload');
+const bubUploadBtn = document.getElementById('bubUploadBtn');
+const bubPresetSel = document.getElementById('bubPresetSel');
+const bubPresetSave = document.getElementById('bubPresetSave');
+const bubPresetApply = document.getElementById('bubPresetApply');
+
+bgSpeed.addEventListener("input", () => {
+  particleSpeedScale = parseFloat(bgSpeed.value);
+  if (window.errlGLSetBubbles) window.errlGLSetBubbles({ speed: particleSpeedScale });
+});
+
+bgDensity.addEventListener("input", () => {
+  particleDensityScale = parseFloat(bgDensity.value);
+  initParticles();
+  if (window.errlGLSetBubbles) window.errlGLSetBubbles({ density: particleDensityScale });
+});
+
+bgAlpha.addEventListener("input", () => {
+  particleAlpha = parseFloat(bgAlpha.value);
+  if (window.errlGLSetBubbles) window.errlGLSetBubbles({ alpha: particleAlpha });
+});
+
+navOrbitSpeedEl && navOrbitSpeedEl.addEventListener('input', ()=>{
+  navOrbitSpeed = parseFloat(navOrbitSpeedEl.value);
+});
+navRadiusEl && navRadiusEl.addEventListener('input', ()=>{
+  navRadiusScale = parseFloat(navRadiusEl.value);
+});
+
+glOrbsToggle && glOrbsToggle.addEventListener('change', ()=>{
+  if (window.errlGLShowOrbs) window.errlGLShowOrbs(glOrbsToggle.checked);
+});
+
+// Texture skins for nav bubbles with robust path + fallback
+(function(){
+  function assetsBases(){
+    const p = location.pathname;
+    const bases = [];
+    if (p.includes('/public/')) bases.push('../src/assets/Bubbles_ErrlSiteDecor');
+    if (p.includes('/src/')) bases.push('../../assets/Bubbles_ErrlSiteDecor');
+    bases.push('../src/portal/assets/Bubbles_ErrlSiteDecor');
+    bases.push('../src/assets/Bubbles_ErrlSiteDecor');
+    return bases;
+  }
+  function trySkin(b, idx){
+    const bases = assetsBases();
+    let i=0;
+    const next=()=>{
+      if(i>=bases.length){ b.style.backgroundImage=''; b.classList.add('menuOrb'); return; }
+      const url = `${bases[i]}/Bubbles-${idx}.png`;
+      const im = new Image();
+      im.onload=()=>{ b.classList.remove('menuOrb'); b.style.backgroundImage=`url("${url}")`; b.style.backgroundPosition='center'; b.style.backgroundRepeat='no-repeat'; b.style.backgroundSize='120%'; };
+      im.onerror=()=>{ i++; next(); };
+      im.src=url;
+    };
+    next();
+  }
+  const NAV_SKINS = [1,2,3,4,5,6];
+  function assignSkins(start){
+    for (let i=0;i<bubbles.length;i++){
+      const idx = NAV_SKINS[(start+i)%NAV_SKINS.length];
+      trySkin(bubbles[i], idx);
+    }
+  }
+  let start = +(localStorage.getItem('nav_skin_idx')||0);
+  assignSkins(start);
+  rotateSkinsBtn && rotateSkinsBtn.addEventListener('click', ()=>{
+    start = (start+1) % NAV_SKINS.length; localStorage.setItem('nav_skin_idx', String(start)); assignSkins(start);
+  });
+})();
+
+// Mood state machine
+(function moods(){
+  const defs = {
+    calm:    { overlay:{alpha:0.18, dx:16, dy:12}, orbit:0.8, particles:0.6, hue:{layer:'backGlow', hue:200, sat:1.0, inten:0.8} },
+    curious: { overlay:{alpha:0.22, dx:24, dy:16}, orbit:1.1, particles:0.9, hue:{layer:'nav', hue:160, sat:1.1, inten:1.0}, headTilt: 4 },
+    excited: { overlay:{alpha:0.26, dx:36, dy:24}, orbit:1.5, particles:1.2, hue:{layer:'glOverlay', hue:25, sat:1.25, inten:1.0} },
+    anxious: { overlay:{alpha:0.30, dx:52, dy:34}, orbit:1.9, particles:1.4, hue:{layer:'backGlow', hue:260, sat:0.9, inten:0.9}, jitter:true }
+  };
+  let current = localStorage.getItem('errlMood2') || 'calm';
+  const reduce = document.getElementById('prefReduce') || {checked:false};
+  function apply(name){
+    const m = defs[name] || defs.calm; current = name; localStorage.setItem('errlMood2', name);
+    if (window.errlGLSetOverlay) window.errlGLSetOverlay({ alpha:m.overlay.alpha, dx:m.overlay.dx, dy:m.overlay.dy });
+    navOrbitSpeed = m.orbit * (reduce.checked? 0.4 : 1.0);
+    particleSpeedScale = m.particles * (reduce.checked? 0.5 : 1.0);
+    if (window.ErrlHueController){ const hc = window.ErrlHueController; hc.setTarget(m.hue.layer); hc.setHueTemp(m.hue.hue, m.hue.layer); hc.setSaturationTemp(m.hue.sat, m.hue.layer); hc.setIntensityTemp(m.hue.inten, m.hue.layer); }
+    if (window.errlGLSetMood) window.errlGLSetMood(name==='excited'?'neon':(name==='anxious'?'alert':'calm'));
+  }
+  document.querySelectorAll('.moodBtn2').forEach(b=> b.addEventListener('click', ()=> apply(b.dataset.mood2)));
+  window.requestAnimationFrame(()=> apply(current));
+})();
+
+// Randomize buttons
+(function randomizers(){
+  const R=(min,max)=> min + Math.random()*(max-min);
+  const rbBtn=document.getElementById('rbRandom'); if(rbBtn) rbBtn.addEventListener('click', ()=>{
+    ['rbSpeed','rbDensity','rbAlpha','rbWobble','rbFreq','rbMin','rbMax','rbJumboPct','rbJumboScale','rbSizeHz'].forEach(id=>{ const el=document.getElementById(id); if(!el) return; const map={rbSpeed:R(0.4,2.2), rbDensity:R(0.5,1.8), rbAlpha:R(0.6,1), rbWobble:R(0,2), rbFreq:R(0.4,2), rbMin:Math.round(R(10,22)), rbMax:Math.round(R(28,52)), rbJumboPct:R(0,0.4), rbJumboScale:R(1.1,2.2), rbSizeHz:R(0,0.6)}; el.value = map[id].toFixed(el.type==='number'?0:2); el.dispatchEvent(new Event('input')); });
+  });
+  const glbBtn=document.getElementById('glbRandom'); if(glbBtn) glbBtn.addEventListener('click', ()=>{
+    const S=document.getElementById('bgSpeed'), D=document.getElementById('bgDensity'), A=document.getElementById('bgAlpha'); if(S){ S.value=R(0.4,2.2).toFixed(2); S.dispatchEvent(new Event('input')); } if(D){ D.value=R(0.4,1.5).toFixed(2); D.dispatchEvent(new Event('input')); } if(A){ A.value=R(0.5,1).toFixed(2); A.dispatchEvent(new Event('input')); }
+  });
+  const nv=document.getElementById('navRandom'); if(nv) nv.addEventListener('click', ()=>{
+    const o=document.getElementById('navOrbitSpeed'), r=document.getElementById('navRadius'); if(o){ o.value=R(0.6,1.6).toFixed(2); o.dispatchEvent(new Event('input')); } if(r){ r.value=R(0.7,1.4).toFixed(2); r.dispatchEvent(new Event('input')); }
+    const w=document.getElementById('navWiggle'), f=document.getElementById('navFlow'), d=document.getElementById('navDrip'), v=document.getElementById('navVisc');
+    if(w){ w.value=R(0.2,1.0).toFixed(2); w.dispatchEvent(new Event('input')); }
+    if(f){ f.value=R(0.6,1.6).toFixed(2); f.dispatchEvent(new Event('input')); }
+    if(d){ d.value=R(-0.2,0.2).toFixed(2); d.dispatchEvent(new Event('input')); }
+    if(v){ v.value=R(0.6,1.0).toFixed(2); v.dispatchEvent(new Event('input')); }
+  });
+  const gr=document.getElementById('overlayRandom'); if(gr) gr.addEventListener('click', ()=>{ const a=document.getElementById('glAlpha'), dx=document.getElementById('glDX'), dy=document.getElementById('glDY'); if(a){ a.value=R(0.05,0.35).toFixed(2); a.dispatchEvent(new Event('input')); } if(dx){ dx.value=Math.round(R(6,56)); dx.dispatchEvent(new Event('input')); } if(dy){ dy.value=Math.round(R(6,56)); dy.dispatchEvent(new Event('input')); } });
+  const hr=document.getElementById('hueRandom'); if(hr) hr.addEventListener('click', ()=>{ const H=document.getElementById('hueShift'), S=document.getElementById('hueSat'), I=document.getElementById('hueInt'); if(H){ H.value=Math.round(R(0,360)); H.dispatchEvent(new Event('input')); } if(S){ S.value=R(0.6,1.6).toFixed(2); S.dispatchEvent(new Event('input')); } if(I){ I.value=R(0.5,1).toFixed(2); I.dispatchEvent(new Event('input')); } });
+})();
+
+// GL overlay bindings
+if (glAlphaEl) glAlphaEl.addEventListener('input', ()=>{ if(window.errlGLSetOverlay) window.errlGLSetOverlay({ alpha: parseFloat(glAlphaEl.value) }); });
+if (glDXEl) glDXEl.addEventListener('input', ()=>{ if(window.errlGLSetOverlay) window.errlGLSetOverlay({ dx: parseFloat(glDXEl.value) }); });
+if (glDYEl) glDYEl.addEventListener('input', ()=>{ if(window.errlGLSetOverlay) window.errlGLSetOverlay({ dy: parseFloat(glDYEl.value) }); });
+
+// BG bubbles advanced bindings
+function pushBubblesPatch(){
+  if (!window.errlGLSetBubbles) return;
+  window.errlGLSetBubbles({
+    wobble: bubWobble? parseFloat(bubWobble.value): undefined,
+    freq:   bubFreq? parseFloat(bubFreq.value): undefined,
+    minSize: bubMin? parseFloat(bubMin.value): undefined,
+    maxSize: bubMax? parseFloat(bubMax.value): undefined,
+    farRatio: bubFar? parseFloat(bubFar.value): undefined,
+    sizeJitterFreq: bubSizeHz? parseFloat(bubSizeHz.value): undefined,
+    jumboChance: bubJumboPct? parseFloat(bubJumboPct.value): undefined,
+    jumboScale: bubJumboScale? parseFloat(bubJumboScale.value): undefined,
+  });
+}
+[bubWobble,bubFreq,bubMin,bubMax,bubFar,bubSizeHz,bubJumboPct,bubJumboScale].forEach(el=> el && el.addEventListener('input', pushBubblesPatch));
+
+// Texture controls (global)
+if (bubUploadBtn && bubUpload) {
+  bubUploadBtn.addEventListener('click', ()=> bubUpload.click());
+  bubUpload.addEventListener('change', ()=>{
+    const f = bubUpload.files && bubUpload.files[0]; if(!f) return;
+    const url = URL.createObjectURL(f);
+    if (window.errlGLSetBubblesTexture) window.errlGLSetBubblesTexture('custom', url);
+  });
+}
+if (bubApplyTex && bubTexSel) {
+  bubApplyTex.addEventListener('click', ()=>{
+    const v = bubTexSel.value;
+    if (window.errlGLSetBubblesTexture) window.errlGLSetBubblesTexture(v, null);
+  });
+}
+// Per-layer textures
+(function texLayers(){
+  const defs=[
+    {sel:'A', idx:0},
+    {sel:'B', idx:1},
+    {sel:'C', idx:2},
+  ];
+  defs.forEach(({sel, idx})=>{
+    const S=document.getElementById('bubTex'+sel), A=document.getElementById('bubApplyTex'+sel), U=document.getElementById('bubUpload'+sel), UB=document.getElementById('bubUploadBtn'+sel);
+    if(UB && U){ UB.addEventListener('click', ()=> U.click()); U.addEventListener('change', ()=>{ const f=U.files && U.files[0]; if(!f) return; const url=URL.createObjectURL(f); window.errlGLSetBubblesLayerTexture && window.errlGLSetBubblesLayerTexture(idx,'custom',url); }); }
+    if(A && S){ A.addEventListener('click', ()=>{ const v=S.value; window.errlGLSetBubblesLayerTexture && window.errlGLSetBubblesLayerTexture(idx, v, null); }); }
+  });
+})();
+
+// Rising Bubbles bindings
+(function rbBind(){
+  const speed = document.getElementById('rbSpeed');
+  const dens  = document.getElementById('rbDensity');
+  const alpha = document.getElementById('rbAlpha');
+  const wob   = document.getElementById('rbWobble');
+  const freq  = document.getElementById('rbFreq');
+  const smin  = document.getElementById('rbMin');
+  const smax  = document.getElementById('rbMax');
+  const szHz  = document.getElementById('rbSizeHz');
+  const jPct  = document.getElementById('rbJumboPct');
+  const jSc   = document.getElementById('rbJumboScale');
+  // RB goo controls
+  const gAmp=document.getElementById('rbWiggle');
+  const gSpd=document.getElementById('rbFlow');
+  const gDrip=document.getElementById('rbDrip');
+  const gVisc=document.getElementById('rbVisc');
+  const gBlur=document.getElementById('rbBlur');
+  RB.goo = RB.goo || { amp:0.8, flow:0.4, drip:0.0, visc:0.5, blur:6 };
+  function apply(){ RB.speed=parseFloat(speed.value); RB.density=parseFloat(dens.value); RB.alpha=parseFloat(alpha.value); RB.wobble=parseFloat(wob.value); RB.freq=parseFloat(freq.value); RB.minSize=parseFloat(smin.value); RB.maxSize=parseFloat(smax.value); RB.sizeHz=parseFloat(szHz.value); RB.jumboChance=parseFloat(jPct.value); RB.jumboScale=parseFloat(jSc.value); rbRebuild(); }
+  ;[speed,dens,alpha,wob,freq,smin,smax,szHz,jPct,jSc].forEach(el=> el && el.addEventListener('input', apply));
+  function applyGoo(){ RB.goo.amp=parseFloat(gAmp.value||RB.goo.amp); RB.goo.flow=parseFloat(gSpd.value||RB.goo.flow); RB.goo.drip=parseFloat(gDrip.value||RB.goo.drip); RB.goo.visc=parseFloat(gVisc.value||RB.goo.visc); RB.goo.blur=parseFloat(gBlur.value||RB.goo.blur); }
+  ;[gAmp,gSpd,gDrip,gVisc,gBlur].forEach(el=> el && el.addEventListener('input', applyGoo)); applyGoo();
+  // per-layer textures
+  [{sel:'A',idx:0},{sel:'B',idx:1}].forEach(({sel,idx})=>{
+    const S=document.getElementById('rbTex'+sel), A=document.getElementById('rbApplyTex'+sel), U=document.getElementById('rbUpload'+sel), UB=document.getElementById('rbUploadBtn'+sel);
+    if(UB && U){ UB.addEventListener('click', ()=> U.click()); U.addEventListener('change', ()=>{ const f=U.files && U.files[0]; if(!f) return; const url=URL.createObjectURL(f); const im=new Image(); im.src=url; im.onload=()=>{ RB.layers[idx].tex=[im]; rbRebuild(); }; }); }
+    if(A && S){ A.addEventListener('click', ()=>{ const v=S.value; if(v==='pack'){ RB.layers[idx].tex = rbTexFromPack(); } else if(v==='proc'){ RB.layers[idx].tex = [rbMakeProc()]; } rbRebuild(); }); }
+  });
+})();
+
+// Presets (stored in localStorage)
+(function presets(){
+  if(!bubPresetSel) return;
+  const KEY='errl_bub_presets';
+  const builtin={
+    Calm:{ speed:0.6, density:0.8, alpha:0.85, wobble:0.6, freq:0.7, minSize:14, maxSize:34, farRatio:0.4, sizeJitterFreq:0.0 },
+    Neon:{ speed:1.2, density:1.2, alpha:0.95, wobble:1.3, freq:1.2, minSize:16, maxSize:46, farRatio:0.33, sizeJitterFreq:0.2, jumboChance:0.12, jumboScale:1.7 },
+    Dense:{ speed:0.9, density:1.5, alpha:0.9, wobble:1.0, freq:1.0, minSize:12, maxSize:38, farRatio:0.28 },
+  };
+  function load(){ try{ return Object.assign({}, builtin, JSON.parse(localStorage.getItem(KEY)||'{}')); }catch{ return {...builtin}; } }
+  function save(map){ try{ localStorage.setItem(KEY, JSON.stringify(map)); }catch{}
+  }
+  function fill(){ const map=load(); bubPresetSel.innerHTML=''; Object.keys(map).forEach(name=>{ const o=document.createElement('option'); o.value=name; o.textContent=name; bubPresetSel.appendChild(o); }); }
+  function currentParams(){
+    return {
+      speed: parseFloat(bgSpeed.value), density: parseFloat(bgDensity.value), alpha: parseFloat(bgAlpha.value),
+      wobble: parseFloat(bubWobble.value), freq: parseFloat(bubFreq.value),
+      minSize: parseFloat(bubMin.value), maxSize: parseFloat(bubMax.value), farRatio: parseFloat(bubFar.value),
+      sizeJitterFreq: parseFloat(bubSizeHz.value), jumboChance: parseFloat(bubJumboPct.value), jumboScale: parseFloat(bubJumboScale.value),
+    };
+  }
+  function applyParams(p){
+    if('speed' in p){ bgSpeed.value=p.speed; bgSpeed.dispatchEvent(new Event('input')); }
+    if('density' in p){ bgDensity.value=p.density; bgDensity.dispatchEvent(new Event('input')); }
+    if('alpha' in p){ bgAlpha.value=p.alpha; bgAlpha.dispatchEvent(new Event('input')); }
+    if('wobble' in p){ bubWobble.value=p.wobble; }
+    if('freq' in p){ bubFreq.value=p.freq; }
+    if('minSize' in p){ bubMin.value=p.minSize; }
+    if('maxSize' in p){ bubMax.value=p.maxSize; }
+    if('farRatio' in p){ bubFar.value=p.farRatio; }
+    if('sizeJitterFreq' in p){ bubSizeHz.value=p.sizeJitterFreq; }
+    if('jumboChance' in p){ bubJumboPct.value=p.jumboChance; }
+    if('jumboScale' in p){ bubJumboScale.value=p.jumboScale; }
+    pushBubblesPatch();
+  }
+  fill();
+  bubPresetApply && bubPresetApply.addEventListener('click', ()=>{ const map=load(); const name=bubPresetSel.value; const p=map[name]; if(p) applyParams(p); });
+  bubPresetSave && bubPresetSave.addEventListener('click', ()=>{ const name=prompt('Preset name:'); if(!name) return; const map=load(); map[name]=currentParams(); save(map); fill(); bubPresetSel.value=name; });
+})();
+
+document.getElementById("burstBtn").addEventListener("click", () => {
+  if (document.body.dataset.errlMode === 'errl' && window.errlGLBurst) {
+    window.errlGLBurst();
+  } else {
+    burstParticles();
+  }
+});
+
+// snapshot
+
+document.getElementById("snapshotBtn").addEventListener("click", () => {
+  try {
+    const url = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `errl-bg-${Date.now()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (e) {
+    console.warn("Snapshot failed", e);
+  }
+});
+
+// Errl goo controls + mask binds to Errl SVG src
+(function gooCtrls(){
+  const goo=document.getElementById('errlGoo');
+  const mask=document.getElementById('errlAuraMask');
+  const targetImg=document.getElementById('errlCenter');
+  // Classic CSS/SVG goo nodes + controls
+  const classicNoise = document.getElementById('classicGooNoise');
+  const classicDisp  = document.getElementById('classicGooDisp');
+  const classicVisc  = document.getElementById('classicGooVisc');
+  const classicDrip  = document.getElementById('classicGooDrip');
+  const cOn   = document.getElementById('classicGooEnabled');
+  const cStr  = document.getElementById('classicGooStrength');
+  const cWob  = document.getElementById('classicGooWobble');
+  const cSpd  = document.getElementById('classicGooSpeed');
+  const cAnim = document.getElementById('classicGooAnimate');
+  const cRand = document.getElementById('classicGooRandom');
+
+  // helper to set/remove SVG filter reliably
+  function setFilterOnTarget(){
+    const classicOn = cOn ? cOn.checked : true;
+    if (targetImg){
+      // Prefer class-based filter to match working Pixi/GL variant
+      targetImg.classList.toggle('goo', !!classicOn);
+      // Fallback explicit style for engines that ignore class
+      const val = classicOn ? 'url(#classicGoo)' : 'none';
+      targetImg.style.filter = val; targetImg.style.webkitFilter = val; targetImg.style.opacity = '1';
+    }
+  }
+
+  let wobblePhase = 0; let animOn = true; // animate classic by default
+  if(cAnim){ cAnim.addEventListener('click', ()=>{ animOn = !animOn; }); }
+  if(cRand){ cRand.addEventListener('click', ()=>{
+      if(classicNoise){ classicNoise.setAttribute('seed', String(2+Math.floor(Math.random()*1000))); }
+      if(cStr){ cStr.value = (0.6 + Math.random()*1.4).toFixed(2); }
+      if(cWob){ cWob.value = (0.6 + Math.random()*1.4).toFixed(2); }
+      if(cSpd){ cSpd.value = (0.6 + Math.random()*1.2).toFixed(2); }
+      applyClassic();
+    });
+  }
+
+  function raf(){
+    // Classic wobble + flow
+    const spd = parseFloat(cSpd?.value||1.0);
+    if(classicNoise){
+      const wobSp = (parseFloat(cWob?.value||1.0)) * (0.6 + 1.2*spd);
+      if(animOn){ wobblePhase += 0.016 * wobSp; }
+      const bx = 0.0035 + 0.0045*Math.sin(wobblePhase*1.1);
+      const by = 0.0050 + 0.0060*Math.cos(wobblePhase*0.9);
+      classicNoise.setAttribute('baseFrequency', `${bx.toFixed(4)} ${by.toFixed(4)}`);
+    }
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+
+  function applyClassic(){
+    const enabled = cOn ? cOn.checked : true;
+    const wig = parseFloat(cStr?.value||'1.0');
+    const visc = 0.35; // fixed smoothing for public classic
+    const drip = 0.12; // gentle downward bias by default
+    // wiggle amplitude via displacement scale (reduced by viscosity)
+    if(classicDisp){ const k = 12 * wig * (1.0 - 0.5*visc); classicDisp.setAttribute('scale', String(Math.max(0,k))); }
+    // viscosity smooths noise
+    if(classicVisc){ const sdev = 0 + 3.0*visc; classicVisc.setAttribute('stdDeviation', sdev.toFixed(2)); }
+    // drip biases downward
+    if(classicDrip){ const dy = 0 + 28.0 * drip; classicDrip.setAttribute('dy', dy.toFixed(2)); }
+    setFilterOnTarget();
+  }
+
+  function apply(){
+    // Hide legacy aura/mask visual if present
+    if(mask){ mask.style.display = 'none'; }
+    if(goo){ goo.style.display = 'none'; }
+    // Apply classic filter state and show/hide DOM Errl appropriately
+    setFilterOnTarget();
+  }
+  ;[cOn,cStr,cWob,cSpd].forEach(el=> el && el.addEventListener('input', ()=>{ applyClassic(); }));
+  applyClassic();
+  apply();
+})();
+
+// Particle-driven input (RB): attract/repel + shockwave
+(function rbInput(){
+  if(!window.addEventListener) return;
+  const attractEl=document.getElementById('rbAttract');
+  const rippleEl=document.getElementById('rbRipples');
+  const rings=[];
+  let pointer={x:innerWidth/2, y:innerHeight/2};
+  addEventListener('pointermove', (e)=>{ pointer.x=e.clientX; pointer.y=e.clientY; });
+  addEventListener('click', ()=>{ if(!rippleEl||!rippleEl.checked) return; rings.push({x:pointer.x,y:pointer.y,r:4, t:0}); });
+  const oldAdvance = RB && RB.items ? null : null;
+  // integrate into rbDraw: adjust velocities
+  const origDraw = rbDraw;
+  window.rbDraw = function(){ rctx.clearRect(0,0,innerWidth,innerHeight); rctx.globalAlpha = RB.alpha; rctx.globalCompositeOperation='lighter'; rctx.shadowBlur = RB.goo ? RB.goo.blur : 6;
+    // update rings
+    for(const ring of rings){ ring.r += 6; ring.t += 1; }
+    while(rings.length && rings[0].r>Math.max(innerWidth,innerHeight)) rings.shift();
+    const attract = !attractEl || attractEl.checked;
+    for(const it of RB.items){
+      const dx = pointer.x - it.x, dy = pointer.y - it.y; const d = Math.hypot(dx,dy)||1;
+      const forceBase = Math.max(0, 140-d)/140 * 0.6;
+      const visc = (RB.goo? RB.goo.visc:0.5);
+      const force = (attract? 1 : -1) * forceBase * (1.0 - visc*0.7);
+      it.x += (dx/d) * force; it.y += (dy/d) * force;
+      for(const ring of rings){ const rd=Math.hypot(it.x-ring.x, it.y-ring.y); const edge = Math.abs(rd - ring.r); if(edge<18){ const k = (18-edge)/18 * 3.2 * (1.0 - visc*0.6); const rx=(it.x-ring.x)/(rd||1), ry=(it.y-ring.y)/(rd||1); it.x += rx*k; it.y += ry*k; } }
+      // drip bias
+      it.y += (RB.goo? RB.goo.drip:0.0);
+    }
+    // draw same as before with goo amp/flow
+    const flow = (RB.goo? (0.6 + RB.goo.flow*1.4) : 1.0);
+    const ampF = (RB.goo? (0.5 + RB.goo.amp*1.5) : 1.0);
+    for(const it of RB.items){ const wob = Math.sin((it.phase += 0.02*RB.freq*flow)) * 1.2 * RB.wobble * ampF; it.x += wob; it.y += it.vy * RB.speed * flow; if (RB.sizeHz>0){ const k=1+0.12*Math.sin(it.phase*RB.sizeHz*3.2); it.size = it.baseSize*k; } if (it.y < -80){ it.y = innerHeight + 40 + Math.random()*80; it.x = Math.random()*innerWidth; } const s=it.size; if (it.tex instanceof HTMLImageElement && it.tex.complete) rctx.drawImage(it.tex, Math.round(it.x - s/2), Math.round(it.y - s/2), s, s); else if (it.tex && it.tex.getContext) rctx.drawImage(it.tex, Math.round(it.x - s/2), Math.round(it.y - s/2), s, s); else { const grd=rctx.createRadialGradient(it.x-0.1*s,it.y-0.12*s, s*0.05, it.x, it.y, s*0.5); grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.25,'rgba(130,200,255,0.8)'); grd.addColorStop(0.7,'rgba(110,160,255,0.35)'); grd.addColorStop(1,'rgba(110,160,255,0)'); rctx.fillStyle=grd; rctx.beginPath(); rctx.arc(it.x,it.y,s*0.5,0,Math.PI*2); rctx.fill(); } }
+    requestAnimationFrame(rbDraw);
+  };
+})();
+
+// ===== Shimmer toggle =====
+const shimmerToggle = document.getElementById('shimmerToggle');
+if (shimmerToggle) {
+  shimmerToggle.addEventListener('change', () => {
+    const root = document.querySelector('.errl-bg');
+    if (!root && shimmerToggle.checked) {
+      if (window.ErrlBG && typeof ErrlBG.mount === 'function') {
+        ErrlBG.mount({ headerVariant: 2, shimmer: true, parallax: true, hud: false, basePath: '../src' });
+      }
+    } else if (root) {
+      root.style.display = shimmerToggle.checked ? 'block' : 'none';
+    }
+  });
+}
+
+// ===== Audio engine =====
+(function audio(){
+  const toggle = document.getElementById('audioEnabled');
+  const master = document.getElementById('audioMaster');
+  const A = { ctx:null, master:null, sub:null, subGain:null, enabled:false };
+  function noiseBuffer(ctx){ const len=ctx.sampleRate*0.2; const buf=ctx.createBuffer(1, len, ctx.sampleRate); const data=buf.getChannelData(0); for(let i=0;i<len;i++){ data[i]=(Math.random()*2-1)*Math.pow(1-i/len,2); } return buf; }
+  function ensure(){ if(A.ctx) return; const C=window.AudioContext||window.webkitAudioContext; if(!C) return; A.ctx=new C(); A.master=A.ctx.createGain(); A.master.gain.value = parseFloat(master?.value||0.4);
+    // compressor + gentle lowpass
+    const comp=A.ctx.createDynamicsCompressor(); comp.threshold.value=-24; comp.knee.value=30; comp.ratio.value=4; comp.attack.value=0.003; comp.release.value=0.25;
+    const lp=A.ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=12000; A.master.connect(comp); comp.connect(lp); lp.connect(A.ctx.destination);
+    // sub
+    A.sub=A.ctx.createOscillator(); A.sub.type='sine'; A.sub.frequency.value=42; A.subGain=A.ctx.createGain(); A.subGain.gain.value=0.0; A.sub.connect(A.subGain); A.subGain.connect(A.master); A.sub.start();
+  }
+  function setEnabled(on){ ensure(); A.enabled=on; if(!A.ctx) return; if(on){ A.ctx.resume(); A.subGain.gain.linearRampToValueAtTime(0.06, A.ctx.currentTime+0.25);} else { A.subGain.gain.linearRampToValueAtTime(0.0001, A.ctx.currentTime+0.15);} }
+  toggle && toggle.addEventListener('change', ()=> setEnabled(toggle.checked)); master && master.addEventListener('input', ()=>{ ensure(); if(A.master) A.master.gain.value=parseFloat(master.value); });
+  // bubble plop on hover
+  bubbles.forEach((b,i)=>{
+    b.addEventListener('mouseenter', ()=>{ if(!A.enabled) return; ensure(); const t=A.ctx.currentTime; const src=A.ctx.createBufferSource(); src.buffer=noiseBuffer(A.ctx); const bp=A.ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=320 + i*25; bp.Q.value=6; const g=A.ctx.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(0.08, t+0.02); g.gain.exponentialRampToValueAtTime(0.0001, t+0.22); src.connect(bp); bp.connect(g); g.connect(A.master); src.start();
+      // short sub thump
+      const o=A.ctx.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(65 + i*2, t); const og=A.ctx.createGain(); og.gain.setValueAtTime(0.0001,t); og.gain.linearRampToValueAtTime(0.05, t+0.02); og.gain.exponentialRampToValueAtTime(0.0001, t+0.25); o.connect(og); og.connect(A.master); o.start(); setTimeout(()=>{ try{o.stop();}catch{} },260);
+    });
+  });
+  // tie sub drone to aura pulse
+  const pulse = document.getElementById('auraPulse');
+  pulse && pulse.addEventListener('input', ()=>{ if(A.sub) A.sub.frequency.value = 38 + parseFloat(pulse.value)*36; });
+})();
+
+// ===== Draggable & minimize phone =====
+(function phoneDrag(){
+  const panel = document.getElementById('errlPanel');
+  const header = document.getElementById('errlPhoneHeader');
+  const minBtn = document.getElementById('phoneMinToggle');
+  if(!panel || !header) return;
+  let drag=false, sx=0, sy=0, startL=null, startT=null;
+  function toPx(n){ return Math.round(n) + 'px'; }
+  function onDown(e){ drag=true; panel.classList.add('dragging'); header.style.cursor='grabbing';
+    const r=panel.getBoundingClientRect(); sx=e.clientX; sy=e.clientY; startL=r.left; startT=r.top; panel.style.right='auto'; panel.style.left=toPx(startL); panel.style.top=toPx(startT); }
+  function onMove(e){ if(!drag) return; const nx = startL + (e.clientX - sx); const ny = startT + (e.clientY - sy);
+    const maxX = window.innerWidth - 120; const maxY = window.innerHeight - 40; panel.style.left = toPx(Math.max(0, Math.min(maxX, nx))); panel.style.top = toPx(Math.max(0, Math.min(maxY, ny))); }
+  function onUp(){ if(!drag) return; drag=false; panel.classList.remove('dragging'); header.style.cursor='grab'; }
+  header.addEventListener('pointerdown', onDown);
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+minBtn && minBtn.addEventListener('click', ()=>{ panel.classList.toggle('minimized'); localStorage.setItem('errl_phone_min', panel.classList.contains('minimized')?'1':'0'); });
+  // restore minimized
+  if (localStorage.getItem('errl_phone_min')==='1') panel.classList.add('minimized');
+})();
+
+// ===== Mode toggle buttons (removed) =====
+function webglSupported(){
+  try {
+    const c = document.createElement('canvas');
+    return !!(c.getContext('webgl') || c.getContext('experimental-webgl'));
+  } catch { return false; }
+}
+
+// (mode buttons removed)
+
+// (legacy mood buttons removed — using .moodBtn2)
+
+// Hue controls wiring (if controller present)
+(function hueWire(){
+  const HT = document.getElementById('hueTarget');
+  const H  = document.getElementById('hueShift');
+  const S  = document.getElementById('hueSat');
+  const I  = document.getElementById('hueInt');
+  const E  = document.getElementById('hueEnabled');
+  const A  = document.getElementById('hueAnimate');
+  function apply(){
+    if(!window.ErrlHueController) return;
+    window.ErrlHueController.setTarget(HT.value);
+    window.ErrlHueController.setHueTemp(parseFloat(H.value), HT.value);
+    window.ErrlHueController.setSaturationTemp(parseFloat(S.value), HT.value);
+    window.ErrlHueController.setIntensityTemp(parseFloat(I.value), HT.value);
+    window.ErrlHueController.setEnabledTemp(E.checked, HT.value);
+  }
+  HT && HT.addEventListener('change', apply);
+  H && H.addEventListener('input', apply);
+  S && S.addEventListener('input', apply);
+  I && I.addEventListener('input', apply);
+  E && E.addEventListener('change', apply);
+  A && A.addEventListener('click', ()=>{
+    if(!window.ErrlHueController) return;
+    window.ErrlHueController.toggleAnimation(1.0, HT.value);
+  });
+})();
+
+// Tabs
+(function tabs(){
+  const tabs = document.getElementById('panelTabs');
+  if(!tabs) return;
+  function showTab(key){
+    tabs.querySelectorAll('.tab').forEach(t=> t.classList.toggle('active', t.dataset.tab===key));
+    document.querySelectorAll('.errl-panel .panel-section').forEach(sec=>{
+      const tab=sec.getAttribute('data-tab');
+      sec.style.display = (tab===key)? 'block':'none';
+    });
+  }
+  tabs.addEventListener('click', (e)=>{ const btn=e.target.closest('button[data-tab]'); if(btn) showTab(btn.dataset.tab); });
+  // initialize HUD by default and ensure sections exist
+  const defaultTab = (tabs.querySelector('.tab.active')||tabs.querySelector('[data-tab="hud"]')||tabs.querySelector('button[data-tab]')).dataset.tab;
+  showTab(defaultTab);
+})();
+
+// Nav Goo controls
+(function navGoo(){
+  const wrap = document.getElementById('navOrbit'); if(!wrap) return;
+  const on = document.getElementById('navGooEnabled');
+  const blur = document.getElementById('navGooBlur');
+  const mult = document.getElementById('navGooMult');
+  const thr = document.getElementById('navGooThresh');
+  function apply(){
+    const enabled = on && on.checked;
+    wrap.classList.toggle('goo-on', !!enabled);
+    wrap.style.filter = enabled ? 'url(#uiGoo)' : 'none';
+    const blurNode = document.getElementById('navGooBlurNode'); if(blurNode && blur) blurNode.setAttribute('stdDeviation', String(parseFloat(blur.value)));
+    const mat = document.getElementById('navGooMatrixNode');
+    if(mat && mult && thr){ const m = Math.max(1, parseFloat(mult.value)||24); const t = parseFloat(thr.value)||-14; mat.setAttribute('values', `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${m} ${t}`); }
+  }
+  ;[on,blur,mult,thr].forEach(el=> el && el.addEventListener('input', apply));
+  apply();
+})();
+
+// Accessibility
+(function accessibility(){
+  const prefReduce = document.getElementById('prefReduce');
+  const prefContrast = document.getElementById('prefContrast');
+  function apply(){
+    if (prefReduce){ document.body.classList.toggle('reduced-motion', prefReduce.checked); localStorage.setItem('prefReduce', prefReduce.checked?'1':'0'); }
+    if (prefContrast){ document.body.classList.toggle('high-contrast', prefContrast.checked); localStorage.setItem('prefContrast', prefContrast.checked?'1':'0'); }
+  }
+  prefReduce && prefReduce.addEventListener('change', apply);
+  prefContrast && prefContrast.addEventListener('change', apply);
+  // initialize from storage
+  const rm = localStorage.getItem('prefReduce')==='1'; const hc = localStorage.getItem('prefContrast')==='1';
+  if (prefReduce) prefReduce.checked = rm; if (prefContrast) prefContrast.checked = hc; apply();
+})();
+
+// Device tilt parallax
+(function tilt(){
+  const layer = document.querySelector('.scene-layer'); if(!layer) return;
+  function apply(dx,dy){ layer.style.transform = `translate3d(${dx}px, ${dy}px, 0)`; }
+  window.addEventListener('deviceorientation', (e)=>{
+    if(e.beta==null && e.gamma==null) return;
+    const dx = (e.gamma||0) * 0.4; const dy = (e.beta||0) * -0.2; apply(dx, dy);
+  });
+})();
+
+// restore mode + mood
+(function restore(){
+  document.body.dataset.errlMode = 'errl';
+  if (window.enableErrlGL) window.enableErrlGL();
+  const mood = localStorage.getItem('errlMood');
+  if (mood && window.errlGLSetMood) window.errlGLSetMood(mood);
+  // ensure phone not minimized from prior state
+  const panel = document.getElementById('errlPanel'); if(panel) panel.classList.remove('minimized');
+})();

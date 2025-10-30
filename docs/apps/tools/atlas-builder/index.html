@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Atlas Builder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    html,body{height:100%;margin:0}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0a0f18; color:#e5eaf1}
+    .card{ max-width:1100px; margin: 24px auto; }
+    .back{ color:#cdeafe; text-decoration:none; padding:.4em .7em; border-radius:999px; background:#ffffff0f; box-shadow:0 2px 8px rgba(0,0,0,.35); margin-right:.5rem }
+  </style>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div class="card px-4">
+    <div class="sticky top-0 z-10 -mx-4 px-4 py-3 flex items-center gap-2 bg-black/30 border-b border-white/10 backdrop-blur">
+      <a class="back" href="../index.html">⬅ Tools</a>
+      <div class="text-lg font-bold tracking-tight">Atlas Builder</div>
+    </div>
+    <div id="root" class="mt-4"></div>
+  </div>
+
+  <script type="text/babel" data-presets="react">
+    const { useEffect, useRef, useState } = React;
+
+    async function loadJSZip() {
+      if (window.JSZip) return window.JSZip;
+      await new Promise((res, rej) => {
+        const s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js";
+        s.onload = () => res();
+        s.onerror = rej;
+        document.head.appendChild(s);
+      });
+      return window.JSZip;
+    }
+
+    function loadImageFromFile(file) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+      });
+    }
+
+    function imageToImageData(img) {
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const ctx = c.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      return ctx.getImageData(0, 0, c.width, c.height);
+    }
+
+    function computeAlphaAgainstWhite(imgData, mode) {
+      const { data, width, height } = imgData;
+      const alpha = new Uint8ClampedArray(width * height);
+      const low = mode === "Aura" ? 0.05 : 0.12;
+      const high = mode === "Aura" ? 0.35 : 0.60;
+      for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+        const r = data[i] / 255, g = data[i+1] / 255, b = data[i+2] / 255;
+        const lum = 0.2126*r + 0.7152*g + 0.0722*b;
+        const maxc = Math.max(r, g, b), minc = Math.min(r, g, b);
+        const chroma = maxc - minc;
+        const dist = (1 - lum) * 0.65 + chroma * 0.9;
+        let t = (dist - low) / (high - low);
+        if (t < 0) t = 0; if (t > 1) t = 1;
+        alpha[p] = Math.round(t * 255);
+      }
+      return { alpha, width, height };
+    }
+
+    function findComponents(mask, width, height, minSize) {
+      const visited = new Uint8Array(mask.length);
+      const boxes = [];
+      const stackY = new Int32Array(mask.length);
+      const stackX = new Int32Array(mask.length);
+      const inBounds = (x, y) => x>=0 && y>=0 && x<width && y<height;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = y*width + x;
+          if (!mask[idx] || visited[idx]) continue;
+          let minx = 1e9, miny = 1e9, maxx = -1, maxy = -1, count = 0;
+          let sp = 0; stackX[sp] = x; stackY[sp] = y; sp++; visited[idx] = 1;
+          while (sp > 0) {
+            sp--; const cx = stackX[sp], cy = stackY[sp];
+            const cidx = cy*width + cx;
+            count++;
+            if (cx < minx) minx = cx; if (cy < miny) miny = cy;
+            if (cx > maxx) maxx = cx; if (cy > maxy) maxy = cy;
+            const neigh = [[1,0],[-1,0],[0,1],[0,-1]];
+            for (let n=0; n<4; n++) {
+              const nx = cx + neigh[n][0], ny = cy + neigh[n][1];
+              if (!inBounds(nx, ny)) continue;
+              const nidx = ny*width + nx;
+              if (mask[nidx] && !visited[nidx]) {
+                visited[nidx] = 1; stackX[sp] = nx; stackY[sp] = ny; sp++;
+              }
+            }
+          }
+          if (count >= minSize) boxes.push({ x0:minx, y0:miny, x1:maxx+1, y1:maxy+1 });
+        }
+      }
+      boxes.sort((a,b)=> a.y0 - b.y0 || a.x0 - b.x0);
+      return boxes;
+    }
+
+    function placeOnCanvas(cropCanvas, opts) {
+      const { finalSize=512, padTop=0.12, padSide=0.12, padBottom=0.22, upwardBias=0.03 } = opts;
+      const W = finalSize, H = finalSize;
+      const innerW = Math.floor(W * (1 - 2*padSide));
+      const innerTop = Math.floor(H * padTop);
+      const innerBot = Math.floor(H * (1 - padBottom));
+      const innerH = Math.max(1, innerBot - innerTop);
+      const cw = cropCanvas.width, ch = cropCanvas.height;
+      const scale = Math.min(innerW / cw, innerH / ch);
+      const newW = Math.max(1, Math.round(cw * scale));
+      const newH = Math.max(1, Math.round(ch * scale));
+      const out = document.createElement("canvas");
+      out.width = W; out.height = H;
+      const ctx = out.getContext("2d");
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      const x = Math.floor((W - newW)/2);
+      const y = Math.floor(innerTop + (innerH - newH)/2 - upwardBias*H);
+      ctx.drawImage(cropCanvas, x, y, newW, newH);
+      return out;
+    }
+
+    function canvasToBlob(canvas) {
+      return new Promise((res) => canvas.toBlob(res, "image/png"));
+    }
+
+    async function makeAtlas(canvases, names, atlasName) {
+      const size = 512;
+      const N = canvases.length;
+      const cols = Math.ceil(Math.sqrt(N));
+      const rows = Math.ceil(N/cols);
+      const atlasW = cols*size, atlasH = rows*size;
+      const atlas = document.createElement("canvas");
+      atlas.width = atlasW; atlas.height = atlasH;
+      const ctx = atlas.getContext("2d");
+      const frames = {};
+      for (let i=0; i<N; i++) {
+        const cx = (i % cols) * size;
+        const cy = Math.floor(i / cols) * size;
+        ctx.drawImage(canvases[i], cx, cy);
+        frames[names[i]] = {
+          frame: { x: cx, y: cy, w: size, h: size },
+          rotated: false, trimmed: false,
+          spriteSourceSize: { x: 0, y: 0, w: size, h: size },
+          sourceSize: { w: size, h: size },
+          pivot: { x: 0.5, y: 0.5 }
+        };
+      }
+      const json = {
+        meta: {
+          app: "ERRL Atlas Builder", version: "1.0",
+          image: `${atlasName}.png`, format: "RGBA8888",
+          size: { w: atlasW, h: atlasH }, scale: "1"
+        },
+        frames
+      };
+      return { atlas, json };
+    }
+
+    function bytesToSize(bytes){
+      if (bytes === 0) return "0 B";
+      const k = 1024, sizes = ["B","KB","MB","GB"]; const i = Math.floor(Math.log(bytes)/Math.log(k));
+      return parseFloat((bytes/Math.pow(k,i)).toFixed(2)) + " " + sizes[i];
+    }
+
+    function Radio({label, value, current, onChange}){
+      return (
+        <label className="inline-flex items-center gap-2 mr-4">
+          <input type="radio" className="accent-fuchsia-500" value={value} checked={current===value} onChange={e=>onChange(e.target.value)} />
+          <span>{label}</span>
+        </label>
+      );
+    }
+
+    function realm_from_name(name){
+      if (name.includes("Rainbow-2") || name.includes("Sheet_Rainbow-2")) return "Rainbow_2";
+      if (name.includes("Rainbow")) return "Rainbow";
+      if (name.includes("PinkRed")) return "PinkRed";
+      if (name.includes("PurpleBlue")) return "PurpleBlue";
+      if (name.includes("Sheet-1") || name.endsWith("Sheet_1")) return "Sheet_1";
+      return name.replace(/\.[^/.]+$/,"");
+    }
+
+    function drawFrame(ctx, atlas, name, x, y, opt={}){
+      const fr = atlas.frames[name]; if (!fr) return;
+      const { rotation=0, scale=1, alpha=1, anchorX=0.5, anchorY=0.5 } = opt;
+      ctx.save(); ctx.globalAlpha = alpha; ctx.translate(x,y); if (rotation) ctx.rotate(rotation);
+      const dw = fr.frame.w * scale, dh = fr.frame.h * scale; const dx = -anchorX*dw, dy = -anchorY*dh;
+      ctx.drawImage(atlas.image, fr.frame.x, fr.frame.y, fr.frame.w, fr.frame.h, dx, dy, dw, dh);
+      ctx.restore();
+    }
+
+    async function loadAtlas(pngURL, jsonURL){
+      const img = await new Promise((res, rej) => { const im = new Image(); im.onload=()=>res(im); im.onerror=rej; im.src = pngURL; });
+      const data = await (await fetch(jsonURL)).json();
+      return { image: img, frames: data.frames, meta: data.meta };
+    }
+
+    function AtlasDemo({ auraPNG, auraJSON, tightPNG, tightJSON }){
+      const canvasRef = useRef(null);
+      const [mode, setMode] = useState("Aura");
+      const [atlas, setAtlas] = useState(null);
+      const [textures, setTextures] = useState({Aura:null,Tight:null});
+
+      useEffect(()=>{
+        if (!auraPNG || !auraJSON) return;
+        (async () => {
+          const a = await loadAtlas(auraPNG, auraJSON);
+          setTextures(prev=>({...prev, Aura:a}));
+          setAtlas(a);
+        })();
+      }, [auraPNG, auraJSON]);
+
+      useEffect(()=>{
+        if (mode === "Tight" && tightPNG && tightJSON && !textures.Tight){
+          (async()=>{
+            const t = await loadAtlas(tightPNG, tightJSON);
+            setTextures(prev=>({...prev, Tight:t}));
+          })();
+        }
+      }, [mode, tightPNG, tightJSON, textures.Tight]);
+
+      useEffect(()=>{
+        let raf; const canvas = canvasRef.current; if (!canvas || !atlas) return;
+        const ctx = canvas.getContext("2d");
+        const DPR = Math.max(1, window.devicePixelRatio || 1);
+        function resize(){ canvas.width = Math.floor(canvas.clientWidth*DPR); canvas.height = Math.floor(canvas.clientHeight*DPR); ctx.setTransform(DPR,0,0,DPR,0,0);} resize();
+        const onRes = ()=>resize(); window.addEventListener("resize", onRes);
+        const names = Object.keys(atlas.frames);
+        const rnd=(a,b)=>a + Math.random()*(b-a), pick=a=>a[(Math.random()*a.length)|0];
+        const bubbles = []; for(let i=0;i<Math.min(40,names.length);i++){ const n=pick(names); bubbles.push({n, x:rnd(50,canvas.clientWidth-50), y:rnd(50,canvas.clientHeight-50), r:rnd(-3.14,3.14), vx:rnd(-.2,.2), vy:rnd(-.15,-.05), vr:rnd(-.001,.001), s:rnd(.55,1.05), a:rnd(.75,1)});}    
+        let last = performance.now();
+        function loop(t){
+          const dt = Math.min(32, t - last); last = t;
+          ctx.clearRect(0,0, canvas.clientWidth, canvas.clientHeight);
+          const atlasNow = textures[mode]; if (!atlasNow) { raf = requestAnimationFrame(loop); return; }
+          for (const b of bubbles){
+            b.x += b.vx*dt; b.y += b.vy*dt; b.r += b.vr*dt;
+            if (b.x < -64) b.x = canvas.clientWidth + 64;
+            if (b.x > canvas.clientWidth + 64) b.x = -64;
+            if (b.y < -80) b.y = canvas.clientHeight + 40;
+            drawFrame(ctx, atlasNow, b.n, b.x, b.y, {rotation:b.r, scale:b.s, alpha:b.a});
+          }
+          raf = requestAnimationFrame(loop);
+        }
+        raf = requestAnimationFrame(loop);
+        return ()=>{ cancelAnimationFrame(raf); window.removeEventListener("resize", onRes); };
+      }, [atlas, textures, mode]);
+
+      return (
+        <div className="border border-white/10 rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2 bg-white/5 border-b border-white/10">
+            <div className="font-semibold">Demo Viewer</div>
+            <div>
+              <Radio label="Aura" value="Aura" current={mode} onChange={setMode} />
+              <Radio label="Tight" value="Tight" current={mode} onChange={setMode} />
+            </div>
+          </div>
+          <div className="h-[380px] md:h-[520px]">
+            <canvas ref={canvasRef} className="w-full h-full block" />
+          </div>
+        </div>
+      );
+    }
+
+    function ErrlAtlasBuilder(){
+      const [mode, setMode] = useState("Cut");
+      const [finalSize, setFinalSize] = useState(512);
+      const [padTop, setPadTop] = useState(0.12);
+      const [padSide, setPadSide] = useState(0.12);
+      const [padBottom, setPadBottom] = useState(0.22);
+      const [upBias, setUpBias] = useState(0.03);
+      const [busy, setBusy] = useState(false);
+      const [log, setLog] = useState([]);
+      const [auraAtlasURL, setAuraAtlasURL] = useState(null);
+      const [auraJSONURL, setAuraJSONURL] = useState(null);
+      const [tightAtlasURL, setTightAtlasURL] = useState(null);
+      const [tightJSONURL, setTightJSONURL] = useState(null);
+
+      function append(msg){ setLog(prev=>[...prev, msg]); }
+      function resetLog(){ setLog([]); }
+
+      async function handleCutAndPack(files){
+        setBusy(true); resetLog();
+        try{
+          await loadJSZip();
+          const JSZip = window.JSZip;
+          const sheets = Array.from(files);
+          append(`Loaded ${sheets.length} sheet(s).`);
+
+          async function processVariant(variant){
+            append(`Processing variant: ${variant}…`);
+            const orbCanvases = [];
+            const orbNames = [];
+            const zip = new JSZip();
+            const byRealm = zip.folder(variant);
+
+            for (const file of sheets){
+              const img = await loadImageFromFile(file);
+              const id = imageToImageData(img);
+              const { alpha, width, height } = computeAlphaAgainstWhite(id, variant);
+              const thresh = variant === "Aura" ? 8 : 24;
+              const mask = new Uint8Array(width*height);
+              for (let i=0; i<alpha.length; i++) mask[i] = alpha[i] > thresh ? 1 : 0;
+              const boxes = findComponents(mask, width, height, variant === "Aura" ? 300 : 320);
+              const realm = realm_from_name(file.name);
+              const realmFolder = byRealm.folder(realm);
+              let count = 0;
+              for (const b of boxes){
+                const cropC = document.createElement("canvas");
+                cropC.width = b.x1 - b.x0; cropC.height = b.y1 - b.y0;
+                const cctx = cropC.getContext("2d");
+                const temp = document.createElement("canvas");
+                temp.width = width; temp.height = height; const tctx = temp.getContext("2d");
+                tctx.putImageData(id, 0, 0);
+                cctx.drawImage(temp, b.x0, b.y0, cropC.width, cropC.height, 0, 0, cropC.width, cropC.height);
+                const cropId = cctx.getImageData(0,0,cropC.width,cropC.height);
+                const a2 = new Uint8ClampedArray(cropC.width*cropC.height);
+                for (let y=0; y<cropC.height; y++){
+                  for (let x=0; x<cropC.width; x++){
+                    const srcIdx = (b.y0 + y)*width + (b.x0 + x);
+                    a2[y*cropC.width + x] = alpha[srcIdx];
+                  }
+                }
+                for (let i=0, p=0; i<cropId.data.length; i+=4, p++) cropId.data[i+3] = a2[p];
+                cctx.putImageData(cropId, 0, 0);
+                const trimThr = variant === "Aura" ? 5 : 18;
+                let minx=1e9,miny=1e9,maxx=-1,maxy=-1;
+                for (let y=0; y<cropC.height; y++){
+                  for (let x=0; x<cropC.width; x++){
+                    const A = a2[y*cropC.width + x];
+                    if (A > trimThr){ if (x<minx)minx=x; if (y<miny)miny=y; if (x>maxx)maxx=x; if (y>maxy)maxy=y; }
+                  }
+                }
+                if (maxx>=minx && maxy>=miny){
+                  const tw = maxx-minx+1, th = maxy-miny+1;
+                  const tight = document.createElement("canvas");
+                  tight.width = tw; tight.height = th;
+                  const tctx2 = tight.getContext("2d");
+                  tctx2.drawImage(cropC, minx, miny, tw, th, 0, 0, tw, th);
+                  const placed = placeOnCanvas(tight, {
+                    finalSize: finalSize,
+                    padTop: padTop,
+                    padSide: padSide,
+                    padBottom: padBottom,
+                    upwardBias: upBias,
+                  });
+                  orbCanvases.push(placed);
+                  const seq = String(++count).padStart(3, "0");
+                  const name = `ERRL_Orb_${realm}_${seq}.png`;
+                  orbNames.push(name);
+                  const blob = await canvasToBlob(placed);
+                  realmFolder.file(name, blob);
+                }
+              }
+              append(`${realm}: extracted ${count} orbs`);
+            }
+
+            const { atlas, json } = await makeAtlas(orbCanvases, orbNames, `ERRL_OrbPack_v1_${variant}`);
+            const atlasBlob = await canvasToBlob(atlas);
+            const atlasJson = new Blob([JSON.stringify(json, null, 2)], { type: "application/json" });
+            byRealm.file(`ERRL_OrbPack_v1_${variant}.png`, atlasBlob);
+            byRealm.file(`ERRL_OrbPack_v1_${variant}.json`, atlasJson);
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+            const url = URL.createObjectURL(zipBlob);
+            append(`${variant} ZIP ready (${bytesToSize(zipBlob.size)})`);
+            return { url, atlasBlob, atlasJsonBlob: atlasJson };
+          }
+
+          const aura = await processVariant("Aura");
+          setAuraAtlasURL(URL.createObjectURL(aura.atlasBlob));
+          setAuraJSONURL(URL.createObjectURL(aura.atlasJsonBlob));
+          const tight = await processVariant("Tight");
+          setTightAtlasURL(URL.createObjectURL(tight.atlasBlob));
+          setTightJSONURL(URL.createObjectURL(tight.atlasJsonBlob));
+          append("Done.");
+        } catch (e) {
+          console.error(e); append(`Error: ${e.message||e}`);
+        } finally { setBusy(false); }
+      }
+
+      async function handlePack(files){
+        setBusy(true); resetLog();
+        try{
+          await loadJSZip(); const JSZip = window.JSZip;
+          const imgs = await Promise.all(Array.from(files).map(loadImageFromFile));
+          const canvases = imgs.map(img => { const c=document.createElement("canvas"); c.width=512; c.height=512; const ctx=c.getContext("2d"); ctx.drawImage(img,0,0,512,512); return c; });
+          const names = Array.from(files).map(f=>f.name.replace(/\s+/g,"_"));
+          const { atlas, json } = await makeAtlas(canvases, names, "ERRL_OrbPack_v1_Custom");
+          const zip = new JSZip();
+          const atlasBlob = await canvasToBlob(atlas);
+          const atlasJson = new Blob([JSON.stringify(json,null,2)],{type:"application/json"});
+          zip.file("ERRL_OrbPack_v1_Custom.png", atlasBlob);
+          zip.file("ERRL_OrbPack_v1_Custom.json", atlasJson);
+          const zblob = await zip.generateAsync({type:"blob"});
+          const url = URL.createObjectURL(zblob);
+          append(`Packed ${canvases.length} frames → ${bytesToSize(zblob.size)}`);
+          setAuraAtlasURL(URL.createObjectURL(atlasBlob));
+          setAuraJSONURL(URL.createObjectURL(atlasJson));
+        } catch (e) { console.error(e); append(`Error: ${e.message||e}`);} finally { setBusy(false); }
+      }
+
+      return (
+        <div className="p-6 space-y-6">
+          <h1 className="text-2xl font-bold tracking-tight">Atlas Builder</h1>
+          <p className="text-sm opacity-80">Import sprite sheets or individual frames and auto‑extract via alpha-based segmentation (Aura/Tight). Pack into texture atlases + JSON, and preview in‑browser. All client‑side.</p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            { ["Cut","Pack","Demo"].map(tab => (
+              <button key={tab} onClick={()=>setMode(tab)} className={`px-3 py-1.5 rounded-xl border ${mode===tab?"bg-fuchsia-600 text-white":"bg-white/5 border-white/10"}`}>{tab}</button>
+            ))}
+          </div>
+
+          {mode === "Cut" && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                <label className="space-y-1">Final px<input type="number" defaultValue={finalSize} onChange={e=>setFinalSize(+e.target.value)} className="w-full bg-white/5 rounded px-2 py-1"/></label>
+                <label className="space-y-1">Pad Top<input type="number" step="0.01" defaultValue={padTop} onChange={e=>setPadTop(+e.target.value)} className="w-full bg-white/5 rounded px-2 py-1"/></label>
+                <label className="space-y-1">Pad Side<input type="number" step="0.01" defaultValue={padSide} onChange={e=>setPadSide(+e.target.value)} className="w-full bg-white/5 rounded px-2 py-1"/></label>
+                <label className="space-y-1">Pad Bottom<input type="number" step="0.01" defaultValue={padBottom} onChange={e=>setPadBottom(+e.target.value)} className="w-full bg-white/5 rounded px-2 py-1"/></label>
+                <label className="space-y-1">Upward Bias<input type="number" step="0.01" defaultValue={upBias} onChange={e=>setUpBias(+e.target.value)} className="w-full bg-white/5 rounded px-2 py-1"/></label>
+              </div>
+              <div className="border border-white/10 rounded-2xl p-4">
+                <p className="mb-2">Drop your sprite sheets (PNG) here or click to pick.</p>
+                <input type="file" multiple accept="image/png" onChange={(e)=>handleCutAndPack(e.target.files)} className="block w-full text-sm"/>
+              </div>
+            </div>
+          )}
+
+          {mode === "Pack" && (
+            <div className="space-y-4">
+              <p className="text-sm">Upload pre-cut orb PNGs (ideally 512×512). I’ll pack them into a single atlas + JSON.</p>
+              <div className="border border-white/10 rounded-2xl p-4">
+                <input type="file" multiple accept="image/png" onChange={(e)=>handlePack(e.target.files)} className="block w-full text-sm"/>
+              </div>
+            </div>
+          )}
+
+          {mode === "Demo" && (
+            <AtlasDemo auraPNG={auraAtlasURL} auraJSON={auraJSONURL} tightPNG={tightAtlasURL} tightJSON={tightJSONURL} />
+          )}
+
+          <div className="space-y-2">
+            <h2 className="font-semibold">Output / Quick Links</h2>
+            <div className="grid md:grid-cols-2 gap-3 text-sm">
+              <div className="space-y-1">
+                <div className="font-medium">Aura atlas</div>
+                <div className="flex gap-3">
+                  <a className={`underline ${!auraAtlasURL?"pointer-events-none opacity-40":""}`} href={auraAtlasURL} download="ERRL_OrbPack_v1_Aura.png">PNG</a>
+                  <a className={`underline ${!auraJSONURL?"pointer-events-none opacity-40":""}`} href={auraJSONURL} download="ERRL_OrbPack_v1_Aura.json">JSON</a>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="font-medium">Tight atlas</div>
+                <div className="flex gap-3">
+                  <a className={`underline ${!tightAtlasURL?"pointer-events-none opacity-40":""}`} href={tightAtlasURL} download="ERRL_OrbPack_v1_Tight.png">PNG</a>
+                  <a className={`underline ${!tightJSONURL?"pointer-events-none opacity-40":""}`} href={tightJSONURL} download="ERRL_OrbPack_v1_Tight.json">JSON</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-black/20 rounded-xl p-3 text-xs h-40 overflow-auto">
+            {busy && <div className="animate-pulse text-fuchsia-300">Processing… bubbles be bubbling…</div>}
+            {log.map((l,i)=>(<div key={i}>{l}</div>))}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<ErrlAtlasBuilder/>);
+  </script>
+</body>
+</html>
