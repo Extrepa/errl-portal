@@ -1,51 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Projects | Errl</title>
-  <link rel="stylesheet" href="../../fx/errl-bg.css">
-  <style>
-    body { margin: 0; padding: 20px; font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(135deg, #0a0f18 0%, #1a1f2d 100%); color: #e5eef7; min-height: 100vh; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .back-link { display: inline-block; margin: 20px 0; padding: 10px 20px; background: rgba(255, 0, 128, 0.2); border: 1px solid rgba(255, 0, 128, 0.4); border-radius: 8px; color: #ff0080; text-decoration: none; transition: all 0.2s; }
-    .back-link:hover { background: rgba(255, 0, 128, 0.3); transform: translateY(-2px); }
-    h1 { font-size: 2.5rem; margin: 20px 0; background: linear-gradient(135deg, #ff0080, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; }
-    .projects { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin-top: 30px; }
-    .project-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; transition: all 0.3s; }
-    .project-card:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); }
-    .project-card h3 { margin: 0 0 10px; font-size: 1.3rem; }
-    .project-card p { margin: 0 0 15px; opacity: 0.8; font-size: 0.95rem; }
-    .project-card a { display: inline-block; padding: 8px 16px; background: rgba(0, 229, 255, 0.2); border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 6px; color: #00e5ff; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
-    .project-card a:hover { background: rgba(0, 229, 255, 0.3); }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Errl — Projects</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#e5eaf1; --gap:28px; --outer-pad:32px; }
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{font-family:Inter,system-ui,sans-serif; background:#0a0f18; color:var(--ink);}
+.header{ display:flex; gap:12px; align-items:center; padding:16px var(--outer-pad); background:linear-gradient(180deg, rgba(10,15,24,.95), rgba(10,15,24,.8)); border-bottom:1px solid #ffffff15; }
+.back{ color:#cdeafe; text-decoration:none; padding:.4em .7em; border-radius:999px; background:#ffffff0f; transition: all 0.2s; }
+.back:hover{ background:#ffffff1a; transform:translateY(-1px); }
+.h1{font-size:clamp(22px,4vmin,34px); font-weight:800; margin:0; opacity:.9}
+.grid2{ margin:8px 0 14px; padding: 16px var(--outer-pad) var(--outer-pad); display:grid; gap: var(--gap); grid-template-columns: repeat(2, minmax(360px, 1fr)); align-items:start; }
+.grid2 .box{ width: 100% !important; aspect-ratio: 1 / 1 !important; height:auto !important; min-height:360px; }
+@media (max-width: 900px){ 
+  .grid2{ grid-template-columns: 1fr; }
+  .grid2 .box{ min-height: 50vh; } 
+  :root{ --outer-pad:20px; }
+}
+.box{ position:relative; display:flex; flex-direction:column; border-radius:16px; background:#ffffff06; border:1px solid #ffffff14; box-shadow:0 12px 30px rgba(0,0,0,.38); overflow:hidden; width: var(--w, 400px); max-width: 100%; aspect-ratio: 1 / 1; }
+.box header{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 20px; font-weight:700; color:#cfe9ff; border-bottom:1px solid #ffffff14; background:linear-gradient(180deg, rgba(12,18,32,.7), rgba(10,15,24,.6)); }
+.box header .controls{ display:flex; align-items:center; gap:8px; font-weight:600; font-size:12px; opacity:.9; }
+.box header .controls a.dl{ display:inline-block; padding:6px 10px; border-radius:8px; border:1px solid #ffffff22; background:#10182a; color:#d7eaff; text-decoration:none; font-size:11px; font-weight:600; transition:all 0.2s ease; }
+.box header .controls a.dl:hover{ background:#152038; transform:translateY(-1px); box-shadow:0 4px 8px rgba(0,0,0,0.3); }
+.box .frame{ position:relative; flex:1; display:grid; place-items:center; background:
+  radial-gradient(80% 60% at 50% 35%, rgba(123,92,255,.18), rgba(123,92,255,0) 60%),
+  radial-gradient(120% 100% at 50% 120%, rgba(0,229,255,.10), rgba(0,229,255,0) 60%),
+  linear-gradient(180deg, #0f1326, #0a0f18 60%);
+}
+.box .frame iframe{ width:100%; height:100%; border:0; background:transparent; }
+</style>
+<link rel="stylesheet" href="../../fx/errl-bg.css">
 </head>
 <body>
-  <div class="container">
-    <a href="../../index.html" class="back-link">← Back to Portal</a>
-    <h1>Projects</h1>
-    <div class="projects">
-      <div class="project-card">
-        <h3>Errl Head Coin</h3>
-        <p>Interactive coin flip animations featuring Errl's iconic face.</p>
-        <a href="./errl-head-coin/index.html">View Project →</a>
-      </div>
-      <div class="project-card">
-        <h3>Errl Head Coin v2</h3>
-        <p>Enhanced version with improved physics and visuals.</p>
-        <a href="./errl-head-coin-v2/index.html">View Project →</a>
-      </div>
-      <div class="project-card">
-        <h3>Errl Head Coin v3</h3>
-        <p>Third iteration with advanced effects.</p>
-        <a href="./errl-head-coin-v3/index.html">View Project →</a>
-      </div>
-      <div class="project-card">
-        <h3>Errl Head Coin v4</h3>
-        <p>Latest version with refined animations.</p>
-        <a href="./errl-head-coin-v4/index.html">View Project →</a>
-      </div>
-    </div>
+  <div class="header">
+    <a class="back" href="../../index.html">⬅ Back to Portal</a>
+    <h1 class="h1">Projects</h1>
   </div>
+  <section class="grid2" id="projectsGrid"></section>
+<script>
+const projects = [
+  { title: 'Errl Head Coin', src: './errl-head-coin/index.html', download: './errl-head-coin/index.html', filename: 'Errl_Head_Coin.html' },
+  { title: 'Errl Head Coin v2', src: './errl-head-coin-v2/index.html', download: './errl-head-coin-v2/index.html', filename: 'Errl_Head_Coin_v2.html' },
+  { title: 'Errl Head Coin v3', src: './errl-head-coin-v3/index.html', download: './errl-head-coin-v3/index.html', filename: 'Errl_Head_Coin_v3.html' },
+  { title: 'Errl Head Coin v4', src: './errl-head-coin-v4/index.html', download: './errl-head-coin-v4/index.html', filename: 'Errl_Head_Coin_v4.html' },
+];
+const grid = document.getElementById('projectsGrid');
+for(const t of projects){
+  const box = document.createElement('article');
+  box.className='box';
+  const ctrlItems = [];
+  if(t.download){ ctrlItems.push(`<a class="dl" href="${t.download}" download="${t.filename || 'project.html'}">Download HTML</a>`); }
+  const controls = ctrlItems.length ? `<div class="controls">${ctrlItems.join('')}</div>` : '';
+  box.innerHTML = `<header><span>${t.title}</span>${controls}</header><div class="frame"><iframe src="${t.src}" loading="lazy"></iframe></div>`;
+  grid.appendChild(box);
+}
+</script>
+<script src="../../fx/errl-bg.js"></script>
+<script>window.ErrlBG && ErrlBG.mount && ErrlBG.mount({ headerVariant: 1, basePath: '../..', hud: false });</script>
 </body>
 </html>
