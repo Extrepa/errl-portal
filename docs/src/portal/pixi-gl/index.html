@@ -82,8 +82,9 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 @keyframes blobPulse{ 0%,100%{ --blob:1; } 50%{ --blob:1.06; } }
 .btn{ background-color:transparent; background-blend-mode:normal; }
 .btn:hover{ --s: 1.06; background-color: rgba(8,10,22,.22); background-blend-mode: multiply; box-shadow:0 0 24px rgba(0,229,255,.25); filter: saturate(125%) brightness(1.05) contrast(1.06); }
-.btn .label{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); max-width:80%; text-align:center; font-weight:900; font-size:clamp(12px, 1.6vmin, 17px); line-height:1.05; color:#d7efff; letter-spacing:.01em; text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 10px rgba(0,229,255,.28); opacity:0; transition:opacity .18s ease; pointer-events:none; z-index:3; }
-.btn:hover .label, .btn:focus-visible .label{ opacity:1; }
+@keyframes navLabelFade{ 0%,100%{ opacity:0; } 50%{ opacity:.9; } }
+.btn .label{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); max-width:80%; text-align:center; font-weight:900; font-size:clamp(12px, 1.6vmin, 17px); line-height:1.05; color:#d7efff; letter-spacing:.01em; text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 10px rgba(0,229,255,.28); opacity:0; transition:opacity .18s ease; pointer-events:none; z-index:3; animation: navLabelFade 4.5s ease-in-out infinite; }
+.btn:hover .label, .btn:focus-visible .label{ opacity:1; animation:none; }
 
 .l6{ z-index:6; display:grid; place-items:center; opacity:0; transition:opacity .5s ease; background: radial-gradient(80vmax 80vmax at 50% 30%, rgba(15,12,40,.65), rgba(5,8,18,.9)); }
 .l6.active{ opacity:1; }
@@ -166,45 +167,7 @@ body.mirror-active .hud{ transform:translateX(-50%) !important; }
  .layer-badge[data-layer="gl"]{ background:linear-gradient(135deg, rgba(0,229,255,.24), rgba(90,166,255,.24)); }
 .feature-box{ border:2px dashed rgba(0,229,255,.35); margin:10px; padding:10px; position:relative; }
 .feature-box::before{ content:attr(id); position:absolute; top:-1.2em; left:0; font-size:.8rem; color:#0ff; background:rgba(0,0,0,.6); padding:2px 6px; border-radius:4px; }
-/* Dev overlay mode for existing layers without wrapping */
-/* Lightweight outlines (kept), plus a high-Z interactive overlay */
-body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
-
-/* Interactive overlay layer */
-#dev-overlay-layer{ position:fixed; inset:0; z-index:3500; pointer-events:none; }
-#dev-overlay-layer .box{ position:absolute; border:2px dashed rgba(0,229,255,.55); border-radius:8px; pointer-events:auto; }
-#dev-overlay-layer.element-mode .box{ cursor:move; }
-#dev-overlay-layer .box .tag{ position:absolute; left:0; top:-1.2em; background:rgba(0,0,0,.65); color:#0ff; font-size:12px; padding:2px 6px; border-radius:6px; opacity:0; transition:opacity .12s ease; }
-#dev-overlay-layer .box:hover{ background:rgba(0,229,255,.06); }
-#dev-overlay-layer .box:hover .tag, #dev-overlay-layer .box.active .tag{ opacity:1; }
-#dev-overlay-layer .box.active{ border-color:#00e5ff; box-shadow:0 0 0 2px rgba(0,229,255,.25) inset, 0 0 18px rgba(0,229,255,.25); }
-#dev-overlay-layer .ctl{ position:fixed; right:10px; top:10px; pointer-events:auto; background:rgba(10,14,22,.95); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:4px 10px; color:#cfeaff; font-size:12px; }
-#dev-overlay-layer .ctl b{ color:#0ff; }
-/* Layers panel */
-#dev-layers{ position:fixed; right:12px; top:46px; z-index:3600; width:220px; background:rgba(10,14,22,.96); border:1px solid rgba(255,255,255,.16); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.55); color:#d7e6ff; font-size:12px; display:none; }
-#dev-layers header{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.08); }
-#dev-layers ul{ list-style:none; margin:0; padding:6px; max-height:50vh; overflow:auto; }
-#dev-layers li{ display:flex; align-items:center; justify-content:space-between; gap:6px; padding:6px 6px; border-radius:8px; }
-#dev-layers li.active{ background:rgba(0,229,255,.08); }
-#dev-layers .name{ flex:1; }
-#dev-layers .btns button{ padding:2px 6px; border-radius:6px; border:1px solid #2a3a6a; background:#1a2340; color:#eaf6ff; cursor:pointer; }
-#dev-layers .btns button:hover{ background:#213056; }
-/* Chooser popover */
-#dev-chooser{ position:fixed; z-index:3600; background:rgba(10,14,22,.98); color:#d7e6ff; border:1px solid rgba(255,255,255,.14); border-radius:10px; box-shadow:0 12px 28px rgba(0,0,0,.55); padding:6px; min-width:200px; display:none; }
-#dev-chooser .item{ padding:6px 8px; border-radius:6px; cursor:pointer; }
-#dev-chooser .item small{ display:block; opacity:.75; }
-#dev-chooser .item:hover{ background:rgba(0,229,255,.10); }
-
-/* Dev edit modal */
-#dev-edit{ position:fixed; right:16px; top:80px; z-index:3600; width:380px; max-width:88vw; background:rgba(10,14,22,.92); border:1px solid rgba(255,255,255,.14); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.55); color:#d7e6ff; font-size:12px; display:none; }
-#dev-edit header{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.08); cursor:move; }
-#dev-edit header strong{ font-family:'Fredoka', system-ui, sans-serif; letter-spacing:.04em; }
-#dev-edit .body{ padding:10px; display:grid; gap:8px; }
-#dev-edit select, #dev-edit textarea{ width:100%; background:#0e1524; color:#eaf6ff; border:1px solid #2a3550; border-radius:8px; padding:6px 8px; }
-#dev-edit textarea{ min-height:120px; resize:vertical; }
-#dev-edit .row{ display:flex; gap:8px; justify-content:flex-end; }
-#dev-edit button{ background:#1a2340; color:#eaf6ff; border:1px solid #2a3a6a; border-radius:8px; padding:6px 10px; cursor:pointer; }
-#dev-edit button:hover{ background:#213056; }
+/* Dev overlay removed per workflow: use Errl Phone + external Dev page */
 
 /* Circular 3D spinning coin with Errl's face */
   .coin {
@@ -422,7 +385,6 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
       <button class="btn" data-pos="2" data-img="bubbles-2" title="Art Gallery"><span class="vh">Art Gallery</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Art Gallery</span></button>
       <button class="btn" data-pos="3" data-img="bubbles-3" title="Projects"><span class="vh">Projects</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Projects</span></button>
       <button class="btn" data-pos="4" data-img="bubbles-4" title="Pin Designer"><span class="vh">Errl Pin Designer</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Errl Pin Designer</span></button>
-      <button class="btn" data-pos="5" data-img="bubbles-5" title="Drippy Text Maker"><span class="vh">Drippy Text Maker</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Drippy Text Maker</span></button>
       <button class="btn" data-pos="6" data-img="bubbles-6" title="Tools"><span class="vh">Tools</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Tools</span></button>
     </div>
   </div>
@@ -445,7 +407,7 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
     <div class="phone-top">
       <strong>ERRL PHONE</strong>
       <div style="display:flex; gap:6px; align-items:center;">
-        <button id="dev-overlay" class="n" title="Toggle Dev Overlay">□</button>
+        <a id="dev-link" class="n" title="Open Dev Page">DEV</a>
         <button id="dev-hide" class="n" title="Close">×</button>
       </div>
     </div>
@@ -641,6 +603,16 @@ const errlInline = document.getElementById('errl-inline');
   const btns = Array.from(uiOrbit.querySelectorAll('.btn'));
   const layerL5 = document.querySelector('[data-layer="L5"]');
   const devPanel = document.getElementById('devpanel');
+  const devLink = document.getElementById('dev-link');
+  if (devLink) {
+    const devPage = new URL('../../apps/dev/index.html', location.href);
+    const tgt = location.pathname + location.search + location.hash;
+    devPage.searchParams.set('target', tgt);
+    devLink.href = devPage.toString();
+    devLink.target = '_blank';
+    devLink.rel = 'noopener noreferrer';
+    devLink.title = 'Open Dev Controls Page';
+  }
 
   // Nav bubble art rotation: cycle through local assets Bubbles-1..6 on each load
   // Build URLs that work in both file:// and http(s) dev modes
@@ -787,11 +759,10 @@ const errlInline = document.getElementById('errl-inline');
   btns.forEach(b=>{
     b.addEventListener('click', ()=>{
       const pos = b.dataset.pos;
-      if(pos==='1') window.location.href='../../apps/about/index.html';
+      if(pos==='1') window.location.href='../../apps/about.html';
       if(pos==='2') window.location.href='../../apps/gallery/index.html';
       if(pos==='3') window.location.href='../../apps/projects/index.html';
       if(pos==='4') window.location.href='../../apps/pin-designer/index.html';
-      if(pos==='5') window.location.href='../../apps/drippy-text/index.html';
       if(pos==='6') window.location.href='../../apps/tools/index.html';
     });
   });
@@ -1379,122 +1350,9 @@ const NAV_INTRO = {
   function replayIntro(){ // soft replay
     introActive=true; navIntroStarted=false; if(layerL5) layerL5.style.display='grid'; btns.forEach(b=>{ b.style.opacity='0'; b.style.setProperty('--sv','0.9'); }); startNavIntro(); }
   // Dev overlay runtime boxes
-  let devOverlayOn = false; let devOverlayEl = null; let devOverlayUp = null; let devOverlayMode = 'layer'; // 'layer' | 'element'
-  const LAYER_NAMES = {
-    'L0':'Background',
-    'L1':'Subsurface (future)',
-    'L2':'Motes',
-    'L3':'Drip Frame',
-    'L4':'Errl',
-    'L5':'Nav Bubbles',
-    'L6':'Awakening Overlay',
-    HUD:'HUD',
-    GL:'WebGL Shimmer',
-    ORBIT:'UI Orbit'
-  };
-  const LAYER_DESCRIPTIONS = {
-    L0:'Animated cosmic gradient backdrop (hue-shifting).',
-    L1:'Reserved layer for subsurface/ambient depth elements (currently unused).',
-    L2:'CSS “motes” particles drifting upward; small twinkles.',
-    L3:'Top streak/drip frame decoration around the portal.',
-    L4:'Central Errl silhouette (inline/painted), draggable, interactive regions.',
-    L5:'Orbiting navigation bubbles — fan-in, orbit, click to navigate.',
-    L6:'“Awakening” overlay: portal drip and FOR THE NOMADS sigil.',
-    HUD:'Bottom HUD chips: Parallax/WebGL/Reveal/Bubbles/Mirror.',
-    GL:'PixiJS shimmer + refraction overlay with displacement.',
-    ORBIT:'Invisible container that positions/nav animates the bubble buttons.'
-  };
-  function devOverlayTargets(){
-    const t=[];
-    if(devOverlayMode==='layer'){
-      document.querySelectorAll('[data-layer]').forEach(el=>{
-        const key = el.getAttribute('data-layer'); const label = LAYER_NAMES[key] || key; t.push({ el, key, label });
-      });
-      const hudEl=document.getElementById('hud'); if(hudEl) t.push({ el:hudEl, key:'HUD', label:LAYER_NAMES.HUD });
-      const glEl=document.getElementById('gl'); if(glEl) t.push({ el:glEl, key:'GL', label:LAYER_NAMES.GL });
-      const orbit=document.querySelector('.ui-orbit'); if(orbit) t.push({ el:orbit, key:'ORBIT', label:LAYER_NAMES.ORBIT });
-      const act = activeErrlEl && activeErrlEl(); if(act) t.push({ el:act, key:'L4', label:LAYER_NAMES['L4'] });
-    } else {
-      const add=(el,key,label)=>{ if(el){ const r=el.getBoundingClientRect(); if(r.width>0 && r.height>0) t.push({ el, key, label }); } };
-      // HUD chips
-      document.querySelectorAll('#hud .chip').forEach((el)=> add(el, 'HUD:'+((el.querySelector('.label')? el.querySelector('.label').textContent : 'Chip')), 'HUD: '+((el.querySelector('.label')? el.querySelector('.label').textContent : 'Chip'))));
-      // Nav buttons
-      document.querySelectorAll('.ui-orbit .btn').forEach((el,i)=> add(el, 'NAV:'+((el.getAttribute('title'))||('Button '+(i+1))), 'Nav: '+(el.getAttribute('title')||('Button '+(i+1)))));
-      // Errl regions (if inline available)
-      const inline = document.querySelector('#errl-inline svg, #errl');
-      if(inline){ inline.querySelectorAll('[data-region]').forEach((el)=> add(el, 'ERRL-REGION:'+el.getAttribute('data-region'), 'Errl region: '+el.getAttribute('data-region'))); }
-    }
-    return t;
-  }
-  let devChooserEl=null; function hideChooser(){ if(devChooserEl){ devChooserEl.style.display='none'; } }
-let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3','L4','L5','L6']; const hiddenLayers=new Set();
-  function applyLayerStack(){ layersOrder.forEach((k,idx)=>{ const el=document.querySelector(`[data-layer="${k}"]`); if(el){ el.style.zIndex = String(200+idx); } }); }
-  function toggleLayerVisibility(k){ const el=document.querySelector(`[data-layer="${k}"]`); if(!el) return; if(hiddenLayers.has(k)){ hiddenLayers.delete(k); el.style.display = (k==='L5'?'grid':''); } else { hiddenLayers.add(k); el.style.display='none'; } buildLayersPanel(); }
-  function moveLayer(k,dir){ const i=layersOrder.indexOf(k); if(i<0) return; const j = i + (dir==='up'?-1:1); if(j<0 || j>=layersOrder.length) return; const tmp=layersOrder[i]; layersOrder[i]=layersOrder[j]; layersOrder[j]=tmp; applyLayerStack(); buildLayersPanel(); }
-  function buildLayersPanel(){ if(!devLayersEl) return; const ul=devLayersEl.querySelector('ul'); ul.innerHTML=''; for(const k of [...layersOrder].reverse()){ const li=document.createElement('li'); li.classList.toggle('active', selectedKey===k); const name=document.createElement('div'); name.className='name'; name.textContent=LAYER_NAMES[k]||k; name.title=name.textContent; name.onclick=()=>{ selectedKey=k; devOverlayApply(); }; li.appendChild(name); const btns=document.createElement('div'); btns.className='btns'; const eye=document.createElement('button'); eye.textContent = hiddenLayers.has(k)? 'Show':'Hide'; eye.title='Toggle visibility'; eye.onclick=()=> toggleLayerVisibility(k); btns.appendChild(eye); const up=document.createElement('button'); up.textContent='↑'; up.title='Raise'; up.onclick=()=> moveLayer(k,'up'); btns.appendChild(up); const down=document.createElement('button'); down.textContent='↓'; down.title='Lower'; down.onclick=()=> moveLayer(k,'down'); btns.appendChild(down); li.appendChild(btns); ul.appendChild(li); } devLayersEl.style.display='block'; }
-  function devOverlayApply(){ if(!devOverlayOn) return; if(!devOverlayEl){ devOverlayEl=document.createElement('div'); devOverlayEl.id='dev-overlay-layer'; document.body.appendChild(devOverlayEl); }
-    devOverlayEl.classList.toggle('element-mode', devOverlayMode==='element');
-    devOverlayEl.innerHTML=''; hideChooser();
-    const targets = devOverlayTargets();
-    // Mode pill
-    const ctl=document.createElement('div'); ctl.className='ctl'; ctl.textContent = 'Overlay: '; const b=document.createElement('b'); b.textContent=(devOverlayMode==='layer'?'Layers':'Elements'); ctl.appendChild(b); ctl.title='Click to toggle overlay mode'; ctl.onclick=()=>{ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }; devOverlayEl.appendChild(ctl);
-    // Layers stack panel (only in layer mode)
-    if(devOverlayMode==='layer'){
-      if(!devLayersEl){ devLayersEl=document.createElement('div'); devLayersEl.id='dev-layers'; devLayersEl.innerHTML='<header><strong>Layers</strong><div><button id="dev-layers-close" title="Hide">×</button></div></header><ul></ul>'; document.body.appendChild(devLayersEl); devLayersEl.querySelector('#dev-layers-close').onclick=()=> devLayersEl.style.display='none'; }
-      applyLayerStack();
-      buildLayersPanel();
-    } else { if(devLayersEl) devLayersEl.style.display='none'; }
-    const boxes=[]; // keep refs for hit-testing
-    for(const {el, key, label:pretty} of targets){
-      const r = el.getBoundingClientRect();
-      const box = document.createElement('div'); box.className='box'; box.style.left=r.left+'px'; box.style.top=r.top+'px'; box.style.width=r.width+'px'; box.style.height=r.height+'px';
-      box.dataset.key = key||'#'; box.dataset.label = pretty||key||'#'; box.dataset.left=r.left; box.dataset.top=r.top; box.dataset.width=r.width; box.dataset.height=r.height;
-      box.title = LAYER_DESCRIPTIONS[key] || pretty || key || '#';
-      const label=document.createElement('div'); label.className='tag'; label.textContent=pretty||key||'#'; label.title = box.title; box.appendChild(label);
-      box.addEventListener('click', (ev)=>{
-        ev.stopPropagation();
-        if(devOverlayMode==='element'){ // select only; open with double-click
-          selectedKey = box.dataset.key; boxes.forEach(b=>b.classList.toggle('active', b===box)); return;
-        }
-        const x=ev.clientX, y=ev.clientY; const under = boxes.filter(b=> x>=+b.dataset.left && x<=+b.dataset.left+ +b.dataset.width && y>=+b.dataset.top && y<=+b.dataset.top+ +b.dataset.height);
-        if(ev.shiftKey){ showChooser(x,y, under.map(b=>({key:b.dataset.key, label:b.dataset.label}))); return; }
-        // single click just selects highlight in layer mode; open with double-click
-        selectedKey = box.dataset.key; boxes.forEach(b=>b.classList.toggle('active', b===box));
-      });
-      box.addEventListener('dblclick', ()=> gotoTag(box.dataset.key));
-      // Drag-to-move in element mode for Nav bubbles and Errl
-      let dragS=null; box.addEventListener('pointerdown', (e)=>{
-        if(devOverlayMode!=='element' || !e.metaKey) return; // require Cmd for drag
-        e.preventDefault(); dragS={x:e.clientX,y:e.clientY, key:box.dataset.key, elRef: (targets.find(t=>t.label===box.dataset.label || t.key===box.dataset.key)||{}).el };
-        box.setPointerCapture && box.setPointerCapture(e.pointerId);
-      });
-      box.addEventListener('pointermove', (e)=>{
-        if(!dragS) return; const dx=e.clientX-dragS.x, dy=e.clientY-dragS.y; applyDevMove(dragS.key, dragS.elRef, dx, dy); box.classList.add('active');
-      });
-      box.addEventListener('pointerup', (e)=>{
-        if(!dragS) return; const dx=e.clientX-dragS.x, dy=e.clientY-dragS.y; finalizeDevMove(dragS.key, dx, dy); dragS=null;
-      });
-      devOverlayEl.appendChild(box); boxes.push(box);
-    }
-  }
-  function gotoTag(key){ const map={ HUD:'hud', GL:'gl', ORBIT:'nav', 'L5':'nav', 'L4':'errl', 'L2':'backfx' }; const page = map[key] || (key&&key.startsWith('L')? 'layers' : ((key&&key.startsWith('NAV:'))?'nav' : ((key&&key.startsWith('ERRL-REGION:'))?'errl' : ((key&&key.startsWith('HUD:'))?'hud' : null)))); if(page){ const btn = document.querySelector(`#dev-apps .app-icon[data-app=\"${page}\"]`); if(btn) btn.click(); } }
-  function showChooser(x,y,items){ if(!devChooserEl){ devChooserEl=document.createElement('div'); devChooserEl.id='dev-chooser'; document.body.appendChild(devChooserEl); }
-    devChooserEl.innerHTML='';
-    for(const it of items){ const row=document.createElement('div'); row.className='item'; row.textContent=it.label; row.title=LAYER_DESCRIPTIONS[it.key]||it.label; row.onclick=()=>{ hideChooser(); gotoTag(it.key); }; devChooserEl.appendChild(row); }
-    devChooserEl.style.left = Math.min(x, innerWidth-220)+'px'; devChooserEl.style.top = Math.min(y, innerHeight-180)+'px'; devChooserEl.style.display='block';
-  }
-  function applyDevMove(key, el, dx, dy){ if(!el) return; if(/^NAV:/.test(key)){ el.style.setProperty('--dx', dx.toFixed(0)+'px'); el.style.setProperty('--dy', dy.toFixed(0)+'px'); }
-    else if(/^ERRL/.test(key) || key==='L4'){ errlOffset.x = Math.round(dx); errlOffset.y = Math.round(dy); applyErrlTransform(); }
-  }
-  function finalizeDevMove(key, dx, dy){ const msg = `Move ${key} by (${Math.round(dx)}, ${Math.round(dy)})px`; console.log('[DEV]', msg); }
-
-  // Dev edit helper modal disabled for now (stability)
-  function openDevEdit(){ /* no-op */ }
-  function devOverlayToggle(on){ devOverlayOn = (on==null? !devOverlayOn : !!on); document.body.classList.toggle('dev-mode', devOverlayOn); if(devOverlayOn){ devOverlayApply(); if(!devOverlayUp){ devOverlayUp = ()=> devOverlayApply(); addEventListener('resize', devOverlayUp); } } else { if(devOverlayEl) devOverlayEl.remove(); devOverlayEl=null; if(devOverlayUp) removeEventListener('resize', devOverlayUp); devOverlayUp=null; } }
+  // Remove dev overlay features; keep only minimal keybinds
   document.addEventListener('keydown', (e)=>{
     if(e.key==='d' || e.key==='D'){ DEV.enabled=!DEV.enabled; toggleDev(!DEV.enabled?false:true); populateDev(); }
-    if(e.key==='o' || e.key==='O'){ devOverlayToggle(); }
-    if(e.key==='e' || e.key==='E'){ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }
     if(e.key==='h' || e.key==='H'){ const hb=document.getElementById('hud'); if(hb){ const hide = hb.style.display!== 'none' ? true : false; hb.style.display = hide? 'none' : ''; const chk=document.getElementById('hud-hidebar'); if(chk) chk.checked = (hb.style.display==='none'); } }
   });
   { const e=$('dev-hide'); if(e) e.onclick=()=> toggleDev(false); }
@@ -1624,11 +1482,11 @@ let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3'
         if(elSat){ elSat.value = String(st.saturation??1); if(elSatVal) elSatVal.textContent = Math.round((st.saturation??1)*100)+'%'; }
         if(elInt){ elInt.value = String(st.intensity??1); if(elIntVal) elIntVal.textContent = Math.round((st.intensity??1)*100)+'%'; }
       };
-      elEnabled && elEnabled.addEventListener('change', ()=> window.ErrlHueController.setEnabled(!!elEnabled.checked, layer));
-      elHue && elHue.addEventListener('input', ()=>{ window.ErrlHueController.setHue(+elHue.value, layer); if(elHueVal) elHueVal.textContent = (Math.round(+elHue.value))+'°'; });
-      elSat && elSat.addEventListener('input', ()=>{ window.ErrlHueController.setSaturation(+elSat.value, layer); if(elSatVal) elSatVal.textContent = Math.round(+elSat.value*100)+'%'; });
-      elInt && elInt.addEventListener('input', ()=>{ window.ErrlHueController.setIntensity(+elInt.value, layer); if(elIntVal) elIntVal.textContent = Math.round(+elInt.value*100)+'%'; });
-      elTheme && elTheme.addEventListener('change', ()=> window.ErrlHueController.applyTheme(layer, elTheme.value));
+      elEnabled && elEnabled.addEventListener('change', ()=> window.ErrlHueController.setEnabledTemp(!!elEnabled.checked, layer));
+      elHue && elHue.addEventListener('input', ()=>{ window.ErrlHueController.setHueTemp(+elHue.value, layer); if(elHueVal) elHueVal.textContent = (Math.round(+elHue.value))+'°'; });
+      elSat && elSat.addEventListener('input', ()=>{ window.ErrlHueController.setSaturationTemp(+elSat.value, layer); if(elSatVal) elSatVal.textContent = Math.round((+elSat.value)*100)+'%'; });
+      elInt && elInt.addEventListener('input', ()=>{ window.ErrlHueController.setIntensityTemp(+elInt.value, layer); if(elIntVal) elIntVal.textContent = Math.round((+elInt.value)*100)+'%'; });
+      elTheme && elTheme.addEventListener('change', ()=> window.ErrlHueController.applyThemeTemp(layer, elTheme.value));
       elAnim && elAnim.addEventListener('click', ()=>{ const L=layer; window.ErrlHueController.toggleAnimation(1, L); elAnim.textContent = window.ErrlHueController.animation.active ? 'Stop Animation' : 'Animate'; });
       elReset && elReset.addEventListener('click', ()=>{ window.ErrlHueController.reset(layer); sync(); if(elAnim) elAnim.textContent='Animate'; });
       sync();
@@ -1698,6 +1556,71 @@ let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3'
   setTimeout(()=>{ if(!errlVisible) { showErrl(false, true); setTimeout(startOrbitImmediately, 500); } }, autoRevealDelay);
 
   if(window.PIXI && PIXI.utils.isWebGLSupported()) initGL(); else { document.getElementById('gl').style.display='none'; }
+
+  // Live control API for Dev Controls page
+  window.ErrlLive = {
+    getState(){ try{
+      const hue = (window.ErrlHueController && window.ErrlHueController.layers) ? JSON.parse(JSON.stringify(window.ErrlHueController.layers)) : null;
+      let navState = null; try{ const raw=localStorage.getItem('errl_dev_nav'); navState = raw? JSON.parse(raw): null; }catch(e){}
+      const filt=document.getElementById('gooey-ui');
+      const blur = filt && filt.querySelector('feGaussianBlur');
+      const mat = filt && filt.querySelector('feColorMatrix');
+      let mult=24, thresh=-14, bl=6; try{ if(blur) bl = +(blur.getAttribute('stdDeviation')||6); if(mat){ const v=(mat.getAttribute('values')||'').trim().split(/\s+/).map(Number); if(v.length>=20){ mult=v[18]||24; thresh=v[19]||-14; } } }catch(e){}
+      const ui=document.querySelector('.ui-orbit'); const navGooEn = !!(ui && ui.style.filter && ui.style.filter.includes('gooey-ui'));
+      const bubLS = (function(){ try{ const raw=localStorage.getItem('errl_bubbles_fx'); return raw? JSON.parse(raw): null; }catch(e){ return null; } })();
+      return {
+        hueLayers: hue,
+        errlGoo: { enabled: !!toggles.errlGoo, mult: GOO.mult, wobble: GOO.wobble },
+        navGoo: { enabled: navGooEn, blur: bl, mult, thresh },
+        bubbles: bubLS || { speed:1, wobble:1, freq:1, density:1, alpha:0.95, min:18, max:44, far:0.33, sizefreq:0, jumbochance:0, jumboscale:1.6, tex:'orb' },
+        overlay: { alpha: overlay? overlay.alpha : 0.2, dx: (dispFilter? dispFilter.scale.x : 24), dy: (dispFilter? dispFilter.scale.y : 18) },
+        navLayout: { spread: navSpread, arc: navArcDeg, headY: headYRatio, cx: navCenterOffsetX, stagger: navStagger, saved: navState }
+      };
+    }catch(e){ return null; } },
+    setErrlGoo(cfg){ try{
+      if(typeof cfg.enabled==='boolean'){ toggles.errlGoo = !!cfg.enabled; const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null); if(active) active.classList.toggle('goo', !!cfg.enabled); }
+      if(typeof cfg.mult==='number') { GOO.mult = cfg.mult; }
+      if(typeof cfg.wobble==='number') { GOO.wobble = cfg.wobble; }
+      try{ localStorage.setItem('errl_goo_cfg', JSON.stringify({ enabled: !!toggles.errlGoo, mult: GOO.mult, wobble: GOO.wobble })); }catch(e){}
+    }catch(e){} },
+    setNavGoo(cfg){ try{
+      const ui = document.querySelector('.ui-orbit');
+      const filt = document.getElementById('gooey-ui');
+      if(!ui || !filt) return;
+      const blur = filt.querySelector('feGaussianBlur');
+      const mat = filt.querySelector('feColorMatrix');
+      const st = { enabled: cfg.enabled!=null? !!cfg.enabled : true, blur: (cfg.blur!=null? +cfg.blur : +((blur && blur.getAttribute('stdDeviation'))||6)), mult: (cfg.mult!=null? +cfg.mult : 24), thresh: (cfg.thresh!=null? +cfg.thresh : -14) };
+      if(blur) blur.setAttribute('stdDeviation', String(st.blur));
+      if(mat){ const vals=[1,0,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0, st.mult, st.thresh]; mat.setAttribute('values', vals.join(' ')); }
+      ui.style.filter = st.enabled ? 'url(#gooey-ui)' : 'none';
+      try{ localStorage.setItem('errl_nav_goo_cfg', JSON.stringify(st)); }catch(e){}
+    }catch(e){} },
+    setBubbles(cfg){ try{
+      const setCfg=(inst)=>{
+        if(!inst) return;
+        if(cfg.speed!=null && inst.setSpeed) inst.setSpeed(+cfg.speed);
+        if(cfg.wobble!=null && inst.setWobbleMult) inst.setWobbleMult(+cfg.wobble);
+        if(cfg.freq!=null && inst.setFreqMult) inst.setFreqMult(+cfg.freq);
+        if(cfg.density!=null && inst.setCountFactor) inst.setCountFactor(+cfg.density);
+        const opt={}; if(cfg.alpha!=null) opt.alpha=+cfg.alpha; if(cfg.min!=null) opt.minSize=+cfg.min; if(cfg.max!=null) opt.maxSize=+cfg.max; if(cfg.far!=null) opt.farRatio=+cfg.far; if(cfg.sizefreq!=null) opt.sizeJitterFreq=+cfg.sizefreq; if(cfg.jumbochance!=null) opt.jumboChance=+cfg.jumbochance; if(cfg.jumboscale!=null) opt.jumboScale=+cfg.jumboscale; if(cfg.tex){ opt.textureUrl = (cfg.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null); }
+        if(Object.keys(opt).length && inst.set) inst.set(opt);
+        try{ const saved = Object.assign({}, cfg); localStorage.setItem('errl_bubbles_fx', JSON.stringify(saved)); }catch(e){}
+      };
+      if(bubblesFX && typeof bubblesFX.then==='function'){ bubblesFX.then(setCfg).catch(()=>{}); }
+      else setCfg(bubblesFX);
+    }catch(e){} },
+    setGLOverlay(cfg){ try{ if(cfg.alpha!=null && overlay) overlay.alpha=+cfg.alpha; if(dispFilter){ if(cfg.dx!=null) dispFilter.scale.x=+cfg.dx; if(cfg.dy!=null) dispFilter.scale.y=+cfg.dy; } }catch(e){} },
+    setNavLayout(cfg){ try{
+      if(cfg.spread!=null) navSpread = +cfg.spread;
+      if(cfg.arc!=null) navArcDeg = +cfg.arc;
+      if(cfg.headY!=null) headYRatio = +cfg.headY;
+      if(cfg.cx!=null) navCenterOffsetX = +cfg.cx;
+      if(cfg.stagger!=null) navStagger = +cfg.stagger;
+      finalFanLocal = fanTargets(btns.length, navSpread, navArcDeg);
+      orbitPhase = finalFanLocal.map(p=> Math.atan2(p.y, p.x));
+      showDevDots();
+    }catch(e){} }
+  };
 })();
 </script>
 </body>
