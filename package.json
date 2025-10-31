@@ -8,7 +8,6 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "sync:docs": "rsync -av --delete src/ docs/src/",
     "agent:browser": "tsx tools/browser-control/server.ts",
     "agent:browsers": "playwright install",
     "postinstall": "playwright install"

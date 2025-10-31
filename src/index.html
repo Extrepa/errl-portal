@@ -41,17 +41,17 @@
         </svg>
       </div>
       <!-- Visible IMG for Errl (classic goo applies here) -->
-      <img src="./portal/assets/L4_Central/errl-painted-2.svg" alt="Errl" id="errlCenter" class="errl-svg" />
+      <img src="./portal/assets/central/errl-painted-2.svg" alt="Errl" id="errlCenter" class="errl-svg" />
       <div id="errlPool" class="errl-pool" style="filter:url(#poolRipple)"></div>
     </div>
 
     <!-- Orbiting nav bubbles (5 options) -->
     <div id="navOrbit" class="nav-orbit">
-      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="./about.html">About Errl</a>
-      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="./apps/gallery/index.html">Art Gallery</a>
-      <a class="bubble menuOrb" data-angle="20"  data-dist="200" href="./apps/projects/index.html">Projects</a>
-      <a class="bubble menuOrb" data-angle="75"  data-dist="150" href="./apps/tools/index.html">Tools</a>
-      <a class="bubble menuOrb" data-angle="140" data-dist="170" href="./apps/pin-designer/index.html">Pin Designer</a>
+      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="./portal/pages/about/index.html"><span class="label">About</span></a>
+      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="./portal/pages/gallery/index.html"><span class="label">Gallery</span></a>
+      <a class="bubble menuOrb" data-angle="20"  data-dist="200" href="./portal/pages/projects/index.html"><span class="label">Projects</span></a>
+      <a class="bubble menuOrb" data-angle="75"  data-dist="150" href="./portal/pages/tools/index.html"><span class="label">Tools</span></a>
+      <a class="bubble menuOrb" data-angle="140" data-dist="170" href="./portal/pages/pin-designer/index.html"><span class="label">Designer</span></a>
     </div>
   </div>
 
@@ -100,14 +100,14 @@
     </div>
 
     <div class="panel-tabs" id="panelTabs">
-      <button data-tab="hud" class="tab active" title="HUD">HUD</button>
-      <button data-tab="errl" class="tab" title="Errl">Errl</button>
-      <button data-tab="nav" class="tab" title="Nav">Nav</button>
-      <button data-tab="rb" class="tab tab-icon" title="Rising Bubbles">RB</button>
-      <button data-tab="glb" class="tab tab-icon" title="GL Bubbles">GLB</button>
-      <button data-tab="bg" class="tab" title="Background">BG</button>
-      <button data-tab="gl" class="tab" title="Overlay">GL</button>
-      <button data-tab="hue" class="tab" title="Hue">Hue</button>
+      <button data-tab="hud" class="tab tab-icon active" title="HUD" aria-label="HUD">HUD</button>
+      <button data-tab="errl" class="tab tab-icon" title="Errl" aria-label="Errl">Errl</button>
+      <button data-tab="nav" class="tab tab-icon" title="Nav" aria-label="Nav">Nav</button>
+      <button data-tab="rb" class="tab tab-icon" title="Rising Bubbles" aria-label="Rising Bubbles">RB</button>
+      <button data-tab="glb" class="tab tab-icon" title="GL Bubbles" aria-label="GL Bubbles">GLB</button>
+      <button data-tab="bg" class="tab tab-icon" title="Background" aria-label="Background">BG</button>
+      <button data-tab="gl" class="tab tab-icon" title="Overlay" aria-label="Overlay">GL</button>
+      <button data-tab="hue" class="tab tab-icon" title="Hue" aria-label="Hue">Hue</button>
     </div>
 
     <div class="panel-section" data-tab="bg">
@@ -125,15 +125,7 @@
       <div class="sliderRow"><label>Speed</label><input type="range" min="0" max="3" step="0.01" value="1" id="rbSpeed"></div>
       <div class="sliderRow"><label>Density</label><input type="range" min="0" max="2" step="0.01" value="1" id="rbDensity"></div>
       <div class="sliderRow"><label>Alpha</label><input type="range" min="0" max="1" step="0.01" value="0.95" id="rbAlpha"></div>
-      <div class="sectionLabel">RB Goo</div>
-      <div class="sliderRow"><label>Wiggle</label><input type="range" id="rbWiggle" min="0" max="1" step="0.01" value="0.8"></div>
-      <div class="sliderRow"><label>Flow Speed</label><input type="range" id="rbFlow" min="0" max="1" step="0.01" value="0.4"></div>
-      <div class="sliderRow"><label>Drip</label><input type="range" id="rbDrip" min="-1" max="1" step="0.01" value="0.0"></div>
-      <div class="sliderRow"><label>Viscosity</label><input type="range" id="rbVisc" min="0" max="1" step="0.01" value="0.5"></div>
-      <div class="sliderRow"><label>Blur</label><input type="range" id="rbBlur" min="0" max="20" step="1" value="6"></div>
-      <div class="sliderRow" style="justify-content:flex-end"><button id="rbRandom">Randomize</button></div>
-    </div>
-    <div class="panel-section" data-tab="rb">
+    <!-- RB Goo modifiers removed per request -->
       <div class="sectionLabel">RB Bubbles Layers</div>
       <div class="sliderRow"><strong>Layer 1</strong> <select id="rbTexA"><option value="pack">Pack</option><option value="proc">Procedural</option><option value="custom">Custom…</option></select> <button id="rbApplyTexA">Apply</button> <input type="file" id="rbUploadA" accept="image/*" style="display:none"/> <button id="rbUploadBtnA">Load…</button></div>
       <div class="sliderRow"><strong>Layer 2</strong> <select id="rbTexB"><option value="pack">Pack</option><option value="proc">Procedural</option><option value="custom">Custom…</option></select> <button id="rbApplyTexB">Apply</button> <input type="file" id="rbUploadB" accept="image/*" style="display:none"/> <button id="rbUploadBtnB">Load…</button></div>
@@ -168,10 +160,13 @@
 
     <div class="panel-section" data-tab="errl">
       <div class="sectionLabel">Errl Goo (wobble)</div>
-      <div class="sliderRow"><label>Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked></div>
-      <div class="sliderRow"><label>Displacement</label><input id="classicGooStrength" type="range" min="0" max="2" step="0.01" value="1.0"></div>
-      <div class="sliderRow"><label>Wobble</label><input id="classicGooWobble" type="range" min="0" max="2" step="0.01" value="1.2"></div>
-      <div class="sliderRow"><label>Speed</label><input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="1.0"> <button id="classicGooAnimate">Animate</button> <button id="classicGooRandom" style="margin-left:auto">Random</button></div>
+      <div class="sliderRow"><label>Goo Enabled</label><input type="checkbox" id="classicGooEnabled"></div>
+      <div class="sliderRow"><label>Displacement</label><input id="classicGooStrength" type="range" min="0" max="2" step="0.01" value="0.40"></div>
+      <div class="sliderRow"><label>Wobble</label><input id="classicGooWobble" type="range" min="0" max="2" step="0.01" value="0.60"></div>
+      <div class="sliderRow"><label>Speed</label><input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="0.60"></div>
+      <div class="sliderRow" style="justify-content:flex-end; gap:8px"><button id="classicGooAnimate">Animate</button><button id="classicGooRandom">Random</button></div>
+      <div class="sectionLabel">Errl Size</div>
+      <div class="sliderRow"><label>Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1.0"></div>
     </div>
 
     <div class="panel-section" data-tab="nav">
@@ -236,12 +231,12 @@
     </div>
 
     <div class="panel-section" data-tab="hud">
-      <div class="sectionLabel">Mood</div>
+      <div class="sectionLabel">Mood <span style="opacity:.65">(Not Currently Working)</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="moodBtn2" data-mood2="calm">Calm</button>
-        <button class="moodBtn2" data-mood2="curious">Curious</button>
-        <button class="moodBtn2" data-mood2="excited">Excited</button>
-        <button class="moodBtn2" data-mood2="anxious">Anxious</button>
+        <button class="moodBtn2" data-mood2="calm" disabled>Calm</button>
+        <button class="moodBtn2" data-mood2="curious" disabled>Curious</button>
+        <button class="moodBtn2" data-mood2="excited" disabled>Excited</button>
+        <button class="moodBtn2" data-mood2="anxious" disabled>Anxious</button>
       </div>
     </div>
 
@@ -275,13 +270,17 @@
   </aside>
 
   <script defer src="https://unpkg.com/pixi.js@7/dist/pixi.min.js"></script>
-  <script defer src="./fx/fx-core.js"></script>
-  <script defer src="./fx/hue-filter.js"></script>
-  <script defer src="./fx/hue-controller.js"></script>
-  <script defer src="./fx/bubbles-pixi.js"></script>
-  <script defer src="./fx/errl-bg.js"></script>
-  <script defer src="./webgl.js"></script>
-  <script defer src="./app.js"></script>
+  <script type="module" src="./webgl.js"></script>
+  <script type="module" src="./app.js"></script>
+  <script>
+    // file:// fallback: classic scripts to avoid module CORS in local file preview
+    try {
+      if (location.protocol === 'file:') {
+        var s1=document.createElement('script'); s1.src='./webgl.js'; document.currentScript.after(s1);
+        var s2=document.createElement('script'); s2.src='./app.js'; s1.after(s2);
+      }
+    } catch (e) {}
+  </script>
   <script>
     // Mount shimmer background only if toggled on; guard file:// restrictions
     document.addEventListener('DOMContentLoaded', function(){

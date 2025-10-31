@@ -19,12 +19,12 @@ let RB = {
   layers: [ { kind:'pack', tex:null }, { kind:'proc', tex:null } ],
   items: [],
 };
-function rbResize(){ rise.width = innerWidth * devicePixelRatio; rise.height = innerHeight * devicePixelRatio; rise.style.width = innerWidth+'px'; rise.style.height = innerHeight+'px'; rctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+function rbResize(){ const DPR = Math.min(1.25, window.devicePixelRatio || 1); rise.width = Math.round(innerWidth * DPR); rise.height = Math.round(innerHeight * DPR); rise.style.width = innerWidth+'px'; rise.style.height = innerHeight+'px'; rctx.setTransform(DPR,0,0,DPR,0,0); }
 rbResize(); addEventListener('resize', rbResize);
 function rbTexFromPack(){ const paths=[1,2,3,4,5,6].map(i=>`../src/assets/Bubbles_ErrlSiteDecor/Bubbles-${i}.png`); const imgs=paths.map(p=>{ const im=new Image(); im.onload=()=>{ try{ rbRebuild(); }catch{} }; im.src=p; return im; }); return imgs; }
 function rbMakeProc(size=64){ const c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'); const grd=g.createRadialGradient(size*0.45,size*0.42,size*0.05,size*0.5,size*0.5,size*0.48); grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.2,'rgba(130,200,255,0.9)'); grd.addColorStop(0.6,'rgba(110,160,255,0.4)'); grd.addColorStop(1,'rgba(110,160,255,0.0)'); g.fillStyle=grd; g.beginPath(); g.arc(size/2,size/2,size*0.48,0,Math.PI*2); g.fill(); return c; }
 RB.layers[0].tex = [rbMakeProc(96)]; RB.layers[1].tex = [rbMakeProc(64)];
-function rbRebuild(){ const base = Math.round(140 * RB.density); RB.items.length=0; for (let i=0;i<base;i++){ const layer=(i%2); const texArr=RB.layers[layer].tex; const tex = texArr[Math.floor(Math.random()*texArr.length)]; const s = RB.minSize + Math.random()*(RB.maxSize-RB.minSize); RB.items.push({ x: Math.random()*innerWidth, y: Math.random()*innerHeight, vx:(Math.random()-0.5)*0.4, vy: -(0.30+Math.random()*0.9), size:s, baseSize:s, phase:Math.random()*Math.PI*2, tex, layer }); } }
+function rbRebuild(){ const base = Math.round(90 * RB.density * (window.GLOBAL_MOTION||1)); RB.items.length=0; for (let i=0;i<base;i++){ const layer=(i%2); const texArr=RB.layers[layer].tex; const tex = texArr[Math.floor(Math.random()*texArr.length)]; const s = RB.minSize + Math.random()*(RB.maxSize-RB.minSize); RB.items.push({ x: Math.random()*innerWidth, y: Math.random()*innerHeight, vx:(Math.random()-0.5)*0.3, vy: -(0.25+Math.random()*0.7), size:s, baseSize:s, phase:Math.random()*Math.PI*2, tex, layer }); } }
 rbRebuild();
 function rbDraw(){ rctx.clearRect(0,0,innerWidth,innerHeight); rctx.globalAlpha = RB.alpha; rctx.globalCompositeOperation='lighter'; for(const it of RB.items){ const wob = Math.sin((it.phase += 0.02*RB.freq)) * 1.2 * RB.wobble; it.x += wob; it.y += it.vy * RB.speed; // size jitter
   if (RB.sizeHz>0){ const k=1+0.12*Math.sin(it.phase*RB.sizeHz*3.2); it.size = it.baseSize*k; }
@@ -63,12 +63,12 @@ let particleSpeedScale = 1.0;
 let particleAlpha = 0.9;
 let particleDensityScale = 1.0;
 
-let BASE_PARTICLE_COUNT = (window.innerWidth * window.innerHeight < 800*800) ? 120 : 200;
+let BASE_PARTICLE_COUNT = (window.innerWidth * window.innerHeight < 800*800) ? 80 : 140;
 let particles = [];
 
 function initParticles() {
-  const count = Math.floor(BASE_PARTICLE_COUNT * particleDensityScale);
-  particles = Array.from({ length: count }, () => ({
+  const count = Math.floor(BASE_PARTICLE_COUNT * particleDensityScale * (window.GLOBAL_MOTION||1));
+  particles = Array.from({ length: Math.max(20, count) }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
     vx: (Math.random() - 0.5) * 0.2,
@@ -81,21 +81,46 @@ initParticles();
 function drawParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  const mot = (window.GLOBAL_MOTION||1) * particleSpeedScale;
   for (const p of particles) {
-    p.x += p.vx * particleSpeedScale;
-    p.y += p.vy * particleSpeedScale;
+    // physics
+    p.x += p.vx * mot;
+    p.y += p.vy * mot;
 
-    // wrap
-    if (p.x < 0) p.x += canvas.width;
-    if (p.x > canvas.width) p.x -= canvas.width;
-    if (p.y < 0) p.y += canvas.height;
-    if (p.y > canvas.height) p.y -= canvas.height;
+    if (p.mode === 'burst') {
+      // bounce off edges with damping
+      const damp = 0.72;
+      if (p.x < 0) { p.x = 0; p.vx = Math.abs(p.vx) * damp; p.bounces = (p.bounces||0)+1; }
+      if (p.x > canvas.width) { p.x = canvas.width; p.vx = -Math.abs(p.vx) * damp; p.bounces = (p.bounces||0)+1; }
+      if (p.y < 0) { p.y = 0; p.vy = Math.abs(p.vy) * damp; p.bounces = (p.bounces||0)+1; }
+      if (p.y > canvas.height) { p.y = canvas.height; p.vy = -Math.abs(p.vy) * damp; p.bounces = (p.bounces||0)+1; }
+      // friction
+      p.vx *= 0.992; p.vy *= 0.992;
+      // after some time or bounces, convert to float mode
+      if ((p.burstUntil && Date.now() > p.burstUntil) || (p.bounces||0) > 3) {
+        p.mode = 'float';
+        // gentle drift
+        p.vx = (Math.random()-0.5) * 0.25;
+        p.vy = (Math.random()-0.5) * 0.25;
+      }
+    } else {
+      // default float: wrap
+      if (p.x < 0) p.x += canvas.width;
+      if (p.x > canvas.width) p.x -= canvas.width;
+      if (p.y < 0) p.y += canvas.height;
+      if (p.y > canvas.height) p.y -= canvas.height;
+    }
 
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(130,160,255,${particleAlpha})`;
-    ctx.shadowColor = "rgba(130,160,255,1)";
-    ctx.shadowBlur = 12;
+    if (p.h != null) {
+      ctx.fillStyle = `hsla(${Math.round(p.h)}, 100%, 65%, ${particleAlpha})`;
+      ctx.shadowColor = `hsla(${Math.round(p.h)}, 100%, 70%, 1)`;
+    } else {
+      ctx.fillStyle = `rgba(130,160,255,${particleAlpha})`;
+      ctx.shadowColor = "rgba(130,160,255,1)";
+    }
+    ctx.shadowBlur = 6;
     ctx.fill();
   }
 
@@ -103,22 +128,43 @@ function drawParticles() {
 }
 drawParticles();
 
-// Burst button spawns a quick swarm
-function burstParticles() {
-  const N = 220; // bigger burst
-  for (let i = 0; i < N; i++) {
-    particles.push({
-      x: canvas.width / 2,
-      y: canvas.height / 2,
-      vx: (Math.random() - 0.5) * 3.2,
-      vy: (Math.random() - 0.5) * 3.2,
-      r: 2 + Math.random() * 3,
-    });
-  }
-  // let them slowly fade out
-  setTimeout(() => {
-    particles.splice(BASE_PARTICLE_COUNT);
-  }, 1100);
+// Burst (DNA double-helix, clockwise, 250→500px from center)
+function burstParticlesDNA() {
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const steps = 30;
+  const perStrand = 4; // particles per strand per step
+const speed = 2.2 * (window.GLOBAL_MOTION || 1);
+  let i = 0;
+  const tick = () => {
+    const t = i / steps; // 0..1
+    const theta = -Math.PI/2 - (Math.PI*2) * t; // clockwise from up
+    const r = 300 + 300 * t; // 300 -> 600 (further reach)
+    const dirX = Math.cos(theta), dirY = Math.sin(theta);
+    const baseX = cx + dirX * r, baseY = cy + dirY * r;
+    const perpX = -dirY, perpY = dirX; // perpendicular to radial
+    // sinusoidal offset for helix wrapping
+    const A = 18 * Math.sin(theta * 6);
+    const targets = [
+      { x: baseX + perpX * A, y: baseY + perpY * A },  // strand A
+      { x: baseX - perpX * A, y: baseY - perpY * A },  // strand B
+    ];
+    for (const tgt of targets) {
+      for (let k = 0; k < perStrand; k++) {
+        const jx = (Math.random()-0.5) * 10;
+        const jy = (Math.random()-0.5) * 10;
+        const dx = (tgt.x + jx) - cx;
+        const dy = (tgt.y + jy) - cy;
+        const d = Math.hypot(dx, dy) || 1;
+        const vx = (dx/d) * speed * (0.9 + Math.random()*0.3);
+        const vy = (dy/d) * speed * (0.9 + Math.random()*0.3);
+        const hue = ( (theta * 180/Math.PI) % 360 + 360 ) % 360; // map angle to hue
+        particles.push({ x: cx, y: cy, vx, vy, r: 2 + Math.random()*2.5, mode:'burst', burstUntil: Date.now()+1800, bounces:0, h: hue });
+      }
+    }
+    i++;
+    if (i <= steps) requestAnimationFrame(tick); else { /* keep particles; they will transition to float */ }
+  };
+  requestAnimationFrame(tick);
 }
 
 
@@ -146,7 +192,7 @@ function updateBubbles(t) {
     const dist = parseFloat(b.dataset.dist) * navRadiusScale;
 
     // orbit: direction alternates per bubble
-    const angleDeg = baseAngle + (t * 0.00003 * navOrbitSpeed * navFlow * (i % 2 === 0 ? 1 : -1)) * 360;
+    const angleDeg = baseAngle + (t * 0.00003 * navOrbitSpeed * navFlow * (window.GLOBAL_MOTION||1) * (i % 2 === 0 ? 1 : -1)) * 360;
     const rad = (angleDeg * Math.PI) / 180;
 
     let x = cx + Math.cos(rad) * dist;
@@ -278,12 +324,11 @@ glOrbsToggle && glOrbsToggle.addEventListener('change', ()=>{
 // Texture skins for nav bubbles with robust path + fallback
 (function(){
   function assetsBases(){
-    const p = location.pathname;
+    // Ordered by new canonical location first, with a couple of legacy fallbacks
     const bases = [];
-    if (p.includes('/public/')) bases.push('../src/assets/Bubbles_ErrlSiteDecor');
-    if (p.includes('/src/')) bases.push('../../assets/Bubbles_ErrlSiteDecor');
-    bases.push('../src/portal/assets/Bubbles_ErrlSiteDecor');
-    bases.push('../src/assets/Bubbles_ErrlSiteDecor');
+    bases.push('./portal/assets/textures/Bubbles_ErrlSiteDecor');
+    bases.push('./portal/assets/Bubbles_ErrlSiteDecor'); // legacy transitional
+    bases.push('./assets/Bubbles_ErrlSiteDecor'); // legacy transitional
     return bases;
   }
   function trySkin(b, idx){
@@ -315,6 +360,7 @@ glOrbsToggle && glOrbsToggle.addEventListener('change', ()=>{
 
 // Mood state machine
 (function moods(){
+  const ENABLED = false; // temporarily disabled per request
   const defs = {
     calm:    { overlay:{alpha:0.18, dx:16, dy:12}, orbit:0.8, particles:0.6, hue:{layer:'backGlow', hue:200, sat:1.0, inten:0.8} },
     curious: { overlay:{alpha:0.22, dx:24, dy:16}, orbit:1.1, particles:0.9, hue:{layer:'nav', hue:160, sat:1.1, inten:1.0}, headTilt: 4 },
@@ -331,8 +377,10 @@ glOrbsToggle && glOrbsToggle.addEventListener('change', ()=>{
     if (window.ErrlHueController){ const hc = window.ErrlHueController; hc.setTarget(m.hue.layer); hc.setHueTemp(m.hue.hue, m.hue.layer); hc.setSaturationTemp(m.hue.sat, m.hue.layer); hc.setIntensityTemp(m.hue.inten, m.hue.layer); }
     if (window.errlGLSetMood) window.errlGLSetMood(name==='excited'?'neon':(name==='anxious'?'alert':'calm'));
   }
-  document.querySelectorAll('.moodBtn2').forEach(b=> b.addEventListener('click', ()=> apply(b.dataset.mood2)));
-  window.requestAnimationFrame(()=> apply(current));
+  if (ENABLED) {
+    document.querySelectorAll('.moodBtn2').forEach(b=> b.addEventListener('click', ()=> apply(b.dataset.mood2)));
+    window.requestAnimationFrame(()=> apply(current));
+  }
 })();
 
 // Randomize buttons
@@ -427,7 +475,13 @@ if (bubApplyTex && bubTexSel) {
   RB.goo = RB.goo || { amp:0.8, flow:0.4, drip:0.0, visc:0.5, blur:6 };
   function apply(){ RB.speed=parseFloat(speed.value); RB.density=parseFloat(dens.value); RB.alpha=parseFloat(alpha.value); RB.wobble=parseFloat(wob.value); RB.freq=parseFloat(freq.value); RB.minSize=parseFloat(smin.value); RB.maxSize=parseFloat(smax.value); RB.sizeHz=parseFloat(szHz.value); RB.jumboChance=parseFloat(jPct.value); RB.jumboScale=parseFloat(jSc.value); rbRebuild(); }
   ;[speed,dens,alpha,wob,freq,smin,smax,szHz,jPct,jSc].forEach(el=> el && el.addEventListener('input', apply));
-  function applyGoo(){ RB.goo.amp=parseFloat(gAmp.value||RB.goo.amp); RB.goo.flow=parseFloat(gSpd.value||RB.goo.flow); RB.goo.drip=parseFloat(gDrip.value||RB.goo.drip); RB.goo.visc=parseFloat(gVisc.value||RB.goo.visc); RB.goo.blur=parseFloat(gBlur.value||RB.goo.blur); }
+  function applyGoo(){
+    RB.goo.amp  = parseFloat((gAmp?.value  ?? RB.goo.amp));
+    RB.goo.flow = parseFloat((gSpd?.value  ?? RB.goo.flow));
+    RB.goo.drip = parseFloat((gDrip?.value ?? RB.goo.drip));
+    RB.goo.visc = parseFloat((gVisc?.value ?? RB.goo.visc));
+    RB.goo.blur = parseFloat((gBlur?.value ?? RB.goo.blur));
+  }
   ;[gAmp,gSpd,gDrip,gVisc,gBlur].forEach(el=> el && el.addEventListener('input', applyGoo)); applyGoo();
   // per-layer textures
   [{sel:'A',idx:0},{sel:'B',idx:1}].forEach(({sel,idx})=>{
@@ -436,6 +490,15 @@ if (bubApplyTex && bubTexSel) {
     if(A && S){ A.addEventListener('click', ()=>{ const v=S.value; if(v==='pack'){ RB.layers[idx].tex = rbTexFromPack(); } else if(v==='proc'){ RB.layers[idx].tex = [rbMakeProc()]; } rbRebuild(); }); }
   });
 })();
+
+// Quick shock burst for rising bubbles (fallback if GL not present)
+window.rbShockBurst = function(){
+  const cx = innerWidth/2, cy = innerHeight/2;
+  for(let i=0;i<140;i++){
+    RB.items.push({ x: cx, y: cy, vx: (Math.random()-0.5)*2.2, vy: -(0.8+Math.random()*1.4), size: 12+Math.random()*18, baseSize: 16, phase: Math.random()*Math.PI*2, tex: (RB.layers[0].tex&&RB.layers[0].tex[0])||null, layer:0 });
+  }
+  setTimeout(()=>{ RB.items.splice(0, 140); }, 1200);
+};
 
 // Presets (stored in localStorage)
 (function presets(){
@@ -478,10 +541,11 @@ if (bubApplyTex && bubTexSel) {
 })();
 
 document.getElementById("burstBtn").addEventListener("click", () => {
-  if (document.body.dataset.errlMode === 'errl' && window.errlGLBurst) {
+  if (document.body.dataset.errlMode === 'errl' && typeof window.errlGLBurst === 'function') {
     window.errlGLBurst();
   } else {
-    burstParticles();
+    // Use the DNA burst on the BG particles (more controllable than RB canvas)
+    burstParticlesDNA();
   }
 });
 
@@ -517,6 +581,7 @@ document.getElementById("snapshotBtn").addEventListener("click", () => {
   const cSpd  = document.getElementById('classicGooSpeed');
   const cAnim = document.getElementById('classicGooAnimate');
   const cRand = document.getElementById('classicGooRandom');
+  const sizeSlider = document.getElementById('errlSize');
 
   // helper to set/remove SVG filter reliably
   function setFilterOnTarget(){
@@ -577,6 +642,11 @@ document.getElementById("snapshotBtn").addEventListener("click", () => {
     setFilterOnTarget();
   }
   ;[cOn,cStr,cWob,cSpd].forEach(el=> el && el.addEventListener('input', ()=>{ applyClassic(); }));
+  // size control (scale the visible Errl image)
+  if (sizeSlider && targetImg){
+    const applySize=()=>{ const s=parseFloat(sizeSlider.value||'1'); targetImg.style.transformOrigin='center'; targetImg.style.transform = `scale(${s})`; };
+    sizeSlider.addEventListener('input', applySize); applySize();
+  }
   applyClassic();
   apply();
 })();
@@ -611,7 +681,7 @@ document.getElementById("snapshotBtn").addEventListener("click", () => {
     // draw same as before with goo amp/flow
     const flow = (RB.goo? (0.6 + RB.goo.flow*1.4) : 1.0);
     const ampF = (RB.goo? (0.5 + RB.goo.amp*1.5) : 1.0);
-    for(const it of RB.items){ const wob = Math.sin((it.phase += 0.02*RB.freq*flow)) * 1.2 * RB.wobble * ampF; it.x += wob; it.y += it.vy * RB.speed * flow; if (RB.sizeHz>0){ const k=1+0.12*Math.sin(it.phase*RB.sizeHz*3.2); it.size = it.baseSize*k; } if (it.y < -80){ it.y = innerHeight + 40 + Math.random()*80; it.x = Math.random()*innerWidth; } const s=it.size; if (it.tex instanceof HTMLImageElement && it.tex.complete) rctx.drawImage(it.tex, Math.round(it.x - s/2), Math.round(it.y - s/2), s, s); else if (it.tex && it.tex.getContext) rctx.drawImage(it.tex, Math.round(it.x - s/2), Math.round(it.y - s/2), s, s); else { const grd=rctx.createRadialGradient(it.x-0.1*s,it.y-0.12*s, s*0.05, it.x, it.y, s*0.5); grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.25,'rgba(130,200,255,0.8)'); grd.addColorStop(0.7,'rgba(110,160,255,0.35)'); grd.addColorStop(1,'rgba(110,160,255,0)'); rctx.fillStyle=grd; rctx.beginPath(); rctx.arc(it.x,it.y,s*0.5,0,Math.PI*2); rctx.fill(); } }
+    for(const it of RB.items){ const wob = Math.sin((it.phase += 0.02*RB.freq*flow*(window.GLOBAL_MOTION||1))) * 1.2 * RB.wobble * ampF; it.x += wob; it.y += it.vy * RB.speed * flow * (window.GLOBAL_MOTION||1); if (RB.sizeHz>0){ const k=1+0.12*Math.sin(it.phase*RB.sizeHz*3.2); it.size = it.baseSize*k; } if (it.y < -80){ it.y = innerHeight + 40 + Math.random()*80; it.x = Math.random()*innerWidth; } const s=it.size; if (it.tex instanceof HTMLImageElement && it.tex.complete) rctx.drawImage(it.tex, Math.round(it.x - s/2), Math.round(it.y - s/2), s, s); else if (it.tex && it.tex.getContext) rctx.drawImage(it.tex, Math.round(it.x - s/2), Math.round(it.y - s/2), s, s); else { const grd=rctx.createRadialGradient(it.x-0.1*s,it.y-0.12*s, s*0.05, it.x, it.y, s*0.5); grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.25,'rgba(130,200,255,0.8)'); grd.addColorStop(0.7,'rgba(110,160,255,0.35)'); grd.addColorStop(1,'rgba(110,160,255,0)'); rctx.fillStyle=grd; rctx.beginPath(); rctx.arc(it.x,it.y,s*0.5,0,Math.PI*2); rctx.fill(); } }
     requestAnimationFrame(rbDraw);
   };
 })();
@@ -669,14 +739,72 @@ if (shimmerToggle) {
   function onDown(e){ drag=true; panel.classList.add('dragging'); header.style.cursor='grabbing';
     const r=panel.getBoundingClientRect(); sx=e.clientX; sy=e.clientY; startL=r.left; startT=r.top; panel.style.right='auto'; panel.style.left=toPx(startL); panel.style.top=toPx(startT); }
   function onMove(e){ if(!drag) return; const nx = startL + (e.clientX - sx); const ny = startT + (e.clientY - sy);
-    const maxX = window.innerWidth - 120; const maxY = window.innerHeight - 40; panel.style.left = toPx(Math.max(0, Math.min(maxX, nx))); panel.style.top = toPx(Math.max(0, Math.min(maxY, ny))); }
+    const margin = 20; const maxX = window.innerWidth - panel.offsetWidth - margin; const maxY = window.innerHeight - panel.offsetHeight - margin; panel.style.left = toPx(Math.max(margin, Math.min(maxX, nx))); panel.style.top = toPx(Math.max(margin, Math.min(maxY, ny))); }
   function onUp(){ if(!drag) return; drag=false; panel.classList.remove('dragging'); header.style.cursor='grab'; }
   header.addEventListener('pointerdown', onDown);
   window.addEventListener('pointermove', onMove);
   window.addEventListener('pointerup', onUp);
-minBtn && minBtn.addEventListener('click', ()=>{ panel.classList.toggle('minimized'); localStorage.setItem('errl_phone_min', panel.classList.contains('minimized')?'1':'0'); });
-  // restore minimized
-  if (localStorage.getItem('errl_phone_min')==='1') panel.classList.add('minimized');
+function setMinIcon(url){ try{ const im=new Image(); im.onload=()=>{ panel.style.setProperty('--minIcon', `url("${url}")`); }; im.src=url; }catch{} }
+  // Optional custom icon path (drop your icon at this path to use it)
+  setMinIcon('./portal/assets/ui/phone-tabs/phone-icon.png');
+
+  function minimizeToTopRight(){
+    const r = panel.getBoundingClientRect();
+    panel.classList.add('minimized');
+    // place icon at previous top-right corner
+    requestAnimationFrame(()=>{
+      const iw = panel.offsetWidth || 44;
+      const ih = panel.offsetHeight || 44;
+      const left = Math.min(window.innerWidth - iw - 20, Math.max(20, r.right - iw));
+      const top  = Math.min(window.innerHeight - ih - 20, Math.max(20, r.top));
+      panel.style.right = 'auto';
+      panel.style.left = Math.round(left) + 'px';
+      panel.style.top  = Math.round(top) + 'px';
+      localStorage.setItem('errl_phone_min','1');
+    });
+  }
+  function restoreFromIcon(){
+    const iconRect = panel.getBoundingClientRect();
+    panel.classList.remove('minimized');
+    requestAnimationFrame(()=>{
+      const w = panel.offsetWidth; const h = panel.offsetHeight;
+      const left = Math.min(window.innerWidth - w - 20, Math.max(20, iconRect.left + iconRect.width - w));
+      const top  = Math.min(window.innerHeight - h - 20, Math.max(20, iconRect.top));
+      panel.style.left = Math.round(left) + 'px';
+      panel.style.top  = Math.round(top) + 'px';
+      panel.style.right = 'auto';
+      localStorage.setItem('errl_phone_min','0');
+    });
+  }
+
+  minBtn && minBtn.addEventListener('click', (e)=>{
+    // Prevent this click from bubbling to the panel and instantly restoring
+    e.stopPropagation();
+    if (panel.classList.contains('minimized')) {
+      restoreFromIcon();
+    } else {
+      minimizeToTopRight();
+    }
+  });
+  // Click on the minimized icon restores
+  panel.addEventListener('click', (e)=>{
+    if (panel.classList.contains('minimized')) { e.stopPropagation(); restoreFromIcon(); }
+  });
+  // restore minimized: default to minimized icon if not set yet
+  const minPref = localStorage.getItem('errl_phone_min');
+  if (minPref === '0') {
+    panel.classList.remove('minimized');
+  } else {
+    minimizeToTopRight();
+    localStorage.setItem('errl_phone_min','1');
+  }
+  // show by default; toggle visibility with 'P'
+  panel.style.display = 'block';
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'p' || e.key === 'P'){
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+  });
 })();
 
 // ===== Mode toggle buttons (removed) =====
@@ -758,9 +886,22 @@ function webglSupported(){
 (function accessibility(){
   const prefReduce = document.getElementById('prefReduce');
   const prefContrast = document.getElementById('prefContrast');
+  window.GLOBAL_MOTION = 1.0;
   function apply(){
-    if (prefReduce){ document.body.classList.toggle('reduced-motion', prefReduce.checked); localStorage.setItem('prefReduce', prefReduce.checked?'1':'0'); }
-    if (prefContrast){ document.body.classList.toggle('high-contrast', prefContrast.checked); localStorage.setItem('prefContrast', prefContrast.checked?'1':'0'); }
+    // Reduced motion slows everything globally
+    if (prefReduce){
+      const on = !!prefReduce.checked; window.GLOBAL_MOTION = on ? 0.25 : 1.0;
+      document.body.classList.toggle('reduced-motion', on);
+      localStorage.setItem('prefReduce', on?'1':'0');
+      // Notify GL layer if present
+      if (window.errlGLSetMotionScale) window.errlGLSetMotionScale(window.GLOBAL_MOTION);
+      // Downshift densities immediately
+      try{ initParticles(); rbRebuild(); }catch{}
+    }
+    // High contrast reduces contrast globally via body filter
+    if (prefContrast){
+      const on = !!prefContrast.checked; document.body.classList.toggle('high-contrast', on); localStorage.setItem('prefContrast', on?'1':'0');
+    }
   }
   prefReduce && prefReduce.addEventListener('change', apply);
   prefContrast && prefContrast.addEventListener('change', apply);
@@ -781,10 +922,12 @@ function webglSupported(){
 
 // restore mode + mood
 (function restore(){
-  document.body.dataset.errlMode = 'errl';
-  if (window.enableErrlGL) window.enableErrlGL();
+  // Respect mode set in HTML or stored preference; do not auto-enable WebGL to save GPU
+  const saved = localStorage.getItem('errl_mode');
+  if (saved) document.body.dataset.errlMode = saved;
+  // Only enable GL if explicitly in 'errl' mode
+  if (document.body.dataset.errlMode === 'errl' && window.enableErrlGL) window.enableErrlGL();
   const mood = localStorage.getItem('errlMood');
   if (mood && window.errlGLSetMood) window.errlGLSetMood(mood);
-  // ensure phone not minimized from prior state
-  const panel = document.getElementById('errlPanel'); if(panel) panel.classList.remove('minimized');
+  // leave phone minimized/expanded state as set by phoneDrag()
 })();

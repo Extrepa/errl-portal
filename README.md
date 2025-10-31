@@ -10,29 +10,34 @@ A multi-app epic webapp / website / landing page to showcase our friend group ma
 ## Structure
 
 ### Main Pages
-- `src/index.html` - Main interactive portal (new unified version)
-- `src/about.html` - About Errl and the project
-- `src/apps/index.html` - Apps gallery/launcher
+- `src/index.html` — Main interactive portal
+- `src/portal/pages/about/index.html` — About Errl and the project
+- `src/portal/pages/gallery/index.html` — Art gallery
+- `src/portal/pages/projects/index.html` — Projects
+- `src/portal/pages/tools/index.html` — Tools
 
 ### Apps & Tools
-- `src/apps/pin-designer/` - Enamel pin designer tool
-- `src/apps/tools/` - Various dev tools (Atlas Builder, Asset Builder, etc.)
-- `src/apps/dev/` - Development panel for live parameter tuning
+- `src/portal/pages/pin-designer/` — Enamel pin designer tool (embedded)
+- `src/portal/pages/tools/` — Atlas Builder, Asset Builder, Pin Widget, etc. (embedded pages)
+- `src/portal/pages/dev/` — Dev panel + live controls
 
 ### Effects & Assets
-- `src/fx/` - Visual effects system (TypeScript)
-  - Hue filters, bubble effects, goo animations
-  - Background particle systems
-- `src/assets/` - General assets (bubbles, backgrounds, generated art)
-- `src/portal/assets/` - Layered portal assets (L0-L6)
+- `src/fx/` — Visual effects system (TS + some JS): hue filters, bubbles, goo, background particles
+- `src/assets/` — General/shared assets (bubbles, artwork)
+- `src/portal/assets/` — Portal-specific assets (e.g., `central/errl-painted-2.svg`, textures)
+
+### Project Docs
+- `docs/` — planning, ADRs, journal, and design notes (no builds)
+  - See `docs/README.md` for structure and conventions
 
 ### Navigation Flow
 ```
 index.html (Main Portal)
-  ├─→ about.html (About Errl)
-  ├─→ apps/index.html (Gallery/Apps)
-  ├─→ apps/pin-designer/index.html
-  └─→ apps/tools/index.html
+  ├─→ portal/pages/about/index.html
+  ├─→ portal/pages/gallery/index.html
+  ├─→ portal/pages/projects/index.html
+  ├─→ portal/pages/pin-designer/index.html
+  └─→ portal/pages/tools/index.html
 ```
 
 ## Development
@@ -46,7 +51,8 @@ npm run build
 Vite is configured with `src/` as root. Open any HTML file directly or use a local server.
 
 ## Recent Changes
-- Merged `public/` into `src/` for unified structure
-- Archived old portal version to `archive/portal-pixi-gl-20251030/`
-- Consolidated TypeScript sources (removed duplicate .js files)
-- Updated all navigation links to point to new main portal
+- Reorganized pages under `src/portal/pages/*`; standardized Back to Portal links
+- Ported About page to `src/portal/pages/about/index.html` with animated eyes/mouth
+- Updated Vite base path for GitHub Pages; removed redundant workflow
+- Switched page scripts to ES modules; added file:// fallback in `src/index.html`
+- Centralized portal assets under `src/portal/assets/central` (Errl face/painted)

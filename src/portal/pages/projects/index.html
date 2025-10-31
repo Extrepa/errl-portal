@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Errl — Projects</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#e5eaf1; --gap:28px; --outer-pad:32px; }
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{font-family:Inter,system-ui,sans-serif; background:#0a0f18; color:var(--ink);} 
+/* ===== Header (shared) ===== */
+.errl-header{ position:sticky; top:0; width:100%; background: linear-gradient(135deg, rgba(220,220,240,0.95) 0%, rgba(180,180,200,0.9) 25%, rgba(160,160,180,0.9) 50%, rgba(180,180,200,0.9) 75%, rgba(220,220,240,0.95) 100%), linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.3) 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.4) inset, 0 -1px 0 rgba(0,0,0,0.2) inset; border-bottom:1px solid rgba(120,120,140,0.6); padding:0.75rem 1rem; z-index:999; letter-spacing:-0.03em; }
+.errl-header-content{ display:flex; align-items:center; justify-content:space-between; max-width:1200px; margin:0 auto; }
+.errl-home-btn{ display:inline-flex; align-items:center; gap:.5rem; color:#fff; background: linear-gradient(135deg, #ff0080 0%, #8000ff 25%, #0080ff 50%, #00ff80 75%, #ff8000 100%); background-size:200% 200%; border:1px solid rgba(255,255,255,0.3); border-radius:999px; font-size:.8rem; font-weight:600; line-height:1; padding:.55rem .9rem .6rem; box-shadow:0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.3) inset; text-decoration:none; text-shadow:0 1px 2px rgba(0,0,0,0.8); animation: rainbow-flow 3s linear infinite; }
+@keyframes rainbow-flow{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+.errl-nav{ display:flex; gap:.5rem; align-items:center; }
+.errl-bubble-btn{ position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:6.5rem; max-width:10rem; padding:.6rem .9rem .7rem; border-radius:999px; font-size:.8rem; font-weight:600; line-height:1.1; text-align:center; color:#e8e8e8; text-decoration:none; white-space:nowrap; text-shadow:0 1px 3px rgba(0,0,0,0.8); background: linear-gradient(135deg, rgba(100,100,120,0.9) 0%, rgba(60,60,80,0.9) 25%, rgba(40,40,60,0.9) 50%, rgba(60,60,80,0.9) 75%, rgba(100,100,120,0.9) 100%), linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.1) 100%); border:2px solid transparent; background-clip:padding-box; box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 0 rgba(0,0,0,0.3) inset; }
+.errl-bubble-btn::before{ content:""; position:absolute; inset:-2px; border-radius:999px; padding:2px; background: linear-gradient(90deg, rgba(0,255,255,0.6) 0%, rgba(255,0,255,0.6) 25%, rgba(255,255,0,0.6) 50%, rgba(0,255,0,0.6) 75%, rgba(0,255,255,0.6) 100%); background-size:200% 100%; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite:xor; -webkit-mask-composite:xor; animation: led-flow 2s linear infinite; opacity:.7; }
+@keyframes led-flow{ 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+.errl-bubble-btn.active{ background: linear-gradient(135deg, rgba(140,140,160,0.95) 0%, rgba(100,100,130,0.95) 25%, rgba(80,80,110,0.95) 50%, rgba(100,100,130,0.95) 75%, rgba(140,140,160,0.95) 100%), linear-gradient(45deg, rgba(255,255,255,0.2) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.2) 100%); color:#fff; font-weight:700; text-shadow:0 1px 3px rgba(0,0,0,0.9); box-shadow: 0 6px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.3) inset, 0 -1px 0 rgba(0,0,0,0.4) inset; }
+.errl-bubble-btn.active::before{ background: radial-gradient(circle at 0% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 25% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 75% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 100% 50%, rgba(255,255,255,0.8) 0%, transparent 25%); background-size:20% 100%; animation: led-pulse 1s ease-in-out infinite alternate; opacity:.9; }
+@keyframes led-pulse{ 0%{opacity:.5} 100%{opacity:1} }
+
+.h1{font-size:clamp(22px,4vmin,34px); font-weight:800; margin:0; opacity:.9}
+.grid2{ margin:8px 0 14px; padding: 16px var(--outer-pad) var(--outer-pad); display:grid; gap: var(--gap); grid-template-columns: repeat(2, minmax(360px, 1fr)); align-items:start; }
+.grid2 .box{ width: 100% !important; aspect-ratio: 1 / 1 !important; height:auto !important; min-height:360px; }
+@media (max-width: 900px){ 
+  .grid2{ grid-template-columns: 1fr; }
+  .grid2 .box{ min-height: 50vh; } 
+  :root{ --outer-pad:20px; }
+}
+.box{ position:relative; display:flex; flex-direction:column; border-radius:16px; background:#ffffff06; border:1px solid #ffffff14; box-shadow:0 12px 30px rgba(0,0,0,.38); overflow:hidden; width: var(--w, 400px); max-width: 100%; aspect-ratio: 1 / 1; }
+.box header{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 20px; font-weight:700; color:#cfe9ff; border-bottom:1px solid #ffffff14; background:linear-gradient(180deg, rgba(12,18,32,.7), rgba(10,15,24,.6)); }
+.box header .controls{ display:flex; align-items:center; gap:8px; font-weight:600; font-size:12px; opacity:.9; }
+.box header .controls a.dl{ display:inline-block; padding:6px 10px; border-radius:8px; border:1px solid #ffffff22; background:#10182a; color:#d7eaff; text-decoration:none; font-size:11px; font-weight:600; transition:all 0.2s ease; }
+.box header .controls a.dl:hover{ background:#152038; transform:translateY(-1px); box-shadow:0 4px 8px rgba(0,0,0,0.3); }
+.box .frame{ position:relative; flex:1; display:grid; place-items:center; background:
+  radial-gradient(80% 60% at 50% 35%, rgba(123,92,255,.18), rgba(123,92,255,0) 60%),
+  radial-gradient(120% 100% at 50% 120%, rgba(0,229,255,.10), rgba(0,229,255,0) 60%),
+  linear-gradient(180deg, #0f1326, #0a0f18 60%);
+}
+.box .frame iframe{ width:100%; height:100%; border:0; background:transparent; }
+</style>
+<link rel="stylesheet" href="../../../fx/errl-bg.css">
+</head>
+<body>
+  <header class="errl-header">
+    <div class="errl-header-content">
+<a class="errl-home-btn" href="../../index.html">← Back to Portal</a>
+      <nav class="errl-nav">
+<a class="errl-bubble-btn" href="../about/index.html">About Errl</a>
+        <a class="errl-bubble-btn" href="../gallery/index.html">Gallery</a>
+        <a class="errl-bubble-btn active" href="../projects/index.html">Projects</a>
+        <a class="errl-bubble-btn" href="../pin-designer/index.html">Pin Designer</a>
+        <a class="errl-bubble-btn" href="../tools/index.html">Tools</a>
+      </nav>
+    </div>
+  </header>
+  <section class="grid2" id="projectsGrid"></section>
+<script>
+const projects = [
+  { title: 'Errl Head Coin', src: './errl-head-coin/index.html', download: './errl-head-coin/index.html', filename: 'Errl_Head_Coin.html' },
+  { title: 'Errl Head Coin v2', src: './errl-head-coin-v2/index.html', download: './errl-head-coin-v2/index.html', filename: 'Errl_Head_Coin_v2.html' },
+  { title: 'Errl Head Coin v3', src: './errl-head-coin-v3/index.html', download: './errl-head-coin-v3/index.html', filename: 'Errl_Head_Coin_v3.html' },
+  { title: 'Errl Head Coin v4', src: './errl-head-coin-v4/index.html', download: './errl-head-coin-v4/index.html', filename: 'Errl_Head_Coin_v4.html' },
+];
+const grid = document.getElementById('projectsGrid');
+for(const t of projects){
+  const box = document.createElement('article');
+  box.className='box';
+  const ctrlItems = [];
+  if(t.download){ ctrlItems.push(`<a class=\"dl\" href=\"${t.download}\" download=\"${t.filename || 'project.html'}\">Download HTML</a>`); }
+  const controls = ctrlItems.length ? `<div class=\"controls\">${ctrlItems.join('')}</div>` : '';
+  box.innerHTML = `<header><span>${t.title}</span>${controls}</header><div class=\"frame\"><iframe src=\"${t.src}\" loading=\"lazy\"></iframe></div>`;
+  grid.appendChild(box);
+}
+</script>
+</body>
+</html>
