@@ -1,0 +1,52 @@
+/* container */
+.errl-swapper {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: rgba(12,16,22,.75);
+  backdrop-filter: blur(6px);
+  color: #e6eef9;
+  border: 1px solid #2b3a55;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+/* header */
+.errl-head {
+  display: flex; align-items: center; gap: 8px;
+  cursor: grab;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #1b2434, #141c29);
+  border-bottom: 1px solid #2b3a55;
+}
+.errl-head:active { cursor: grabbing; }
+.errl-title { font-weight: 600; letter-spacing: .2px; }
+.errl-spacer { flex: 1; }
+.errl-iconbtn {
+  appearance: none; border:0; background: #233049; color:#d9e7ff;
+  width: 28px; height: 28px; border-radius: 8px; line-height: 0;
+}
+.errl-iconbtn:hover { background:#2b3a55; }
+
+/* body */
+.errl-body {
+  display: grid; gap: 10px; padding: 12px;
+}
+.errl-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.errl-select, .errl-btn {
+  height: 34px; border-radius: 10px; border:1px solid #2b3a55;
+  background:#0f1622; color:#e6eef9; padding: 0 10px;
+}
+.errl-btn { background:#1b2a44; }
+.errl-btn:hover { background:#243759; }
+.errl-codebtn { white-space: nowrap; }
+
+.errl-canvas {
+  background:#0c1118; border:1px dashed #29405f; border-radius: 12px;
+  display:flex; align-items:center; justify-content:center;
+  padding: 8px; min-height: 240px;
+}
+
+.errl-svg { width: 100%; height: auto; display:block; }
+
+.errl-min { display: none; }
+.errl-swapper.minimized .errl-body { display:none; }

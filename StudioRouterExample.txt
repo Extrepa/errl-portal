@@ -1,0 +1,12 @@
+// Example router snippet (put this inside your router file)
+import { Routes, Route } from "react-router-dom";
+import StudioPage from "@/pages/Studio";
+
+export default function AppRouter() {
+  return (
+    <Routes>
+      {/* other routes */}
+      <Route path="/studio" element={<StudioPage />} />
+    </Routes>
+  );
+}

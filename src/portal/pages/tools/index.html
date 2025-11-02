@@ -3,494 +3,71 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Errl — Tools</title>
+<title>Errl — Studio</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{ --ink:#e5eaf1; --gap:28px; --outer-pad:56px; }
+:root{ --ink:#e5eaf1; --outer-pad:56px; }
 *{box-sizing:border-box} html,body{height:100%;margin:0}
 body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0a0f18; color:var(--ink);}
 
-/* ===== HEADER SHELL ===== */
+/* ===== HEADER SHELL (kept from Tools) ===== */
 .errl-header {
-  position: sticky;
-  top: 0;
-  width: 100%;
-  background: 
-    linear-gradient(135deg, 
-      rgba(220,220,240,0.95) 0%, 
-      rgba(180,180,200,0.9) 25%, 
-      rgba(160,160,180,0.9) 50%, 
-      rgba(180,180,200,0.9) 75%, 
-      rgba(220,220,240,0.95) 100%
-    ),
-    linear-gradient(45deg, 
-      rgba(255,255,255,0.3) 0%, 
-      transparent 30%, 
-      transparent 70%, 
-      rgba(255,255,255,0.3) 100%
-    );
-  box-shadow:
-    0 8px 32px rgba(0,0,0,0.4),
-    0 1px 0 rgba(255,255,255,0.4) inset,
-    0 -1px 0 rgba(0,0,0,0.2) inset;
+  position: sticky; top: 0; width: 100%;
+  background:
+    linear-gradient(135deg, rgba(220,220,240,0.95) 0%, rgba(180,180,200,0.9) 25%, rgba(160,160,180,0.9) 50%, rgba(180,180,200,0.9) 75%, rgba(220,220,240,0.95) 100%),
+    linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.3) 100%);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.4) inset, 0 -1px 0 rgba(0,0,0,0.2) inset;
   border-bottom: 1px solid rgba(120,120,140,0.6);
-  padding: 0.75rem 1rem;
-  z-index: 999;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Roboto", sans-serif;
-  letter-spacing: -0.03em;
+  padding: 0.75rem 1rem; z-index: 999; letter-spacing: -0.03em;
 }
+.errl-header-content { display:flex; align-items:center; justify-content:space-between; max-width:1200px; margin:0 auto; }
 
-.errl-header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+/* Back button */
+.errl-home-btn{ display:inline-flex; align-items:center; gap:.5rem; color:#fff; background: linear-gradient(135deg, #ff0080 0%, #8000ff 25%, #0080ff 50%, #00ff80 75%, #ff8000 100%); background-size:200% 200%; border:1px solid rgba(255,255,255,0.3); border-radius:999px; font-size:.8rem; font-weight:600; line-height:1; padding:.55rem .9rem .6rem; box-shadow:0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.3) inset; text-decoration:none; text-shadow:0 1px 2px rgba(0,0,0,0.8); animation: rainbow-flow 3s linear infinite; }
+@keyframes rainbow-flow{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+@media (max-width: 640px){ .errl-home-btn{ width:38px; height:38px; padding:0; border-radius:999px; display:inline-grid; place-items:center; overflow:hidden; font-size:0; } .errl-home-btn::before{ content:'←'; font-size:16px; line-height:1; filter: drop-shadow(0 1px 2px rgba(0,0,0,.8)); } }
 
-/* ===== LEFT SIDE: BACK TO PORTAL ===== */
-.errl-home-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #fff;
-  background: linear-gradient(135deg, 
-    #ff0080 0%, #8000ff 25%, #0080ff 50%, #00ff80 75%, #ff8000 100%);
-  background-size: 200% 200%;
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1;
-  padding: 0.55rem 0.9rem 0.6rem;
-  box-shadow:
-    0 4px 12px rgba(0,0,0,0.3),
-    0 1px 0 rgba(255,255,255,0.3) inset;
-  text-decoration: none;
-  position: relative;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-  animation: rainbow-flow 3s linear infinite;
-}
-
-@keyframes rainbow-flow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.errl-home-btn:hover {
-  box-shadow:
-    0 6px 16px rgba(0,0,0,0.4),
-    0 1px 0 rgba(255,255,255,0.4) inset;
-  transform: translateY(-1px);
-  transition: all .2s ease;
-}
-
-/* ===== CENTER: NAV BUBBLES ===== */
-.errl-nav {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-/* ===== BUBBLE-LINK BUTTONS ===== */
-.errl-bubble-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 6.5rem;
-  max-width: 10rem;
-  padding: 0.6rem 0.9rem 0.7rem;
-
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1.1;
-  text-align: center;
-  color: #e8e8e8;
-  text-decoration: none;
-  white-space: nowrap;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-
-  background: 
-    linear-gradient(135deg, 
-      rgba(100,100,120,0.9) 0%, 
-      rgba(60,60,80,0.9) 25%, 
-      rgba(40,40,60,0.9) 50%, 
-      rgba(60,60,80,0.9) 75%, 
-      rgba(100,100,120,0.9) 100%
-    ),
-    linear-gradient(45deg, 
-      rgba(255,255,255,0.1) 0%, 
-      transparent 30%, 
-      transparent 70%, 
-      rgba(255,255,255,0.1) 100%
-    );
-
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  box-shadow:
-    0 4px 12px rgba(0,0,0,0.3),
-    0 1px 0 rgba(255,255,255,0.2) inset,
-    0 -1px 0 rgba(0,0,0,0.3) inset;
-}
-
-/* LED Strip Outline */
-.errl-bubble-btn::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 999px;
-  padding: 2px;
-  background: linear-gradient(90deg, 
-    rgba(0,255,255,0.6) 0%, 
-    rgba(255,0,255,0.6) 25%, 
-    rgba(255,255,0,0.6) 50%, 
-    rgba(0,255,0,0.6) 75%, 
-    rgba(0,255,255,0.6) 100%
-  );
-  background-size: 200% 100%;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: xor;
-  -webkit-mask-composite: xor;
-  animation: led-flow 2s linear infinite;
-  opacity: 0.7;
-}
-
-@keyframes led-flow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
-}
-
-/* Active state for current page */
-.errl-bubble-btn.active {
-  background: 
-    linear-gradient(135deg, 
-      rgba(140,140,160,0.95) 0%, 
-      rgba(100,100,130,0.95) 25%, 
-      rgba(80,80,110,0.95) 50%, 
-      rgba(100,100,130,0.95) 75%, 
-      rgba(140,140,160,0.95) 100%
-    ),
-    linear-gradient(45deg, 
-      rgba(255,255,255,0.2) 0%, 
-      transparent 30%, 
-      transparent 70%, 
-      rgba(255,255,255,0.2) 100%
-    );
-  
-  color: #fff;
-  font-weight: 700;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-  
-  box-shadow:
-    0 6px 16px rgba(0,0,0,0.4),
-    0 1px 0 rgba(255,255,255,0.3) inset,
-    0 -1px 0 rgba(0,0,0,0.4) inset;
-}
-
-/* Different LED pattern for active button */
-.errl-bubble-btn.active::before {
-  background: 
-    radial-gradient(circle at 0% 50%, rgba(255,255,255,0.8) 0%, transparent 25%),
-    radial-gradient(circle at 25% 50%, rgba(255,255,255,0.8) 0%, transparent 25%),
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 25%),
-    radial-gradient(circle at 75% 50%, rgba(255,255,255,0.8) 0%, transparent 25%),
-    radial-gradient(circle at 100% 50%, rgba(255,255,255,0.8) 0%, transparent 25%);
-  background-size: 20% 100%;
-  animation: led-pulse 1s ease-in-out infinite alternate;
-  opacity: 0.9;
-}
-
-@keyframes led-pulse {
-  0% { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
-/* Chrome shine highlight */
-.errl-bubble-btn::after {
-  content: "";
-  position: absolute;
-  left: 20%;
-  right: 20%;
-  top: 15%;
-  height: 25%;
-  border-radius: 999px;
-  background: linear-gradient(135deg, 
-    rgba(255,255,255,0.6) 0%, 
-    rgba(255,255,255,0.3) 50%, 
-    rgba(255,255,255,0) 100%
-  );
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-.errl-bubble-btn:hover {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow:
-    0 6px 16px rgba(0,0,0,0.4),
-    0 1px 0 rgba(255,255,255,0.3) inset,
-    0 -1px 0 rgba(0,0,0,0.4) inset;
-  transition: all .2s ease;
-}
-
-.errl-bubble-btn:hover::before {
-  animation-duration: 1s;
-}
+/* Nav bubbles */
+.errl-nav{ display:flex; gap:.5rem; align-items:center; }
+.errl-bubble-btn{ position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:6.5rem; max-width:10rem; padding:.6rem .9rem .7rem; border-radius:999px; font-size:.8rem; font-weight:600; line-height:1.1; text-align:center; color:#e8e8e8; text-decoration:none; white-space:nowrap; text-shadow:0 1px 3px rgba(0,0,0,0.8); background: linear-gradient(135deg, rgba(100,100,120,0.9) 0%, rgba(60,60,80,0.9) 25%, rgba(40,40,60,0.9) 50%, rgba(60,60,80,0.9) 75%, rgba(100,100,120,0.9) 100%), linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.1) 100%); border:2px solid transparent; background-clip:padding-box; box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 0 rgba(0,0,0,0.3) inset; }
+.errl-bubble-btn::before{ content:""; position:absolute; inset:-2px; border-radius:999px; padding:2px; background: linear-gradient(90deg, rgba(0,255,255,0.6) 0%, rgba(255,0,255,0.6) 25%, rgba(255,255,0,0.6) 50%, rgba(0,255,0,0.6) 75%, rgba(0,255,255,0.6) 100%); background-size:200% 100%; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite:xor; -webkit-mask-composite:xor; animation: led-flow 2s linear infinite; opacity:.7; }
+@keyframes led-flow{ 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+.errl-bubble-btn.active{ background: linear-gradient(135deg, rgba(140,140,160,0.95) 0%, rgba(100,100,130,0.95) 25%, rgba(80,80,110,0.95) 50%, rgba(100,100,130,0.95) 75%, rgba(140,140,160,0.95) 100%), linear-gradient(45deg, rgba(255,255,255,0.2) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.2) 100%); color:#fff; font-weight:700; text-shadow:0 1px 3px rgba(0,0,0,0.9); box-shadow: 0 6px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.3) inset, 0 -1px 0 rgba(0,0,0,0.4) inset; }
+.errl-bubble-btn.active::before{ background: radial-gradient(circle at 0% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 25% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 75% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 100% 50%, rgba(255,255,255,0.8) 0%, transparent 25%); background-size:20% 100%; animation: led-pulse 1s ease-in-out infinite alternate; opacity:.9; }
+@keyframes led-pulse{ 0%{opacity:.5} 100%{opacity:1} }
 
 .h1{font-size:clamp(22px,4vmin,34px); font-weight:800; margin:0; opacity:.9}
-.toolbar{ display:flex; gap:10px; align-items:center; padding:12px var(--outer-pad); opacity:.85; }
-.toolbar .rebtn{ padding:6px 10px; border-radius:8px; border:1px solid #ffffff22; background:#10182a; color:#d7eaff; font-weight:700; cursor:pointer; }
-.toolbar .rebtn[aria-pressed="true"]{ background:#152038; }
-/* Vertical stack: each tool is centered and resizable */
-.stack{ margin:8px 0 14px; padding: 16px var(--outer-pad) var(--outer-pad); display:flex; flex-direction:column; gap: var(--gap); position:relative; align-items:center; }
-.stack.dragging{ user-select:none; }
-.stack.dragging iframe{ pointer-events:none !important; }
-
-/* Grid mode */
-.grid2{ margin:8px 0 14px; padding: 16px var(--outer-pad) var(--outer-pad); display:grid; gap: var(--gap); grid-template-columns: repeat(2, minmax(360px, 1fr)); align-items:start; }
-.grid2 .box{ width: 100% !important; aspect-ratio:auto !important; height:auto !important; min-height:320px; }
-.grid2 .row-resize, .grid2 .col-resize{ display:none !important; }
-
-/* Mobile: same, but ensure comfortable default heights */
-/* Mobile responsive improvements */
-@media (max-width: 900px){
-  :root { --outer-pad: 16px; } /* Reduce padding on mobile */
-  
-  .header { padding: 12px var(--outer-pad); }
-  .toolbar { padding: 12px var(--outer-pad); flex-wrap: wrap; }
-  
-  .box { min-height: 50vh; }
-  .box .row-resize { height: 12px; } /* Larger touch target */
-  .box .col-resize { width: 12px; height: 64px; } /* Larger touch target */
-  
-  .grid2 {
-    grid-template-columns: 1fr; /* Single column on mobile */
-    gap: 20px;
-  }
-  
-  .grid2 .box {
-    min-height: 40vh; /* Smaller minimum height */
-  }
-  
-  .toolbar label {
-    font-size: 14px;
-  }
-  
-  .toolbar input[type="range"] {
-    width: 100px;
-  }
-}
-
-@media (max-width: 600px){
-  :root { --outer-pad: 12px; }
-  
-  .h1 { font-size: clamp(18px, 5vw, 28px); }
-  
-  .toolbar {
-    gap: 8px;
-  }
-  
-  .toolbar .rebtn {
-    padding: 4px 8px;
-    font-size: 12px;
-  }
-  
-  .box header {
-    padding: 8px 12px;
-    font-size: 14px;
-  }
-  
-  .box header .controls a.dl {
-    padding: 4px 6px;
-    font-size: 10px;
-  }
-}
-
-.box{ position:relative; display:flex; flex-direction:column; border-radius:16px; background:#ffffff06; border:1px solid #ffffff14; box-shadow:0 12px 30px rgba(0,0,0,.38); overflow:hidden; 
-  width: var(--w, 360px); max-width: 100%; aspect-ratio: 1 / 1; /* start square */
-}
-.box[data-free="1"]{ aspect-ratio: auto; height: var(--h, 360px); }
-.box header{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 36px; font-weight:700; color:#cfe9ff; border-bottom:1px solid #ffffff14; background:linear-gradient(180deg, rgba(12,18,32,.7), rgba(10,15,24,.6)); }
-.box header .controls{ display:flex; align-items:center; gap:8px; font-weight:600; font-size:12px; opacity:.9; }
-.box header .controls a.dl{ display:inline-block; padding:4px 8px; border-radius:8px; border:1px solid #ffffff22; background:#10182a; color:#d7eaff; text-decoration:none; }
-.box header .controls a.dl:hover{ background:#152038; }
-/* Rearrange arrows */
-.box header .arr{ position:absolute; top:8px; width:24px; height:24px; border-radius:6px; border:1px solid #ffffff22; background:#10182a; color:#d7eaff; display:none; place-items:center; font-weight:800; line-height:1; padding:0; cursor:pointer; }
-.reorder-on .box header .arr{ display:grid; }
-.box header .arr.left{ left:8px; }
-.box header .arr.right{ right:8px; }
-.box .frame{ position:relative; flex:1; display:grid; place-items:center; background:
-  radial-gradient(80% 60% at 50% 35%, rgba(123,92,255,.18), rgba(123,92,255,0) 60%),
-  radial-gradient(120% 100% at 50% 120%, rgba(0,229,255,.10), rgba(0,229,255,0) 60%),
-  linear-gradient(180deg, #0f1326, #0a0f18 60%);
-}
-.box .frame .inner{ width:100%; height:100%; transform: none; transform-origin:center; box-shadow: 0 0 0 0 rgba(0,0,0,0); }
-.box .frame iframe{ width:100%; height:100%; border:0; background:transparent; }
-.box .frame img.preview{ width:100%; height:100%; object-fit:cover; display:block; }
-.box .frame .missing{ color:#9ecbff; opacity:.9; text-align:center; }
-/* Resize handles */
-.box .row-resize{ position:absolute; left:10px; right:10px; bottom:0; height:8px; cursor:row-resize; background:linear-gradient(180deg,#7fb2ff55,#7fb2ff33); border-radius:3px; box-shadow:0 0 0 1px #7fb2ff40, 0 2px 8px #00000055; }
-.box .col-resize{ position:absolute; top:50%; right:0; transform:translateY(-50%); width:8px; height:48px; cursor:col-resize; background:linear-gradient(90deg,#7fb2ff55,#7fb2ff33); border-radius:3px 0 0 3px; box-shadow:0 0 0 1px #7fb2ff40, 0 2px 8px #00000055; }
-.hint{ font-size:12px; opacity:.8; padding:10px 12px; border-top:1px dashed #ffffff1a; }
+/* Studio content */
+.main{ max-width: 1100px; margin: 24px auto 80px; padding: 0 var(--outer-pad); }
+.hero{ display:flex; flex-direction:column; gap:12px; padding:24px 18px; }
+.hero h1{ font-size: clamp(28px, 6vmin, 48px); margin: 0; }
+.hero p{ margin: 0; opacity:.85; line-height:1.6; }
+@media (max-width: 600px){ .main{ padding: 0 16px; } }
 </style>
 <link rel="stylesheet" href="../../../fx/errl-bg.css">
 </head>
 <body>
   <header class="errl-header">
     <div class="errl-header-content">
-<a class="errl-home-btn" href="../../index.html">← Back to Portal</a>
-      
+      <a class="errl-home-btn" href="../../index.html">← Back to Portal</a>
       <nav class="errl-nav">
-<a class="errl-bubble-btn" href="../about/index.html">About Errl</a>
+        <a class="errl-bubble-btn" href="../about/index.html">About Errl</a>
         <a class="errl-bubble-btn" href="../gallery/index.html">Gallery</a>
         <a class="errl-bubble-btn" href="../projects/index.html">Projects</a>
+        <a class="errl-bubble-btn active" href="../tools/index.html">Studio</a>
         <a class="errl-bubble-btn" href="../pin-designer/index.html">Pin Designer</a>
-        <a class="errl-bubble-btn active" href="../tools/index.html">Tools</a>
       </nav>
     </div>
   </header>
-  <div class="toolbar">
-<span>Mode</span>
-<button id="modeToggle" class="rebtn" data-mode="grid" title="Toggle layout mode">Grid</button>
-<button id="reorderToggle" class="rebtn" aria-pressed="false" title="Show rearrange arrows">Rearrange</button>
-<div style="flex:1"></div>
-<label>Spacing <input id="gapCtl" type="range" min="6" max="48" step="1" value="28"> <span id="gapVal">28</span>px</label>
-  </div>
-  <section class="grid2" id="toolsGrid"></section>
-<script>
-// Tools embedded as iframes
-const tools = [
-  { title: 'Atlas Builder', src: './atlas-builder/embed.html' },
-  { title: 'Asset Builder', src: './asset-builder/embed.html' },
-  { title: 'Pin Widget', src: './pin-widget/ErrlPin.Widget/designer.html', download: './pin-widget/ErrlPin.Widget/designer.html' },
-  { title: 'Coming Soon', image: './assets/Coming_Soon_Placeholder.png' },
-  { title: 'Coming Soon', image: './assets/Coming_Soon_Placeholder.png' }
-];
-const grid = document.getElementById('toolsGrid');
-for(const [i,t] of tools.entries()){
-  const box = document.createElement('article'); box.className='box';
-  // start square and centered
-  box.style.setProperty('--w', '360px');
-  const ctrlItems = [];
-  if(t.download){ ctrlItems.push(`<a class=\"dl\" href=\"${t.download}\" download>Download HTML</a>`); }
-  const controls = ctrlItems.length ? `<div class=\"controls\">${ctrlItems.join('')}</div>` : '';
-  const body = t.src ? `<div class=\"frame\"><div class=\"inner\"><iframe src=\"${t.src}\" loading=\"lazy\" referrerpolicy=\"no-referrer\"></iframe></div></div>` : (t.image ? `<div class=\"frame\"><div class=\"inner\"><img class=\"preview\" src=\"${t.image}\" alt=\"${t.title}\" onerror=\"this.replaceWith(Object.assign(document.createElement('div'),{className:'missing',textContent:'Image not found — drop a JPG/PNG here'}) );\"></div></div>` : `<div class=\"frame\" style=\"display:grid;place-items:center;color:#9ecbff\">Coming soon</div>`);
-  box.innerHTML = `<header><button class=\"arr left\" title=\"Move earlier\"></button><span>${t.title}</span>${controls}<button class=\"arr right\" title=\"Move later\"></button></header>${body}<div class=\"row-resize\" title=\"Drag to resize height\"></div><div class=\"col-resize\" title=\"Drag to resize width\"></div>`;
-  grid.appendChild(box);
-  const prevBtn = box.querySelector('.arr.left');
-  const nextBtn = box.querySelector('.arr.right');
-  function moveGlyphs(){
-    const stack = grid.classList.contains('stack');
-    prevBtn.textContent = stack ? '↑' : '◀';
-    nextBtn.textContent = stack ? '↓' : '▶';
-  }
-  moveGlyphs();
-  prevBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); ev.stopPropagation(); const prev = box.previousElementSibling; if(prev) grid.insertBefore(box, prev); });
-  nextBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); ev.stopPropagation(); const next = box.nextElementSibling; if(next) grid.insertBefore(box, next.nextElementSibling); });
-}
-
-// Gap control
-const gapCtl = document.getElementById('gapCtl');
-const gapVal = document.getElementById('gapVal');
-function applyGap(v){ document.documentElement.style.setProperty('--gap', v+'px'); gapVal.textContent = v; }
-if(gapCtl){ gapCtl.addEventListener('input', ()=> { applyGap(gapCtl.value); requestAnimationFrame(sizeToWindowIfStack); }); applyGap(gapCtl.value); }
-
-// Mode toggle (button)
-const modeToggle = document.getElementById('modeToggle');
-function updateArrowGlyphs(){
-  const stack = grid.classList.contains('stack');
-  grid.querySelectorAll('.arr.left').forEach(b=> b.textContent = stack ? '↑' : '◀');
-  grid.querySelectorAll('.arr.right').forEach(b=> b.textContent = stack ? '↓' : '▶');
-}
-function setMode(mode){
-  if(mode === 'grid'){ grid.className = 'grid2'; if(modeToggle){ modeToggle.dataset.mode = 'grid'; modeToggle.textContent = 'Grid'; } }
-  else { grid.className = 'stack'; if(modeToggle){ modeToggle.dataset.mode = 'stack'; modeToggle.textContent = 'Vertical'; } requestAnimationFrame(sizeToWindowIfStack); }
-  updateArrowGlyphs();
-}
-if(modeToggle){
-  modeToggle.addEventListener('click', ()=>{
-    const current = modeToggle.dataset.mode === 'grid' ? 'grid' : 'stack';
-    setMode(current === 'grid' ? 'stack' : 'grid');
-  });
-  // sync initial button label with current layout
-  setMode(grid.classList.contains('grid2') ? 'grid' : 'stack');
-}
-
-// Reorder toggle
-const reorderToggle = document.getElementById('reorderToggle');
-if(reorderToggle){
-  reorderToggle.addEventListener('click', ()=>{
-    const on = !grid.classList.contains('reorder-on');
-    grid.classList.toggle('reorder-on', on);
-    reorderToggle.setAttribute('aria-pressed', String(on));
-    reorderToggle.textContent = on ? 'Done' : 'Rearrange';
-    updateArrowGlyphs();
-  });
-}
-
-// Default sizing to fit window (stack mode): keep square until user resizes
-function sizeToWindowIfStack(){
-  if(!grid.classList.contains('stack')) return;
-  const cs = getComputedStyle(grid);
-  const padL = parseFloat(cs.paddingLeft)||0, padR = parseFloat(cs.paddingRight)||0;
-  const innerW = grid.clientWidth - padL - padR;
-  const target = Math.max(320, Math.round(innerW * 0.6)); // 60% of inner width
-  for(const box of grid.querySelectorAll('.box')){
-    if(!box.dataset.free && !box.dataset.userw){ // only auto-size if still square mode and not manually width-resized
-      box.style.setProperty('--w', target + 'px');
-    }
-  }
-}
-window.addEventListener('resize', ()=> requestAnimationFrame(sizeToWindowIfStack));
-requestAnimationFrame(sizeToWindowIfStack);
-
-// Resizing: width (right handle) and height (bottom bar)
-(function(){
-  const MIN_W = 240; const MAX_W = () => {
-    const cs = getComputedStyle(grid); const padL = parseFloat(cs.paddingLeft)||0; const padR = parseFloat(cs.paddingRight)||0; 
-    return grid.clientWidth - padL - padR; };
-  const MIN_H = 200; const MAX_H = 1200; // px
-
-  function onDown(e){
-    if(!grid.classList.contains('stack')) return; // only resizable in stack mode
-    const rowH = e.target.closest('.row-resize');
-    const colW = e.target.closest('.col-resize');
-    if(!rowH && !colW) return;
-    e.preventDefault();
-    const box = (rowH||colW).closest('.box');
-    grid.classList.add('dragging');
-    const rect = box.getBoundingClientRect();
-    const startW = rect.width; const startH = rect.height; const sx = e.clientX; const sy = e.clientY;
-
-    function move(ev){
-      if(colW){
-        const dx = ev.clientX - sx; const w = Math.max(MIN_W, Math.min(MAX_W(), Math.round(startW + dx)));
-        box.style.setProperty('--w', w + 'px');
-        box.dataset.userw = '1';
-      }
-      if(rowH){
-        const dy = ev.clientY - sy; const h = Math.max(MIN_H, Math.min(MAX_H, Math.round(startH + dy)));
-        box.dataset.free = '1'; // unlock aspect
-        box.style.setProperty('--h', h + 'px');
-      }
-    }
-    function up(){
-      grid.classList.remove('dragging');
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-    }
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-  }
-
-  grid.addEventListener('pointerdown', onDown);
-})();
-</script>
-<script type="module" src="../../../fx/errl-bg.ts"></script>
-<script>window.ErrlBG && ErrlBG.mount({ headerVariant: 1, basePath: '../../..', hud: true });</script>
+  <main class="main">
+    <section class="hero">
+      <h1>Errl's Studio</h1>
+      <p>Experiments, tools, and live prototypes live here. We’ll be pulling in more apps soon.</p>
+      <p style="opacity:.75">Color Customizer and Pin Widget are under Projects for now.</p>
+    </section>
+  </main>
+  <script type="module" src="../../../fx/errl-bg.ts"></script>
+  <script>window.ErrlBG && ErrlBG.mount({ headerVariant: 1, basePath: '../../..', hud: true });</script>
 </body>
 </html>

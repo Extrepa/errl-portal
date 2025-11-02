@@ -78,6 +78,11 @@
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+/* Back button: compact circle on small screens */
+@media (max-width: 640px){
+  .errl-home-btn{ width:38px; height:38px; padding:0; border-radius:999px; display:inline-grid; place-items:center; overflow:hidden; font-size:0; }
+  .errl-home-btn::before{ content:'←'; font-size:16px; line-height:1; filter: drop-shadow(0 1px 2px rgba(0,0,0,.8)); }
+}
 
 .errl-home-btn:hover {
   box-shadow:
@@ -247,15 +252,19 @@
   .btn{border:1px solid var(--line);background:#1a1f2d;color:var(--ink);border-radius:8px;padding:6px 8px;font-weight:600;cursor:pointer;font-size:12px}
   .btn.brand{background:linear-gradient(180deg,#7b5cff,#5a46ff);color:#fff}
   .btn.ghost{background:transparent}
-  .content{display:grid;grid-template-columns:var(--sidebar) 8px 1fr;grid-template-areas:'left split stage';gap:6px;padding:6px;min-height:0;height:calc(100dvh - 60px)}
+.content{display:grid;grid-template-columns:var(--sidebar) 8px 1fr;grid-template-areas:'left split stage';gap:6px;padding:6px;min-height:0;height:calc(100dvh - 60px)}
   .panel{grid-area:left;background:#0f1422;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
   .splitter{grid-area:split;background:linear-gradient(180deg,#ffffff08,#ffffff10);border:1px solid var(--line);border-radius:6px;cursor:col-resize}
   .stage{grid-area:stage;position:relative;background:#0c101a;border:1px solid var(--line);border-radius:10px;min-height:420px;overflow:hidden}
   @media(max-width:900px){
-    .content{grid-template-areas:'stage' 'left';grid-template-columns:1fr;grid-auto-rows:minmax(320px,1fr) auto}
+    .content{grid-template-areas:'left' 'stage';grid-template-columns:1fr;grid-auto-rows:auto minmax(320px,1fr)}
     .splitter{display:none}
     :root{--sidebar:100%}
     .panel{max-height:55vh}
+  }
+  @media(max-width:900px) and (orientation:landscape){
+    .content{grid-template-columns:1fr 0  min(56vw, 520px); grid-template-areas:'stage split left'}
+    .panel{max-height:none}
   }
   .panel h2{margin:0;padding:6px 8px;border-bottom:1px solid var(--line);font-size:11px;color:#cbd2e2;text-transform:uppercase}
   .controls{padding:6px;display:grid;gap:6px;overflow:auto;min-height:0;flex:1 1 auto;overscroll-behavior:contain;font-size:12px}
@@ -318,7 +327,7 @@
       <a class="errl-bubble-btn" href="../gallery/index.html">Gallery</a>
       <a class="errl-bubble-btn" href="../projects/index.html">Projects</a>
       <a class="errl-bubble-btn active" href="../pin-designer/index.html">Pin Designer</a>
-      <a class="errl-bubble-btn" href="../tools/index.html">Tools</a>
+      <a class="errl-bubble-btn" href="../tools/index.html">Studio</a>
     </nav>
     
     <div style="display:flex;gap:6px;align-items:center">
@@ -360,6 +369,14 @@
           <div class="finish" data-finish="glitter"><span class="ico glitter"></span> Glitter</div>
           <div class="finish" data-finish="glow"><span class="ico glow"></span> Glow</div>
           <div class="finish" data-finish="none"><span class="ico none"></span> Metal / none</div>
+        </div>
+      </div>
+      <div>
+        <div class="mini">Glitter Style</div>
+        <div class="finish-bubbles" id="glitterChips" style="display:none">
+          <div class="finish" data-grad="glitterGoldPink">Gold + Pink</div>
+          <div class="finish" data-grad="glitterSilver">Silver</div>
+          <div class="finish" data-grad="glitterRainbow">Rainbow</div>
         </div>
       </div>
       <div>
@@ -405,14 +422,89 @@
           <feBlend in="SourceGraphic" in2="clipped" mode="screen"/>
           <animate attributeName="opacity" values="1;0.6;1" dur="1s" repeatCount="indefinite"/>
         </filter>
+        <!-- Glitter Overlay (gradient + sparkle combo) -->
+        <filter id="glitterOverlay">
+          <feTurbulence type="turbulence" baseFrequency="0.8" numOctaves="2" seed="7" result="noise"/>
+          <feColorMatrix in="noise" type="matrix"
+            values="0 0 0 0 1
+                    0 0 0 0 1
+                    0 0 0 0 1
+                    0 0 0 0.6 0" result="sparkle"/>
+          <feComposite in="sparkle" in2="SourceAlpha" operator="in" result="clipped"/>
+          <feBlend in="SourceGraphic" in2="clipped" mode="screen"/>
+        </filter>
+        <!-- Glitter Gradients -->
+        <linearGradient id="glitterGoldPink" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFD700" />
+          <stop offset="100%" stop-color="#FF69B4" />
+        </linearGradient>
+        <linearGradient id="glitterSilver" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#cccccc" />
+          <stop offset="100%" stop-color="#ffffff" />
+        </linearGradient>
+        <linearGradient id="glitterRainbow" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff0000" />
+          <stop offset="25%" stop-color="#ff9900" />
+          <stop offset="50%" stop-color="#33cc33" />
+          <stop offset="75%" stop-color="#3399ff" />
+          <stop offset="100%" stop-color="#9900cc" />
+        </linearGradient>
       </defs>
       <g id="region-body"></g>
       <g id="region-face"></g>
       <g id="region-eyeL"></g>
       <g id="region-eyeR"></g>
       <g id="region-mouth"></g>
+      <g id="glitter-layer" pointer-events="none"></g>
       <path id="outline-plating" fill="none" stroke="#0a0a0c" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
     </svg>
+    <script>
+      (function(){
+        function applyGlitter(regionGroupId, gradientId, filterId){
+          gradientId = gradientId || 'glitterGoldPink';
+          filterId = filterId || 'glitterOverlay';
+          try {
+            var svg = document.getElementById('pinSVG');
+            var layer = document.getElementById('glitter-layer');
+            var target = document.getElementById(regionGroupId);
+            if(!svg || !layer || !target) return;
+            var useId = 'glitter-'+regionGroupId;
+            var existing = document.getElementById(useId);
+            if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+            var use = document.createElementNS('http://www.w3.org/2000/svg','use');
+            use.setAttribute('id', useId);
+            use.setAttribute('href', '#'+regionGroupId);
+            use.setAttribute('fill', 'url(#'+gradientId+')');
+            use.setAttribute('filter', 'url(#'+filterId+')');
+            use.setAttribute('opacity', '1');
+            layer.appendChild(use);
+          } catch(e) { /* noop */ }
+        }
+        window.applyGlitter = applyGlitter;
+      })();
+    </script>
+    <script>
+      (function(){
+        function currentRegion(){
+          var sel = document.querySelector('#bubbleRow .bubble.active, #bubbleRow .bubble.selected');
+          var r = (sel && sel.getAttribute('data-region')) || 'body';
+          return r === 'all' ? 'body' : r;
+        }
+        var chips = document.querySelectorAll('#glitterChips .finish');
+        chips.forEach(function(el){
+          el.addEventListener('click', function(){
+            var grad = el.getAttribute('data-grad') || 'glitterGoldPink';
+            var r = currentRegion();
+            if (window.applyGlitter) window.applyGlitter('region-'+r, grad, 'glitterOverlay');
+          });
+        });
+        // show chips only when Glitter finish selected
+        var finishRow = document.getElementById('finishRow');
+        function updateGlitterChips(){ var any = finishRow && finishRow.querySelector('.finish[data-finish="glitter"].active, .finish[data-finish="glitter"].selected'); var box = document.getElementById('glitterChips'); if (box) box.style.display = any ? 'flex' : 'none'; }
+        if (finishRow){ finishRow.addEventListener('click', function(e){ var btn=e.target.closest('.finish'); if(!btn) return; updateGlitterChips(); }); }
+        updateGlitterChips();
+      })();
+    </script>
     <div class="zoombar">
       <button class="btn" id="zoomOut" title="Zoom out">−</button>
       <button class="btn" id="zoomIn" title="Zoom in">+</button>

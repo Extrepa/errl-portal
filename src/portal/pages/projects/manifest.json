@@ -1,5 +1,8 @@
 [
   { "title": "Floating Head Coin", "path": "errl-head-coin/index.html" },
   { "title": "Floating Head Coin V2", "path": "errl-head-coin-v2/index.html" },
-  { "title": "Floating Head Coin V3", "path": "errl-head-coin-v3/index.html" }
+  { "title": "Floating Head Coin V3", "path": "errl-head-coin-v3/index.html" },
+  { "title": "Floating Head Coin V4", "path": "errl-head-coin-v4/index.html" },
+  { "title": "Errl Face Popout", "path": "errl-face-popout/index.html" },
+  { "title": "Walking Errl (Animated SVG)", "path": "walking-errl/index.html" }
 ]

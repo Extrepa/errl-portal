@@ -1,18 +1,15 @@
 (() => {
   // Known layers and selectors
-  const LAYERS: Record<string, { label: string; selectors?: string[]; type?: string }> = {
-    background: { label: 'Background (L0)', selectors: ['.l0'] },
-    motes: { label: 'Motes (L2)', selectors: ['.l2 .mote', '#motesLayer .mote', '.mote'] },
-    drip: { label: 'Drip Frame (L3)', selectors: ['.l3 .drip'] },
-    errl: { label: 'Errl (L4)', selectors: ['#errl-img', '#errl-inline', '.l4 .errl'] },
-    nav: { label: 'Nav Bubbles (L5)', selectors: ['.ui-orbit .btn'] },
-    awakening: { label: 'Awakening (L6)', selectors: ['.l6 .portal-drip', '.l6 .sigil'] },
-    hud: { label: 'HUD', selectors: ['#hud', '#hud .bubble', '#hud .chip'] },
+const LAYERS: Record<string, { label: string; selectors?: string[]; type?: string }> = {
+    background: { label: 'Background', selectors: ['.errl-bg .base', '.errl-bg .shimmer', '.vignette-frame'] },
+    riseBubbles: { label: 'Rising Bubbles', selectors: ['#riseBubbles'] },
+    errl: { label: 'Errl', selectors: ['#errlCenter', '#errlInlineSVG', '.errl-svg'] },
+    nav: { label: 'Navigation', selectors: ['.nav-orbit .bubble'] },
     glOverlay: { label: 'GL Overlay', type: 'webglOverlay' },
     bgBubbles: { label: 'GL Background Bubbles', type: 'webglBubbles' },
   };
 
-  const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: true };
+const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: false };
 
   const HueController: any = {
     layers: Object.keys(LAYERS).reduce((acc: any, k) => {
@@ -39,6 +36,7 @@
       startTime: 0,
       speed: 1.0,
       layer: 'nav',
+      mode: 'loop' as 'loop' | 'ping',
     },
 
     init() {
@@ -165,15 +163,16 @@
     toggleAnimation(speed = 1, layer: string = this.currentTarget) {
       if (this.animation.active) this.stopAnimation(); else this.startAnimation(speed, layer);
     },
-    startAnimation(speed = 1, layer: string = this.currentTarget) {
-      this.animation.active = true; this.animation.startTime = Date.now(); this.animation.speed = speed; this.animation.layer = layer; this.animationLoop();
+    startAnimation(speed = 1, layer: string = this.currentTarget, mode: 'loop'|'ping' = 'loop') {
+      this.animation.active = true; this.animation.startTime = Date.now(); this.animation.speed = speed; this.animation.layer = layer; this.animation.mode = mode; this.animationLoop();
     },
     stopAnimation() { this.animation.active = false; },
     animationLoop() {
       if (!this.animation.active) return;
       const elapsed = Date.now() - this.animation.startTime;
       const cycle = 15000 / this.animation.speed;
-      const p = (elapsed % cycle) / cycle;
+      const base = (elapsed % cycle) / cycle;
+      const p = (this.animation.mode === 'ping') ? Math.abs(base*2 - 1) : base; // 0..1
       const h = p * 360;
       const L = this.animation.layer;
       this.layers[L].hue = h;

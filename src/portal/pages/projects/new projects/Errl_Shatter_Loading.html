@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Errl Shatter Loader</title>
+
+<style>
+  :root {
+    --bg-deep: #000e0f;           /* almost black teal like your screenshot */
+    --stroke-color: #ffffff;      /* white polygon outlines */
+    --stroke-width: 3px;
+    --txt-color: #dcdcdc;
+    --blur-color: rgba(220,220,220,0.2);
+
+    /* color stops we’ll cycle through on shards */
+    --c0: #b40431;
+    --c1: orange;
+    --c2: yellow;
+    --c3: #11a029; /* toxic green */
+    --c4: #6c0ba9; /* errl violet */
+    --c5: #00d5ff; /* cyan pop */
+  }
+
+  body {
+    background-color: var(--bg-deep);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+    color: var(--txt-color);
+    letter-spacing: .15em;
+  }
+
+  .loader-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+  }
+
+  /* match screenshot-ish sizing */
+  .svg-hw {
+    width: 250px;
+    height: 250px;
+    position: relative;
+  }
+
+  /* global shard stroke style */
+  .shard {
+    stroke: var(--stroke-color);
+    stroke-width: var(--stroke-width);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-opacity: 1;
+    animation: move7050 4s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  /* We’ll offset each shard differently with custom properties */
+  .shard[data-dx][data-dy][data-rot] {
+    animation-name: move7050;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+  }
+
+  /* Text under it */
+  .loading-text {
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--txt-color);
+    text-transform: uppercase;
+    position: relative;
+    letter-spacing: 0.4em;
+  }
+
+  /* blurry shadow clone behind text like screenshot */
+  .loading-text::after {
+    content: "LOADING ERRL PORTAL…";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: transparent;
+    text-shadow: 0 8px 12px var(--blur-color), 0 12px 24px var(--blur-color);
+    filter: blur(4px);
+    pointer-events: none;
+  }
+
+  /* Keyframes:
+     - 0%   : in position, base color
+     - 10%  : blast outward, rotate, vivid warm
+     - 15%  : further offset, bright yellow
+     - 30%  : drifting back, toxic/Errl green
+     - 60%  : purple
+     - 100% : home + cyan flicker (loops)
+  */
+  @keyframes move7050 {
+    0% {
+      fill: var(--c0);
+      transform: translate(0px, 0px) rotate(0deg) scale(1);
+    }
+    10% {
+      fill: var(--c1);
+      transform:
+        translate(calc(var(--dx) * 0.5), calc(var(--dy) * 0.5))
+        rotate(calc(var(--rot) * 0.5))
+        scale(1.05);
+    }
+    15% {
+      fill: var(--c2);
+      transform:
+        translate(var(--dx), var(--dy))
+        rotate(var(--rot))
+        scale(1.1);
+    }
+    30% {
+      fill: var(--c3);
+      transform:
+        translate(calc(var(--dx) * 0.2), calc(var(--dy) * 0.2))
+        rotate(calc(var(--rot) * 0.2))
+        scale(1.03);
+    }
+    60% {
+      fill: var(--c4);
+      transform:
+        translate(0px, 0px)
+        rotate(0deg)
+        scale(1);
+    }
+    100% {
+      fill: var(--c5);
+      transform:
+        translate(0px, 0px)
+        rotate(0deg)
+        scale(1);
+    }
+  }
+
+  /* Each shard gets its unique flight path via CSS vars.
+     We'll assign them inline on elements with style="--dx: ...;"
+  */
+</style>
+</head>
+<body>
+
+<div class="loader-wrap">
+
+  <!-- SVG Errl silhouette, split into shards.
+       This is a rough blob body + eyes/mouth-ish chunks.
+       You'll eventually replace these <path d="..."> with real Errl slices from Illustrator.
+  -->
+  <svg class="svg-hw" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- BODY SHARDS -->
+    <path class="shard"
+      style="--dx:-40px; --dy:-20px; --rot:-25deg;"
+      d="M70,110 C50,100 40,80 42,60 C44,40 60,28 80,24 C100,20 120,24 132,32 C150,44 158,62 158,80 C158,98 148,110 138,118 C120,132 110,150 108,162 C106,174 98,178 88,176 C78,174 74,166 74,156 C74,140 84,128 84,120 C78,120 74,118 70,110 Z" />
+
+    <path class="shard"
+      style="--dx:30px; --dy:-15px; --rot:35deg;"
+      d="M82,118 C88,120 96,118 104,114 C112,110 120,106 126,98 C132,90 134,84 134,78 C134,68 126,60 116,56 C104,52 92,54 84,60 C78,64 72,72 70,80 C68,88 70,94 72,98 C74,104 78,110 82,118 Z" />
+
+    <path class="shard"
+      style="--dx:20px; --dy:35px; --rot:60deg;"
+      d="M90,140 C88,148 84,156 86,162 C88,166 92,168 98,168 C104,168 108,164 110,160 C112,154 110,148 110,144 C110,138 108,134 106,132 C104,130 100,130 98,130 C94,130 92,134 90,140 Z" />
+
+    <path class="shard"
+      style="--dx:-25px; --dy:30px; --rot:-50deg;"
+      d="M64,112 C60,110 54,108 50,104 C46,100 44,94 44,88 C44,80 48,72 54,68 C58,66 62,66 66,68 C70,70 72,74 74,78 C76,82 78,86 80,90 C82,94 82,98 82,102 C82,108 80,112 78,114 C74,116 68,114 64,112 Z" />
+
+    <!-- LEFT EYE SHARD -->
+    <path class="shard"
+      style="--dx:-15px; --dy:-40px; --rot:20deg;"
+      d="M86,86 C86,80 90,76 94,76 C98,76 102,80 102,86 C102,92 98,96 94,96 C90,96 86,92 86,86 Z" />
+
+    <!-- RIGHT EYE SHARD -->
+    <path class="shard"
+      style="--dx:20px; --dy:-45px; --rot:-35deg;"
+      d="M112,82 C112,78 116,74 120,74 C124,74 128,78 128,82 C128,88 124,92 120,92 C116,92 112,88 112,82 Z" />
+
+    <!-- MOUTH-ish SHARD -->
+    <path class="shard"
+      style="--dx:10px; --dy:20px; --rot:15deg;"
+      d="M90,108 C94,110 102,110 108,108 C112,108 114,110 114,112 C114,114 112,116 110,116 C104,118 98,118 92,116 C88,116 86,114 86,112 C86,110 88,108 90,108 Z" />
+
+    <!-- EXTRA FLOATERS / DRIPS -->
+    <path class="shard"
+      style="--dx:-50px; --dy:10px; --rot:-70deg;"
+      d="M58,146 C56,150 56,156 58,160 C60,164 64,166 66,164 C68,162 68,158 68,156 C68,152 66,148 64,146 C62,144 60,144 58,146 Z" />
+
+    <path class="shard"
+      style="--dx:40px; --dy:50px; --rot:80deg;"
+      d="M120,144 C118,148 118,154 120,158 C122,162 126,164 128,162 C130,160 130,156 130,154 C130,150 128,146 126,144 C124,142 122,142 120,144 Z" />
+
+    <path class="shard"
+      style="--dx:60px; --dy:-10px; --rot:95deg;"
+      d="M132,112 C130,110 130,106 132,102 C134,98 138,96 140,98 C142,100 142,104 142,106 C142,108 140,110 138,112 C136,114 134,114 132,112 Z" />
+
+  </svg>
+
+  <div class="loading-text">
+    LOADING ERRL PORTAL…
+  </div>
+
+</div>
+
+</body>
+</html>

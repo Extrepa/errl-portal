@@ -457,6 +457,7 @@
   W.errlGLSetMood = function(name){ if (!started) init(); setMood(name); };
   W.errlGLSyncOrbs = function(){ if (!started) return; syncOrbsPositions(); };
   W.errlGLOrbHover = function(index, on){ if (!started || !orbs[index]) return; const f=orbs[index].filters && orbs[index].filters[0]; if (f) f.uniforms.uIOR = on ? 1.8 : 1.0; };
+  W.errlGLSetOrbScale = function(scale){ if(!started||!orbs.length) return; const s = Math.max(0.2, Math.min(2.5, scale||1)); orbs.forEach(o=> o && o.scale && o.scale.set(0.72*s)); };
   W.errlGLShowOrbs = function(show){ if (!started) init(); if (orbContainer) orbContainer.visible = !!show; };
   W.errlGLSetGoo = function(p){ if(!started) init(); if(!filter||!p) return; if('intensity' in p) filter.uniforms.uAmp = Math.max(0, Math.min(1, p.intensity)); if('speed' in p) filter.uniforms.uSpeed = Math.max(0, p.speed); if('viscosity' in p) filter.uniforms.uViscosity = Math.max(0, Math.min(1, p.viscosity)); if('drip' in p) filter.uniforms.uDrip = Math.max(0, Math.min(1, p.drip)); if('wiggle' in p) filter.uniforms.uWiggle = Math.max(0, Math.min(1, p.wiggle)); };
   W.errlGLSetBubbles = function(params){
@@ -490,4 +491,5 @@
     else if (kind==='custom' && url) l.set({ textureUrl: url });
   };
   W.errlGLSetOverlay = function(params){ if (!started) init(); if (!overlay) return; if ('alpha' in params) overlay.alpha = params.alpha; if (overlayFilter){ if ('dx' in params) overlayFilter.uniforms.uDX = params.dx; if ('dy' in params) overlayFilter.uniforms.uDY = params.dy; } };
+  W.errlGLGetOverlay = function(){ if (!started) return null; return { alpha: overlay ? overlay.alpha : null, dx: overlayFilter ? overlayFilter.uniforms.uDX : null, dy: overlayFilter ? overlayFilter.uniforms.uDY : null }; };
 })();

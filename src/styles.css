@@ -27,7 +27,7 @@ a { color: inherit; text-decoration: none; }
 .space-bg { display: none; }
 
 /* Vignette frame for “rounded monitor in dark room” look */
-.vignette-frame {
+ .vignette-frame {
   position: fixed;
   inset: 20px;
   border-radius: 12px;
@@ -36,7 +36,7 @@ a { color: inherit; text-decoration: none; }
     0 0 80px rgba(0,0,0,0.8) inset,
     0 0 40px rgba(255,0,120,0.15);
   pointer-events: none;
-  z-index: 4; /* above webgl */
+  z-index: 3; /* below GL + scene, above rising bubbles */
 }
 
 /* 2. Canvas layer (actual canvas element will sit under scene) */
@@ -157,9 +157,9 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   filter: blur(36px);
   mix-blend-mode: screen;
   opacity: .6;
-  -webkit-mask-image: url('./portal/assets/central/errl-painted-2.svg');
+  -webkit-mask-image: url('./portal/assets/L4_Central/errl-painted-2.svg');
   -webkit-mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; -webkit-mask-position: center;
-  mask-image: url('./portal/assets/central/errl-painted-2.svg');
+  mask-image: url('./portal/assets/L4_Central/errl-painted-2.svg');
   mask-repeat: no-repeat; mask-size: 100% 100%; mask-position: center;
 }
 
@@ -240,6 +240,8 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 /* Reduce motion by disabling CSS animations/transitions entirely */
 body.reduced-motion * { animation: none !important; transition: none !important; }
 body.high-contrast { filter: contrast(0.85) saturate(0.9) brightness(1.05); }
+/* Invert all colors (accessibility option) */
+body.invert-colors { filter: invert(1) hue-rotate(180deg); }
 
 /* 7. Control Panel (“Errl Phone”) */
 .errl-panel {
@@ -252,6 +254,8 @@ body.high-contrast { filter: contrast(0.85) saturate(0.9) brightness(1.05); }
   overflow-x: hidden; /* prevent horizontal scroll */
   overflow-y: auto;  /* vertical scroll for long tabs */
   background: rgba(10,10,20,0.6);
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(255,255,255,0.4) transparent;
   border-radius: 12px;
   padding: 16px;
   backdrop-filter: blur(20px) brightness(1.2);
@@ -300,6 +304,16 @@ body.high-contrast { filter: contrast(0.85) saturate(0.9) brightness(1.05); }
 .hud-icon::after{ content:""; position:absolute; inset:-3px; border-radius:inherit; box-shadow: inset 0 0 10px rgba(255,255,255,0.22); pointer-events:none; }
 @keyframes iconShift{ 0%{ --h: 0deg; } 100%{ --h: 360deg; } }
 
+/* Compact slider for per-control animation speed */
+.mini-slider{ width: 90px; min-width: 90px; }
+/* Compact number box for animation speed */
+.mini-number{ width:60px; min-width:60px; padding:1px 3px; font-size:10px; }
+/* wider for speed boxes */
+.speed-number{ width:70px; min-width:70px; }
+/* remove native number spinners */
+.mini-number::-webkit-inner-spin-button, .mini-number::-webkit-outer-spin-button{ -webkit-appearance: none; margin:0; }
+.mini-number{ -moz-appearance: textfield; }
+
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -316,9 +330,41 @@ body.high-contrast { filter: contrast(0.85) saturate(0.9) brightness(1.05); }
 .panel-tabs .tab{ background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)); color:#eaf6ff; border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:0; font-size:0; cursor:pointer; width:40px; height:40px; position:relative; display:inline-flex; align-items:center; justify-content:center; margin:0 auto; overflow:hidden; }
 .panel-tabs .tab.active{ border-color:transparent; }
 /* keep active ring effect */
-.panel-tabs .tab.active::before{ content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px; background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: iconShift 6s linear infinite; }
+.panel-tabs .tab.active::before{ content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px; background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: iconShift 10s linear infinite; }
 /* icon texture layer */
 .panel-tabs .tab::after{ content:""; position:absolute; inset:0; background-position:center; background-size:cover; background-repeat:no-repeat; display:block; border-radius:inherit; }
+
+/* Animate buttons: snaking rainbow outline when active */
+.btn-animate{ position:relative; overflow:hidden; border-radius:6px; }
+.btn-animate.animating::before{
+  content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px;
+  background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: iconShift 10s linear infinite;
+  pointer-events:none; z-index:0;
+}
+/* little circle indicator when animating */
+.btn-animate.animating::after{
+  content:""; position:absolute; right:-6px; top:-6px; width:10px; height:10px; border-radius:50%;
+  background: radial-gradient(circle, #fff, rgba(255,255,255,0.2)); box-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 18px rgba(0,229,255,0.6);
+  pointer-events:none;
+}
+.btn-animate > *{ position:relative; z-index:1; }
+
+/* Bump buttons */
+.mini-bump{ width:18px; height:18px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.06); color:#fff; border-radius:4px; line-height:16px; text-align:center; cursor:pointer; font-size:11px; }
+.mini-bump:hover{ background:rgba(255,255,255,0.12); }
+
+/* Fancy rainbow scrollbar for the phone */
+.errl-panel::-webkit-scrollbar{ width: 8px; }
+.errl-panel::-webkit-scrollbar-track{ background: transparent; }
+.errl-panel::-webkit-scrollbar-thumb{
+  border-radius: 8px;
+  background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff);
+  border: 2px solid rgba(0,0,0,0); /* hollow center */
+  background-clip: padding-box;
+}
 /* per-tab textures */
 .panel-tabs .tab[data-tab="hud"]::after{ background-image:url('./portal/assets/ui/phone-tabs/hud_300.png'); }
 .panel-tabs .tab[data-tab="errl"]::after{ background-image:url('./portal/assets/ui/phone-tabs/errl_300.png'); }
@@ -352,6 +398,14 @@ body.high-contrast { filter: contrast(0.85) saturate(0.9) brightness(1.05); }
   opacity: 0.8;
   margin-bottom: 8px;
 }
+/* Thin divider used to separate control groups */
+.sectionDivider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.25), rgba(255,255,255,0.08));
+  border: 0;
+  margin: 8px 0;
+}
 .sliderRow {
   display: flex;
   align-items: center;
@@ -365,6 +419,7 @@ body.high-contrast { filter: contrast(0.85) saturate(0.9) brightness(1.05); }
 .sliderRow strong { flex: 0 0 100%; margin-bottom: 2px; }
 .sliderRow select { flex: 1 1 120px; max-width: 100%; }
 .sliderRow input[type="range"] { flex: 1 1 140px; }
+.mini-select{ width:140px; max-width:140px; }
 .sliderRow input[type="number"] { width: 44px; flex: 0 0 44px; }
 .sliderRow button { flex: 0 0 auto; }
 .sliderRow label {

@@ -1,0 +1,5 @@
+[
+  { "label": "Painted v2", "url": "/data/errl/paths/painted2.json" },
+  { "label": "Outline Plating", "url": "/data/errl/paths/outlineplating.json" },
+  { "label": "Legacy v1", "url": "/data/errl/paths/v1.json" }
+]
