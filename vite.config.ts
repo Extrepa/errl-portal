@@ -1,5 +1,8 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Vite multi-page build rooted at src/
 export default defineConfig(({ command }) => ({
@@ -8,7 +11,7 @@ export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/errl-portal/' : '/',
   resolve: {
     alias: {
-      '@': resolve(process.cwd(), 'src'),
+      '@': resolve(__dirname, 'src'),
     },
   },
   build: {
@@ -25,10 +28,8 @@ export default defineConfig(({ command }) => ({
         tools: resolve(process.cwd(), 'src/portal/pages/tools/index.html'),
         pinDesigner: resolve(process.cwd(), 'src/portal/pages/pin-designer/index.html'),
         devPanel: resolve(process.cwd(), 'src/portal/pages/dev/index.html'),
-        atlasBuilder: resolve(process.cwd(), 'src/portal/pages/tools/atlas-builder/index.html'),
-        atlasEmbed: resolve(process.cwd(), 'src/portal/pages/tools/atlas-builder/embed.html'),
-        assetBuilder: resolve(process.cwd(), 'src/portal/pages/tools/asset-builder/embed.html'),
         pinWidgetDesigner: resolve(process.cwd(), 'src/portal/pages/tools/pin-widget/ErrlPin.Widget/designer.html'),
+        svgColorer: resolve(process.cwd(), 'src/portal/pages/tools/svg-colorer/index.html'),
         hueExamples: resolve(process.cwd(), 'src/fx/hue-examples.html'),
       },
     },

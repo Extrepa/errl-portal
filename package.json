@@ -13,7 +13,10 @@
     "test:ui": "playwright test -g @ui",
     "agent:browser": "tsx tools/browser-control/server.ts",
     "agent:browsers": "playwright install",
-    "postinstall": "playwright install"
+    "postinstall": "playwright install",
+    "start:studio": "bash scripts/start-studio.sh",
+    "stop:studio": "bash scripts/stop-studio.sh",
+    "logs:studio": "bash scripts/logs-studio.sh"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
