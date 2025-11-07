@@ -36,19 +36,19 @@ a { color: inherit; text-decoration: none; }
     0 0 80px rgba(0,0,0,0.8) inset,
     0 0 40px rgba(255,0,120,0.15);
   pointer-events: none;
-  z-index: 3; /* below GL + scene, above rising bubbles */
+  z-index: 4; /* L4: above scene */
 }
 
 /* 2. Canvas layer (actual canvas element will sit under scene) */
 #bgParticles {
   position: fixed;
   inset: 0;
-  z-index: 1; /* stars */
+  z-index: 0; /* L0: stars */
 }
 #riseBubbles{
   position: fixed;
   inset: 0;
-  z-index: 2; /* rising background bubbles */
+  z-index: 2; /* L2: rising background bubbles */
   pointer-events:none;
 }
 
@@ -56,7 +56,7 @@ a { color: inherit; text-decoration: none; }
 .errl-webgl-layer {
   position: fixed;
   inset: 0;
-  z-index: 3; /* above scene, below vignette + panel */
+  z-index: 1; /* L1: behind rising canvas and scene */
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -69,7 +69,7 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
 .scene-layer {
   position: fixed;
   inset: 0;
-  z-index: 3; /* above rising canvas */
+  z-index: 3; /* L3: above rising canvas */
   pointer-events: none; /* bubbles will override this individually */
 }
 .nav-orbit { position: fixed; inset:0; pointer-events:none; }

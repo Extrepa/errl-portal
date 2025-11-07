@@ -106,14 +106,22 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
       const st = this.layers[layer];
       if (layer === 'bgBubbles') {
         const fx = this.webglRefs.bgBubbles;
-        if (fx && fx.sprites) {
+        const ensureFilter = () => {
           if (!this.webglFilters.bgBubbles) this.webglFilters.bgBubbles = new (window as any).ErrlHueFilter();
-          const F = this.webglFilters.bgBubbles;
-          F.hue = st.hue; F.saturation = st.saturation; F.intensity = st.intensity;
-          fx.sprites.forEach((s: any) => {
-            if (!s) return; s.filters = (s.filters || []).filter((f: any) => !(f instanceof (window as any).ErrlHueFilter));
+          const F = this.webglFilters.bgBubbles; F.hue = st.hue; F.saturation = st.saturation; F.intensity = st.intensity; return F;
+        };
+        const applyToSprites = (sprites: any[]) => {
+          const F = ensureFilter();
+          sprites.forEach((s: any) => {
+            if (!s) return;
+            s.filters = (s.filters || []).filter((f: any) => !(f instanceof (window as any).ErrlHueFilter));
             if (st.enabled) s.filters.push(F);
           });
+        };
+        if (Array.isArray(fx)) {
+          fx.forEach((layer: any) => { if (layer && Array.isArray(layer.sprites)) applyToSprites(layer.sprites); });
+        } else if (fx && Array.isArray(fx.sprites)) {
+          applyToSprites(fx.sprites);
         }
       } else if (layer === 'glOverlay') {
         const spr = this.webglRefs.glOverlay;
