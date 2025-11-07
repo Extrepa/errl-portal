@@ -129,7 +129,8 @@
     <!-- Rising Bubbles (Canvas) -->
     <div class="panel-section" data-tab="rb">
       <div class="sectionLabel" title="Canvas particle bubbles rising behind the scene">Rising Bubbles (Canvas)</div>
-      <div class="sliderRow"><label title="Pointer attracts/repels bubbles">Attract</label><input type="checkbox" id="rbAttract" checked title="Toggle attraction/repulsion"> <label title="Show water-like ripples on click">Ripples</label><input type="checkbox" id="rbRipples" checked title="Toggle ripple effect"></div>
+      <div class="sliderRow"><label title="Pointer attracts/repels bubbles">Attract</label><input type="checkbox" id="rbAttract" checked title="Toggle attraction/repulsion"> <label title="Attract effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.0" id="rbAttractIntensity" title="How strong the attraction/repulsion effect is"></div>
+      <div class="sliderRow"><label title="Show water-like ripples on click">Ripples</label><input type="checkbox" id="rbRipples" checked title="Toggle ripple effect"> <label title="Ripple effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.2" id="rbRippleIntensity" title="How visible and strong the ripple effect is"></div>
       <div class="sliderRow"><label title="How fast bubbles rise">Speed</label><input type="range" min="0" max="3" step="0.01" value="1" id="rbSpeed" title="Bubble rise speed"></div>
       <div class="sliderRow"><label title="How many bubbles appear">Density</label><input type="range" min="0" max="2" step="0.01" value="1" id="rbDensity" title="Bubble density"></div>
       <div class="sliderRow"><label title="Opacity of the bubbles">Alpha</label><input type="range" min="0" max="1" step="0.01" value="0.95" id="rbAlpha" title="Bubble opacity"></div>
@@ -138,10 +139,10 @@
       <div class="sectionLabel">RB Bubbles Advanced</div>
       <div class="sliderRow"><label title="Side-to-side wiggle of bubbles as they rise">Wobble</label><input id="rbWobble" type="range" min="0" max="2" step="0.01" value="1"/></div>
       <div class="sliderRow"><label title="How quickly wobble oscillates">Frequency</label><input id="rbFreq" type="range" min="0" max="2" step="0.01" value="1"/></div>
-      <div class="sliderRow"><label title="Smallest bubble size">Min size</label><input id="rbMin" type="number" min="6" max="256" step="1" value="14"/> <label title="Largest bubble size">Max</label><input id="rbMax" type="number" min="6" max="256" step="1" value="36"/></div>
-      <div class="sliderRow"><label title="Chance for a larger 'jumbo' bubble to spawn">Jumbo Percent</label><input id="rbJumboPct" type="range" min="0" max="0.6" step="0.01" value="0.1"/></div>
-      <div class="sliderRow"><label title="Scale factor for jumbo bubbles">Jumbo Scale</label><input id="rbJumboScale" type="range" min="1.0" max="2.5" step="0.05" value="1.6"/></div>
-      <div class="sliderRow"><label title="Speed of size pulsing (0 disables)">Size Hertz</label><input id="rbSizeHz" type="range" min="0" max="1" step="0.01" value="0.0"/></div>
+      <div class="sliderRow"><label title="Smallest bubble size">Min size</label><input id="rbMin" type="number" min="6" max="256" step="1" value="14" title="Smallest bubble size in pixels"/> <label title="Largest bubble size">Max</label><input id="rbMax" type="number" min="6" max="256" step="1" value="36" title="Largest bubble size in pixels"/></div>
+      <div class="sliderRow"><label title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles.">Jumbo Percent</label><input id="rbJumboPct" type="range" min="0" max="0.6" step="0.01" value="0.1" title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles."/></div>
+      <div class="sliderRow"><label title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size.">Jumbo Scale</label><input id="rbJumboScale" type="range" min="1.0" max="2.5" step="0.05" value="1.6" title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size."/></div>
+      <div class="sliderRow"><label title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing.">Size Hertz</label><input id="rbSizeHz" type="range" min="0" max="1" step="0.01" value="0.0" title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing."/></div>
       <div class="sectionDivider"></div>
       <div class="sliderRow" style="justify-content:flex-end; gap:8px; flex-wrap:wrap">
         <div style="display:flex; gap:4px">
@@ -237,27 +238,19 @@
         <input type="range" min="0.6" max="1.6" step="0.01" value="1.0" id="navOrbSize" title="Nav bubble size">
       </div>
       <div class="sliderRow">
-        <label title="Show WebGL orb render layer">GL Orbs</label>
-        <input type="checkbox" id="glOrbsToggle" checked title="Toggle GL orb layer">
-        <button id="rotateSkins" style="margin-left:auto" title="Cycle orb textures">Rotate Skins</button>
+        <label title="Show WebGL orb render layer (3D rendered orbs that sync with nav bubbles)">GL Orbs</label>
+        <input type="checkbox" id="glOrbsToggle" checked title="Toggle WebGL orb render layer (3D rendered orbs that sync with nav bubbles)">
+        <button id="rotateSkins" style="margin-left:auto" title="Cycle through fun orb textures (faces, patterns, etc.)">Rotate Skins</button>
       </div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel" title="Advanced gooey blending for bubble group">Nav Goo+</div>
-      <div class="sliderRow"><label title="Elastic movement blend">Wiggle</label><input type="range" id="navWiggle" min="0" max="1" step="0.01" value="0.6" title="Wiggle strength"></div>
-      <div class="sliderRow"><label title="Motion scaling">Flow Speed</label><input type="range" id="navFlow" min="0" max="2" step="0.01" value="1.0" title="Flow speed"></div>
-      <div class="sliderRow"><label title="Downward bias">Drip</label><input type="range" id="navDrip" min="-1" max="1" step="0.01" value="0.0" title="Drip"></div>
-      <div class="sliderRow"><label title="How strongly blobs merge">Viscosity</label><input type="range" id="navVisc" min="0" max="1" step="0.01" value="0.9" title="Viscosity"></div>
-      <div class="sectionDivider"></div>
-      <div class="sliderRow" style="gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap">
-        <button id="navAnimate" class="btn-animate">Animate</button>
-        <div style="display:flex; gap:4px">
-          <button id="navModeLoop" class="mini-bump" title="Loop">⟲</button>
-          <button id="navModePing" class="mini-bump" title="Ping-Pong">↔︎</button>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:2px; align-items:flex-start">
-          <span style="font-size:9px; opacity:.75;">Scrub Speed</span>
-          <input id="navAnimSpeed" class="speed-number" type="number" min="0.02" max="3.0" step="0.05" value="0.25" aria-label="Animation Speed"/>
-        </div>
+      <div class="sliderRow"><label title="Elastic movement blend - how much bubbles wiggle as they move">Wiggle</label><input type="range" id="navWiggle" min="0" max="1" step="0.01" value="0.4" title="Elastic movement blend - how much bubbles wiggle as they move"></div>
+      <div class="sliderRow"><label title="Motion scaling - speed of the flow animation">Flow Speed</label><input type="range" id="navFlow" min="0" max="2" step="0.01" value="0.8" title="Motion scaling - speed of the flow animation"></div>
+      <div class="sliderRow"><label title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)">Grip</label><input type="range" id="navGrip" min="0" max="1" step="0.01" value="0.5" title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)"></div>
+      <div class="sliderRow"><label title="Downward bias">Drip</label><input type="range" id="navDrip" min="-1" max="1" step="0.01" value="0.0" title="Downward bias - makes bubbles sag downward"></div>
+      <div class="sliderRow"><label title="How strongly blobs merge together">Viscosity</label><input type="range" id="navVisc" min="0" max="1" step="0.01" value="0.9" title="How strongly blobs merge together"></div>
+      <div class="sliderRow" style="justify-content:flex-end; gap:8px">
+        <button id="navSlowGradient" class="btn-animate" title="Apply slow color gradient animation">Slow Gradient</button>
       </div>
       <div class="sliderRow" style="justify-content:flex-end"><button id="navRandom">Randomize</button></div>
     </div>
@@ -292,12 +285,9 @@
         <label title="Mix amount of hue effect">Intensity</label>
         <input type="range" min="0" max="1" step="0.01" value="1" id="hueInt" title="Effect intensity">
       </div>
-      <div class="sectionDivider"></div>
-      <div class="sliderRow" style="justify-content:center; gap:10px; align-items:flex-start; flex-wrap:wrap">
-        <div style="display:flex; flex-direction:column; gap:2px; align-items:flex-start; min-width:200px;">
-          <span style="font-size:9px; opacity:.75;">Timeline</span>
-          <input id="hueTimeline" type="range" min="0" max="360" step="1" value="0" title="Global hue timeline">
-        </div>
+      <div class="sliderRow" style="justify-content:flex-start; gap:10px; align-items:center; flex-wrap:wrap">
+        <span style="font-size:9px; opacity:.75; min-width:50px;">Timeline</span>
+        <input id="hueTimeline" type="range" min="0" max="360" step="1" value="0" title="Global hue timeline" style="flex:1; max-width:200px;">
         <button id="huePlayPause" class="btn-animate" title="Play/Pause">Play/Pause</button>
       </div>
     </div>
@@ -338,6 +328,11 @@
       <div class="sliderRow" title="Export HTML/CSS/JS with current panel settings applied on load">
         <button id="exportHtmlBtn">Snapshot</button>
         <span style="opacity:.8; font-size:10px;">HTML/CSS/JS</span>
+      </div>
+      <div class="sliderRow" title="Save all current settings as defaults (local)">
+        <button id="saveDefaultsBtn">Save Defaults</button>
+        <button id="resetDefaultsBtn" style="margin-left:8px">Reset Defaults</button>
+        <span style="opacity:.8; font-size:10px;">(stored in local)</span>
       </div>
     </div>
     <button id="panelScrollTop" title="Return to top" style="position:absolute; left:6px; bottom:6px; width:14px; height:14px; border-radius:50%; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.08); color:#fff; font-size:10px; line-height:12px; text-align:center; cursor:pointer; display:none;">↑</button>

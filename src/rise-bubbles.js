@@ -19,11 +19,15 @@
     items: [],
     pointer: {x: null, y: null},
     attract: true,
+    attractIntensity: 1.0,
+    rippleIntensity: 1.2,
     ripples: [],
   };
   const MAX_RINGS = 3;      // performantly cap ripple count
   const EDGE_BAND = 12;     // px band where impulse applies
   const MAX_RING_DIAM = 320; // px visual cap to keep draws cheap
+  const RING_FADE = 0.92;   // per-frame fade for ring alpha
+  const RING_ALPHA = 0.55;  // initial ring alpha
   
 
   function bubbleTexture(size=96){
@@ -79,11 +83,11 @@
     const flow = 1.0;
     for(const it of RB.items){
       // pointer influence
-      if (RB.pointer.x != null){
+      if (RB.pointer.x != null && RB.attract){
         const dx = (RB.pointer.x - it.x); const dy = (RB.pointer.y - it.y);
         const d = Math.hypot(dx,dy)||1;
         if (d < 160){
-          const k = (1 - d/160) * 0.8 * (RB.attract? 1 : -1);
+          const k = (1 - d/160) * 0.8 * RB.attractIntensity;
           it.x += (dx/d)*k*dt; it.y += (dy/d)*k*dt;
         }
       }
@@ -98,7 +102,7 @@
         if (edge < EDGE_BAND){
           const inv = rd > 0.0001 ? 1/rd : 0;
           const nx = dx * inv, ny = dy * inv;
-          const m = (EDGE_BAND - edge) / EDGE_BAND * 1.6; // lower magnitude than before
+          const m = (EDGE_BAND - edge) / EDGE_BAND * 1.6 * RB.rippleIntensity; // apply intensity multiplier
           it.x += nx * m * dt;
           it.y += ny * m * dt;
         }
@@ -117,7 +121,7 @@
   const RING_TEX = (function(){
     const S = 128; const c=document.createElement('canvas'); c.width=c.height=S; const g=c.getContext('2d');
     const grad = g.createRadialGradient(S/2,S/2,S*0.38, S/2,S/2,S*0.50);
-    grad.addColorStop(0,'rgba(160,190,255,0.25)'); grad.addColorStop(1,'rgba(160,190,255,0)');
+    grad.addColorStop(0,'rgba(160,190,255,1.0)'); grad.addColorStop(1,'rgba(160,190,255,0)');
     g.fillStyle=grad; g.beginPath(); g.arc(S/2,S/2,S*0.50,0,Math.PI*2); g.fill();
     return c;
   })();
@@ -130,12 +134,15 @@
       const s = it.size;
       ctx.drawImage(TEX, Math.round(it.x - s/2), Math.round(it.y - s/2), s, s);
     }
-    // draw ripples (capped & cached)
+    // draw ripples (capped & cached) with intensity multiplier
     if (RB.ripples.length > MAX_RINGS) RB.ripples.length = MAX_RINGS;
     for(const r of RB.ripples){
       const rd = Math.min(r.r+10, MAX_RING_DIAM*0.5);
       const d = rd * 2;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, r.a * RB.rippleIntensity));
       ctx.drawImage(RING_TEX, Math.round(r.x - d/2), Math.round(r.y - d/2), d, d);
+      ctx.restore();
     }
   }
 
@@ -150,9 +157,9 @@
     draw();
     // advance ripples (slower on slow frames)
     const ringStep = slow ? 4 : 6;
-    // update radius every frame, but apply physics to bubbles each frame already optimized
-    RB.ripples.forEach(r=> r.r += ringStep*dt);
-    while(RB.ripples.length && RB.ripples[0].r > Math.max(innerWidth, innerHeight, MAX_RING_DIAM)) RB.ripples.shift();
+    RB.ripples.forEach(r=> { r.r += ringStep*dt; r.a *= RING_FADE; });
+    // remove when faded or too large
+    while (RB.ripples.length && (RB.ripples[0].a < 0.04 || RB.ripples[0].r > Math.max(innerWidth, innerHeight, MAX_RING_DIAM))) RB.ripples.shift();
     requestAnimationFrame(loop);
   }
 
@@ -168,11 +175,13 @@
   bind('rbJumboPct', el=> RB.jumboPct = parseFloat(el.value));
   bind('rbJumboScale', el=> RB.jumboScale = parseFloat(el.value));
   bind('rbSizeHz', el=> RB.sizeHz = parseFloat(el.value));
+  bind('rbAttractIntensity', el=> RB.attractIntensity = parseFloat(el.value));
+  bind('rbRippleIntensity', el=> RB.rippleIntensity = parseFloat(el.value));
   const at=document.getElementById('rbAttract'); if(at) at.addEventListener('change', ()=> RB.attract = !!(at).checked);
   const rp=document.getElementById('rbRipples');
 
   addEventListener('pointermove', e=>{ RB.pointer.x=e.clientX; RB.pointer.y=e.clientY; });
-  addEventListener('click', e=>{ if(rp && !(rp).checked) return; if (RB.ripples.length >= MAX_RINGS) RB.ripples.shift(); RB.ripples.push({x:e.clientX, y:e.clientY, r:4}); });
+  addEventListener('click', e=>{ if(rp && !(rp).checked) return; if (RB.ripples.length >= MAX_RINGS) RB.ripples.shift(); RB.ripples.push({x:e.clientX, y:e.clientY, r:4, a:RING_ALPHA}); });
   addEventListener('resize', resize);
 
   resize();
