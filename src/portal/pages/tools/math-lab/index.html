@@ -2714,6 +2714,4168 @@ inits["primes"]=({id})=>{
 
 };
 
+/* 63 Curl Noise Rivers */
+
+inits["curl-rivers"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={count:150, speed:0.5, time:0, stepSize:2};
+
+  const particles=Array(params.count).fill().map(()=>({x:Math.random()*c.width, y:Math.random()*c.height, vx:0, vy:0, life:1}));
+
+  function curl(x,y){
+
+    const eps=0.01;
+
+    const n1=fbm(x,y,3,2,0.5);
+
+    const n2=fbm(x+eps,y,3,2,0.5);
+
+    const n3=fbm(x,y+eps,3,2,0.5);
+
+    return [(n3-n1)/eps, -(n2-n1)/eps];
+
+  }
+
+  function draw(){
+
+    params.time+=0.01;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    for(const p of particles){
+
+      const [vx,vy]=curl(p.x*0.01+params.time, p.y*0.01+params.time);
+
+      p.vx+=(vx-p.vx)*0.1; p.vy+=(vy-p.vy)*0.1;
+
+      p.x+=p.vx*params.stepSize; p.y+=p.vy*params.stepSize;
+
+      p.life*=0.995;
+
+      if(p.x<0||p.x>c.width||p.y<0||p.y>c.height||p.life<0.1){
+
+        p.x=Math.random()*c.width; p.y=Math.random()*c.height; p.life=1;
+
+      }
+
+      const hue=(p.x/c.width*360+params.time*50)%360;
+
+      ctx.fillStyle=`hsla(${hue},80%,60%,${p.life*0.6})`;
+
+      ctx.beginPath();
+
+      ctx.arc(p.x,p.y,2,0,Math.PI*2);
+
+      ctx.fill();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Count",50,300,10,params.count,v=>{params.count=v; particles.length=0; for(let i=0;i<v;i++) particles.push({x:Math.random()*c.width, y:Math.random()*c.height, vx:0, vy:0, life:1});});
+
+  slider(id,"Step size",0.5,5,0.1,params.stepSize,v=>{params.stepSize=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 103 Metaballs Pool */
+
+inits["metaballs"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={count:8, iso:100, time:0, speed:0.01};
+
+  const balls=Array(params.count).fill().map(()=>({x:Math.random()*c.width, y:Math.random()*c.height, vx:Math.random()*2-1, vy:Math.random()*2-1, r:30+Math.random()*40}));
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        let sum=0;
+
+        for(const b of balls){
+
+          const dx=x-b.x, dy=y-b.y, dist=Math.hypot(dx,dy);
+
+          sum+=b.r*b.r/(dist*dist+1);
+
+        }
+
+        const v=Math.min(255, sum*params.iso);
+
+        const i=(y*c.width+x)*4;
+
+        const hue=(params.time*50+v*0.5)%360;
+
+        const h=hue/60, c2=0.8, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    for(const b of balls){
+
+      b.x+=b.vx; b.y+=b.vy;
+
+      if(b.x<0||b.x>c.width){b.vx*=-1; b.x=Math.max(0,Math.min(c.width,b.x));}
+
+      if(b.y<0||b.y>c.height){b.vy*=-1; b.y=Math.max(0,Math.min(c.height,b.y));}
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Count",3,15,1,params.count,v=>{params.count=v; balls.length=0; for(let i=0;i<v;i++) balls.push({x:Math.random()*c.width, y:Math.random()*c.height, vx:Math.random()*2-1, vy:Math.random()*2-1, r:30+Math.random()*40});});
+
+  slider(id,"Iso threshold",50,200,5,params.iso,v=>{params.iso=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 117 Diffusion-Limited Aggregation */
+
+inits["dla"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={walkers:5, stickProb:0.5, maxWalkers:1000};
+
+  const tree=[{x:c.width/2, y:c.height/2}];
+
+  const walkers=[];
+
+  function addWalker(){
+
+    const angle=Math.random()*Math.PI*2;
+
+    const r=Math.min(c.width,c.height)*0.4;
+
+    walkers.push({x:c.width/2+Math.cos(angle)*r, y:c.height/2+Math.sin(angle)*r});
+
+  }
+
+  for(let i=0;i<params.walkers;i++) addWalker();
+
+  function draw(){
+
+    ctx.fillStyle='rgba(11,15,22,0.05)'; ctx.fillRect(0,0,c.width,c.height);
+
+    for(let i=walkers.length-1;i>=0;i--){
+
+      const w=walkers[i];
+
+      w.x+=(Math.random()-0.5)*4;
+
+      w.y+=(Math.random()-0.5)*4;
+
+      for(const t of tree){
+
+        const dx=w.x-t.x, dy=w.y-t.y, dist=Math.hypot(dx,dy);
+
+        if(dist<3){
+
+          if(Math.random()<params.stickProb){
+
+            tree.push({x:w.x, y:w.y});
+
+            walkers.splice(i,1);
+
+            if(walkers.length<params.maxWalkers) addWalker();
+
+            break;
+
+          }
+
+        }
+
+      }
+
+      if(w.x<0||w.x>c.width||w.y<0||w.y>c.height){
+
+        walkers.splice(i,1);
+
+        addWalker();
+
+      }
+
+    }
+
+    ctx.fillStyle='#56c2ff';
+
+    for(const t of tree){
+
+      ctx.beginPath();
+
+      ctx.arc(t.x,t.y,2,0,Math.PI*2);
+
+      ctx.fill();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Walkers",1,20,1,params.walkers,v=>{params.walkers=v; while(walkers.length<v) addWalker();});
+
+  slider(id,"Stick prob",0.1,1,0.05,params.stickProb,v=>{params.stickProb=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 71 Lorenz Ribbon */
+
+inits["lorenz"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={sigma:10, rho:28, beta:8/3, dt:0.01, points:[]};
+
+  let x=1, y=1, z=1;
+
+  function draw(){
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    for(let i=0;i<100;i++){
+
+      const dx=params.sigma*(y-x);
+
+      const dy=x*(params.rho-z)-y;
+
+      const dz=x*y-params.beta*z;
+
+      x+=dx*params.dt; y+=dy*params.dt; z+=dz*params.dt;
+
+      params.points.push({x,y,z});
+
+      if(params.points.length>2000) params.points.shift();
+
+    }
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=1;
+
+    ctx.beginPath();
+
+    const cx=c.width/2, cy=c.height/2, scale=5;
+
+    for(let i=1;i<params.points.length;i++){
+
+      const p1=params.points[i-1], p2=params.points[i];
+
+      const x1=cx+p1.x*scale, y1=cy+p1.y*scale;
+
+      const x2=cx+p2.x*scale, y2=cy+p2.y*scale;
+
+      if(i===1) ctx.moveTo(x1,y1);
+
+      ctx.lineTo(x2,y2);
+
+    }
+
+    ctx.stroke();
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"σ",5,15,0.5,params.sigma,v=>{params.sigma=v});
+
+  slider(id,"ρ",20,35,1,params.rho,v=>{params.rho=v});
+
+  slider(id,"β",1,3,0.1,params.beta,v=>{params.beta=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 73 Kaleidoscope Shader */
+
+inits["kaleidoscope"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={sectors:6, offset:0, zoom:1, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data, cx=c.width/2, cy=c.height/2;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const dx=x-cx, dy=y-cy;
+
+        const r=Math.hypot(dx,dy);
+
+        let a=Math.atan2(dy,dx);
+
+        a=(a+params.offset)%(Math.PI*2/params.sectors);
+
+        if(a>Math.PI/params.sectors) a=Math.PI*2/params.sectors-a;
+
+        const nx=cx+Math.cos(a)*r*params.zoom, ny=cy+Math.sin(a)*r*params.zoom;
+
+        const n=fbm(nx*0.01+params.time, ny*0.01, 3, 2, 0.5);
+
+        const hue=(n*360+params.time*100)%360;
+
+        const i=(y*c.width+x)*4;
+
+        const h=hue/60, c2=0.8, l=n*0.3+0.4, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r2=0,g=0,b=0;
+
+        if(h<1){r2=c2;g=X}else if(h<2){r2=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r2=X;b=c2}else{r2=c2;b=X}
+
+        d[i]=(r2+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Sectors",3,12,1,params.sectors,v=>{params.sectors=v});
+
+  slider(id,"Zoom",0.5,2,0.1,params.zoom,v=>{params.zoom=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 77 Complex Phase Carpets */
+
+inits["phase-carpets"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={scale:3, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data, scale=params.scale/Math.min(c.width,c.height), cx=c.width/2, cy=c.height/2;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const re=(x-cx)*scale, im=(y-cy)*scale;
+
+        const z=[re,im];
+
+        const z2=complexMul(z,z);
+
+        const z3=complexMul(z2,z);
+
+        const phase=Math.atan2(z3[1], z3[0]);
+
+        const hue=((phase/(Math.PI*2)+0.5)*360+params.time*50)%360;
+
+        const i=(y*c.width+x)*4;
+
+        const h=hue/60, c2=0.8, l=0.5, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Scale",1,6,0.1,params.scale,v=>{params.scale=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 79 Conic Caustics */
+
+inits["conic-caustics"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={stops:12, phase:0, speed:0.01};
+
+  function draw(){
+
+    params.phase+=params.speed;
+
+    const div=document.getElementById('stage-'+id);
+
+    if(!div.firstChild){
+
+      const canvas=document.createElement('canvas');
+
+      canvas.width=c.width; canvas.height=c.height;
+
+      div.appendChild(canvas);
+
+    }
+
+    const stops=[];
+
+    for(let i=0;i<params.stops;i++){
+
+      const offset=i/params.stops*100;
+
+      const hue=(i*360/params.stops+params.phase*100)%360;
+
+      stops.push(`hsl(${hue},80%,50%) ${offset}%`);
+
+      stops.push(`hsl(${hue},80%,30%) ${offset+50/params.stops}%`);
+
+    }
+
+    div.firstChild.style.background=`conic-gradient(from ${params.phase*360}deg, ${stops.join(', ')})`;
+
+  }
+
+  const div=document.createElement('div');
+
+  div.style.width='100%'; div.style.height='60vh';
+
+  appendStage(id,div);
+
+  function update(){
+
+    draw();
+
+    requestAnimationFrame(update);
+
+  }
+
+  update();
+
+  slider(id,"Stops",4,20,1,params.stops,v=>{params.stops=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 81 Hyperbolic Grid Warp */
+
+inits["hyper-grid"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={curvature:0.3, lines:20};
+
+  function draw(){
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='rgba(86,194,255,0.6)'; ctx.lineWidth=1;
+
+    const cx=c.width/2, cy=c.height/2;
+
+    for(let i=0;i<=params.lines;i++){
+
+      const t=i/params.lines;
+
+      ctx.beginPath();
+
+      for(let j=0;j<=params.lines;j++){
+
+        const s=j/params.lines;
+
+        const x=s*c.width;
+
+        const y=t*c.height;
+
+        const dx=x-cx, dy=y-cy;
+
+        const r=Math.hypot(dx,dy);
+
+        const warp=1+params.curvature*Math.sin(r*0.01);
+
+        const wx=cx+dx*warp, wy=cy+dy*warp;
+
+        j?ctx.lineTo(wx,wy):ctx.moveTo(wx,wy);
+
+      }
+
+      ctx.stroke();
+
+      ctx.beginPath();
+
+      for(let j=0;j<=params.lines;j++){
+
+        const s=j/params.lines;
+
+        const x=t*c.width;
+
+        const y=s*c.height;
+
+        const dx=x-cx, dy=y-cy;
+
+        const r=Math.hypot(dx,dy);
+
+        const warp=1+params.curvature*Math.sin(r*0.01);
+
+        const wx=cx+dx*warp, wy=cy+dy*warp;
+
+        j?ctx.lineTo(wx,wy):ctx.moveTo(wx,wy);
+
+      }
+
+      ctx.stroke();
+
+    }
+
+  }
+
+  draw();
+
+  slider(id,"Curvature",0,1,0.05,params.curvature,v=>{params.curvature=v; draw();});
+
+  slider(id,"Lines",10,40,2,params.lines,v=>{params.lines=v; draw();});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 86 Trefoil Tube */
+
+inits["trefoil"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={radius:80, tube:20, t:0, speed:0.02};
+
+  function trefoil(t){
+
+    const x=Math.sin(t)+2*Math.sin(2*t);
+
+    const y=Math.cos(t)-2*Math.cos(2*t);
+
+    const z=Math.sin(3*t);
+
+    return [x,y,z];
+
+  }
+
+  function draw(){
+
+    params.t+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=2;
+
+    const cx=c.width/2, cy=c.height/2, scale=30;
+
+    for(let i=0;i<200;i++){
+
+      const t1=i/200*Math.PI*2+params.t, t2=(i+1)/200*Math.PI*2+params.t;
+
+      const [x1,y1,z1]=trefoil(t1);
+
+      const [x2,y2,z2]=trefoil(t2);
+
+      const px1=cx+x1*scale, py1=cy+y1*scale;
+
+      const px2=cx+x2*scale, py2=cy+y2*scale;
+
+      ctx.beginPath();
+
+      ctx.moveTo(px1,py1);
+
+      ctx.lineTo(px2,py2);
+
+      ctx.stroke();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Radius",50,150,5,params.radius,v=>{params.radius=v});
+
+  slider(id,"Speed",0,0.1,0.01,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 88 Diffraction Text Grids */
+
+inits["diffraction-text"]=({id})=>{
+
+  const div=document.createElement('div');
+
+  div.style.width='100%'; div.style.height='60vh';
+
+  div.style.display='grid'; div.style.placeItems='center';
+
+  div.style.background='#0b0f16';
+
+  const params={angle:0, cell:20, speed:0.01};
+
+  const h=document.createElement('h1');
+
+  h.textContent='DIFFRACTION';
+
+  h.style.font='900 8vmin/1 system-ui';
+
+  h.style.color='#56c2ff';
+
+  h.style.position='relative';
+
+  div.appendChild(h);
+
+  function update(){
+
+    params.angle+=params.speed;
+
+    const mask=[];
+
+    for(let i=0;i<20;i++){
+
+      const offset=i*params.cell;
+
+      mask.push(`repeating-linear-gradient(${params.angle}deg, transparent 0 ${offset}px, rgba(86,194,255,0.3) ${offset}px ${offset+params.cell/2}px, transparent ${offset+params.cell/2}px ${offset+params.cell}px)`);
+
+    }
+
+    h.style.webkitMaskImage=mask.join(', ');
+
+    h.style.maskImage=mask.join(', ');
+
+    requestAnimationFrame(update);
+
+  }
+
+  update();
+
+  appendStage(id,div);
+
+  slider(id,"Cell size",10,40,2,params.cell,v=>{params.cell=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, update.toString());
+
+};
+
+/* 90 Butterfly Field Dunes */
+
+inits["bedforms"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={bias:0.3, steps:100, time:0, speed:0.005};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const n=fbm(x*0.01, y*0.01+params.time, 4, 2, 0.5);
+
+        const v=Math.sin(n*Math.PI*params.steps+params.bias*Math.PI*2)*0.5+0.5;
+
+        const i=(y*c.width+x)*4;
+
+        const col=v*255;
+
+        d[i]=col*0.9; d[i+1]=col*0.95; d[i+2]=col; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Bias",0,1,0.05,params.bias,v=>{params.bias=v});
+
+  slider(id,"Steps",50,200,5,params.steps,v=>{params.steps=v});
+
+  slider(id,"Speed",0,0.02,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 101 Superformula Terrain */
+
+inits["super-terrain"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={m:4, n1:1, n2:1, n3:1, height:50, time:0, speed:0.01};
+
+  function superformula(phi,m,n1,n2,n3){
+
+    const t1=Math.pow(Math.abs(Math.cos(m*phi/4)),n2);
+
+    const t2=Math.pow(Math.abs(Math.sin(m*phi/4)),n3);
+
+    return Math.pow(t1+t2,-1/n1);
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data, cx=c.width/2, cy=c.height/2;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const dx=x-cx, dy=y-cy;
+
+        const r=Math.hypot(dx,dy), a=Math.atan2(dy,dx);
+
+        const h=superformula(a+params.time, params.m, params.n1, params.n2, params.n3);
+
+        const v=Math.min(255, h*params.height);
+
+        const i=(y*c.width+x)*4;
+
+        const hue=(v*2+params.time*50)%360;
+
+        const h2=hue/60, c2=0.7, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h2%2)-1)), m2=l-c2/2;
+
+        let r2=0,g=0,b=0;
+
+        if(h2<1){r2=c2;g=X}else if(h2<2){r2=X;g=c2}else if(h2<3){g=c2;b=X}else if(h2<4){g=X;b=c2}else if(h2<5){r2=X;b=c2}else{r2=c2;b=X}
+
+        d[i]=(r2+m2)*255; d[i+1]=(g+m2)*255; d[i+2]=(b+m2)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"m",2,10,1,params.m,v=>{params.m=v});
+
+  slider(id,"Height",20,100,5,params.height,v=>{params.height=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 108 Complex Log Spirals */
+
+inits["log-spirals"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={rate:0.1, count:8, rotation:0, speed:0.01};
+
+  function draw(){
+
+    params.rotation+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    const cx=c.width/2, cy=c.height/2;
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=1.5;
+
+    for(let s=0;s<params.count;s++){
+
+      const offset=s*Math.PI*2/params.count+params.rotation;
+
+      ctx.beginPath();
+
+      for(let i=0;i<500;i++){
+
+        const t=i/500*Math.PI*4;
+
+        const r=Math.exp(t*params.rate);
+
+        const x=cx+Math.cos(t+offset)*r;
+
+        const y=cy+Math.sin(t+offset)*r;
+
+        if(i===0) ctx.moveTo(x,y);
+
+        else ctx.lineTo(x,y);
+
+        if(r>Math.min(c.width,c.height)*0.5) break;
+
+      }
+
+      ctx.stroke();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Rate",0.05,0.2,0.01,params.rate,v=>{params.rate=v});
+
+  slider(id,"Count",3,16,1,params.count,v=>{params.count=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 111 Pulsing Voronoi Rings */
+
+inits["voronoi-pulse"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={rings:8, pulse:0, speed:0.02};
+
+  const sites=Array(params.rings).fill().map((_,i)=>({x:c.width/2, y:c.height/2, r:30+i*40, phase:i*0.5}));
+
+  function draw(){
+
+    params.pulse+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        let minDist=Infinity, closest=0;
+
+        for(let i=0;i<sites.length;i++){
+
+          const s=sites[i];
+
+          const r=s.r+Math.sin(params.pulse+s.phase)*10;
+
+          const dx=x-s.x, dy=y-s.y, dist=Math.abs(Math.hypot(dx,dy)-r);
+
+          if(dist<minDist){ minDist=dist; closest=i; }
+
+        }
+
+        const v=Math.min(255, minDist*10);
+
+        const hue=(closest*360/params.rings+params.pulse*50)%360;
+
+        const i=(y*c.width+x)*4;
+
+        const h=hue/60, c2=0.7, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Rings",4,16,1,params.rings,v=>{params.rings=v; sites.length=0; for(let i=0;i<v;i++) sites.push({x:c.width/2, y:c.height/2, r:30+i*40, phase:i*0.5});});
+
+  slider(id,"Speed",0,0.1,0.01,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 122 Golden Angle Flow */
+
+inits["golden-flow"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={angle:137.508, density:0.5, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    const cx=c.width/2, cy=c.height/2;
+
+    for(let i=0;i<500;i++){
+
+      const a=i*params.angle*Math.PI/180+params.time;
+
+      const r=Math.sqrt(i)*params.density;
+
+      const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
+
+      if(x>=0&&x<c.width&&y>=0&&y<c.height){
+
+        const hue=(i*5+params.time*100)%360;
+
+        ctx.strokeStyle=`hsla(${hue},80%,60%,0.6)`;
+
+        ctx.beginPath();
+
+        ctx.arc(x,y,2,0,Math.PI*2);
+
+        ctx.stroke();
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Angle",100,200,1,params.angle,v=>{params.angle=v});
+
+  slider(id,"Density",0.2,1,0.1,params.density,v=>{params.density=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 74 Hex Flow Field */
+
+inits["hex-flow"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={scale:20, time:0, speed:0.01};
+
+  function hexCoord(x,y){
+
+    const q=(2/3*x)/params.scale;
+
+    const r=(-1/3*x+Math.sqrt(3)/3*y)/params.scale;
+
+    return [q,r];
+
+  }
+
+  function flowField(q,r){
+
+    const n=fbm(q*0.1+params.time, r*0.1, 3, 2, 0.5);
+
+    return n*Math.PI*2;
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='rgba(86,194,255,0.6)'; ctx.lineWidth=1;
+
+    for(let y=0;y<c.height;y+=params.scale*1.5){
+
+      for(let x=0;x<c.width;x+=params.scale*Math.sqrt(3)){
+
+        const [q,r]=hexCoord(x,y);
+
+        const angle=flowField(q,r);
+
+        const len=params.scale*0.3;
+
+        const x2=x+Math.cos(angle)*len, y2=y+Math.sin(angle)*len;
+
+        ctx.beginPath();
+
+        ctx.moveTo(x,y);
+
+        ctx.lineTo(x2,y2);
+
+        ctx.stroke();
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Scale",10,40,2,params.scale,v=>{params.scale=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 76 Fourier Drawing */
+
+inits["fourier"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={coeffs:20, speed:0.02, t:0};
+
+  function draw(){
+
+    params.t+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    const cx=c.width/2, cy=c.height/2, scale=Math.min(c.width,c.height)*0.3;
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=1.5;
+
+    let x=cx, y=cy;
+
+    for(let n=1;n<=params.coeffs;n++){
+
+      const radius=scale/(n*Math.PI);
+
+      const angle=params.t*n;
+
+      const px=x+Math.cos(angle)*radius;
+
+      const py=y+Math.sin(angle)*radius;
+
+      ctx.beginPath();
+
+      ctx.arc(x,y,radius,0,Math.PI*2);
+
+      ctx.stroke();
+
+      ctx.beginPath();
+
+      ctx.moveTo(x,y);
+
+      ctx.lineTo(px,py);
+
+      ctx.stroke();
+
+      x=px; y=py;
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Coeffs",5,50,1,params.coeffs,v=>{params.coeffs=v});
+
+  slider(id,"Speed",0,0.1,0.01,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 78 Heightmap Parallax */
+
+inits["parallax"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={depth:0.3, lightAngle:0.5, time:0, speed:0.005};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const h=fbm(x*0.01, y*0.01+params.time, 4, 2, 0.5);
+
+        const dx=Math.cos(params.lightAngle*Math.PI*2);
+
+        const dy=Math.sin(params.lightAngle*Math.PI*2);
+
+        const hx=fbm((x+1)*0.01, y*0.01+params.time, 4, 2, 0.5);
+
+        const hy=fbm(x*0.01, (y+1)*0.01+params.time, 4, 2, 0.5);
+
+        const nx=hx-h, ny=hy-h;
+
+        const light=Math.max(0, nx*dx+ny*dy)*params.depth+0.5;
+
+        const v=h*light*255;
+
+        const i=(y*c.width+x)*4;
+
+        d[i]=v*0.9; d[i+1]=v*0.95; d[i+2]=v; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Depth",0.1,0.8,0.05,params.depth,v=>{params.depth=v});
+
+  slider(id,"Light angle",0,1,0.01,params.lightAngle,v=>{params.lightAngle=v});
+
+  slider(id,"Speed",0,0.02,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 80 Turing Stripe Garden */
+
+inits["turing"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={feed:0.055, kill:0.062, diffA:1, diffB:0.5, dt:1};
+
+  let gridA=Array(c.width*c.height).fill(1);
+
+  let gridB=Array(c.width*c.height).fill(0);
+
+  for(let i=0;i<gridB.length;i++){
+
+    if(Math.random()<0.01) gridB[i]=1;
+
+  }
+
+  function draw(){
+
+    const newA=[...gridA], newB=[...gridB];
+
+    for(let y=1;y<c.height-1;y++){
+
+      for(let x=1;x<c.width-1;x++){
+
+        const idx=y*c.width+x;
+
+        const la=(gridA[idx-1]+gridA[idx+1]+gridA[idx-c.width]+gridA[idx+c.width])/4;
+
+        const lb=(gridB[idx-1]+gridB[idx+1]+gridB[idx-c.width]+gridB[idx+c.width])/4;
+
+        const a=gridA[idx], b=gridB[idx];
+
+        const f=params.feed*(1-a);
+
+        const k=(params.kill+params.feed)*b;
+
+        newA[idx]=a+(params.diffA*(la-a)+f-k)*params.dt;
+
+        newB[idx]=b+(params.diffB*(lb-b)-f+k)*params.dt;
+
+        newA[idx]=Math.max(0,Math.min(1,newA[idx]));
+
+        newB[idx]=Math.max(0,Math.min(1,newB[idx]));
+
+      }
+
+    }
+
+    gridA=newA; gridB=newB;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let i=0;i<gridA.length;i++){
+
+      const v=gridB[i]*255;
+
+      const idx=i*4;
+
+      d[idx]=v*0.8; d[idx+1]=v*0.9; d[idx+2]=v; d[idx+3]=255;
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Feed",0.01,0.1,0.001,params.feed,v=>{params.feed=v});
+
+  slider(id,"Kill",0.01,0.1,0.001,params.kill,v=>{params.kill=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 85 Strange Map Scroll */
+
+inits["strange-map"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={iterations:50, scale:2, time:0, speed:0.01};
+
+  function strangeMap(z){
+
+    const [re,im]=z;
+
+    for(let i=0;i<params.iterations;i++){
+
+      const z2=complexMul([re,im],[re,im]);
+
+      const z3=complexMul(z2,[re,im]);
+
+      const z4=complexAdd(z3,[0.2,0.3]);
+
+      if(z4[0]*z4[0]+z4[1]*z4[1]>4) return i;
+
+    }
+
+    return params.iterations;
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data, scale=params.scale/Math.min(c.width,c.height), cx=c.width/2, cy=c.height/2;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const re=(x-cx)*scale+Math.cos(params.time)*0.1;
+
+        const im=(y-cy)*scale+Math.sin(params.time)*0.1;
+
+        const iter=strangeMap([re,im]);
+
+        const hue=(iter*10+params.time*50)%360;
+
+        const i=(y*c.width+x)*4;
+
+        const h=hue/60, c2=0.8, l=iter/params.iterations*0.5+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Iterations",10,100,5,params.iterations,v=>{params.iterations=v});
+
+  slider(id,"Scale",0.5,5,0.1,params.scale,v=>{params.scale=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 109 Torus Knot Map */
+
+inits["torus-knot"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={p:3, q:2, radius:80, tube:20, t:0, speed:0.01};
+
+  function torusKnot(t,p,q,R,r){
+
+    const u=t*q;
+
+    const x=(R+r*Math.cos(u))*Math.cos(t*p);
+
+    const y=(R+r*Math.cos(u))*Math.sin(t*p);
+
+    const z=r*Math.sin(u);
+
+    return [x,y,z];
+
+  }
+
+  function draw(){
+
+    params.t+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=2;
+
+    const cx=c.width/2, cy=c.height/2, scale=2;
+
+    for(let i=0;i<500;i++){
+
+      const t1=i/500*Math.PI*2, t2=(i+1)/500*Math.PI*2;
+
+      const [x1,y1,z1]=torusKnot(t1,params.p,params.q,params.radius,params.tube);
+
+      const [x2,y2,z2]=torusKnot(t2,params.p,params.q,params.radius,params.tube);
+
+      const px1=cx+x1*scale, py1=cy+y1*scale;
+
+      const px2=cx+x2*scale, py2=cy+y2*scale;
+
+      ctx.beginPath();
+
+      ctx.moveTo(px1,py1);
+
+      ctx.lineTo(px2,py2);
+
+      ctx.stroke();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"p",2,7,1,params.p,v=>{params.p=v});
+
+  slider(id,"q",2,7,1,params.q,v=>{params.q=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 110 Wavelet Tapestry */
+
+inits["wavelet"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={basis:8, scale:0.02, time:0, speed:0.01};
+
+  function wavelet(x,y,scale,offset){
+
+    return Math.sin((x+offset)*scale)*Math.exp(-((x+offset)*(x+offset)+(y+offset)*(y+offset))*scale*10);
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        let sum=0;
+
+        for(let i=0;i<params.basis;i++){
+
+          sum+=wavelet(x,y,params.scale,params.time+i*0.5);
+
+        }
+
+        const v=(sum/params.basis*0.5+0.5)*255;
+
+        const i=(y*c.width+x)*4;
+
+        const hue=(v*0.5+params.time*50)%360;
+
+        const h=hue/60, c2=0.7, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Basis",4,16,1,params.basis,v=>{params.basis=v});
+
+  slider(id,"Scale",0.01,0.05,0.001,params.scale,v=>{params.scale=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 118 Sunken Grid Caustics */
+
+inits["caustic-grid"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={refraction:0.3, flow:0.01, time:0, speed:0.005};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='rgba(86,194,255,0.4)'; ctx.lineWidth=1;
+
+    for(let y=0;y<c.height;y+=20){
+
+      for(let x=0;x<c.width;x+=20){
+
+        const n=fbm(x*params.flow+params.time, y*params.flow, 3, 2, 0.5);
+
+        const dx=Math.cos(n*Math.PI*2)*params.refraction*10;
+
+        const dy=Math.sin(n*Math.PI*2)*params.refraction*10;
+
+        ctx.beginPath();
+
+        ctx.moveTo(x+dx,y+dy);
+
+        ctx.lineTo(x+20+dx,y+dy);
+
+        ctx.stroke();
+
+        ctx.beginPath();
+
+        ctx.moveTo(x+dx,y+dy);
+
+        ctx.lineTo(x+dx,y+20+dy);
+
+        ctx.stroke();
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Refraction",0.1,0.8,0.05,params.refraction,v=>{params.refraction=v});
+
+  slider(id,"Flow",0.005,0.02,0.001,params.flow,v=>{params.flow=v});
+
+  slider(id,"Speed",0,0.02,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 123 Kaleid Voronoi Mirror */
+
+inits["kaleid-voronoi"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={sectors:6, sites:8, time:0, speed:0.002};
+
+  const sites=Array(params.sites).fill().map(()=>({x:Math.random(), y:Math.random(), vx:Math.random()*0.002-0.001, vy:Math.random()*0.002-0.001}));
+
+  function mirror(x,y){
+
+    const dx=x-0.5, dy=y-0.5;
+
+    const r=Math.hypot(dx,dy);
+
+    let a=Math.atan2(dy,dx);
+
+    a=(a+Math.PI/params.sectors)%(Math.PI*2/params.sectors);
+
+    if(a>Math.PI/params.sectors) a=Math.PI*2/params.sectors-a;
+
+    return [0.5+Math.cos(a)*r, 0.5+Math.sin(a)*r];
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const px=x/c.width, py=y/c.height;
+
+        const [mx,my]=mirror(px,py);
+
+        let minDist=Infinity, closest=0;
+
+        for(let i=0;i<sites.length;i++){
+
+          const dx=mx-sites[i].x, dy=my-sites[i].y;
+
+          const dist=dx*dx+dy*dy;
+
+          if(dist<minDist){ minDist=dist; closest=i; }
+
+        }
+
+        const v=Math.min(255, Math.sqrt(minDist)*800);
+
+        const hue=(closest*360/params.sites)%360;
+
+        const i=(y*c.width+x)*4;
+
+        const h=hue/60, c2=0.7, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    for(const s of sites){
+
+      s.x+=s.vx; s.y+=s.vy;
+
+      if(s.x<0||s.x>1){s.vx*=-1; s.x=Math.max(0,Math.min(1,s.x));}
+
+      if(s.y<0||s.y>1){s.vy*=-1; s.y=Math.max(0,Math.min(1,s.y));}
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Sectors",3,12,1,params.sectors,v=>{params.sectors=v});
+
+  slider(id,"Sites",4,20,1,params.sites,v=>{params.sites=v; sites.length=0; for(let i=0;i<v;i++) sites.push({x:Math.random(), y:Math.random(), vx:Math.random()*0.002-0.001, vy:Math.random()*0.002-0.001});});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 124 Complex Roots Garden */
+
+inits["roots-garden"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={n:4, zoom:2, maxIters:50};
+
+  function findRoot(z,n){
+
+    let zr=z[0], zi=z[1];
+
+    for(let i=0;i<params.maxIters;i++){
+
+      const mag2=zr*zr+zi*zi;
+
+      if(mag2<1e-10) return {iter:i, root:0};
+
+      const [znr, zni]=complexPow([zr,zi], n);
+
+      const [znr1, zni1]=complexPow([zr,zi], n-1);
+
+      const denom=params.n*(znr1*znr1+zni1*zni1);
+
+      if(denom<1e-10) return {iter:i, root:0};
+
+      zr=zr-(znr-1)*znr1/denom+(zni-0)*zni1/denom;
+
+      zi=zi-(zni-0)*znr1/denom-(znr-1)*zni1/denom;
+
+      if(zr*zr+zi*zi>100) return {iter:i, root:Math.floor(Math.atan2(zi,zr)*params.n/Math.PI/2+params.n)%params.n};
+
+    }
+
+    return {iter:params.maxIters, root:Math.floor(Math.atan2(zi,zr)*params.n/Math.PI/2+params.n)%params.n};
+
+  }
+
+  function draw(){
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data, scale=params.zoom/Math.min(c.width,c.height), cx=c.width/2, cy=c.height/2;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const re=(x-cx)*scale, im=(y-cy)*scale;
+
+        const {iter, root}=findRoot([re,im], params.n);
+
+        const hue=(root*360/params.n+iter*5)%360;
+
+        const i=(y*c.width+x)*4;
+
+        const h=hue/60, c2=0.8, l=0.3+iter/params.maxIters*0.4, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+  }
+
+  draw();
+
+  slider(id,"Power n",2,8,1,params.n,v=>{params.n=v; draw();});
+
+  slider(id,"Zoom",0.5,5,0.1,params.zoom,v=>{params.zoom=v; draw();});
+
+  slider(id,"Max Iters",10,100,5,params.maxIters,v=>{params.maxIters=v; draw();});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 126 Gradient Orbit Rings */
+
+inits["orbit-rings"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={count:8, thickness:0.02, spin:0, speed:0.01};
+
+  function draw(){
+
+    params.spin+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    const cx=c.width/2, cy=c.height/2, scale=Math.min(c.width,c.height)*0.4;
+
+    for(let i=0;i<params.count;i++){
+
+      const r=scale*(0.3+i*0.7/params.count);
+
+      const angle=i*Math.PI*2/params.count+params.spin;
+
+      const hue=(i*360/params.count+params.spin*100)%360;
+
+      ctx.strokeStyle=`hsl(${hue},80%,60%)`; ctx.lineWidth=params.thickness*scale;
+
+      ctx.beginPath();
+
+      ctx.arc(cx+Math.cos(angle)*r*0.3, cy+Math.sin(angle)*r*0.3, r, 0, Math.PI*2);
+
+      ctx.stroke();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Count",3,16,1,params.count,v=>{params.count=v});
+
+  slider(id,"Thickness",0.005,0.05,0.001,params.thickness,v=>{params.thickness=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 139 Chladni Plate Nodes */
+
+inits["chladni"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={m:5, n:4, threshold:0.1, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data, cx=c.width/2, cy=c.height/2, scale=Math.min(c.width,c.height)*0.4;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const dx=(x-cx)/scale, dy=(y-cy)/scale;
+
+        const chladni=Math.cos(params.m*Math.PI*dx)*Math.cos(params.n*Math.PI*dy)+Math.sin(params.time);
+
+        const v=Math.abs(chladni)<params.threshold?255:0;
+
+        const i=(y*c.width+x)*4;
+
+        d[i]=v*0.8; d[i+1]=v*0.9; d[i+2]=v; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"m",1,10,1,params.m,v=>{params.m=v});
+
+  slider(id,"n",1,10,1,params.n,v=>{params.n=v});
+
+  slider(id,"Threshold",0.05,0.3,0.01,params.threshold,v=>{params.threshold=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 143 Polar Sine Labyrinth */
+
+inits["polar-labyrinth"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={cell:10, amplitude:3, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=1;
+
+    const cx=c.width/2, cy=c.height/2;
+
+    for(let r=params.cell;r<Math.min(c.width,c.height)*0.4;r+=params.cell){
+
+      for(let a=0;a<Math.PI*2;a+=0.1){
+
+        const sine=Math.sin(a*params.amplitude+params.time);
+
+        const threshold=r*0.1;
+
+        if(Math.abs(sine)<threshold){
+
+          const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
+
+          ctx.fillRect(x-1,y-1,3,3);
+
+        }
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Cell size",5,20,1,params.cell,v=>{params.cell=v});
+
+  slider(id,"Amplitude",1,8,0.5,params.amplitude,v=>{params.amplitude=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 148 Delaunay Wireframe */
+
+inits["delaunay"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={points:30, thickness:1, jitter:0.1, time:0, speed:0.002};
+
+  const points=Array(params.points).fill().map(()=>({x:Math.random()*c.width, y:Math.random()*c.height, vx:Math.random()*2-1, vy:Math.random()*2-1}));
+
+  function delaunay(points){
+
+    const triangles=[];
+
+    for(let i=0;i<points.length;i++){
+
+      for(let j=i+1;j<points.length;j++){
+
+        for(let k=j+1;k<points.length;k++){
+
+          const p1=points[i], p2=points[j], p3=points[k];
+
+          let valid=true;
+
+          for(let l=0;l<points.length;l++){
+
+            if(l===i||l===j||l===k) continue;
+
+            const p=points[l];
+
+            const ax=p1.x-p.x, ay=p1.y-p.y, bx=p2.x-p.x, by=p2.y-p.y, cx=p3.x-p.x, cy=p3.y-p.y;
+
+            const det=ax*(by*cy-cy*by)-ay*(bx*cy-cx*by)+(ax*by-ay*bx);
+
+            if(det>0){ valid=false; break; }
+
+          }
+
+          if(valid) triangles.push([i,j,k]);
+
+        }
+
+      }
+
+    }
+
+    return triangles;
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='rgba(86,194,255,0.6)'; ctx.lineWidth=params.thickness;
+
+    const triangles=delaunay(points);
+
+    for(const [i,j,k] of triangles){
+
+      const p1=points[i], p2=points[j], p3=points[k];
+
+      ctx.beginPath();
+
+      ctx.moveTo(p1.x,p1.y);
+
+      ctx.lineTo(p2.x,p2.y);
+
+      ctx.lineTo(p3.x,p3.y);
+
+      ctx.closePath();
+
+      ctx.stroke();
+
+    }
+
+    for(const p of points){
+
+      p.x+=p.vx; p.y+=p.vy;
+
+      if(p.x<0||p.x>c.width){p.vx*=-1; p.x=Math.max(0,Math.min(c.width,p.x));}
+
+      if(p.y<0||p.y>c.height){p.vy*=-1; p.y=Math.max(0,Math.min(c.height,p.y));}
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Points",10,50,2,params.points,v=>{params.points=v; points.length=0; for(let i=0;i<v;i++) points.push({x:Math.random()*c.width, y:Math.random()*c.height, vx:Math.random()*2-1, vy:Math.random()*2-1});});
+
+  slider(id,"Thickness",0.5,3,0.5,params.thickness,v=>{params.thickness=v; ctx.lineWidth=v;});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 72 Edge Reaction Rings */
+
+inits["edge-react"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={gain:0.95, threshold:0.5, blur:1, time:0, speed:0.01};
+
+  let buffer=ctx.createImageData(c.width,c.height);
+
+  for(let i=0;i<buffer.data.length;i+=4){
+
+    buffer.data[i]=Math.random()<0.01?255:0;
+
+    buffer.data[i+1]=buffer.data[i]; buffer.data[i+2]=buffer.data[i]; buffer.data[i+3]=255;
+
+  }
+
+  function edgeDetect(img){
+
+    const out=ctx.createImageData(img.width,img.height), d=img.data, o=out.data;
+
+    for(let y=1;y<img.height-1;y++){
+
+      for(let x=1;x<img.width-1;x++){
+
+        const idx=(y*img.width+x)*4;
+
+        const gx=-d[(y-1)*img.width*4+(x-1)*4]+d[(y-1)*img.width*4+(x+1)*4]-2*d[y*img.width*4+(x-1)*4]+2*d[y*img.width*4+(x+1)*4]-d[(y+1)*img.width*4+(x-1)*4]+d[(y+1)*img.width*4+(x+1)*4];
+
+        const gy=-d[(y-1)*img.width*4+(x-1)*4]-2*d[(y-1)*img.width*4+x*4]-d[(y-1)*img.width*4+(x+1)*4]+d[(y+1)*img.width*4+(x-1)*4]+2*d[(y+1)*img.width*4+x*4]+d[(y+1)*img.width*4+(x+1)*4];
+
+        const mag=Math.hypot(gx,gy);
+
+        const v=mag>params.threshold*255?255:0;
+
+        o[idx]=v; o[idx+1]=v; o[idx+2]=v; o[idx+3]=255;
+
+      }
+
+    }
+
+    return out;
+
+  }
+
+  function blur(img){
+
+    const out=ctx.createImageData(img.width,img.height), d=img.data, o=out.data;
+
+    const kernel=[1,2,1,2,4,2,1,2,1], norm=16;
+
+    for(let y=1;y<img.height-1;y++){
+
+      for(let x=1;x<img.width-1;x++){
+
+        let acc=0, k=0;
+
+        for(let j=-1;j<=1;j++){
+
+          for(let i=-1;i<=1;i++){
+
+            const idx=((y+j)*img.width+(x+i))*4;
+
+            acc+=d[idx]*kernel[k++];
+
+          }
+
+        }
+
+        const v=acc/norm;
+
+        const idx=(y*img.width+x)*4;
+
+        o[idx]=v; o[idx+1]=v; o[idx+2]=v; o[idx+3]=255;
+
+      }
+
+    }
+
+    return out;
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    let img=edgeDetect(buffer);
+
+    for(let i=0;i<params.blur;i++) img=blur(img);
+
+    const d=buffer.data, b=img.data;
+
+    for(let i=0;i<d.length;i+=4){
+
+      const v=Math.min(255, d[i]*params.gain+b[i]*(1-params.gain));
+
+      d[i]=v; d[i+1]=v*0.95; d[i+2]=v*0.8; d[i+3]=255;
+
+    }
+
+    ctx.putImageData(buffer,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Gain",0.8,0.99,0.01,params.gain,v=>{params.gain=v});
+
+  slider(id,"Threshold",0.1,1,0.05,params.threshold,v=>{params.threshold=v});
+
+  slider(id,"Blur",0,3,1,params.blur,v=>{params.blur=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 83 Raymarch Glow Orbs */
+
+inits["raymarch-2d"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={orbs:5, falloff:0.5, blend:0.3, time:0, speed:0.01};
+
+  const orbs=Array(params.orbs).fill().map(()=>({x:Math.random()*c.width, y:Math.random()*c.height, r:30+Math.random()*50, vx:Math.random()*0.5-0.25, vy:Math.random()*0.5-0.25}));
+
+  function sdf(x,y,orb){
+
+    return Math.hypot(x-orb.x, y-orb.y)-orb.r;
+
+  }
+
+  function softMin(a,b,k){
+
+    const h=Math.max(k-Math.abs(a-b),0)/k;
+
+    return Math.min(a,b)-h*h*h*k/6;
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        let dist=sdf(x,y,orbs[0]);
+
+        for(let i=1;i<orbs.length;i++){
+
+          dist=softMin(dist, sdf(x,y,orbs[i]), params.blend*100);
+
+        }
+
+        const v=Math.max(0, 1-dist*params.falloff/100)*255;
+
+        const i=(y*c.width+x)*4;
+
+        const hue=(params.time*50+v*0.5)%360;
+
+        const h=hue/60, c2=0.8, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    for(const orb of orbs){
+
+      orb.x+=orb.vx; orb.y+=orb.vy;
+
+      if(orb.x<0||orb.x>c.width){orb.vx*=-1; orb.x=Math.max(0,Math.min(c.width,orb.x));}
+
+      if(orb.y<0||orb.y>c.height){orb.vy*=-1; orb.y=Math.max(0,Math.min(c.height,orb.y));}
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Orbs",2,10,1,params.orbs,v=>{params.orbs=v; orbs.length=0; for(let i=0;i<v;i++) orbs.push({x:Math.random()*c.width, y:Math.random()*c.height, r:30+Math.random()*50, vx:Math.random()*0.5-0.25, vy:Math.random()*0.5-0.25});});
+
+  slider(id,"Falloff",0.1,1,0.05,params.falloff,v=>{params.falloff=v});
+
+  slider(id,"Blend",0.1,0.8,0.05,params.blend,v=>{params.blend=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 82 SDF Shape Playground */
+
+inits["sdf-play"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={blend:20, time:0, speed:0.01};
+
+  function circleSDF(x,y,cx,cy,r){
+
+    return Math.hypot(x-cx,y-cy)-r;
+
+  }
+
+  function boxSDF(x,y,cx,cy,w,h){
+
+    const dx=Math.abs(x-cx)-w, dy=Math.abs(y-cy)-h;
+
+    return Math.hypot(Math.max(dx,0), Math.max(dy,0))+Math.min(Math.max(dx,dy),0);
+
+  }
+
+  function smoothUnion(a,b,k){
+
+    const h=Math.max(k-Math.abs(a-b),0)/k;
+
+    return Math.min(a,b)-h*h*h*k/6;
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data, cx=c.width/2, cy=c.height/2;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const c1=circleSDF(x,y, cx+Math.cos(params.time)*50, cy+Math.sin(params.time)*50, 40);
+
+        const c2=circleSDF(x,y, cx-Math.cos(params.time)*50, cy-Math.sin(params.time)*50, 40);
+
+        const b=boxSDF(x,y, cx, cy, 60, 60);
+
+        let dist=smoothUnion(c1,c2,params.blend);
+
+        dist=smoothUnion(dist,b,params.blend);
+
+        const v=Math.abs(dist)<2?255:Math.max(0,255-Math.abs(dist)*5);
+
+        const i=(y*c.width+x)*4;
+
+        const hue=(dist*5+params.time*50)%360;
+
+        const h=hue/60, c2=0.7, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Blend",5,50,1,params.blend,v=>{params.blend=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 106 Spherical Harmonics Heat */
+
+inits["harmonics"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={l:3, m:2, time:0, speed:0.01};
+
+  function sphericalHarmonic(theta,phi,l,m){
+
+    if(l===0) return 1/Math.sqrt(4*Math.PI);
+
+    if(l===1){
+
+      if(m===0) return Math.sqrt(3/(4*Math.PI))*Math.cos(theta);
+
+      if(m===1) return -Math.sqrt(3/(8*Math.PI))*Math.sin(theta)*Math.cos(phi);
+
+      if(m===-1) return Math.sqrt(3/(8*Math.PI))*Math.sin(theta)*Math.sin(phi);
+
+    }
+
+    if(l===2){
+
+      if(m===0) return Math.sqrt(5/(16*Math.PI))*(3*Math.cos(theta)*Math.cos(theta)-1);
+
+      if(m===1) return -Math.sqrt(15/(8*Math.PI))*Math.sin(theta)*Math.cos(theta)*Math.cos(phi);
+
+      if(m===-1) return Math.sqrt(15/(8*Math.PI))*Math.sin(theta)*Math.cos(theta)*Math.sin(phi);
+
+      if(m===2) return Math.sqrt(15/(32*Math.PI))*Math.sin(theta)*Math.sin(theta)*Math.cos(2*phi);
+
+      if(m===-2) return Math.sqrt(15/(32*Math.PI))*Math.sin(theta)*Math.sin(theta)*Math.sin(2*phi);
+
+    }
+
+    if(l===3){
+
+      if(m===0) return Math.sqrt(7/(16*Math.PI))*(5*Math.cos(theta)*Math.cos(theta)*Math.cos(theta)-3*Math.cos(theta));
+
+      return Math.sin(theta)*Math.cos(m*phi+params.time);
+
+    }
+
+    return Math.sin(theta)*Math.cos(m*phi+params.time);
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data, cx=c.width/2, cy=c.height/2, scale=Math.min(c.width,c.height)*0.4;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const dx=(x-cx)/scale, dy=(y-cy)/scale;
+
+        const r=Math.hypot(dx,dy);
+
+        if(r>1) continue;
+
+        const theta=Math.acos(Math.sqrt(1-r*r));
+
+        const phi=Math.atan2(dy,dx);
+
+        const Y=sphericalHarmonic(theta,phi,params.l,params.m);
+
+        const v=(Y*0.5+0.5)*255;
+
+        const i=(y*c.width+x)*4;
+
+        const hue=(v*0.5+params.time*50)%360;
+
+        const h=hue/60, c2=0.8, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m2=l-c2/2;
+
+        let r2=0,g=0,b=0;
+
+        if(h<1){r2=c2;g=X}else if(h<2){r2=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r2=X;b=c2}else{r2=c2;b=X}
+
+        d[i]=(r2+m2)*255; d[i+1]=(g+m2)*255; d[i+2]=(b+m2)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"l",0,3,1,params.l,v=>{params.l=v});
+
+  slider(id,"m",-3,3,1,params.m,v=>{params.m=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 107 Moiré Checker Warps */
+
+inits["moire-checker"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={angle1:0, angle2:0.3, scale:20, phase:0, speed:0.01};
+
+  function draw(){
+
+    params.phase+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const a1=Math.cos(params.angle1)*(x-c.width/2)+Math.sin(params.angle1)*(y-c.height/2);
+
+        const a2=Math.cos(params.angle2)*(x-c.width/2)+Math.sin(params.angle2)*(y-c.height/2);
+
+        const v1=Math.sin(a1/params.scale+params.phase)>0?1:0;
+
+        const v2=Math.sin(a2/params.scale+params.phase*0.7)>0?1:0;
+
+        const v=(v1^v2)*255;
+
+        const i=(y*c.width+x)*4;
+
+        d[i]=v*0.8; d[i+1]=v*0.9; d[i+2]=v; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Angle1",0,Math.PI,0.1,params.angle1,v=>{params.angle1=v});
+
+  slider(id,"Angle2",0,Math.PI,0.1,params.angle2,v=>{params.angle2=v});
+
+  slider(id,"Scale",10,50,2,params.scale,v=>{params.scale=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 114 Sinewarp Text */
+
+inits["sinewarp-text"]=({id})=>{
+
+  const div=document.createElement('div');
+
+  div.style.width='100%'; div.style.height='60vh';
+
+  div.style.display='grid'; div.style.placeItems='center';
+
+  div.style.background='#0b0f16';
+
+  const params={amplitude:20, freq:0.02, speed:0.01, time:0};
+
+  const h=document.createElement('h1');
+
+  h.textContent='SINEWARP';
+
+  h.style.font='900 8vmin/1 system-ui';
+
+  h.style.color='#56c2ff';
+
+  div.appendChild(h);
+
+  function update(){
+
+    params.time+=params.speed;
+
+    const offset=Math.sin(params.time*params.freq*100)*params.amplitude;
+
+    h.style.backgroundPosition=`${offset}px ${offset*0.5}px`;
+
+    h.style.background=`
+
+      repeating-linear-gradient(45deg, transparent 0 ${offset}px, rgba(86,194,255,0.3) ${offset}px ${offset+10}px, transparent ${offset+10}px ${offset+20}px)
+
+    `;
+
+    requestAnimationFrame(update);
+
+  }
+
+  update();
+
+  appendStage(id,div);
+
+  slider(id,"Amplitude",5,50,1,params.amplitude,v=>{params.amplitude=v});
+
+  slider(id,"Frequency",0.01,0.05,0.001,params.freq,v=>{params.freq=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, update.toString());
+
+};
+
+/* 127 Fractal Flames 2D */
+
+inits["flames"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={iterations:50000, gamma:1.5, time:0, speed:0.01};
+
+  const transforms=[
+
+    {p:0.5, a:0.5, b:0, c:0, d:0.5, e:0, f:0},
+
+    {p:0.3, a:0.5, b:0, c:0, d:0.5, e:0.5, f:0},
+
+    {p:0.2, a:0.5, b:0, c:0, d:0.5, e:0, f:0.5}
+
+  ];
+
+  const density=Array(c.width*c.height).fill(0);
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.05)'; ctx.fillRect(0,0,c.width,c.height);
+
+    let x=0.5, y=0.5;
+
+    for(let i=0;i<params.iterations;i++){
+
+      const r=Math.random();
+
+      let sum=0, t=transforms[0];
+
+      for(const tr of transforms){
+
+        sum+=tr.p;
+
+        if(r<sum){ t=tr; break; }
+
+      }
+
+      const nx=t.a*x+t.b*y+t.e;
+
+      const ny=t.c*x+t.d*y+t.f;
+
+      x=nx; y=ny;
+
+      const px=Math.floor(x*c.width);
+
+      const py=Math.floor(y*c.height);
+
+      if(px>=0&&px<c.width&&py>=0&&py<c.height){
+
+        density[py*c.width+px]=Math.min(255, density[py*c.width+px]+1);
+
+      }
+
+    }
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let i=0;i<density.length;i++){
+
+      const v=Math.pow(density[i]/params.iterations*255, 1/params.gamma);
+
+      density[i]*=0.99;
+
+      const idx=i*4;
+
+      const hue=(v*0.5+params.time*50)%360;
+
+      const h=hue/60, c2=0.8, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+      let r=0,g=0,b=0;
+
+      if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+      d[idx]=(r+m)*255; d[idx+1]=(g+m)*255; d[idx+2]=(b+m)*255; d[idx+3]=255;
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Iterations",10000,100000,5000,params.iterations,v=>{params.iterations=v});
+
+  slider(id,"Gamma",0.5,2,0.1,params.gamma,v=>{params.gamma=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 128 Amoeba Marchers */
+
+inits["amoeba"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={marchers:20, speed:0.5, squish:0.3, time:0, tSpeed:0.01};
+
+  const marchers=Array(params.marchers).fill().map(()=>({x:Math.random()*c.width, y:Math.random()*c.height, angle:Math.random()*Math.PI*2, size:20+Math.random()*30}));
+
+  function draw(){
+
+    params.time+=params.tSpeed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    for(const m of marchers){
+
+      const n=fbm(m.x*0.01+params.time, m.y*0.01, 3, 2, 0.5);
+
+      m.angle+=n*0.1;
+
+      m.x+=Math.cos(m.angle)*params.speed;
+
+      m.y+=Math.sin(m.angle)*params.speed;
+
+      if(m.x<0||m.x>c.width){m.x=Math.max(0,Math.min(c.width,m.x)); m.angle+=Math.PI;}
+
+      if(m.y<0||m.y>c.height){m.y=Math.max(0,Math.min(c.height,m.y)); m.angle+=Math.PI;}
+
+      const hue=(m.x/c.width*360+params.time*50)%360;
+
+      ctx.fillStyle=`hsla(${hue},80%,60%,0.6)`;
+
+      ctx.save();
+
+      ctx.translate(m.x,m.y);
+
+      ctx.rotate(m.angle);
+
+      ctx.scale(1+Math.sin(params.time+m.x*0.01)*params.squish, 1-Math.sin(params.time+m.x*0.01)*params.squish);
+
+      ctx.beginPath();
+
+      ctx.arc(0,0,m.size,0,Math.PI*2);
+
+      ctx.fill();
+
+      ctx.restore();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Marchers",5,40,1,params.marchers,v=>{params.marchers=v; marchers.length=0; for(let i=0;i<v;i++) marchers.push({x:Math.random()*c.width, y:Math.random()*c.height, angle:Math.random()*Math.PI*2, size:20+Math.random()*30});});
+
+  slider(id,"Speed",0.1,2,0.1,params.speed,v=>{params.speed=v});
+
+  slider(id,"Squish",0,0.5,0.05,params.squish,v=>{params.squish=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 129 Shadow March Text */
+
+inits["shadow-text"]=({id})=>{
+
+  const div=document.createElement('div');
+
+  div.style.width='100%'; div.style.height='60vh';
+
+  div.style.display='grid'; div.style.placeItems='center';
+
+  div.style.background='#0b0f16';
+
+  const params={layers:8, offset:5, curve:0.3, time:0, speed:0.01};
+
+  const h=document.createElement('h1');
+
+  h.textContent='SHADOW';
+
+  h.style.font='900 10vmin/1 system-ui';
+
+  h.style.color='#56c2ff';
+
+  h.style.position='relative';
+
+  div.appendChild(h);
+
+  function update(){
+
+    params.time+=params.speed;
+
+    const shadows=[];
+
+    for(let i=0;i<params.layers;i++){
+
+      const offset=params.offset*(i+1);
+
+      const x=offset*Math.cos(params.time+i*params.curve);
+
+      const y=offset*Math.sin(params.time+i*params.curve);
+
+      const blur=offset*0.5;
+
+      shadows.push(`${x}px ${y}px ${blur}px rgba(86,194,255,${0.3-i*0.03})`);
+
+    }
+
+    h.style.textShadow=shadows.join(', ');
+
+    requestAnimationFrame(update);
+
+  }
+
+  update();
+
+  appendStage(id,div);
+
+  slider(id,"Layers",3,15,1,params.layers,v=>{params.layers=v});
+
+  slider(id,"Offset",2,15,1,params.offset,v=>{params.offset=v});
+
+  slider(id,"Curve",0,1,0.1,params.curve,v=>{params.curve=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, update.toString());
+
+};
+
+/* 141 Bilateral Symmetry Paint */
+
+inits["bilateral"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={decay:0.98, mirrorX:true, time:0, speed:0.01};
+
+  const density=Array(c.width*c.height).fill(0);
+
+  const state={mouse:{x:c.width/2,y:c.height/2}, drawing:false};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.05)'; ctx.fillRect(0,0,c.width,c.height);
+
+    if(state.drawing){
+
+      const x=state.mouse.x, y=state.mouse.y;
+
+      const mx=params.mirrorX?c.width-x:x;
+
+      for(let dy=-5;dy<=5;dy++){
+
+        for(let dx=-5;dx<=5;dx++){
+
+          const dist=Math.hypot(dx,dy);
+
+          if(dist<5){
+
+            const px1=Math.floor(x+dx), py1=Math.floor(y+dy);
+
+            const px2=Math.floor(mx+dx), py2=Math.floor(y+dy);
+
+            if(px1>=0&&px1<c.width&&py1>=0&&py1<c.height){
+
+              density[py1*c.width+px1]=Math.min(255, density[py1*c.width+px1]+(5-dist)*5);
+
+            }
+
+            if(px2>=0&&px2<c.width&&py2>=0&&py2<c.height){
+
+              density[py2*c.width+px2]=Math.min(255, density[py2*c.width+px2]+(5-dist)*5);
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let i=0;i<density.length;i++){
+
+      density[i]*=params.decay;
+
+      const v=density[i];
+
+      const idx=i*4;
+
+      const hue=(v*0.5+params.time*50)%360;
+
+      const h=hue/60, c2=0.8, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+      let r=0,g=0,b=0;
+
+      if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+      d[idx]=(r+m)*255; d[idx+1]=(g+m)*255; d[idx+2]=(b+m)*255; d[idx+3]=255;
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  c.addEventListener('pointerdown',e=>{state.drawing=true; const r=c.getBoundingClientRect(); state.mouse.x=e.clientX-r.left; state.mouse.y=e.clientY-r.top;});
+
+  c.addEventListener('pointerup',e=>{state.drawing=false;});
+
+  c.addEventListener('pointermove',e=>{if(state.drawing){const r=c.getBoundingClientRect(); state.mouse.x=e.clientX-r.left; state.mouse.y=e.clientY-r.top;}});
+
+  slider(id,"Decay",0.9,0.99,0.01,params.decay,v=>{params.decay=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 142 Orbital Flow Trails */
+
+inits["nbody"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={masses:8, drag:0.98, time:0, speed:0.01};
+
+  const bodies=Array(params.masses).fill().map(()=>({x:Math.random()*c.width, y:Math.random()*c.height, vx:0, vy:0, mass:10+Math.random()*20, trail:[]}));
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    for(const b of bodies){
+
+      let fx=0, fy=0;
+
+      for(const other of bodies){
+
+        if(other===b) continue;
+
+        const dx=other.x-b.x, dy=other.y-b.y, dist=Math.hypot(dx,dy);
+
+        if(dist>1){
+
+          const force=other.mass/(dist*dist+1);
+
+          fx+=dx/dist*force*0.1;
+
+          fy+=dy/dist*force*0.1;
+
+        }
+
+      }
+
+      b.vx+=fx; b.vy+=fy;
+
+      b.vx*=params.drag; b.vy*=params.drag;
+
+      b.x+=b.vx; b.y+=b.vy;
+
+      b.trail.push({x:b.x, y:b.y});
+
+      if(b.trail.length>50) b.trail.shift();
+
+      if(b.x<0||b.x>c.width){b.vx*=-0.8; b.x=Math.max(0,Math.min(c.width,b.x));}
+
+      if(b.y<0||b.y>c.height){b.vy*=-0.8; b.y=Math.max(0,Math.min(c.height,b.y));}
+
+    }
+
+    for(const b of bodies){
+
+      ctx.strokeStyle=`hsla(${(b.x/c.width*360)%360},80%,60%,0.6)`;
+
+      ctx.lineWidth=2;
+
+      ctx.beginPath();
+
+      for(let i=1;i<b.trail.length;i++){
+
+        const p1=b.trail[i-1], p2=b.trail[i];
+
+        if(i===1) ctx.moveTo(p1.x,p1.y);
+
+        ctx.lineTo(p2.x,p2.y);
+
+      }
+
+      ctx.stroke();
+
+      ctx.fillStyle=`hsl(${(b.x/c.width*360)%360},80%,60%)`;
+
+      ctx.beginPath();
+
+      ctx.arc(b.x,b.y,Math.sqrt(b.mass),0,Math.PI*2);
+
+      ctx.fill();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Masses",3,15,1,params.masses,v=>{params.masses=v; bodies.length=0; for(let i=0;i<v;i++) bodies.push({x:Math.random()*c.width, y:Math.random()*c.height, vx:0, vy:0, mass:10+Math.random()*20, trail:[]});});
+
+  slider(id,"Drag",0.9,0.99,0.01,params.drag,v=>{params.drag=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 65 Penrose Kite-Dart */
+
+inits["penrose"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={depth:3, phi:(1+Math.sqrt(5))/2};
+
+  function penrose(x,y,size,type,depth){
+
+    if(depth===0){
+
+      ctx.beginPath();
+
+      if(type===0){
+
+        const x1=x, y1=y;
+
+        const x2=x+size*Math.cos(Math.PI/5), y2=y+size*Math.sin(Math.PI/5);
+
+        const x3=x+size*Math.cos(2*Math.PI/5), y3=y+size*Math.sin(2*Math.PI/5);
+
+        ctx.moveTo(x1,y1);
+
+        ctx.lineTo(x2,y2);
+
+        ctx.lineTo(x3,y3);
+
+        ctx.closePath();
+
+        ctx.stroke();
+
+      } else {
+
+        const x1=x, y1=y;
+
+        const x2=x+size*Math.cos(Math.PI/5), y2=y+size*Math.sin(Math.PI/5);
+
+        const x3=x+size*Math.cos(3*Math.PI/5), y3=y+size*Math.sin(3*Math.PI/5);
+
+        ctx.moveTo(x1,y1);
+
+        ctx.lineTo(x2,y2);
+
+        ctx.lineTo(x3,y3);
+
+        ctx.closePath();
+
+        ctx.stroke();
+
+      }
+
+      return;
+
+    }
+
+    const s=size/params.phi;
+
+    if(type===0){
+
+      penrose(x,y,s,1,depth-1);
+
+      penrose(x+s*Math.cos(Math.PI/5), y+s*Math.sin(Math.PI/5), s,0,depth-1);
+
+    } else {
+
+      penrose(x,y,s,0,depth-1);
+
+      penrose(x+s*Math.cos(2*Math.PI/5), y+s*Math.sin(2*Math.PI/5), s,1,depth-1);
+
+    }
+
+  }
+
+  function draw(){
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=1.5;
+
+    const cx=c.width/2, cy=c.height/2, size=Math.min(c.width,c.height)*0.3;
+
+    penrose(cx,cy,size,0,params.depth);
+
+  }
+
+  draw();
+
+  slider(id,"Depth",1,5,1,params.depth,v=>{params.depth=v; draw();});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 112 SVG Gradient Mesh Beasts */
+
+inits["svg-mesh"]=({id})=>{
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+
+  svg.setAttribute('viewBox','0 0 200 200');
+
+  svg.style.width='100%';
+
+  svg.style.height='60vh';
+
+  svg.style.background='var(--stage)';
+
+  const params={density:8, time:0, speed:0.01};
+
+  function createMesh(){
+
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+    const defs=document.createElementNS(svg.namespaceURI,'defs');
+
+    const grad=document.createElementNS(svg.namespaceURI,'linearGradient');
+
+    grad.setAttribute('id','meshGrad');
+
+    grad.setAttribute('x1','0%'); grad.setAttribute('y1','0%');
+
+    grad.setAttribute('x2','100%'); grad.setAttribute('y2','100%');
+
+    for(let i=0;i<=params.density;i++){
+
+      const stop=document.createElementNS(svg.namespaceURI,'stop');
+
+      const offset=i/params.density*100;
+
+      const hue=(i*360/params.density+params.time*50)%360;
+
+      stop.setAttribute('offset',offset+'%');
+
+      stop.setAttribute('stop-color',`hsl(${hue},80%,60%)`);
+
+      grad.appendChild(stop);
+
+    }
+
+    defs.appendChild(grad);
+
+    svg.appendChild(defs);
+
+    const rect=document.createElementNS(svg.namespaceURI,'rect');
+
+    rect.setAttribute('width','200');
+
+    rect.setAttribute('height','200');
+
+    rect.setAttribute('fill','url(#meshGrad)');
+
+    svg.appendChild(rect);
+
+  }
+
+  function update(){
+
+    params.time+=params.speed;
+
+    createMesh();
+
+    requestAnimationFrame(update);
+
+  }
+
+  update();
+
+  appendStage(id,svg);
+
+  slider(id,"Density",4,16,1,params.density,v=>{params.density=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, update.toString());
+
+};
+
+/* 113 Escherized Tessellations */
+
+inits["escher-tiles"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={morph:0.3, orientation:0, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=1.5;
+
+    const tile=40;
+
+    for(let y=0;y<c.height;y+=tile){
+
+      for(let x=0;x<c.width;x+=tile){
+
+        const mx=(x/tile+y/tile)%2;
+
+        const my=(x/tile-y/tile)%2;
+
+        ctx.save();
+
+        ctx.translate(x+tile/2, y+tile/2);
+
+        ctx.rotate(params.orientation+params.time);
+
+        ctx.beginPath();
+
+        const morph=Math.sin(params.time+mx+my)*params.morph;
+
+        ctx.moveTo(-tile/2+morph, -tile/2);
+
+        ctx.lineTo(tile/2-morph, -tile/2);
+
+        ctx.lineTo(tile/2, tile/2-morph);
+
+        ctx.lineTo(-tile/2, tile/2+morph);
+
+        ctx.closePath();
+
+        ctx.stroke();
+
+        ctx.restore();
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Morph",0,0.5,0.05,params.morph,v=>{params.morph=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 115 Bezier Foam */
+
+inits["bezier-foam"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={cells:12, jitter:0.2, tension:0.5, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='rgba(86,194,255,0.6)'; ctx.lineWidth=2;
+
+    const cx=c.width/2, cy=c.height/2, r=Math.min(c.width,c.height)*0.3;
+
+    for(let i=0;i<params.cells;i++){
+
+      const angle=i*Math.PI*2/params.cells+params.time;
+
+      const x1=cx+Math.cos(angle)*r, y1=cy+Math.sin(angle)*r;
+
+      const x2=cx+Math.cos(angle+Math.PI*2/params.cells)*r, y2=cy+Math.sin(angle+Math.PI*2/params.cells)*r;
+
+      const cp1x=x1+Math.cos(angle+Math.PI/2)*r*params.tension, cp1y=y1+Math.sin(angle+Math.PI/2)*r*params.tension;
+
+      const cp2x=x2+Math.cos(angle+Math.PI*2/params.cells+Math.PI/2)*r*params.tension, cp2y=y2+Math.sin(angle+Math.PI*2/params.cells+Math.PI/2)*r*params.tension;
+
+      ctx.beginPath();
+
+      ctx.moveTo(x1,y1);
+
+      ctx.bezierCurveTo(cp1x,cp1y, cp2x,cp2y, x2,y2);
+
+      ctx.stroke();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Cells",6,24,1,params.cells,v=>{params.cells=v});
+
+  slider(id,"Tension",0,1,0.1,params.tension,v=>{params.tension=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 119 Eikonal Rays */
+
+inits["eikonal"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={rays:30, speed:0.5, time:0, tSpeed:0.01};
+
+  const rays=Array(params.rays).fill().map(()=>({x:Math.random()*c.width, y:Math.random()*c.height, angle:Math.random()*Math.PI*2, life:1}));
+
+  function speedField(x,y){
+
+    return 0.5+fbm(x*0.01+params.time, y*0.01, 3, 2, 0.5)*0.5;
+
+  }
+
+  function draw(){
+
+    params.time+=params.tSpeed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    for(const ray of rays){
+
+      const s=speedField(ray.x, ray.y);
+
+      ray.x+=Math.cos(ray.angle)*params.speed*s;
+
+      ray.y+=Math.sin(ray.angle)*params.speed*s;
+
+      ray.life*=0.995;
+
+      if(ray.x<0||ray.x>c.width||ray.y<0||ray.y>c.height||ray.life<0.1){
+
+        ray.x=Math.random()*c.width;
+
+        ray.y=Math.random()*c.height;
+
+        ray.angle=Math.random()*Math.PI*2;
+
+        ray.life=1;
+
+      }
+
+      const hue=(ray.x/c.width*360+params.time*50)%360;
+
+      ctx.strokeStyle=`hsla(${hue},80%,60%,${ray.life*0.6})`;
+
+      ctx.beginPath();
+
+      ctx.arc(ray.x,ray.y,2,0,Math.PI*2);
+
+      ctx.stroke();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Rays",10,60,5,params.rays,v=>{params.rays=v; rays.length=0; for(let i=0;i<v;i++) rays.push({x:Math.random()*c.width, y:Math.random()*c.height, angle:Math.random()*Math.PI*2, life:1});});
+
+  slider(id,"Speed",0.1,2,0.1,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 120 Anamorphic Stretch */
+
+inits["anamorph"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={perspective:0.5, skew:0.3, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='rgba(86,194,255,0.6)'; ctx.lineWidth=1;
+
+    for(let y=0;y<c.height;y+=20){
+
+      for(let x=0;x<c.width;x+=20){
+
+        const dx=(x-c.width/2)/c.width;
+
+        const dy=(y-c.height/2)/c.height;
+
+        const warp=1+Math.sin(params.time+dx*Math.PI*2)*params.perspective;
+
+        const skew=Math.cos(params.time+dy*Math.PI*2)*params.skew;
+
+        const wx=x+dx*warp*20+skew*10;
+
+        const wy=y+dy*warp*20;
+
+        ctx.beginPath();
+
+        ctx.arc(wx,wy,2,0,Math.PI*2);
+
+        ctx.fill();
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Perspective",0,1,0.05,params.perspective,v=>{params.perspective=v});
+
+  slider(id,"Skew",0,0.5,0.05,params.skew,v=>{params.skew=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 130 Polar SDF Zipper */
+
+inits["polar-zipper"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={blend:15, spin:0, speed:0.01};
+
+  function polarSDF(x,y,cx,cy){
+
+    const dx=x-cx, dy=y-cy;
+
+    const r=Math.hypot(dx,dy);
+
+    const a=Math.atan2(dy,dx);
+
+    return Math.abs(r-50-Math.sin(a*5+params.spin)*20);
+
+  }
+
+  function smoothUnion(a,b,k){
+
+    const h=Math.max(k-Math.abs(a-b),0)/k;
+
+    return Math.min(a,b)-h*h*h*k/6;
+
+  }
+
+  function draw(){
+
+    params.spin+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data, cx=c.width/2, cy=c.height/2;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        let dist=polarSDF(x,y,cx,cy);
+
+        for(let i=1;i<8;i++){
+
+          const angle=i*Math.PI*2/8+params.spin;
+
+          const nx=cx+Math.cos(angle)*100;
+
+          const ny=cy+Math.sin(angle)*100;
+
+          dist=smoothUnion(dist, polarSDF(x,y,nx,ny), params.blend);
+
+        }
+
+        const v=Math.abs(dist)<3?255:Math.max(0,255-Math.abs(dist)*10);
+
+        const i=(y*c.width+x)*4;
+
+        const hue=(dist*10+params.spin*100)%360;
+
+        const h=hue/60, c2=0.7, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+
+        let r=0,g=0,b=0;
+
+        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+
+        d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Blend",5,30,1,params.blend,v=>{params.blend=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 131 Bezier Glyph Drift */
+
+inits["glyph-drift"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={drift:0.3, stroke:2, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=params.stroke;
+
+    const cx=c.width/2, cy=c.height/2;
+
+    const text='ERRL';
+
+    ctx.font='bold 80px system-ui';
+
+    ctx.textAlign='center';
+
+    ctx.textBaseline='middle';
+
+    for(let i=0;i<text.length;i++){
+
+      const char=text[i];
+
+      const offset=i*60-90;
+
+      const n=fbm((cx+offset)*0.01+params.time, cy*0.01, 3, 2, 0.5);
+
+      ctx.save();
+
+      ctx.translate(cx+offset+Math.sin(params.time+i)*params.drift*10, cy+Math.cos(params.time+i)*params.drift*10);
+
+      ctx.rotate(n*0.1);
+
+      ctx.strokeText(char,0,0);
+
+      ctx.restore();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Drift",0,1,0.1,params.drift,v=>{params.drift=v});
+
+  slider(id,"Stroke",1,5,0.5,params.stroke,v=>{params.stroke=v; ctx.lineWidth=v;});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 132 Complex Warp Grids */
+
+inits["warp-grids"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={density:20, time:0, speed:0.01};
+
+  function warpMap(z){
+
+    const z2=complexMul(z,z);
+
+    return complexAdd(z2, [0.2,0.3]);
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='rgba(86,194,255,0.6)'; ctx.lineWidth=1;
+
+    const scale=3/Math.min(c.width,c.height), cx=c.width/2, cy=c.height/2;
+
+    for(let i=0;i<=params.density;i++){
+
+      const t=i/params.density;
+
+      ctx.beginPath();
+
+      for(let j=0;j<=params.density;j++){
+
+        const s=j/params.density;
+
+        const x=(s-0.5)*c.width;
+
+        const y=(t-0.5)*c.height;
+
+        const re=(x-cx)*scale, im=(y-cy)*scale;
+
+        const [wr,wi]=warpMap([re,im]);
+
+        const px=cx+wr/scale, py=cy+wi/scale;
+
+        j?ctx.lineTo(px,py):ctx.moveTo(px,py);
+
+      }
+
+      ctx.stroke();
+
+      ctx.beginPath();
+
+      for(let j=0;j<=params.density;j++){
+
+        const s=j/params.density;
+
+        const x=(t-0.5)*c.width;
+
+        const y=(s-0.5)*c.height;
+
+        const re=(x-cx)*scale, im=(y-cy)*scale;
+
+        const [wr,wi]=warpMap([re,im]);
+
+        const px=cx+wr/scale, py=cy+wi/scale;
+
+        j?ctx.lineTo(px,py):ctx.moveTo(px,py);
+
+      }
+
+      ctx.stroke();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Density",10,40,2,params.density,v=>{params.density=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 133 Polar Foam Packing */
+
+inits["polar-foam"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={layers:6, size:30, jitter:0.1, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    const cx=c.width/2, cy=c.height/2;
+
+    for(let layer=0;layer<params.layers;layer++){
+
+      const r=params.size*(layer+1);
+
+      const count=Math.floor(r*0.1);
+
+      for(let i=0;i<count;i++){
+
+        const angle=i*Math.PI*2/count+params.time+layer*0.3;
+
+        const j=Math.sin(params.time+layer+i)*params.jitter;
+
+        const x=cx+Math.cos(angle)*(r+j*10);
+
+        const y=cy+Math.sin(angle)*(r+j*10);
+
+        const hue=(i*360/count+params.time*50)%360;
+
+        ctx.fillStyle=`hsla(${hue},80%,60%,0.6)`;
+
+        ctx.beginPath();
+
+        ctx.arc(x,y,params.size*0.3,0,Math.PI*2);
+
+        ctx.fill();
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Layers",3,12,1,params.layers,v=>{params.layers=v});
+
+  slider(id,"Size",20,50,2,params.size,v=>{params.size=v});
+
+  slider(id,"Jitter",0,0.3,0.05,params.jitter,v=>{params.jitter=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 135 Tangent Bundle Trails */
+
+inits["tangent-trails"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={trails:20, length:50, curvature:0.1, time:0, speed:0.01};
+
+  const trails=Array(params.trails).fill().map(()=>({x:Math.random()*c.width, y:Math.random()*c.height, points:[], angle:Math.random()*Math.PI*2}));
+
+  function field(x,y){
+
+    const n=fbm(x*0.01+params.time, y*0.01, 3, 2, 0.5);
+
+    return n*Math.PI*2;
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    for(const trail of trails){
+
+      const angle=field(trail.x, trail.y);
+
+      trail.angle+=(angle-trail.angle)*params.curvature;
+
+      trail.x+=Math.cos(trail.angle)*2;
+
+      trail.y+=Math.sin(trail.angle)*2;
+
+      trail.points.push({x:trail.x, y:trail.y});
+
+      if(trail.points.length>params.length) trail.points.shift();
+
+      if(trail.x<0||trail.x>c.width||trail.y<0||trail.y>c.height){
+
+        trail.x=Math.random()*c.width;
+
+        trail.y=Math.random()*c.height;
+
+        trail.points=[];
+
+      }
+
+      ctx.strokeStyle=`hsla(${(trail.x/c.width*360)%360},80%,60%,0.6)`;
+
+      ctx.lineWidth=2;
+
+      ctx.beginPath();
+
+      for(let i=1;i<trail.points.length;i++){
+
+        const p1=trail.points[i-1], p2=trail.points[i];
+
+        if(i===1) ctx.moveTo(p1.x,p1.y);
+
+        ctx.lineTo(p2.x,p2.y);
+
+      }
+
+      ctx.stroke();
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Trails",5,40,1,params.trails,v=>{params.trails=v; trails.length=0; for(let i=0;i<v;i++) trails.push({x:Math.random()*c.width, y:Math.random()*c.height, points:[], angle:Math.random()*Math.PI*2});});
+
+  slider(id,"Length",20,100,5,params.length,v=>{params.length=v});
+
+  slider(id,"Curvature",0.05,0.3,0.01,params.curvature,v=>{params.curvature=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 136 Arc Lattice Weave */
+
+inits["arc-weave"]=({id})=>{
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+
+  svg.setAttribute('viewBox','-1 -1 2 2');
+
+  svg.style.width='100%';
+
+  svg.style.height='60vh';
+
+  svg.style.background='var(--stage)';
+
+  const params={families:4, spacing:0.2, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+    for(let f=0;f<params.families;f++){
+
+      const offset=f*Math.PI*2/params.families+params.time;
+
+      for(let i=0;i<10;i++){
+
+        const a1=offset+i*params.spacing;
+
+        const a2=offset+(i+1)*params.spacing;
+
+        const x1=Math.cos(a1)*0.8, y1=Math.sin(a1)*0.8;
+
+        const x2=Math.cos(a2)*0.8, y2=Math.sin(a2)*0.8;
+
+        const el=document.createElementNS(svg.namespaceURI,'path');
+
+        const largeArc=Math.abs(a2-a1)>Math.PI?1:0;
+
+        el.setAttribute('d',`M ${x1} ${y1} A 0.8 0.8 0 ${largeArc} 1 ${x2} ${y2}`);
+
+        el.setAttribute('fill','none');
+
+        el.setAttribute('stroke',`hsl(${(f*360/params.families)%360},80%,60%)`);
+
+        el.setAttribute('stroke-width','.01');
+
+        svg.appendChild(el);
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  appendStage(id,svg);
+
+  slider(id,"Families",2,8,1,params.families,v=>{params.families=v});
+
+  slider(id,"Spacing",0.1,0.4,0.05,params.spacing,v=>{params.spacing=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 137 Polar Brickwork */
+
+inits["polar-bricks"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={rings:8, brickSize:20, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    const cx=c.width/2, cy=c.height/2;
+
+    for(let ring=0;ring<params.rings;ring++){
+
+      const r=30+ring*params.brickSize*1.5;
+
+      const circumference=Math.PI*2*r;
+
+      const bricks=Math.floor(circumference/params.brickSize);
+
+      for(let i=0;i<bricks;i++){
+
+        const angle=i*Math.PI*2/bricks+params.time*0.1;
+
+        const x1=cx+Math.cos(angle)*r, y1=cy+Math.sin(angle)*r;
+
+        const x2=cx+Math.cos(angle+Math.PI*2/bricks)*r, y2=cy+Math.sin(angle+Math.PI*2/bricks)*r;
+
+        const hue=(ring*30+i*5+params.time*50)%360;
+
+        ctx.fillStyle=`hsl(${hue},80%,60%)`;
+
+        ctx.beginPath();
+
+        ctx.moveTo(x1,y1);
+
+        ctx.lineTo(x2,y2);
+
+        ctx.lineTo(x2+Math.cos(angle+Math.PI*2/bricks)*(params.brickSize*0.3), y2+Math.sin(angle+Math.PI*2/bricks)*(params.brickSize*0.3));
+
+        ctx.lineTo(x1+Math.cos(angle)*(params.brickSize*0.3), y1+Math.sin(angle)*(params.brickSize*0.3));
+
+        ctx.closePath();
+
+        ctx.fill();
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Rings",4,16,1,params.rings,v=>{params.rings=v});
+
+  slider(id,"Brick size",10,40,2,params.brickSize,v=>{params.brickSize=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 138 Gasket Lightning */
+
+inits["lichtenberg"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={charge:0.3, glow:true, time:0, speed:0.01};
+
+  const branches=[];
+
+  function addBranch(x,y,angle,depth){
+
+    if(depth>8) return;
+
+    if(Math.random()>params.charge) return;
+
+    const len=20+Math.random()*30;
+
+    const nx=x+Math.cos(angle)*len;
+
+    const ny=y+Math.sin(angle)*len;
+
+    branches.push({x,y,nx,ny});
+
+    addBranch(nx,ny, angle+Math.random()*0.5-0.25, depth+1);
+
+    if(Math.random()<0.3) addBranch(nx,ny, angle+Math.random()*0.5-0.25, depth+1);
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='rgba(11,15,22,0.1)'; ctx.fillRect(0,0,c.width,c.height);
+
+    branches.length=0;
+
+    addBranch(c.width/2, c.height, -Math.PI/2, 0);
+
+    ctx.strokeStyle='#56c2ff';
+
+    ctx.lineWidth=2;
+
+    for(const b of branches){
+
+      ctx.beginPath();
+
+      ctx.moveTo(b.x,b.y);
+
+      ctx.lineTo(b.nx,b.ny);
+
+      ctx.stroke();
+
+      if(params.glow){
+
+        ctx.shadowColor='#56c2ff';
+
+        ctx.shadowBlur=8;
+
+        ctx.stroke();
+
+        ctx.shadowBlur=0;
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Charge",0.1,0.5,0.05,params.charge,v=>{params.charge=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 140 Quilted Conics */
+
+inits["quilt-conics"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={seam:5, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    const tile=60;
+
+    for(let y=0;y<c.height;y+=tile){
+
+      for(let x=0;x<c.width;x+=tile){
+
+        const hue=((x/tile+y/tile)*30+params.time*50)%360;
+
+        ctx.fillStyle=`hsl(${hue},80%,60%)`;
+
+        ctx.beginPath();
+
+        ctx.ellipse(x+tile/2, y+tile/2, tile/2-params.seam, tile/2-params.seam, 0, 0, Math.PI*2);
+
+        ctx.fill();
+
+        ctx.strokeStyle=`hsl(${(hue+180)%360},80%,40%)`;
+
+        ctx.lineWidth=params.seam;
+
+        ctx.stroke();
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Seam",2,15,1,params.seam,v=>{params.seam=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 144 Conformal Logo Melt */
+
+inits["logo-melt"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={strength:0.3, freq:0.02, time:0, speed:0.01};
+
+  function conformalMap(z){
+
+    const [re,im]=z;
+
+    const r2=re*re+im*im;
+
+    if(r2<1e-6) return [re,im];
+
+    return [re+params.strength*re/r2, im-params.strength*im/r2];
+
+  }
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    ctx.fillStyle='#0b0f16'; ctx.fillRect(0,0,c.width,c.height);
+
+    ctx.strokeStyle='#56c2ff'; ctx.lineWidth=2;
+
+    const cx=c.width/2, cy=c.height/2, scale=Math.min(c.width,c.height)*0.3;
+
+    for(let y=0;y<c.height;y+=10){
+
+      for(let x=0;x<c.width;x+=10){
+
+        const re=(x-cx)*params.freq, im=(y-cy)*params.freq;
+
+        const [wr,wi]=conformalMap([re,im]);
+
+        const px=cx+wr/params.freq+Math.sin(params.time)*10;
+
+        const py=cy+wi/params.freq+Math.cos(params.time)*10;
+
+        ctx.beginPath();
+
+        ctx.arc(px,py,2,0,Math.PI*2);
+
+        ctx.fill();
+
+      }
+
+    }
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Strength",0.1,0.8,0.05,params.strength,v=>{params.strength=v});
+
+  slider(id,"Frequency",0.01,0.05,0.001,params.freq,v=>{params.freq=v});
+
+  slider(id,"Speed",0,0.05,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
+/* 145 Halftone Warp Portrait */
+
+inits["halftone"]=({id})=>{
+
+  const {c,ctx}=makeCanvas(id);
+
+  const params={dotScale:8, contrast:1.2, time:0, speed:0.01};
+
+  function draw(){
+
+    params.time+=params.speed;
+
+    const img=ctx.createImageData(c.width,c.height), d=img.data;
+
+    for(let y=0;y<c.height;y++){
+
+      for(let x=0;x<c.width;x++){
+
+        const n=fbm(x*0.01+params.time, y*0.01, 4, 2, 0.5);
+
+        const v=Math.pow(n, params.contrast);
+
+        const dot=Math.sin(x/params.dotScale+params.time)*Math.sin(y/params.dotScale+params.time);
+
+        const col=(v+dot*0.3)*255;
+
+        const i=(y*c.width+x)*4;
+
+        d[i]=col*0.9; d[i+1]=col*0.95; d[i+2]=col; d[i+3]=255;
+
+      }
+
+    }
+
+    ctx.putImageData(img,0,0);
+
+    requestAnimationFrame(draw);
+
+  }
+
+  draw();
+
+  slider(id,"Dot scale",4,20,1,params.dotScale,v=>{params.dotScale=v});
+
+  slider(id,"Contrast",0.5,2,0.1,params.contrast,v=>{params.contrast=v});
+
+  slider(id,"Speed",0,0.02,0.001,params.speed,v=>{params.speed=v});
+
+  setCode(id, draw.toString());
+
+};
+
 /* ---------- REGISTRY: 100 TOYS ---------- */
 
 /* Batch 1 (49-58 already asked previously, included; extending to 100) */
@@ -3062,149 +7224,121 @@ Object.assign(inits, {
 
   "primes": inits["primes"],
 
-  // Placeholders for the rest; request any to be wired live next:
+  "curl-rivers": inits["curl-rivers"],
 
-  "curl-rivers": placeholderInit("Curl Noise Rivers"),
+  "metaballs": inits["metaballs"],
 
-  "penrose": placeholderInit("Penrose Kite-Dart"),
+  "dla": inits["dla"],
 
-  "lorenz": placeholderInit("Lorenz Ribbon"),
+  "lorenz": inits["lorenz"],
 
-  "edge-react": placeholderInit("Reaction Rings"),
+  "kaleidoscope": inits["kaleidoscope"],
 
-  "kaleidoscope": placeholderInit("Kaleidoscope Shader"),
+  "phase-carpets": inits["phase-carpets"],
 
-  "hex-flow": placeholderInit("Hex Flow Field"),
+  "conic-caustics": inits["conic-caustics"],
 
-  "circle-pack": placeholderInit("Circle Packing Waves"),
+  "hyper-grid": inits["hyper-grid"],
 
-  "fourier": placeholderInit("Fourier Drawing"),
+  "trefoil": inits["trefoil"],
 
-  "phase-carpets": placeholderInit("Complex Phase Carpets"),
+  "diffraction-text": inits["diffraction-text"],
 
-  "parallax": placeholderInit("Heightmap Parallax"),
+  "bedforms": inits["bedforms"],
 
-  "conic-caustics": placeholderInit("Conic Caustics"),
+  "super-terrain": inits["super-terrain"],
 
-  "turing": placeholderInit("Turing Stripe Garden"),
+  "log-spirals": inits["log-spirals"],
 
-  "hyper-grid": placeholderInit("Hyperbolic Grid Warp"),
+  "voronoi-pulse": inits["voronoi-pulse"],
 
-  "sdf-play": placeholderInit("SDF Shape Playground"),
+  "golden-flow": inits["golden-flow"],
 
-  "raymarch-2d": placeholderInit("Raymarch Glow Orbs"),
+  "hex-flow": inits["hex-flow"],
 
-  "interference": placeholderInit("Wave Interference Flowers"),
+  "fourier": inits["fourier"],
 
-  "strange-map": placeholderInit("Strange Map Scroll"),
+  "parallax": inits["parallax"],
 
-  "trefoil": placeholderInit("Trefoil Tube"),
+  "turing": inits["turing"],
 
-  "diffraction-text": placeholderInit("Diffraction Text Grids"),
+  "strange-map": inits["strange-map"],
 
-  "bedforms": placeholderInit("Butterfly Field Dunes"),
+  "torus-knot": inits["torus-knot"],
 
-  "bitmask": placeholderInit("Bitmask Quilt"),
+  "wavelet": inits["wavelet"],
 
-  "primes": placeholderInit("Prime Spiral Constellations"),
+  "caustic-grid": inits["caustic-grid"],
 
-  "phyllotaxis": placeholderInit("Phyllotaxis Seeds"),
+  "kaleid-voronoi": inits["kaleid-voronoi"],
 
-  "super-terrain": placeholderInit("Superformula Terrain"),
+  "roots-garden": inits["roots-garden"],
 
-  "worley": placeholderInit("Worley Noise Cells"),
+  "orbit-rings": inits["orbit-rings"],
 
-  "metaballs": placeholderInit("Metaballs Pool"),
+  "chladni": inits["chladni"],
 
-  "polar-roses": placeholderInit("Polar Roses"),
+  "polar-labyrinth": inits["polar-labyrinth"],
 
-  "conics": placeholderInit("Hypnotic Conics"),
+  "delaunay": inits["delaunay"],
 
-  "harmonics": placeholderInit("Spherical Harmonics Heat"),
+  "edge-react": inits["edge-react"],
 
-  "moire-checker": placeholderInit("Moiré Checker Warps"),
+  "raymarch-2d": inits["raymarch-2d"],
 
-  "log-spirals": placeholderInit("Complex Log Spirals"),
+  "sdf-play": inits["sdf-play"],
 
-  "torus-knot": placeholderInit("Torus Knot Map"),
+  "harmonics": inits["harmonics"],
 
-  "wavelet": placeholderInit("Wavelet Tapestry"),
+  "moire-checker": inits["moire-checker"],
 
-  "voronoi-pulse": placeholderInit("Pulsing Voronoi Rings"),
+  "sinewarp-text": inits["sinewarp-text"],
 
-  "svg-mesh": placeholderInit("Gradient Mesh Beasts"),
+  "flames": inits["flames"],
 
-  "escher-tiles": placeholderInit("Escherized Tessellations"),
+  "amoeba": inits["amoeba"],
 
-  "sinewarp-text": placeholderInit("Sinewarp Text"),
+  "shadow-text": inits["shadow-text"],
 
-  "bezier-foam": placeholderInit("Bezier Foam"),
+  "bilateral": inits["bilateral"],
 
-  "fbm-sky": placeholderInit("fBm Sky"),
+  "nbody": inits["nbody"],
 
-  "dla": placeholderInit("Diffusion-Limited Aggregation"),
+  "penrose": inits["penrose"],
 
-  "caustic-grid": placeholderInit("Sunken Grid Caustics"),
+  "svg-mesh": inits["svg-mesh"],
 
-  "eikonal": placeholderInit("Eikonal Rays"),
+  "escher-tiles": inits["escher-tiles"],
 
-  "anamorph": placeholderInit("Anamorphic Stretch"),
+  "bezier-foam": inits["bezier-foam"],
 
-  "radial-weave": placeholderInit("Radial Gradient Weave"),
+  "eikonal": inits["eikonal"],
 
-  "golden-flow": placeholderInit("Golden Angle Flow"),
+  "anamorph": inits["anamorph"],
 
-  "kaleid-voronoi": placeholderInit("Kaleid Voronoi Mirror"),
+  "polar-zipper": inits["polar-zipper"],
 
-  "roots-garden": placeholderInit("Complex Roots Garden"),
+  "glyph-drift": inits["glyph-drift"],
 
-  "marble": placeholderInit("Signed Noise Marble"),
+  "warp-grids": inits["warp-grids"],
 
-  "orbit-rings": placeholderInit("Gradient Orbit Rings"),
+  "polar-foam": inits["polar-foam"],
 
-  "flames": placeholderInit("Fractal Flames 2D"),
+  "tangent-trails": inits["tangent-trails"],
 
-  "amoeba": placeholderInit("Amoeba Marchers"),
+  "arc-weave": inits["arc-weave"],
 
-  "shadow-text": placeholderInit("Shadow March Text"),
+  "polar-bricks": inits["polar-bricks"],
 
-  "polar-zipper": placeholderInit("Polar SDF Zipper"),
+  "lichtenberg": inits["lichtenberg"],
 
-  "glyph-drift": placeholderInit("Bezier Glyph Drift"),
+  "quilt-conics": inits["quilt-conics"],
 
-  "warp-grids": placeholderInit("Complex Warp Grids"),
+  "logo-melt": inits["logo-melt"],
 
-  "polar-foam": placeholderInit("Polar Foam Packing"),
+  "halftone": inits["halftone"],
 
-  "sierpinski": placeholderInit("Sierpinski Tri Tiles"),
-
-  "tangent-trails": placeholderInit("Tangent Bundle Trails"),
-
-  "arc-weave": placeholderInit("Arc Lattice Weave"),
-
-  "polar-bricks": placeholderInit("Polar Brickwork"),
-
-  "lichtenberg": placeholderInit("Gasket Lightning"),
-
-  "chladni": placeholderInit("Chladni Plate Nodes"),
-
-  "quilt-conics": placeholderInit("Quilted Conics"),
-
-  "bilateral": placeholderInit("Bilateral Symmetry Paint"),
-
-  "nbody": placeholderInit("Orbital Flow Trails"),
-
-  "polar-labyrinth": placeholderInit("Polar Sine Labyrinth"),
-
-  "logo-melt": placeholderInit("Conformal Logo Melt"),
-
-  "halftone": placeholderInit("Halftone Warp Portrait"),
-
-  "nebula": placeholderInit("Hypershift Gradient Nebula"),
-
-  "voronoi": placeholderInit("Voronoi Bloom"),
-
-  "delaunay": placeholderInit("Delaunay Wireframe"),
+  // All effects implemented! No more placeholders.
 
 });
 

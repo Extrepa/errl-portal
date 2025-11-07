@@ -1,8 +1,7 @@
 (() => {
-  if (typeof (window as any).PIXI === 'undefined' && typeof (PIXI as any) === 'undefined') return;
-
-  // Vertex shader (standard)
-  const vertexShader = `
+  function install(P: any){
+    // Vertex shader (standard)
+    const vertexShader = `
     attribute vec2 aVertexPosition;
     attribute vec2 aTextureCoord;
     uniform mat3 projectionMatrix;
@@ -60,8 +59,6 @@
     }
   `;
 
-  const P: any = (window as any).PIXI || (PIXI as any);
-
   class HueRotationFilter extends P.Filter {
     constructor(hue: number = 0, saturation: number = 1.0, intensity: number = 1.0) {
       super(vertexShader, fragmentShader);
@@ -83,4 +80,12 @@
   if ((P as any).filters) {
     (P as any).filters.HueRotationFilter = HueRotationFilter;
   }
+}
+
+  // Wait for PIXI to be available (handles module vs defer ordering)
+  (function wait(){
+    const P = (window as any).PIXI;
+    if (P && P.Filter) { install(P); return; }
+    setTimeout(wait, 30);
+  })();
 })();

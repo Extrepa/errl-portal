@@ -306,6 +306,9 @@
         } catch (e) { console.warn('Bubbles init failed', e); }
       }
 
+      // Expose refs for late Hue registration if needed
+      window.__ErrlWebGL = { overlay, bubbles: bubblesFXLayers };
+
       app.ticker.add((delta) => {
         if (paused) return;
         if (filter) filter.uniforms.uTime += 0.016 * delta;

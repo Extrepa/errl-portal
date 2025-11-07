@@ -97,15 +97,30 @@
       setTimeout(()=> withHue(cb), 80);
     }
     const target = $("hueTarget"), onEl=$("hueEnabled"), h=$("hueShift"), s=$("hueSat"), i=$("hueInt"),
-          animBtn=$("hueAnimate"), loopBtn=$("hueModeLoop"), pingBtn=$("hueModePing"), spd=$("hueAnimSpeed");
+          timeline=$("hueTimeline"), playBtn=$("huePlayPause");
+    // late WebGL registration bridge
+    withHue(H=>{
+      const refs = window.__ErrlWebGL;
+      if (refs){
+        try{ H.registerWebGLLayer('glOverlay', refs.overlay); }catch(e){}
+        try{ H.registerWebGLLayer('bgBubbles', refs.bubbles); }catch(e){}
+      }
+      // apply current UI values once on load
+      if (target) H.setTarget(target.value);
+      if (onEl) H.setEnabled(!!onEl.checked, target?.value||H.currentTarget);
+      if (h) H.setHue(+h.value, target?.value||H.currentTarget);
+      if (s) H.setSaturation(+s.value, target?.value||H.currentTarget);
+      if (i) H.setIntensity(+i.value, target?.value||H.currentTarget);
+    });
+
     on(target,'change', ()=> withHue(H=> H.setTarget(target.value)));
     on(onEl,'change', ()=> withHue(H=> H.setEnabled(!!onEl.checked)));
     on(h,'input', ()=> withHue(H=> H.setHue(+h.value)));
     on(s,'input', ()=> withHue(H=> H.setSaturation(+s.value)));
     on(i,'input', ()=> withHue(H=> H.setIntensity(+i.value)));
-    on(animBtn,'click', ()=> withHue(H=> H.toggleAnimation(parseFloat(spd?.value||'1'))));
-    on(loopBtn,'click', ()=> withHue(H=> H.startAnimation(parseFloat(spd?.value||'1'), target?.value||'nav','loop')));
-    on(pingBtn,'click', ()=> withHue(H=> H.startAnimation(parseFloat(spd?.value||'1'), target?.value||'nav','ping')));
+    // Global timeline controls (fixed speed)
+    on(timeline,'input', ()=> withHue(H=> H.setTimeline(+timeline.value)));
+    on(playBtn,'click', ()=> withHue(H=> H.toggleTimeline()));
   })();
 
   // Background / Vignette controls
