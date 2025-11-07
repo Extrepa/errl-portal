@@ -226,6 +226,31 @@
     if (t){ t.addEventListener('change', ()=>{ if (t.checked){ const root=document.querySelector('.errl-bg'); if (!root) mount(); else hide(true); } else hide(false); }); if (t.checked) mount(); }
   })();
 
+  // Accessibility toggles
+  (function a11y(){
+    const body=document.body;
+    const reduce=document.getElementById('prefReduce');
+    const contrast=document.getElementById('prefContrast');
+    const invert=document.getElementById('prefInvert');
+    function apply(){
+      const rm = !!reduce?.checked; body.classList.toggle('reduced-motion', rm);
+      const slow = rm ? 0.2 : 1.0;
+      setBubs({ speed: slow });
+      if (window.errlGLSetOverlay){
+        const dx = parseFloat(document.getElementById('glDX')?.value||'24');
+        const dy = parseFloat(document.getElementById('glDY')?.value||'18');
+        window.errlGLSetOverlay({ dx: rm? Math.max(4, dx*0.4): dx, dy: rm? Math.max(4, dy*0.4): dy });
+      }
+      body.classList.toggle('high-contrast', !!contrast?.checked);
+      body.classList.toggle('invert-colors', !!invert?.checked);
+      const st={ reduce: !!reduce?.checked, contrast: !!contrast?.checked, invert: !!invert?.checked };
+      try{ localStorage.setItem('errl_a11y', JSON.stringify(st)); }catch(e){}
+    }
+    [reduce,contrast,invert].forEach(el=> el && el.addEventListener('change', apply));
+    try{ const st=JSON.parse(localStorage.getItem('errl_a11y')||'null'); if(st){ if(reduce){ reduce.checked=!!st.reduce; } if(contrast){ contrast.checked=!!st.contrast; } if(invert){ invert.checked=!!st.invert; } } }catch(e){}
+    apply();
+  })();
+
   // Save/Reset defaults buttons and quick-save
   function saveDefaults(){
     try{

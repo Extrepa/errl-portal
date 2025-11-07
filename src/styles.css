@@ -239,7 +239,7 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 /* Accessibility helpers */
 /* Reduce motion by disabling CSS animations/transitions entirely */
 body.reduced-motion * { animation: none !important; transition: none !important; }
-body.high-contrast { filter: contrast(0.85) saturate(0.9) brightness(1.05); }
+body.high-contrast { filter: contrast(1.25) saturate(1.15) brightness(1.05); }
 /* Invert all colors (accessibility option) */
 body.invert-colors { filter: invert(1) hue-rotate(180deg); }
 
