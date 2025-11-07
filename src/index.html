@@ -351,9 +351,18 @@
   </aside>
 
   <script defer src="https://unpkg.com/pixi.js@7/dist/pixi.min.js"></script>
+  <!-- L0/L2 DOM canvases -->
+  <script defer src="./bg-particles.js"></script>
+  <script defer src="./rise-bubbles.js"></script>
+  <!-- FX registry and GL bubbles (TS modules) -->
+  <script type="module" src="./fx/fx-core.ts"></script>
+  <script type="module" src="./fx/bubbles-pixi.ts"></script>
+  <!-- Hue utilities -->
   <script type="module" src="./fx/hue-filter.ts"></script>
   <script type="module" src="./fx/hue-controller.ts"></script>
+  <!-- WebGL runtime and app glue -->
   <script type="module" src="./webgl.js"></script>
+  <script type="module" src="./app.js"></script>
   <script type="module" src="./portal/app-legacy.js"></script>
   <script type="module" src="./errl-battle.js"></script>
 
@@ -372,7 +381,11 @@
     // file:// fallback: classic scripts to avoid module CORS in local file preview
     try {
       if (location.protocol === 'file:') {
-        var s1=document.createElement('script'); s1.src='./webgl.js'; document.currentScript.after(s1);
+        var d0=document.createElement('script'); d0.defer=true; d0.src='./bg-particles.js'; document.currentScript.after(d0);
+        var d1=document.createElement('script'); d1.defer=true; d1.src='./rise-bubbles.js'; d0.after(d1);
+        var s0=document.createElement('script'); s0.type='module'; s0.src='./fx/fx-core.ts'; d1.after(s0);
+        var s00=document.createElement('script'); s00.type='module'; s00.src='./fx/bubbles-pixi.ts'; s0.after(s00);
+        var s1=document.createElement('script'); s1.src='./webgl.js'; s00.after(s1);
         var s2=document.createElement('script'); s2.src='./app.js'; s1.after(s2);
         var s3=document.createElement('script'); s3.src='./errl-battle.js'; s2.after(s3);
       }

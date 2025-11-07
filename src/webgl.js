@@ -166,6 +166,13 @@
       const tex = PIXI.Texture.from(img);
       sprite = new PIXI.Sprite(tex);
       sprite.anchor.set(0.5);
+      // stage graph: particles (first) + fxRoot (filters only here)
+      particles = new PIXI.ParticleContainer(5000, { scale: true, alpha: true, position: true });
+      app.stage.addChild(particles);
+      const fxRoot = new PIXI.Container();
+      app.stage.addChild(fxRoot);
+
+      // center sprite
       sprite.x = app.renderer.width / 2;
       sprite.y = app.renderer.height / 2;
 
@@ -186,15 +193,11 @@
       });
       sprite.filters = [filter];
 
-      app.stage.addChild(sprite);
-
-      // GPU particle layer
-      particles = new PIXI.ParticleContainer(5000, { scale: true, alpha: true, position: true });
-      app.stage.addChild(particles);
+      fxRoot.addChild(sprite);
 
       // WebGL iridescent orbs mirroring DOM bubbles
       orbContainer = new PIXI.Container();
-      app.stage.addChild(orbContainer);
+      fxRoot.addChild(orbContainer);
       // simple circular texture
       const g = new PIXI.Graphics();
       g.beginFill(0xffffff, 1).drawCircle(0,0,36).endFill();
@@ -234,7 +237,7 @@
 
       // Overlay gradient + displacement
       const gradTex = gradientTexture(innerWidth, innerHeight);
-      overlay = new PIXI.Sprite(gradTex); overlay.alpha = 0.20; overlay.blendMode = PIXI.BLEND_MODES.SCREEN; app.stage.addChild(overlay);
+      overlay = new PIXI.Sprite(gradTex); overlay.alpha = 0.20; overlay.blendMode = PIXI.BLEND_MODES.SCREEN; fxRoot.addChild(overlay);
       overlayFilter = new PIXI.Filter(vert, `
         precision mediump float;
         varying vec2 vTextureCoord;
@@ -278,7 +281,7 @@
           gl_FragColor = col;
         }
       `, { uTint: new Float32Array([1,1,1]), uAmount: 0.0, uVig: 0.0 });
-      app.stage.filters = [moodFilter];
+      fxRoot.filters = [moodFilter];
 
       // Background bubbles FX via ErrlFX; create multiple layers
       if (window.ErrlFX && (window.ErrlFX.Manager || window.ErrlFX.Bubbles)) {
