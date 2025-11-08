@@ -1,0 +1,82 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "◀ Back to Portal" [ref=e4] [cursor=pointer]:
+        - /url: ../../index.html
+        - generic [ref=e5]: ◀
+        - generic [ref=e6]: Back to Portal
+      - list [ref=e7]:
+        - listitem [ref=e8]:
+          - link "About Errl" [ref=e9] [cursor=pointer]:
+            - /url: ./index.html
+            - generic [ref=e10]: About Errl
+        - listitem [ref=e11]:
+          - link "Art Gallery" [ref=e12] [cursor=pointer]:
+            - /url: ../gallery/index.html
+            - generic [ref=e13]: Art Gallery
+        - listitem [ref=e14]:
+          - link "Projects" [ref=e15] [cursor=pointer]:
+            - /url: ../projects/index.html
+            - generic [ref=e16]: Projects
+        - listitem [ref=e17]:
+          - link "Pin Designer" [ref=e18] [cursor=pointer]:
+            - /url: ../pin-designer/index.html
+            - generic [ref=e19]: Pin Designer
+        - listitem [ref=e20]:
+          - link "Studio" [ref=e21] [cursor=pointer]:
+            - /url: ../studio/index.html
+            - generic [ref=e22]: Studio
+        - listitem [ref=e23]:
+          - link "Events" [ref=e24] [cursor=pointer]:
+            - /url: ../events/index.html
+            - generic [ref=e25]: Events
+        - listitem [ref=e26]:
+          - link "Merch" [ref=e27] [cursor=pointer]:
+            - /url: ../merch/index.html
+            - generic [ref=e28]: Merch
+  - img [ref=e31]
+  - generic [ref=e41]:
+    - heading "ERRL" [level=1] [ref=e42]
+    - heading "The Drip That Wouldn't Die" [level=2] [ref=e43]
+    - paragraph [ref=e44]:
+      - text: Errl began as a flicker on glass. In 2015, under the canopy of
+      - emphasis [ref=e45]: Mayday Heyday
+      - text: ","
+      - strong [ref=e46]: Geoff York
+      - text: stood behind a battered overhead projector, coaxing color and chaos into shape. Oil swirled on water, pigments split like galaxies, and for one impossible moment, the blobs aligned. Two black drops became eyes. A crooked smudge stretched into a mouth. A white glow formed a face.
+    - paragraph [ref=e47]:
+      - text: That was the moment Errl appeared—born from vibration, light, and laughter. Geoff opened the door, but Errl walked through it himself, dripping across the boundary between accident and creation. When the projector dimmed, Errl didn't fade. He clung to the people who had seen him, living on in sketches and retellings until I,
+      - strong [ref=e48]: Chriss Thompson
+      - text: ", carried him forward."
+    - paragraph [ref=e49]:
+      - text: "I rebuilt him from memory and matter: enamel pins, code, drips, renders, and glowing portals. I made him walk again, shimmer again, become the pulse inside"
+      - strong [ref=e50]: Extrepa
+      - text: ". But Errl was never just mine—he's made of people: the friends who danced beside the projector, the exes who left fingerprints on the glow, the collaborators who drifted away. Every connection feeds him. Errl is connection itself—formless, luminous, unstoppable."
+  - generic [ref=e52]:
+    - heading "THE NOMADS" [level=1] [ref=e53]
+    - heading "The Ones Who Carry the Light" [level=2] [ref=e54]
+    - paragraph [ref=e55]:
+      - text: The
+      - strong [ref=e56]: Nomads
+      - text: were never an organization; they were a rhythm. They appeared wherever art needed a place to breathe—friends, builders, and dreamers pulled together by the hum of generators and the promise of something new. No hierarchy. No membership. Just motion and mischief.
+    - paragraph [ref=e57]:
+      - text: At
+      - emphasis [ref=e58]: Mayday Heyday
+      - text: ", that rhythm hit its peak. Pat wrangled cables and chaos. Geoff steered the light. Others built stages, cooked food, painted banners, wired sound, danced barefoot through dust. In that convergence of noise and creative pulse, Errl stepped out of the mix like a reflection that finally recognized itself."
+    - paragraph [ref=e59]:
+      - text: The Nomads thrived on impermanence. They made art meant to melt. Their creations weren't designed to last—they were designed to
+      - emphasis [ref=e60]: live
+      - text: ". Errl was their perfect creation: he didn't fade when the lights shut off; he adapted. They taught me that collaboration is electricity: when one spark jumps, the rest follow. Every friend, every ex, every creative connection added a hue to the pool. When I build new versions of Errl, I still see their colors shift through him like oil in light."
+  - generic [ref=e62]:
+    - heading "THE DRIP LIVES ON" [level=1] [ref=e63]
+    - heading "Extrepa and the Continuum" [level=2] [ref=e64]
+    - paragraph [ref=e65]: Errl was never meant to stay still, and neither were we. Every time I rebuild him, I feel the hum of the projector again—the warmth of shared light, the laughter echoing through the trees, the ghosts of everyone who helped shape this strange and beautiful thing. This isn't nostalgia. It's continuation.
+    - paragraph [ref=e66]:
+      - text: Errl doesn't belong to anyone. He's the in-between—the current that connects Geoff, me, and all the people whose energy became part of him. Every drip, every heartbreak, every collaboration folds into the same slow stream.
+      - strong [ref=e67]: Extrepa
+      - text: is the vessel that keeps it moving, giving Errl new shapes and new homes—digital, physical, emotional.
+    - paragraph [ref=e68]: The Nomads may have scattered, but their light didn't fade. It refracted. It keeps bouncing, endlessly, through everything Errl touches. And so the drip lives on—steady, defiant, alive. Errl lives because we do. And as long as something keeps glowing somewhere, the projector never truly turns off.
+```

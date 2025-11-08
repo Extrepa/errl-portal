@@ -35,17 +35,15 @@
   }
 
   function getErrlTextureURL() {
-    // Under file:// prefer inline serialization to avoid taint/security issues
-    const isFile = (location.protocol === 'file:');
-    if (isFile) {
-      const inlineFirst = serializeErrlSVGToURL(768);
-      if (inlineFirst) return inlineFirst;
-    }
+    // Prefer the on-page IMG (full body) for the WebGL texture so we get the whole character.
     const img = document.getElementById('errlCenter');
     if (img && img.getAttribute('src')) return img.getAttribute('src');
+    // Fallback to canonical body asset if available
+    if (window.ERRL_ASSETS && window.ERRL_ASSETS.body) return window.ERRL_ASSETS.body;
+    // As a last resort, serialize whatever inline SVG is present.
     const inline = serializeErrlSVGToURL(768);
     if (inline) return inline;
-    return null;
+    return '/portal/assets/L4_Central/errl-body-with-limbs.svg';
   }
 
   const vert = `
@@ -185,11 +183,11 @@
       filter = new PIXI.Filter(vert, frag, {
         uResolution: new PIXI.Point(app.renderer.width, app.renderer.height),
         uTime: 0,
-        uDrip: 0.35,
+        uDrip: 0.25,
         uViscosity: 0.5,
         uSpeed: 0.5,
         uAmp: 0.7,
-        uWiggle: 1.0,
+        uWiggle: 0.6,
       });
       sprite.filters = [filter];
 
@@ -377,32 +375,55 @@
     paused = true;
   }
 
-  function spawnBurstGL(count = 400){
+  function spawnBurstGL(count = 600, clickX = null, clickY = null){
     if (!particles) return;
-    const centerX = (app?.renderer?.width || window.innerWidth) / 2;
-    const centerY = (app?.renderer?.height || window.innerHeight) / 2;
+    // Use click position if provided, otherwise center
+    const centerX = clickX !== null ? clickX : (app?.renderer?.width || window.innerWidth) / 2;
+    const centerY = clickY !== null ? clickY : (app?.renderer?.height || window.innerHeight) / 2;
+    
+    // Rainbow color palette
+    const rainbowColors = [
+      0xff0080, 0xff4000, 0xff8000, 0xffc000, 0xffff00, 0xc0ff00,
+      0x80ff00, 0x40ff00, 0x00ff00, 0x00ff40, 0x00ff80, 0x00ffc0,
+      0x00ffff, 0x00c0ff, 0x0080ff, 0x0040ff, 0x0000ff, 0x4000ff,
+      0x8000ff, 0xc000ff, 0xff00ff, 0xff00c0, 0xff0080
+    ];
+    
     for (let i=0;i<count;i++){
       const g = new PIXI.Graphics();
-      const r = 1 + Math.random()*2;
-      g.beginFill(0x9ec0ff, 0.9).drawCircle(0,0,r).endFill();
+      const r = 1.5 + Math.random()*2.5;
+      // Rainbow color cycling
+      const hue = (i / count) * rainbowColors.length;
+      const colorIdx = Math.floor(hue) % rainbowColors.length;
+      const color = rainbowColors[colorIdx];
+      g.beginFill(color, 0.95).drawCircle(0,0,r).endFill();
       const tex = app.renderer.generateTexture(g);
       const s = new PIXI.Sprite(tex);
       s.anchor.set(0.5);
       s.blendMode = PIXI.BLEND_MODES.ADD;
       s.x = centerX; s.y = centerY;
-      const a = Math.random()*Math.PI*2; const sp = 1 + Math.random()*3;
-      const vx = Math.cos(a)*sp; const vy = Math.sin(a)*sp;
-      s.alpha = 0.9;
+      
+      // Hose-like effect: particles spread in a circle with vertical variation
+      // Create a cone/spray pattern
+      const baseAngle = (i / count) * Math.PI * 2; // Full circle
+      const angleSpread = (Math.random() - 0.5) * 0.3; // Small spread per particle
+      const angle = baseAngle + angleSpread;
+      const verticalBias = (Math.random() - 0.5) * 0.4; // Up/down variation
+      const speed = 2 + Math.random() * 4; // Faster particles
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed + verticalBias * speed;
+      
+      s.alpha = 0.95;
       particles.addChild(s);
-      // animate simple trail fade
-      const ttl = 40 + Math.random()*40;
+      // Shorter TTL for snappier effect
+      const ttl = 30 + Math.random()*25;
       let t=0;
       app.ticker.add(function tick(delta){
         if (paused) return;
         t += delta;
         s.x += vx*delta; s.y += vy*delta;
-        s.alpha = Math.max(0, 0.9 * (1 - t/ttl));
-        s.scale.set(1 + t/ttl*0.4);
+        s.alpha = Math.max(0, 0.95 * (1 - t/ttl));
+        s.scale.set(1 + t/ttl*0.5); // Slight growth
         if (t>=ttl){
           app.ticker.remove(tick);
           particles.removeChild(s);
@@ -459,7 +480,7 @@
   // expose controls
   W.enableErrlGL = function(){ if (!started) init(); else enable(); };
   W.disableErrlGL = function(){ disable(); };
-  W.errlGLBurst = function(){ if (!started) init(); spawnBurstGL(1800); };
+  W.errlGLBurst = function(x, y){ if (!started) init(); spawnBurstGL(600, x, y); };
   W.errlGLSetMood = function(name){ if (!started) init(); setMood(name); };
   W.errlGLSyncOrbs = function(){ if (!started) return; syncOrbsPositions(); };
   W.errlGLOrbHover = function(index, on){ if (!started || !orbs[index]) return; const f=orbs[index].filters && orbs[index].filters[0]; if (f) f.uniforms.uIOR = on ? 1.8 : 1.0; };

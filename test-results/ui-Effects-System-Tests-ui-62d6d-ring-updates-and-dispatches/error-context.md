@@ -1,0 +1,72 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic:
+    - generic:
+      - img "Errl — full body with limbs"
+    - generic:
+      - link "About" [ref=e2] [cursor=pointer]:
+        - /url: ./portal/pages/about/index.html
+        - generic: About
+      - link "Gallery" [ref=e3] [cursor=pointer]:
+        - /url: ./portal/pages/gallery/index.html
+        - generic: Gallery
+      - link "Projects" [ref=e4] [cursor=pointer]:
+        - /url: ./portal/pages/projects/index.html
+        - generic: Projects
+      - link "Studio" [ref=e5] [cursor=pointer]:
+        - /url: ./portal/pages/studio/index.html
+        - generic: Studio
+      - link "Designer" [ref=e6] [cursor=pointer]:
+        - /url: ./portal/pages/pin-designer/index.html
+        - generic: Designer
+      - link "Events" [ref=e7] [cursor=pointer]:
+        - /url: ./portal/pages/events/index.html
+        - generic: Events
+      - link "Merch" [ref=e8] [cursor=pointer]:
+        - /url: ./portal/pages/merch/index.html
+        - generic: Merch
+  - img
+  - complementary [ref=e9]:
+    - generic "Drag to move" [ref=e10]:
+      - generic: ERRL PHONE
+      - button "–" [ref=e12] [cursor=pointer]
+    - generic [ref=e13]:
+      - button "HUD" [ref=e14] [cursor=pointer]
+      - button "Errl" [ref=e15] [cursor=pointer]
+      - button "Nav" [ref=e16] [cursor=pointer]
+      - button "Rising Bubbles" [ref=e17] [cursor=pointer]: RB
+      - button "GL Bubbles" [ref=e18] [cursor=pointer]: GLB
+      - button "Background" [ref=e19] [cursor=pointer]: BG
+      - button "Developer" [ref=e20] [cursor=pointer]: DEV
+      - button "Hue" [ref=e21] [cursor=pointer]
+    - generic [ref=e22]:
+      - generic "Color adjustments for different layers" [ref=e23]:
+        - text: Hue
+        - generic [ref=e24]:
+          - text: Enabled
+          - checkbox "Toggle Hue for target" [checked] [ref=e25]
+      - generic [ref=e26]:
+        - generic "Which layer to affect" [ref=e27]: Target
+        - combobox "Select target layer" [ref=e28]:
+          - option "Errl"
+          - option "Navigation" [selected]
+          - option "Rising Bubbles"
+          - option "Particles"
+          - option "Background"
+          - option "Overlay"
+      - generic [ref=e29]:
+        - generic "Angle shift across the color wheel" [ref=e30]: Hue
+        - slider "Hue rotation" [active] [ref=e31]: "180"
+      - generic [ref=e32]:
+        - generic "Color richness multiplier" [ref=e33]: Saturation
+        - slider "Saturation" [ref=e34]: "1"
+      - generic [ref=e35]:
+        - generic "Mix amount of hue effect" [ref=e36]: Intensity
+        - slider "Effect intensity" [ref=e37]: "1"
+      - generic [ref=e38]:
+        - generic [ref=e39]: Timeline
+        - slider "Global hue timeline" [ref=e40]: "0"
+        - button "Play/Pause" [ref=e41] [cursor=pointer]
+```

@@ -1,0 +1,93 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "← Back to Portal" [ref=e4] [cursor=pointer]:
+        - /url: ../../index.html
+      - navigation [ref=e5]:
+        - link "About Errl" [ref=e6] [cursor=pointer]:
+          - /url: ../about/index.html
+        - link "Gallery" [ref=e7] [cursor=pointer]:
+          - /url: ../gallery/index.html
+        - link "Projects" [ref=e8] [cursor=pointer]:
+          - /url: ../projects/index.html
+        - link "Pin Designer" [ref=e9] [cursor=pointer]:
+          - /url: ../pin-designer/index.html
+        - link "Studio" [ref=e10] [cursor=pointer]:
+          - /url: ../studio/index.html
+        - link "Events" [ref=e11] [cursor=pointer]:
+          - /url: ../events/index.html
+        - link "Merch" [ref=e12] [cursor=pointer]:
+          - /url: ../merch/index.html
+  - generic [ref=e13]:
+    - article [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: Errl Head Coin
+        - link "Download HTML" [ref=e18] [cursor=pointer]:
+          - /url: ./errl-head-coin/index.html
+      - iframe [ref=e20]:
+        - img "Errl Floating Head" [ref=f1e4]
+    - article [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]: Errl Head Coin v2
+        - link "Download HTML" [ref=e25] [cursor=pointer]:
+          - /url: ./errl-head-coin-v2/index.html
+      - iframe [ref=e27]:
+        - img "Errl Floating Head v2" [ref=f2e4]
+    - article [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]: Errl Head Coin v3
+        - link "Download HTML" [ref=e32] [cursor=pointer]:
+          - /url: ./errl-head-coin-v3/index.html
+      - iframe [ref=e34]:
+        - img [ref=f3e4]
+    - article [ref=e35]:
+      - generic [ref=e36]:
+        - generic [ref=e37]: Errl Head Coin v4
+        - link "Download HTML" [ref=e39] [cursor=pointer]:
+          - /url: ./errl-head-coin-v4/index.html
+      - iframe [ref=e41]:
+        - img [ref=f4e5]
+    - article [ref=e42]:
+      - generic [ref=e43]:
+        - generic [ref=e44]: Errl Face Popout
+        - link "Download HTML" [ref=e46] [cursor=pointer]:
+          - /url: ./errl-face-popout/index.html
+      - iframe [ref=e48]:
+        - img [ref=f5e4]
+    - article [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]: Walking Errl (Animated SVG)
+        - link "Download HTML" [ref=e53] [cursor=pointer]:
+          - /url: ./walking-errl/index.html
+      - iframe [ref=e55]:
+        - generic [ref=f6e2]:
+          - img [ref=f6e4]
+          - img [ref=f6e13]
+          - img [ref=f6e16]
+          - img [ref=f6e19]
+          - img [ref=f6e22]
+          - img [ref=f6e25]
+    - article [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e58]: Color Customizer
+        - link "Download HTML" [ref=e60] [cursor=pointer]:
+          - /url: ../studio/svg-colorer/index.html
+      - iframe [ref=e62]:
+        - generic [active] [ref=f7e1]:
+          - button "Customize" [ref=f7e2] [cursor=pointer]
+          - img "Errl" [ref=f7e3]
+    - article [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e65]: Pin Widget
+        - link "Download HTML" [ref=e67] [cursor=pointer]:
+          - /url: ../studio/pin-widget/ErrlPin.Widget/designer.html
+      - iframe [ref=e69]:
+        - generic [ref=f8e2]:
+          - button "Load" [ref=f8e3] [cursor=pointer]
+          - button "Loaded" [disabled] [ref=f8e4] [cursor=pointer]
+          - img [ref=f8e6]
+          - button "Randomize" [ref=f8e18] [cursor=pointer]
+```

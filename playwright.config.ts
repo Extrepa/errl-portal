@@ -6,10 +6,10 @@ export default defineConfig({
   timeout: 30_000,
   use: {
     headless: true,
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://127.0.0.1:5173',
   },
   webServer: {
-    command: 'vite --port=5173 --strictPort',
+    command: 'vite --host=127.0.0.1 --port=5173 --strictPort',
     port: 5173,
     reuseExistingServer: true,
     timeout: 60_000,

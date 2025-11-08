@@ -1,12 +1,14 @@
 name: Deploy static site to GitHub Pages
 
 on:
+  push:
+    branches: ["main"]
   workflow_dispatch:
     inputs:
       note:
-        description: "Manual run only — disabled for push triggers"
+        description: "Optional note for manual deployment"
         required: false
-        default: "disabled"
+        default: ""
 
 permissions:
   contents: read

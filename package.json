@@ -16,7 +16,12 @@
     "postinstall": "playwright install",
     "start:studio": "bash scripts/start-studio.sh",
     "stop:studio": "bash scripts/stop-studio.sh",
-    "logs:studio": "bash scripts/logs-studio.sh"
+    "logs:studio": "bash scripts/logs-studio.sh",
+    "safety-check": "bash scripts/safety-check.sh",
+    "visual-test": "bash scripts/visual-test.sh",
+    "checkpoint": "bash scripts/checkpoint.sh",
+    "precommit": "npm run typecheck && npm test && npm run build",
+    "rollback": "bash scripts/rollback.sh"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",

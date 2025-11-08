@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Audio-Reactive Errl Orb</title>
+<style>
+:root{ --bg:#050816; --ink:#eaf7ff; --edge:#1b2656; }
+*{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui}
+.wrap{min-height:100dvh;display:grid;place-items:center}
+.stage{position:relative; width:min(92vw,900px); aspect-ratio:16/10; border:1px solid var(--edge); border-radius:14px; overflow:hidden; background:#040a1c}
+canvas{position:absolute; inset:0; width:100%; height:100%}
+.ui{position:absolute; inset:auto 10px 10px 10px; display:flex; gap:8px; flex-wrap:wrap}
+.btn{cursor:pointer;background:#141a3c;border:1px solid #29336b;color:#dff5ff;font-size:12px;padding:6px 10px;border-radius:8px}
+.btn:hover{border-color:#46a8ff}
+.note{font-size:12px;opacity:.85}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="stage">
+    <canvas id="c" width="1200" height="750"></canvas>
+    <div class="ui">
+      <button class="btn" id="mic">Enable Mic</button>
+      <span class="note">Mic enriches bass pulse; no mic = chill auto-move.</span>
+    </div>
+  </div>
+</div>
+<script>
+const C = document.getElementById('c'), X = C.getContext('2d');
+const DPR = Math.max(1, window.devicePixelRatio||1);
+C.width *= DPR; C.height *= DPR; X.scale(DPR, DPR);
+let W = C.width/DPR, H = C.height/DPR, T = 0;
+const CENTER = {x: W/2, y: H/2};
+const BASS_BOOST = 1.8;     // 🔧 bass punch (1.0–3.0)
+const SMOOTHING  = 0.85;    // 🔧 analyser smoothing (0–1)
+let analyser=null, data=null, haveMic=false, idleSeed=Math.random()*1000;
+
+function grad(t){
+  // Iridescent sweep
+  const g = X.createConicGradient((t*0.04)%(Math.PI*2), CENTER.x, CENTER.y);
+  g.addColorStop(0.0,  "#7cf0ff");
+  g.addColorStop(0.33, "#ffd36a");
+  g.addColorStop(0.66, "#b07cff");
+  g.addColorStop(1.0,  "#7cf0ff");
+  return g;
+}
+
+function bassLevel(){
+  if(!haveMic || !analyser) return 0.35 + 0.25*Math.sin((T+idleSeed)*0.015);
+  analyser.getByteFrequencyData(data);
+  // average low bins
+  let s=0, n=Math.max(4, Math.floor(data.length*0.08));
+  for(let i=0;i<n;i++) s+=data[i];
+  s/= (n*255);
+  return Math.min(1, s*BASS_BOOST);
+}
+
+function draw(){
+  T++;
+  X.fillStyle = "rgba(5,8,22,0.1)";
+  X.fillRect(0,0,W,H);
+
+  const b = bassLevel(); // 0..1
+  const r = 120 + b*110; // radius
+  const glow = 30 + b*70;
+
+  // Bloom backplate
+  X.save();
+  X.filter = `blur(${glow}px) saturate(${1.1 + b*0.4})`;
+  X.fillStyle = grad(T);
+  X.beginPath(); X.arc(CENTER.x, CENTER.y, r*1.05, 0, Math.PI*2); X.fill();
+  X.restore();
+
+  // Orb ring
+  X.lineWidth = 26 + b*14;
+  X.strokeStyle = grad(T+40);
+  X.beginPath(); X.arc(CENTER.x, CENTER.y, r, 0, Math.PI*2); X.stroke();
+
+  // Errl bubbles (minor orbiters)
+  X.save();
+  X.globalAlpha = 0.7;
+  for(let i=0;i<18;i++){
+    const a = i*(Math.PI*2/18) + T*0.01 + i*0.3;
+    const rr = r + 10*Math.sin(T*0.02 + i);
+    const x = CENTER.x + Math.cos(a)*rr;
+    const y = CENTER.y + Math.sin(a)*rr*0.92;
+    const s = 4 + (i%3)*2 + b*4;
+    X.fillStyle = i%2 ? "#7cf0ff" : "#ffd36a";
+    X.beginPath(); X.arc(x,y,s,0,Math.PI*2); X.fill();
+  }
+  X.restore();
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+document.getElementById('mic').onclick = async () => {
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const src = ctx.createMediaStreamSource(stream);
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    analyser.smoothingTimeConstant = SMOOTHING;
+    data = new Uint8Array(analyser.frequencyBinCount);
+    src.connect(analyser);
+    haveMic = true;
+  }catch(e){
+    alert("Mic permission denied; continuing in auto mode.");
+  }
+};
+</script>
+</body></html>

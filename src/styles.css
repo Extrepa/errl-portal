@@ -13,6 +13,10 @@ body {
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
+:root {
+  --motionMultiplier: 1.35;
+}
+body.reduced-motion { --motionMultiplier: 4; }
 /* allow text selection where appropriate */
 input, textarea, select, button { -webkit-user-select: auto; user-select: auto; }
 /* also remove selection color if it somehow applies */
@@ -26,15 +30,14 @@ a { color: inherit; text-decoration: none; }
 /* 1. Ambient background (replaced by ErrlBG) */
 .space-bg { display: none; }
 
-/* Vignette frame for “rounded monitor in dark room” look */
+/* Vignette frame for "rounded monitor in dark room" look */
  .vignette-frame {
   position: fixed;
   inset: 20px;
   border-radius: 12px;
   box-shadow:
     0 40px 120px rgba(0,0,0,1) inset,
-    0 0 80px rgba(0,0,0,0.8) inset,
-    0 0 40px rgba(255,0,120,0.15);
+    0 0 80px rgba(0,0,0,0.8) inset;
   pointer-events: none;
   z-index: 4; /* L4: above scene */
 }
@@ -44,12 +47,15 @@ a { color: inherit; text-decoration: none; }
   position: fixed;
   inset: 0;
   z-index: 0; /* L0: stars */
+  background: transparent;
+  pointer-events: none;
 }
 #riseBubbles{
   position: fixed;
   inset: 0;
   z-index: 2; /* L2: rising background bubbles */
   pointer-events:none;
+  background: transparent;
 }
 
 /* WebGL layer */
@@ -60,6 +66,7 @@ a { color: inherit; text-decoration: none; }
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
+  background: transparent;
 }
 
 body[data-errlMode="errl"] .errl-webgl-layer { opacity: 1; }
@@ -71,8 +78,14 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   inset: 0;
   z-index: 3; /* L3: above rising canvas */
   pointer-events: none; /* bubbles will override this individually */
+  isolation: isolate; /* Create new stacking context */
 }
-.nav-orbit { position: fixed; inset:0; pointer-events:none; }
+.nav-orbit { 
+  position: fixed; 
+  inset: 0; 
+  pointer-events: none;
+  z-index: 0; /* Base layer for nav orbit */
+}
 
 /* 4. Goo aura behind Errl (CSS version) */
 .errl-goo {
@@ -87,8 +100,10 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   mix-blend-mode: screen;
   opacity: 0.6;
   pointer-events: none;
+  z-index: 0; /* Goo aura behind Errl */
   border-radius: 45% 55% 60% 40% / 40% 50% 55% 45%;
   animation: gooPulse 4s ease-in-out infinite;
+  animation-duration: calc(4s * var(--motionMultiplier, 1));
 }
 
 @keyframes gooPulse {
@@ -113,8 +128,11 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   top: 50%;
   width: clamp(360px, 38vmin, 780px);
   height: clamp(360px, 38vmin, 780px);
-  transform: translate(-50%, -50%);
+  --errlScale: 1;
+  transform: translate(-50%, -50%) scale(var(--errlScale, 1));
+  z-index: 1; /* Errl above goo aura, below bubbles */
   animation: floaty 4s ease-in-out infinite;
+  animation-duration: calc(4s * var(--motionMultiplier, 1));
   filter:
     drop-shadow(0 0 4px rgba(255,255,255,0.9))
     drop-shadow(0 0 20px rgba(255,100,255,0.6))
@@ -122,9 +140,9 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   pointer-events: none;
 }
 @keyframes floaty {
-  0%   { transform: translate(-50%, calc(-50% - 8px)); }
-  50%  { transform: translate(-50%, calc(-50% + 8px)); }
-  100% { transform: translate(-50%, calc(-50% - 8px)); }
+  0%   { transform: translate(-50%, calc(-50% - 8px)) scale(var(--errlScale, 1)); }
+  50%  { transform: translate(-50%, calc(-50% + 8px)) scale(var(--errlScale, 1)); }
+  100% { transform: translate(-50%, calc(-50% - 8px)) scale(var(--errlScale, 1)); }
 }
 .errl-svg {
   width: 100%;
@@ -135,6 +153,7 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
 /* Fallback wobble if SVG filter is unsupported */
 .errl-wobble {
   animation: errlWobble 3.6s ease-in-out infinite;
+  animation-duration: calc(3.6s * var(--motionMultiplier, 1));
   filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)) drop-shadow(0 0 18px rgba(180,120,255,0.5));
 }
 @keyframes errlWobble {
@@ -148,7 +167,8 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
 /* Show DOM Errl; GL overlays can coexist */
 body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s ease; }
 /* Apply classic goo via class, matching Pixi/GL variant semantics */
-#errlCenter.goo { -webkit-filter: url(#classicGoo); filter: url(#classicGoo); }
+#errlCenter.goo,
+.errl-aura-mask.goo { -webkit-filter: url(#classicGoo); filter: url(#classicGoo); }
 
 /* Masked aura that follows Errl shape */
 .errl-aura-mask{
@@ -157,6 +177,7 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   filter: blur(36px);
   mix-blend-mode: screen;
   opacity: .6;
+  z-index: -1; /* Behind Errl image */
   -webkit-mask-image: url('./portal/assets/L4_Central/errl-painted-2.svg');
   -webkit-mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; -webkit-mask-position: center;
   mask-image: url('./portal/assets/L4_Central/errl-painted-2.svg');
@@ -167,6 +188,7 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   position:absolute; left:50%; top:78%; width: 56%; height: 10%; transform: translateX(-50%);
   background: radial-gradient(ellipse at center, rgba(90,50,140,0.25) 0%, rgba(0,0,0,0) 70%);
   opacity: .7; mix-blend-mode: screen; border-radius: 50% / 60%;
+  z-index: 0; /* Behind Errl image */
 }
 
 /* 6. Orbiting / menu bubbles */
@@ -189,21 +211,33 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   user-select: none;
   cursor: pointer;
   pointer-events: auto;
+  z-index: 5; /* Above scene layer (L3), below phone panel (L10) */
   animation: wobble 3s ease-in-out infinite;
+  animation-duration: calc(3s * var(--motionMultiplier, 1));
 }
-.bubble .label{
-  display:inline-block;
+.bubble .label,
+.bubble span {
+  position: relative;
+  display: inline-block;
   color: #fff;
   text-shadow: 0 2px 4px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.6);
   opacity: 0;
   animation: labelFade 6s ease-in-out infinite;
-  pointer-events:none;
+  animation-duration: calc(6s * var(--motionMultiplier, 1));
+  pointer-events: none;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  z-index: 1; /* Label above bubble background */
 }
 @keyframes labelFade { 0%,18%{ opacity:0; } 35%,65%{ opacity:1; } 82%,100%{ opacity:0; } }
 @keyframes textPulse { 0%,100%{ color: rgba(255,255,255,0.75); } 50%{ color: rgba(255,255,255,1); } }
-.bubble:hover{ color:#fff; animation: wobble 3s ease-in-out infinite; }
+/* Stop label fade animation while hovering */
+.bubble:hover .label {
+  opacity: 1 !important;
+  animation: none !important;
+}
+.bubble:hover{ color:#fff; animation: wobble 3s ease-in-out infinite; animation-duration: calc(3s * var(--motionMultiplier, 1)); }
+.bubble.hidden-bubble { display: none !important; }
 .nav-orbit { filter: none; }
 .nav-orbit.goo-on { filter: url(#uiGoo); }
 
@@ -217,6 +251,7 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
       #ffd700 60%,
       #ff00ff 100%);
   animation: orbShift 4s linear infinite, wobble 3s ease-in-out infinite;
+  animation-duration: calc(4s * var(--motionMultiplier, 1)), calc(3s * var(--motionMultiplier, 1));
 }
 @keyframes orbShift {
   0%   { --orbHue: 0deg; }
@@ -231,15 +266,14 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 
 .bubble:hover {
   filter: brightness(1.2);
+  /* Glow will be set dynamically via JS to match background color */
   box-shadow:
     0 0 30px rgba(255,255,255,0.9),
     0 0 60px rgba(0,200,255,0.7);
 }
 
 /* Accessibility helpers */
-/* Reduce motion by disabling CSS animations/transitions entirely */
-body.reduced-motion * { animation: none !important; transition: none !important; }
-body.high-contrast { filter: contrast(1.25) saturate(1.15) brightness(1.05); }
+body.high-contrast { filter: contrast(1.5) saturate(1.3) brightness(1.1); }
 /* Invert all colors (accessibility option) */
 body.invert-colors { filter: invert(1) hue-rotate(180deg); }
 
@@ -272,13 +306,16 @@ body.invert-colors { filter: invert(1) hue-rotate(180deg); }
 }
 /* Minimize to a small floating icon */
 .errl-panel.minimized {
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border-radius: 999px;
-  overflow: hidden;
-  display: block;
-  cursor: pointer;
+  width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  display: block !important;
+  cursor: pointer !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
 }
 .errl-panel.minimized::after{
   content: "";
@@ -300,6 +337,7 @@ body.invert-colors { filter: invert(1) hue-rotate(180deg); }
   conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff);
   box-shadow: 0 0 10px rgba(0,0,0,0.4), 0 0 16px rgba(0,200,255,0.35);
   animation: iconShift 3.2s linear infinite;
+  animation-duration: calc(3.2s * var(--motionMultiplier, 1));
 }
 .hud-icon::after{ content:""; position:absolute; inset:-3px; border-radius:inherit; box-shadow: inset 0 0 10px rgba(255,255,255,0.22); pointer-events:none; }
 @keyframes iconShift{ 0%{ --h: 0deg; } 100%{ --h: 360deg; } }
@@ -322,15 +360,19 @@ body.invert-colors { filter: invert(1) hue-rotate(180deg); }
   cursor: grab;
 }
 .panel-title {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.05em;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .panel-tabs{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin:6px 0 12px; }
 .panel-tabs .tab{ background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)); color:#eaf6ff; border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:0; font-size:0; cursor:pointer; width:40px; height:40px; position:relative; display:inline-flex; align-items:center; justify-content:center; margin:0 auto; overflow:hidden; }
 .panel-tabs .tab.active{ border-color:transparent; }
 /* keep active ring effect */
-.panel-tabs .tab.active::before{ content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px; background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: iconShift 10s linear infinite; }
+.panel-tabs .tab.active::before{ content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px; background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: iconShift 10s linear infinite; animation-duration: calc(10s * var(--motionMultiplier, 1)); }
 /* icon texture layer */
 .panel-tabs .tab::after{ content:""; position:absolute; inset:0; background-position:center; background-size:cover; background-repeat:no-repeat; display:block; border-radius:inherit; }
 
@@ -342,6 +384,7 @@ body.invert-colors { filter: invert(1) hue-rotate(180deg); }
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
   animation: iconShift 10s linear infinite;
+  animation-duration: calc(10s * var(--motionMultiplier, 1));
   pointer-events:none; z-index:0;
 }
 /* little circle indicator when animating */
@@ -392,11 +435,15 @@ body.invert-colors { filter: invert(1) hue-rotate(180deg); }
   padding-top: 10px;
 }
 .sectionLabel {
-  font-size: 10px;
+  font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   opacity: 0.8;
   margin-bottom: 8px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 /* Thin divider used to separate control groups */
 .sectionDivider {
@@ -423,10 +470,14 @@ body.invert-colors { filter: invert(1) hue-rotate(180deg); }
 .sliderRow input[type="number"] { width: 44px; flex: 0 0 44px; }
 .sliderRow button { flex: 0 0 auto; }
 .sliderRow label {
-  width: 52px;
+  width: 45px;
   flex-shrink: 0;
   opacity: 0.75;
   text-align: right;
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .sliderRow input[type="range"] {
   flex: 1;
@@ -456,8 +507,22 @@ body.invert-colors { filter: invert(1) hue-rotate(180deg); }
   padding: 4px 8px;
   color: #fff;
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
 }
 /* Wider labels in Errl tab so text fits */
 .panel-section[data-tab="errl"] .sliderRow label { width: 80px; }
 /* Make HUD buttons show disabled state */
 .panel-section[data-tab="hud"] .moodBtn2[disabled]{ opacity:0.5; cursor:not-allowed; }
+.panel-section[data-tab="hud"] .moodBtn2{
+  flex: 1 1 calc(25% - 6px);
+  min-width: calc(25% - 6px);
+  max-width: calc(25% - 6px);
+  text-align:center;
+  padding:4px 0;
+  font-size:9px;
+}

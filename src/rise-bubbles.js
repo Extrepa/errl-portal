@@ -82,13 +82,17 @@
   function advance(dt){
     const flow = 1.0;
     for(const it of RB.items){
-      // pointer influence
-      if (RB.pointer.x != null && RB.attract){
-        const dx = (RB.pointer.x - it.x); const dy = (RB.pointer.y - it.y);
-        const d = Math.hypot(dx,dy)||1;
+      // pointer influence (attracts or repels based on RB.attract)
+      if (RB.pointer.x != null && RB.pointer.y != null && RB.attractIntensity > 0){
+        const dx = RB.pointer.x - it.x;
+        const dy = RB.pointer.y - it.y;
+        const d = Math.hypot(dx,dy) || 1;
         if (d < 160){
-          const k = (1 - d/160) * 0.8 * RB.attractIntensity;
-          it.x += (dx/d)*k*dt; it.y += (dy/d)*k*dt;
+          // Use positive multiplier for attraction, negative for repulsion
+          const direction = RB.attract ? 1 : -1;
+          const pull = (1 - d/160) * 0.8 * RB.attractIntensity * direction;
+          it.x += (dx/d) * pull * dt;
+          it.y += (dy/d) * pull * dt;
         }
       }
       // ripple rings (bounded & lighter math)
@@ -180,8 +184,20 @@
   const at=document.getElementById('rbAttract'); if(at) at.addEventListener('change', ()=> RB.attract = !!(at).checked);
   const rp=document.getElementById('rbRipples');
 
-  addEventListener('pointermove', e=>{ RB.pointer.x=e.clientX; RB.pointer.y=e.clientY; });
-  addEventListener('click', e=>{ if(rp && !(rp).checked) return; if (RB.ripples.length >= MAX_RINGS) RB.ripples.shift(); RB.ripples.push({x:e.clientX, y:e.clientY, r:4, a:RING_ALPHA}); });
+  const isPanelEvent = (e)=> e?.target?.closest && e.target.closest('#errlPanel');
+
+  addEventListener('pointermove', e=>{
+    if (isPanelEvent(e)) return;
+    RB.pointer.x=e.clientX; RB.pointer.y=e.clientY;
+  });
+  addEventListener('click', e=>{ 
+    if (isPanelEvent(e)) return;
+    if(rp && rp.checked) {
+      // Ripples enabled - show ripple effect
+      if (RB.ripples.length >= MAX_RINGS) RB.ripples.shift(); 
+      RB.ripples.push({x:e.clientX, y:e.clientY, r:4, a:RING_ALPHA}); 
+    }
+  });
   addEventListener('resize', resize);
 
   resize();
