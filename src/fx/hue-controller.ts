@@ -31,6 +31,16 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
       glOverlay: null,
     } as any,
 
+    // Global master timeline (fixed speed)
+    master: {
+      playing: true,
+      anchorTime: 0,
+      baseHue: 0, // 0..360 starting hue when (re)anchored
+      periodMs: 45000, // one full cycle every 45s
+      raf: 0,
+    },
+
+    // Legacy per-layer animation (kept for compatibility)
     animation: {
       active: false,
       startTime: 0,
@@ -43,6 +53,9 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
       this.loadSettings();
       this.ensureClasses();
       this.applyAllCSS();
+      // start master timeline
+      this.master.anchorTime = Date.now();
+      this.tickMaster();
       this.triggerUpdate(this.currentTarget);
       return this;
     },
@@ -100,6 +113,43 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
     applyAllCSS() {
       for (const k of Object.keys(LAYERS)) this.applyLayerCSS(k);
     },
+
+    // Global master timeline: fixed-speed hue sweep
+    tickMaster() {
+      cancelAnimationFrame(this.master.raf);
+      const step = () => {
+        if (this.master.playing) {
+          const now = Date.now();
+          const t = (now - this.master.anchorTime) / this.master.periodMs; // cycles
+          const h = (this.master.baseHue + (t * 360)) % 360;
+          // apply same hue to all layers (respect enabled/intensity per layer)
+          for (const k of Object.keys(this.layers)) {
+            this.layers[k].hue = h;
+            this.applyLayerCSS(k);
+            this.applyWebGLLayer(k as any);
+          }
+        }
+        this.master.raf = requestAnimationFrame(step);
+      };
+      this.master.raf = requestAnimationFrame(step);
+    },
+
+    setTimeline(hue: number) {
+      // scrub global hue without changing speed
+      const clamped = (((hue % 360) + 360) % 360);
+      this.master.baseHue = clamped;
+      this.master.anchorTime = Date.now();
+      // apply immediately
+      for (const k of Object.keys(this.layers)) {
+        this.layers[k].hue = clamped;
+        this.applyLayerCSS(k);
+        this.applyWebGLLayer(k as any);
+      }
+      this.persist();
+    },
+    playTimeline() { if (!this.master.playing) { this.master.playing = true; this.master.anchorTime = Date.now(); } },
+    pauseTimeline() { this.master.playing = false; },
+    toggleTimeline() { this.master.playing ? this.pauseTimeline() : this.playTimeline(); },
 
     applyWebGLLayer(layer: 'bgBubbles' | 'glOverlay') {
       if (!this.webglEnabled || !(window as any).ErrlHueFilter) return;
@@ -221,6 +271,14 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
         this.applyLayerCSS(k); this.applyWebGLLayer(k);
       }
       this.persist(); this.triggerUpdate(this.currentTarget);
+    },
+
+    // Allow registering additional DOM selectors as taggable layers
+    registerDOMLayer(key: string, selectors: string[], label: string = key) {
+      (LAYERS as any)[key] = { label, selectors };
+      if (!this.layers[key]) this.layers[key] = { ...DEFAULT_LAYER_STATE };
+      this.ensureClasses();
+      this.applyLayerCSS(key);
     },
   };
 

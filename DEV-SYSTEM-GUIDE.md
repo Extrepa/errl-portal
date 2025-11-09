@@ -1,234 +1,164 @@
-# 🎮 Errl Portal Development System Guide
+# 🎮 Errl Dev Panel — Practical Guide
 
-## Overview
-
-The Enhanced Integrated Dev Mode provides professional-grade development tools for your Errl Portal, giving you complete control over effects, layers, and parameters while keeping your production site clean.
-
-## 🚀 Getting Started
-
-### Enabling Dev Mode
-
-**Option 1: URL Parameter**
-```
-http://localhost:3000/src/portal/pixi-gl/index.html?dev=true
-```
-
-**Option 2: localStorage (persistent)**
-```javascript
-localStorage.setItem('errl-dev-mode', 'true')
-// Then refresh the page
-```
-
-### Visual Indicators
-
-When dev mode is active, you'll see:
-- 🎮 DEV MODE indicator (bottom left)
-- Professional dev panel (top right)
-- Element highlighting on hover with Alt key
-
-## 🎛️ Dev Panel Features
-
-### Inspector Tab 🎯
-- **Element Selection**: Alt+click any element to inspect
-- **Layer Detection**: Automatic layer classification
-- **Parameter Controls**: Real-time effect editing
-- **Property Display**: Current styles and computed values
-
-### Layers Tab 📚
-- **Layer Manager**: Toggle visibility, solo layers
-- **Effect Overview**: See which effects are applied to each layer
-- **Quick Controls**: Show All, Hide All, Reset buttons
-
-### FX Library Tab ✨
-- **Effect Categories**: Color, Distortion, Spatial, Visual
-- **Effect Browser**: Searchable library of all available effects
-- **Parameter Preview**: See parameter counts and types
-- **One-Click Apply**: Add effects to selected elements
-
-### Presets Tab 💾
-- **Save Configurations**: Store complete effect setups
-- **Quick Apply**: One-click preset application
-- **Export/Import**: Share presets between projects
-
-## 🎨 Layer System
-
-Your portal is organized into these layers:
-
-| Layer | ID | Description | Effects Available |
-|-------|-----|-------------|-------------------|
-| **L0** | `l0` | Background gradients | Hue, Blur, Brightness |
-| **L1** | `l1-gl` | WebGL Canvas | Displacement, Shimmer, Hue |
-| **L2** | `l2` | Floating Motes | Hue, Opacity, Scale |
-| **L3** | `l3` | Frame Drip | Hue, Blur |
-| **L4** | `l4` | Errl Character | Hue, Goo, Scale, Rotation |
-| **L5** | `l5` | Navigation Bubbles | Hue, Goo, Physics |
-| **L6** | `l6` | Awakening Effects | Hue, Opacity |
-| **HUD** | `hud` | Interface Elements | Hue, Scale |
-
-## 🎮 Keyboard Shortcuts
-
-### Global
-- `F12` or `Cmd+Shift+I` - Toggle dev panel
-- `Alt` + hover - Highlight elements
-- `Alt` + click - Select element for inspection
-
-### Selected Element
-- `R` - Reset parameters to defaults
-- `Cmd+C` - Copy all parameters  
-- `Cmd+V` - Paste parameters
-- `Cmd+Z` - Undo last change
-- `Cmd+Shift+Z` - Redo change
-
-## 🎛️ Parameter Controls
-
-### Control Types
-
-**Range Sliders**
-- Drag slider or scrub value display
-- Mouse drag on blue value = real-time scrubbing
-- Precision based on step size
-
-**Checkboxes**
-- Enable/disable boolean effects
-- Immediate visual feedback
-
-**Number Inputs**  
-- Direct value entry
-- Respects min/max bounds
-
-**Dropdowns**
-- Preset themes and options
-- Category-based selection
-
-### Real-Time Scrubbing 🖱️
-
-Click and drag on any **blue value display** to scrub parameters in real-time:
-- Sensitivity auto-adjusts based on parameter range
-- Respects min/max bounds automatically  
-- Snaps to step increments
-- Visual feedback during scrubbing
-
-## 🎨 Available Effects
-
-### Color Effects
-- **Hue Rotation**: 0-360° hue shift with saturation and intensity
-- **Themes**: Warm, Cool, Electric, Sunset, Ocean, Forest
-
-### Distortion Effects  
-- **Goo Filter**: Viscous wobble with strength and speed controls
-- **Displacement**: X/Y offset with WebGL shaders
-
-### Spatial Effects
-- **Transform**: Translate, Scale, Rotate with live preview
-- **Physics**: Bubble collision and movement parameters
-
-### Visual Effects
-- **CSS Filters**: Blur, Brightness, Contrast, Opacity
-- **Animation**: Built-in parameter animation with speed control
-
-## 🔄 Integration with Existing Systems
-
-The dev system integrates seamlessly with your current setup:
-
-- **ErrlHueController**: All hue effects sync with existing system
-- **WebGL Effects**: PIXI.js filters work through dev panel
-- **CSS Layers**: Direct style manipulation with preview
-- **Mobile Responsive**: Touch-friendly controls on mobile devices
-
-## 📁 File Structure
-
-```
-src/fx/
-├── dev-system.js          # Main dev panel and UI
-├── parameter-controls.js   # Live parameter editing
-├── fx-core.js             # Effect registry (existing)
-├── hue-controller.js      # Hue system (existing)
-├── hue-filter.js          # WebGL hue filter (existing)
-└── hue-effects.css        # CSS effects (existing)
-```
-
-## 🛠️ Customization
-
-### Adding New Effects
-
-```javascript
-// Register a new effect
-window.ErrlDevSystem.fxRegistry.set('myEffect', {
-  id: 'myEffect',
-  label: 'My Custom Effect',
-  category: 'Visual',
-  type: 'css',
-  parameters: {
-    strength: { type: 'range', min: 0, max: 2, step: 0.1, default: 1.0 },
-    color: { type: 'color', default: '#ff0000' }
-  },
-  apply: (element, params) => {
-    // Your effect implementation
-    element.style.filter = `brightness(${params.strength})`;
-  }
-});
-```
-
-### Adding New Layers
-
-```javascript
-// Register a new layer
-window.ErrlDevSystem.layerRegistry.set('myLayer', {
-  id: 'myLayer',
-  label: 'My Custom Layer',
-  selectors: ['.my-element'],
-  type: 'css',
-  effects: ['hue', 'transform', 'myEffect']
-});
-```
-
-## 🎯 Best Practices
-
-### Development Workflow
-1. Enable dev mode via URL parameter
-2. Use Inspector to select elements  
-3. Experiment with parameters using scrubbing
-4. Save successful configurations as presets
-5. Copy/paste parameters between similar elements
-6. Use layer manager for complex scene organization
-
-### Performance Tips
-- Dev tools only load when `?dev=true` is present
-- Parameter changes are throttled for smooth performance
-- WebGL effects use hardware acceleration
-- CSS effects leverage GPU when possible
-
-### Production Deployment
-- Remove `?dev=true` from production URLs
-- Dev tools automatically disabled in production
-- Zero performance impact when disabled
-- All production effects remain fully functional
-
-## 🐛 Debugging
-
-### Console Access
-```javascript
-// Access dev system from console
-ErrlDevSystem.selectElement(document.querySelector('#errl-img'))
-ErrlDevSystem.fxRegistry.get('hue')
-ErrlParameterControls.resetElementParameters(element)
-```
-
-### Common Issues
-- **Dev panel not appearing**: Check URL has `?dev=true`
-- **Effects not applying**: Verify element is in registered layer
-- **WebGL effects broken**: Check PIXI.js loaded correctly
-- **Mobile issues**: Use touch instead of mouse events
-
-## 🔄 Version Compatibility
-
-- **Current Version**: v1.0 (2024)
-- **Browser Support**: Modern browsers with ES6+ support
-- **Mobile Support**: iOS Safari 12+, Android Chrome 70+
-- **WebGL Support**: Required for advanced effects
+This guide documents the *actual* development overlay that now ships with the portal. It replaces the aspirational notes about a Pixi-era dev system.
 
 ---
 
-**Happy developing! 🎨✨**
+## 0. Architecture Snapshot (Nov 2025)
 
-Your dev system provides professional-grade tools while maintaining clean production code. Use it to push the boundaries of what's possible with web-based visual effects!
+| Layer | Selector / Hook | Notes |
+|-------|-----------------|-------|
+| **Background canvases** | `#bgParticles`, `#riseBubbles` | Plain 2D canvas effects (`src/bg-particles.js`, `src/rise-bubbles.js`). Controlled via panel sliders (`rb*`, `bg*` inputs). |
+| **WebGL overlay** | `#errlWebGL` + PIXI runtime (`window.errlGL*`, `window.enableErrlGL`) | Lazily initialised; exposes setters for goo, overlay, orbit scale, burst, etc. |
+| **Scene DOM** | `.scene-layer`, `.errl-wrapper`, `.nav-orbit .bubble` | Positions nav bubbles, toggles hidden Games orb on Shift +B, applies audio + glow via `portal-app.js`. |
+| **Hue system** | `window.ErrlHueController` (`src/fx/hue-controller.ts`) | Manages global hue timeline and per-layer hue targets. Dev panel scrubs `master.baseHue`. |
+| **React overlay** | `#errlPanel` (portal phone UI) | Driven by `portal-app.js` DOM bindings; not part of dev panel but shares sliders and toggles the same globals. |
+| **Dev panel bootloader** | `src/devpanel/runtime.ts` + `registry.ts` | Loaded only when `?devpanel=true` or `localStorage.errl_devpanel_auto === '1'`. Renders controls from registry. |
+
+**Gating:** `src/portal-app.js` checks for the query/localStorage flags and dynamic-imports `devpanel/runtime`. Production bundles stay lean because the module is tree-shaken unless the flag is present.
+
+**Global contracts we must keep stable:**
+
+- `window.ErrlHueController.setTimeline(hue)` — adjusts hue master.
+- `window.errlGLSetGoo(params)` / `window.errlGLSetOverlay(params)` / `window.errlGLSetBubbles(params)` — WebGL knobs.
+- `window.errlGLSyncOrbs()`, `window.errlGLOrbHover(index, on)` — keep nav orbs aligned with WebGL replicas.
+- DOM sliders (`#navOrbitSpeed`, `#navRadius`, `#navOrbSize`, etc.) that currently own state inside `portal-app.js`.
+
+> Any new dev controls should reuse these setters instead of duplicating DOM mutations.
+
+---
+
+## 1. What Just Landed
+
+- A lightweight registry (`src/devpanel/registry.ts`) that every effect module can use to expose tweakable parameters.
+- A new overlay (`src/devpanel/runtime.ts`) that lazy-loads when you visit the portal with `?devpanel=true` or when `localStorage.errl_devpanel_auto === '1'`.
+- Built-in controls for:
+  - **Hue Timeline** – scrubs the global hue master timeline wired into `window.ErrlHueController`.
+  - **WebGL Goo Intensity** – adjusts `errlGLSetGoo({ intensity })` for the Pixi displacement shader.
+- Preset management: the overlay can **Save** the current values to `localStorage`, **Auto-open** itself on every visit, and **Export** the registry snapshot as JSON.
+
+---
+
+## 2. Enabling the Overlay
+
+| Mode | How | Notes |
+|------|-----|-------|
+| One-off | Append `?devpanel=true` to any portal URL | Loads immediately but does **not** auto-open next time. |
+| Persistent | Toggle **Auto-open** in the overlay header (or run `localStorage.setItem('errl_devpanel_auto','1')`) | The bootstrap code in `src/portal-app.js` detects this flag and lazy-loads the overlay on every visit. |
+| Disable | Toggle **Auto-open** off or run `localStorage.removeItem('errl_devpanel_auto')` | Refresh to confirm it stays hidden. |
+
+If neither signal is present, the dev code is never imported, so production bundles stay lean.
+
+---
+
+## 3. Working With Controls
+
+Each control registered with the registry supplies:
+
+```ts
+registerControl({
+  id: 'webgl.gooIntensity',
+  label: 'Goo Intensity',
+  group: 'WebGL',
+  kind: 'slider',
+  min: 0,
+  max: 1,
+  step: 0.01,
+  getValue: () => currentValue,
+  setValue: (next) => applyToEffect(next),
+});
+```
+
+The overlay groups controls by `group`, renders the right input (slider/toggle), shows the current value, and calls `setValue` whenever you drag the UI.
+
+> **Tip:** use descriptive IDs (`system.category.param`) so presets remain readable.
+
+### Built-in Groups (as of now)
+
+| Group | Control | Source |
+|-------|---------|--------|
+| `Hue` | `Hue Timeline` (0–360° scrub) | `window.ErrlHueController.setTimeline` |
+| `WebGL` | `Goo Intensity` (0–1) | `window.errlGLSetGoo({ intensity })` |
+
+Use this table as the checklist when you add more registrations (nav orbit speed, rising bubble density, etc.).
+
+---
+
+## 4. Presets, Exporting & Storage
+
+- **Save** button → stores the current registry snapshot in `localStorage.errl_devpanel_snapshot`.
+- **Export** button → downloads the same object as `errl-devpanel-preset.json`.
+- The overlay auto-applies the saved snapshot once every registered control is available (useful when WebGL initializes later).
+- Nothing writes to `.reports/` or git by default; presets are local to your browser unless you export the JSON.
+
+Snapshot schema example:
+
+```json
+{
+  "hue.timeline": 120,
+  "webgl.gooIntensity": 0.62
+}
+```
+
+To restore manually, import the JSON in DevTools and call:
+
+```js
+localStorage.setItem('errl_devpanel_snapshot', JSON.stringify(snapshot));
+location.reload();
+```
+
+---
+
+## 5. Extending the Panel
+
+1. **Pick a system** you want to expose (Hue, WebGL, Rising Bubbles, Nav Goo, etc.).
+2. **Ensure setters exist.** If the system only listens to DOM inputs, extract its logic into a function that can be called directly (e.g. `window.setNavOrbitSpeed(value)`).
+3. **Register controls** inside the dev overlay bootstrap or, ideally, inside the module that owns the effect (so it self-registers when loaded).
+4. **Document the control** (label, units, safe ranges) so people understand what they’re editing.
+5. **Optional:** add `format(value)` to prettify the display (degrees, percentages, etc.).
+
+> Keep controls cheap. The overlay polls registered controls every ~800 ms to keep the displayed value in sync, so avoid expensive getters.
+
+---
+
+## 6. Security / Shipping Guidelines
+
+- Dev panel only loads in development or when a user deliberately enables it; it’s safe to ship because the bootstrap is gated and the UI floats at a high z-index without touching production UX.
+- When adding controls, ensure setters validate/clamp inputs before mutating rendering code. The overlay doesn’t enforce limits beyond simple min/max/step.
+- **Never** rely on the overlay for production-critical behavior; it’s intentionally hidden behind the query/localStorage gate.
+
+---
+
+## 7. Roadmap / Next Steps
+
+### 7.1 Immediate (Design Pass)
+- **Surface map → controls:** Finish cataloguing which sliders/toggles in `portal-app.js` map to globals vs. raw DOM updates. Document in this file so future controls hook the right source of truth.
+- **Registry strategy:** Decide whether controls register next to their owning code (`portal-app.js`, `fx/hue-controller.ts`, WebGL modules) or inside a central `devpanel/register-builtins.ts` with clear imports.
+- **Delivery model:** Keep the current lazy-load (`?devpanel=true`) but evaluate building a separate chunk (e.g., `devpanel.[hash].js`) to keep React entry untouched. Document the pros/cons here.
+
+### 7.2 MVP Vertical Slice
+- Add registry helpers for **Nav Orbit** (speed, radius, orb scale) and **Rising Bubbles** (speed, density, alpha) by extracting their setter logic in `portal-app.js`.
+- Mirror the Shift +B “Games” toggle so the dev panel can flip it without key combos.
+- Expose a read-only status block (are WebGL + Hue active? hidden bubble visible?).
+- Write Playwright smoke that loads `?devpanel=true` and asserts the panel lists the new groups.
+
+### 7.3 Stretch
+- Import JSON presets (drag/drop or file picker).
+- Allow grouping presets (Hue vs. WebGL vs. Orbit).
+- Pipe registry snapshots into visual regression tooling (`npm run visual-test`).
+- Consider optional React mount so we can reuse component library styling, but only if bundle impact stays small.
+
+---
+
+## Appendix A — Audit Checklist (living)
+
+- [x] Confirm portal DOM IDs/classes still match historical selectors (`.scene-layer`, `.nav-orbit`, etc.).
+- [x] Verify `window.ErrlHueController` attaches before dev panel retry limit.
+- [x] Ensure WebGL setters no-op gracefully when PIXI not yet enabled (handled via retries).
+- [ ] Extract reusable setter for nav orbit speed (currently local variable + RAF loop).
+- [ ] Extract reusable setter for rising bubbles (today reads sliders directly).
+- [ ] Document global events (e.g., custom `hueUpdate`) and how the panel should mirror them.
+
+Keep this list in sync as we migrate more controls into the registry.
+
+Until then, the current implementation already gives you reliable sliders for the highest-impact systems and provides the plumbing to grow into the fully fledged dev rig described in the earlier vision.

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orbit Knots Canvas • Minimal</title>
+<style>
+:root{ --bg:#050816; --ink:#eaf7ff; --mut:#a7bed7; --card:#0a102b; --edge:#1b2656; --a1:#7cf0ff; --a2:#ffd36a; --a3:#b07cff; }
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu}
+.wrapper{min-height:100dvh;display:grid;place-items:center;padding:24px}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:16px;padding:14px;max-width:980px;width:min(92vw,980px)}
+.title{font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:12px;color:#cfe7ff;margin-bottom:8px}
+.preview{border:1px solid #1f2a5c;border-radius:12px;background:#040a1c;overflow:hidden;aspect-ratio:16/10;min-height:280px;display:grid;place-items:center}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{cursor:pointer;background:#141a3c;border:1px solid #29336b;color:#dff5ff;font-size:12px;padding:6px 10px;border-radius:8px}
+.btn:hover{border-color:#46a8ff;color:#fff}
+.footer{opacity:.75;font-size:12px;text-align:center;margin-top:8px}
+</style></head>
+<body>
+<div class="wrapper"><div class="card"><div class="preview"><canvas id="k" width="640" height="360"></canvas></div></div></div>
+<script>
+const c=document.getElementById('k'), x=c.getContext('2d'); let t=0;
+const cx=c.width/2, cy=c.height/2; const R=80, r=23, d=40, ax=5, ay=4;
+(function frame(){
+  t+=0.8;
+  x.fillStyle="rgba(5,8,22,0.08)"; x.fillRect(0,0,c.width,c.height);
+  x.beginPath(); x.lineWidth=1.2; x.strokeStyle="hsl("+((t*0.7)%360)+" 90% 70%)";
+  for(let i=0;i<=900;i++){
+    const u=i/900*Math.PI*2*8 + t*0.01;
+    const sx=(R-r)*Math.cos(u)+d*Math.cos(((R-r)/r)*u);
+    const sy=(R-r)*Math.sin(u)-d*Math.sin(((R-r)/r)*u);
+    const lx=(cx + sx*0.9) + Math.sin(ax*u)*14;
+    const ly=(cy + sy*0.8) + Math.sin(ay*u + Math.PI/3)*12;
+    if(i===0) x.moveTo(lx,ly); else x.lineTo(lx,ly);
+  }
+  x.stroke(); requestAnimationFrame(frame);
+})();</script>
+<div class="footer">Orbit Knots Canvas • Minimal</div>
+</body></html>

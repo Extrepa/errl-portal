@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./fx/effects.css" />
   <link rel="stylesheet" href="./fx/hue-effects.css" />
   <link rel="stylesheet" href="./fx/errl-bg.css" />
+  <script type="module" src="./assets.js"></script>
 </head>
 <body data-errlMode="stable" class="errl-dark">
   <!-- Background shimmer via ErrlBG -->
@@ -42,17 +43,20 @@
         </svg>
       </div>
       <!-- Visible IMG for Errl (classic goo applies here) -->
-      <img src="./portal/assets/L4_Central/errl_all_limbs.svg" alt="Errl" id="errlCenter" class="errl-svg" />
+      <img src="./portal/assets/L4_Central/errl-body-with-limbs.svg" alt="Errl — full body with limbs" id="errlCenter" class="errl-svg" />
       <div id="errlPool" class="errl-pool" style="filter:url(#poolRipple)"></div>
     </div>
 
-    <!-- Orbiting nav bubbles (5 options) -->
+    <!-- Orbiting nav bubbles (7 visible + 1 hidden) -->
     <div id="navOrbit" class="nav-orbit">
       <a class="bubble menuOrb" data-angle="210" data-dist="180" href="./portal/pages/about/index.html"><span class="label">About</span></a>
-      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="./portal/pages/gallery/index.html"><span class="label">Gallery</span></a>
-      <a class="bubble menuOrb" data-angle="20"  data-dist="200" href="./portal/pages/projects/index.html"><span class="label">Projects</span></a>
-      <a class="bubble menuOrb" data-angle="75"  data-dist="150" href="./portal/pages/tools/index.html"><span class="label">Studio</span></a>
-      <a class="bubble menuOrb" data-angle="140" data-dist="170" href="./portal/pages/pin-designer/index.html"><span class="label">Designer</span></a>
+      <a class="bubble menuOrb" data-angle="260" data-dist="175" href="./portal/pages/gallery/index.html"><span class="label">Gallery</span></a>
+      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="./portal/pages/projects/index.html"><span class="label">Projects</span></a>
+      <a class="bubble menuOrb" data-angle="20"  data-dist="200" href="./portal/pages/studio/index.html"><span class="label">Studio</span></a>
+      <a class="bubble menuOrb" data-angle="75"  data-dist="150" href="./portal/pages/pin-designer/index.html"><span class="label">Designer</span></a>
+      <a class="bubble menuOrb" data-angle="120" data-dist="165" href="./portal/pages/events/index.html" id="eventsBubble"><span class="label">Events</span></a>
+      <a class="bubble menuOrb" data-angle="160" data-dist="185" href="./portal/pages/merch/index.html" id="merchBubble"><span class="label">Merch</span></a>
+      <a class="bubble menuOrb hidden-bubble" data-angle="180" data-dist="190" href="./portal/pages/games/index.html" id="gamesBubble" style="display:none;"><span class="label">Games</span></a>
     </div>
   </div>
 
@@ -92,7 +96,7 @@
   </svg>
 
   <!-- Control panel -->
-  <aside class="errl-panel" id="errlPanel">
+  <aside class="errl-panel minimized" id="errlPanel" style="width:44px !important;height:44px !important;padding:0 !important;border-radius:999px !important;overflow:hidden !important;right:20px !important;top:20px !important;left:auto !important;bottom:auto !important;min-width:44px !important;max-width:44px !important;max-height:44px !important;">
     <div class="panel-header" id="errlPhoneHeader" title="Drag to move">
       <div class="panel-title">ERRL PHONE</div>
       <div class="panel-mode">
@@ -117,19 +121,20 @@
         <label title="Mount animated shimmer layer">Shimmer</label>
         <input type="checkbox" id="shimmerToggle" title="Toggle shimmer">
       </div>
-      <div class="sliderRow"><label title="Dark frame intensity">Vignette</label><input id="vignetteOpacity" type="range" min="0" max="1" step="0.01" value="0.85" title="Vignette opacity"/> <label style="width:auto">On</label> <input type="checkbox" id="vignetteEnabled" checked title="Enable vignette"/> <label style="width:auto">Color</label> <input type="color" id="vignetteColor" value="#000000" title="Vignette color"></div>
+      <div class="sliderRow"><label title="Dark frame intensity">Vignette</label><input id="vignetteOpacity" type="range" min="0" max="1" step="0.01" value="0.85" title="Vignette opacity"/> <label style="width:auto">Color</label> <input type="color" id="vignetteColor" value="#000000" title="Vignette color"> <label style="width:auto">On</label> <input type="checkbox" id="vignetteEnabled" checked title="Enable vignette"></div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel">GL Overlay</div>
-      <div class="sliderRow"><label title="Overlay opacity">Overlay Alpha</label><input type="range" id="glAlpha" min="0" max="1" step="0.01" value="0.20" title="Overlay alpha"></div>
-      <div class="sliderRow"><label title="Horizontal displacement">Overlay Disp X</label><input type="range" id="glDX" min="0" max="64" step="1" value="24" title="Overlay displacement X"></div>
-      <div class="sliderRow"><label title="Vertical displacement">Overlay Disp Y</label><input type="range" id="glDY" min="0" max="64" step="1" value="18" title="Overlay displacement Y"></div>
+      <div class="sliderRow"><label title="Overlay opacity">Overlay Alpha</label><input type="range" id="glAlpha" min="0" max="1" step="0.01" value="0.28" title="Overlay alpha"></div>
+      <div class="sliderRow"><label title="Horizontal displacement">Overlay Disp X</label><input type="range" id="glDX" min="0" max="64" step="1" value="22" title="Overlay displacement X"></div>
+      <div class="sliderRow"><label title="Vertical displacement">Overlay Disp Y</label><input type="range" id="glDY" min="0" max="64" step="1" value="16" title="Overlay displacement Y"></div>
       <div class="sliderRow" style="justify-content:flex-end"><button id="overlayRandom" title="Random overlay settings">Randomize</button></div>
     </div>
 
     <!-- Rising Bubbles (Canvas) -->
     <div class="panel-section" data-tab="rb">
       <div class="sectionLabel" title="Canvas particle bubbles rising behind the scene">Rising Bubbles (Canvas)</div>
-      <div class="sliderRow"><label title="Pointer attracts/repels bubbles">Attract</label><input type="checkbox" id="rbAttract" checked title="Toggle attraction/repulsion"> <label title="Show water-like ripples on click">Ripples</label><input type="checkbox" id="rbRipples" checked title="Toggle ripple effect"></div>
+      <div class="sliderRow"><label title="Pointer attracts/repels bubbles">Attract</label><input type="checkbox" id="rbAttract" checked title="Toggle attraction/repulsion"> <label title="Attract effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.0" id="rbAttractIntensity" title="How strong the attraction/repulsion effect is"></div>
+      <div class="sliderRow"><label title="Show water-like ripples on click">Ripples</label><input type="checkbox" id="rbRipples" checked title="Toggle ripple effect"> <label title="Ripple effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.2" id="rbRippleIntensity" title="How visible and strong the ripple effect is"></div>
       <div class="sliderRow"><label title="How fast bubbles rise">Speed</label><input type="range" min="0" max="3" step="0.01" value="1" id="rbSpeed" title="Bubble rise speed"></div>
       <div class="sliderRow"><label title="How many bubbles appear">Density</label><input type="range" min="0" max="2" step="0.01" value="1" id="rbDensity" title="Bubble density"></div>
       <div class="sliderRow"><label title="Opacity of the bubbles">Alpha</label><input type="range" min="0" max="1" step="0.01" value="0.95" id="rbAlpha" title="Bubble opacity"></div>
@@ -138,10 +143,10 @@
       <div class="sectionLabel">RB Bubbles Advanced</div>
       <div class="sliderRow"><label title="Side-to-side wiggle of bubbles as they rise">Wobble</label><input id="rbWobble" type="range" min="0" max="2" step="0.01" value="1"/></div>
       <div class="sliderRow"><label title="How quickly wobble oscillates">Frequency</label><input id="rbFreq" type="range" min="0" max="2" step="0.01" value="1"/></div>
-      <div class="sliderRow"><label title="Smallest bubble size">Min size</label><input id="rbMin" type="number" min="6" max="256" step="1" value="14"/> <label title="Largest bubble size">Max</label><input id="rbMax" type="number" min="6" max="256" step="1" value="36"/></div>
-      <div class="sliderRow"><label title="Chance for a larger 'jumbo' bubble to spawn">Jumbo Percent</label><input id="rbJumboPct" type="range" min="0" max="0.6" step="0.01" value="0.1"/></div>
-      <div class="sliderRow"><label title="Scale factor for jumbo bubbles">Jumbo Scale</label><input id="rbJumboScale" type="range" min="1.0" max="2.5" step="0.05" value="1.6"/></div>
-      <div class="sliderRow"><label title="Speed of size pulsing (0 disables)">Size Hertz</label><input id="rbSizeHz" type="range" min="0" max="1" step="0.01" value="0.0"/></div>
+      <div class="sliderRow"><label title="Smallest bubble size">Min size</label><input id="rbMin" type="number" min="6" max="256" step="1" value="14" title="Smallest bubble size in pixels"/> <label title="Largest bubble size">Max</label><input id="rbMax" type="number" min="6" max="256" step="1" value="36" title="Largest bubble size in pixels"/></div>
+      <div class="sliderRow"><label title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles.">Jumbo Percent</label><input id="rbJumboPct" type="range" min="0" max="0.6" step="0.01" value="0.1" title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles."/></div>
+      <div class="sliderRow"><label title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size.">Jumbo Scale</label><input id="rbJumboScale" type="range" min="1.0" max="2.5" step="0.05" value="1.6" title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size."/></div>
+      <div class="sliderRow"><label title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing.">Size Hertz</label><input id="rbSizeHz" type="range" min="0" max="1" step="0.01" value="0.0" title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing."/></div>
       <div class="sectionDivider"></div>
       <div class="sliderRow" style="justify-content:flex-end; gap:8px; flex-wrap:wrap">
         <div style="display:flex; gap:4px">
@@ -159,58 +164,28 @@
       <div class="sectionLabel">GL Particles (BG Bubbles)</div>
       <div class="sliderRow">
         <label title="How fast the GPU bubble layer moves">Speed</label>
-        <input type="range" min="0" max="3" step="0.01" value="1" id="bgSpeed" title="Particle speed">
+        <input type="range" min="0" max="3" step="0.01" value="0.9" id="bgSpeed" title="Particle speed">
       </div>
       <div class="sliderRow">
         <label title="How many particles are spawned">Density</label>
-        <input type="range" min="0" max="1.5" step="0.01" value="1" id="bgDensity" title="Particle count">
+        <input type="range" min="0" max="1.5" step="0.01" value="1.2" id="bgDensity" title="Particle count">
       </div>
       <div class="sliderRow">
         <label title="Opacity of the GPU bubble layer">Alpha</label>
-        <input type="range" min="0" max="1" step="0.01" value="0.9" id="bgAlpha" title="Particle alpha">
-      </div>
-      <div class="sectionDivider"></div>
-      <div class="sliderRow" style="gap:8px; flex-direction:column; align-items:flex-end">
-        <div class="row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap" title="Animate Speed slider">
-          <span style="font-size:10px; opacity:.8;">Speed</span>
-          <div style="display:flex; gap:4px">
-            <button id="glbModeSpeedLoop" title="Loop" class="mini-bump">⟲</button>
-            <button id="glbModeSpeedPing" title="Ping-Pong" class="mini-bump">↔︎</button>
-          </div>
-          <input id="glbAnimSpeedRate" class="speed-number" type="number" min="0.02" max="1.0" step="0.10" value="0.10" aria-label="Animation Speed"/>
-          <button id="glbAnimSpeedBtn" class="btn-animate" title="Animate Speed">Animate</button>
-        </div>
-        <div class="row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap" title="Animate Density slider">
-          <span style="font-size:10px; opacity:.8;">Density</span>
-          <div style="display:flex; gap:4px">
-            <button id="glbModeDensityLoop" title="Loop" class="mini-bump">⟲</button>
-            <button id="glbModeDensityPing" title="Ping-Pong" class="mini-bump">↔︎</button>
-          </div>
-          <input id="glbAnimDensityRate" class="speed-number" type="number" min="0.02" max="1.0" step="0.10" value="0.10" aria-label="Animation Speed"/>
-          <button id="glbAnimDensityBtn" class="btn-animate" title="Animate Density">Animate</button>
-        </div>
-        <div class="row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap" title="Animate Alpha slider">
-          <span style="font-size:10px; opacity:.8;">Alpha</span>
-          <div style="display:flex; gap:4px">
-            <button id="glbModeAlphaLoop" title="Loop" class="mini-bump">⟲</button>
-            <button id="glbModeAlphaPing" title="Ping-Pong" class="mini-bump">↔︎</button>
-          </div>
-          <input id="glbAnimAlphaRate" class="speed-number" type="number" min="0.02" max="1.0" step="0.10" value="0.10" aria-label="Animation Speed"/>
-          <button id="glbAnimAlphaBtn" class="btn-animate" title="Animate Alpha">Animate</button>
-        </div>
+        <input type="range" min="0" max="1" step="0.01" value="0.85" id="bgAlpha" title="Particle alpha">
       </div>
       <div class="sliderRow" style="justify-content:flex-end"><button id="glbRandom">Randomize</button></div>
     </div>
 
     <div class="panel-section" data-tab="errl">
       <div class="sectionLabel" title="Overall scale of the Errl image">Errl Size</div>
-      <div class="sliderRow"><label title="Overall scale of Errl">Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1.0" title="Drag to scale Errl"></div>
+      <div class="sliderRow"><label title="Overall scale of Errl">Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1.35" title="Drag to scale Errl"></div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel">Errl Goo (wobble)</div>
       <div class="sliderRow"><label>Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked></div>
-      <div class="sliderRow"><label title="Amount of displacement wobble applied to the Errl shape">Displacement</label><input id="classicGooStrength" type="range" min="0" max="2" step="0.01" value="0.40"></div>
-      <div class="sliderRow"><label title="Oscillation amplitude of the wobble">Wobble</label><input id="classicGooWobble" type="range" min="0" max="2" step="0.01" value="0.60"></div>
-      <div class="sliderRow"><label title="Rate of the internal classic SVG noise animation">Speed</label><input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="0.60"></div>
+      <div class="sliderRow"><label title="Amount of displacement wobble applied to the Errl shape">Displacement</label><input id="classicGooStrength" type="range" min="0" max="2" step="0.01" value="0.35"></div>
+      <div class="sliderRow"><label title="Oscillation amplitude of the wobble">Wobble</label><input id="classicGooWobble" type="range" min="0" max="2" step="0.01" value="0.55"></div>
+      <div class="sliderRow"><label title="Rate of the internal classic SVG noise animation">Speed</label><input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="0.45"></div>
       <div class="sectionDivider"></div>
       <div class="sliderRow" style="justify-content:flex-end; gap:8px">
         <label style="width:auto; opacity:.8">Mode</label>
@@ -226,38 +201,30 @@
       <div class="sectionLabel" title="Floating menu bubbles around Errl">Nav Bubbles</div>
 <div class="sliderRow">
         <label title="How fast bubbles orbit around Errl">Orbit</label>
-<input type="range" min="0" max="2" step="0.01" value="0.25" id="navOrbitSpeed" title="Orbit speed">
+<input type="range" min="0" max="2" step="0.01" value="0.18" id="navOrbitSpeed" title="Orbit speed">
       </div>
       <div class="sliderRow">
         <label title="Distance of bubbles from Errl">Radius</label>
-        <input type="range" min="0.6" max="1.6" step="0.01" value="1" id="navRadius" title="Orbit radius">
+        <input type="range" min="0.6" max="1.6" step="0.01" value="1.1" id="navRadius" title="Orbit radius">
       </div>
       <div class="sliderRow">
         <label title="Overall size of nav bubbles">Size</label>
-        <input type="range" min="0.6" max="1.6" step="0.01" value="1.0" id="navOrbSize" title="Nav bubble size">
+        <input type="range" min="0.6" max="1.6" step="0.01" value="1.05" id="navOrbSize" title="Nav bubble size">
       </div>
       <div class="sliderRow">
-        <label title="Show WebGL orb render layer">GL Orbs</label>
-        <input type="checkbox" id="glOrbsToggle" checked title="Toggle GL orb layer">
-        <button id="rotateSkins" style="margin-left:auto" title="Cycle orb textures">Rotate Skins</button>
+        <label title="Show WebGL orb render layer (3D rendered orbs that sync with nav bubbles)">GL Orbs</label>
+        <input type="checkbox" id="glOrbsToggle" checked title="Toggle WebGL orb render layer (3D rendered orbs that sync with nav bubbles)">
+        <button id="rotateSkins" style="margin-left:auto" title="Cycle through fun orb textures (faces, patterns, etc.)">Rotate Skins</button>
       </div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel" title="Advanced gooey blending for bubble group">Nav Goo+</div>
-      <div class="sliderRow"><label title="Elastic movement blend">Wiggle</label><input type="range" id="navWiggle" min="0" max="1" step="0.01" value="0.6" title="Wiggle strength"></div>
-      <div class="sliderRow"><label title="Motion scaling">Flow Speed</label><input type="range" id="navFlow" min="0" max="2" step="0.01" value="1.0" title="Flow speed"></div>
-      <div class="sliderRow"><label title="Downward bias">Drip</label><input type="range" id="navDrip" min="-1" max="1" step="0.01" value="0.0" title="Drip"></div>
-      <div class="sliderRow"><label title="How strongly blobs merge">Viscosity</label><input type="range" id="navVisc" min="0" max="1" step="0.01" value="0.9" title="Viscosity"></div>
-      <div class="sectionDivider"></div>
-      <div class="sliderRow" style="gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap">
-        <button id="navAnimate" class="btn-animate">Animate</button>
-        <div style="display:flex; gap:4px">
-          <button id="navModeLoop" class="mini-bump" title="Loop">⟲</button>
-          <button id="navModePing" class="mini-bump" title="Ping-Pong">↔︎</button>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:2px; align-items:flex-start">
-          <span style="font-size:9px; opacity:.75;">Scrub Speed</span>
-          <input id="navAnimSpeed" class="speed-number" type="number" min="0.02" max="3.0" step="0.05" value="0.25" aria-label="Animation Speed"/>
-        </div>
+      <div class="sliderRow"><label title="Elastic movement blend - how much bubbles wiggle as they move">Wiggle</label><input type="range" id="navWiggle" min="0" max="1" step="0.01" value="0.4" title="Elastic movement blend - how much bubbles wiggle as they move"></div>
+      <div class="sliderRow"><label title="Motion scaling - speed of the flow animation">Flow Speed</label><input type="range" id="navFlow" min="0" max="2" step="0.01" value="0.8" title="Motion scaling - speed of the flow animation"></div>
+      <div class="sliderRow"><label title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)">Grip</label><input type="range" id="navGrip" min="0" max="1" step="0.01" value="0.5" title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)"></div>
+      <div class="sliderRow"><label title="Downward bias">Drip</label><input type="range" id="navDrip" min="-1" max="1" step="0.01" value="-0.5" title="Downward bias - makes bubbles sag downward"></div>
+      <div class="sliderRow"><label title="How strongly blobs merge together">Viscosity</label><input type="range" id="navVisc" min="0" max="1" step="0.01" value="0.9" title="How strongly blobs merge together"></div>
+      <div class="sliderRow" style="justify-content:flex-end; gap:8px">
+        <button id="navSlowGradient" class="btn-animate" title="Apply slow color gradient animation">Slow Gradient</button>
       </div>
       <div class="sliderRow" style="justify-content:flex-end"><button id="navRandom">Randomize</button></div>
     </div>
@@ -292,20 +259,10 @@
         <label title="Mix amount of hue effect">Intensity</label>
         <input type="range" min="0" max="1" step="0.01" value="1" id="hueInt" title="Effect intensity">
       </div>
-      <div class="sectionDivider"></div>
-      <div class="sliderRow" style="justify-content:center; gap:10px; align-items:flex-start; flex-wrap:wrap">
-        <button id="hueAnimate" class="btn-animate">Animate</button>
-        <div style="display:flex; flex-direction:column; gap:2px; align-items:flex-start">
-          <span style="font-size:9px; opacity:.75;">Mode</span>
-          <div style="display:flex; gap:4px">
-            <button id="hueModeLoop" class="mini-bump" title="Loop">⟲</button>
-            <button id="hueModePing" class="mini-bump" title="Ping-Pong">↔︎</button>
-          </div>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:2px; align-items:flex-start">
-          <span style="font-size:9px; opacity:.75;">Speed</span>
-          <input id="hueAnimSpeed" class="speed-number" type="number" min="0.02" max="2.5" step="0.05" value="0.30" title="Animation Speed">
-        </div>
+      <div class="sliderRow" style="justify-content:flex-start; gap:10px; align-items:center; flex-wrap:wrap">
+        <span style="font-size:9px; opacity:.75; min-width:50px;">Timeline</span>
+        <input id="hueTimeline" type="range" min="0" max="360" step="1" value="0" title="Global hue timeline" style="flex:1; max-width:200px;">
+        <button id="huePlayPause" class="btn-animate" title="Play/Pause">Play/Pause</button>
       </div>
     </div>
 
@@ -334,26 +291,52 @@
     </div>
     <div class="panel-section" data-tab="dev">
       <div class="sectionLabel">Developer Tools</div>
-      <div class="sliderRow" title="Open the color customizer in a second phone">
-        <button id="openColorizer">Open Customizer</button>
-        <span style="opacity:.8; font-size:10px;">Second phone overlay</span>
+      <div class="sliderRow" title="Open the color customizer in a second phone" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button id="openColorizer" style="font-size:11px; padding:4px 8px;">Open Customizer</button>
+        <span style="opacity:.8; font-size:10px; align-self:center;">Second phone overlay</span>
       </div>
-      <div class="sliderRow" title="Save a PNG screenshot">
-        <button id="snapshotPngBtn" aria-label="Save PNG" title="Save PNG">📷</button>
-        <span style="opacity:.8; font-size:10px;">PNG</span>
+      <div class="sliderRow" title="Save a PNG screenshot" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button id="snapshotPngBtn" aria-label="Save PNG" title="Save PNG" style="font-size:11px; padding:4px 8px;">📷 PNG</button>
       </div>
-      <div class="sliderRow" title="Export HTML/CSS/JS with current panel settings applied on load">
-        <button id="exportHtmlBtn">Snapshot</button>
-        <span style="opacity:.8; font-size:10px;">HTML/CSS/JS</span>
+      <div class="sliderRow" title="Export HTML/CSS/JS with current panel settings applied on load" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button id="exportHtmlBtn" style="font-size:11px; padding:4px 8px;">Snapshot</button>
+        <span style="opacity:.8; font-size:10px; align-self:center;">HTML/CSS/JS</span>
+      </div>
+      <div class="sliderRow" title="Save all current settings as defaults (local)" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button id="saveDefaultsBtn" style="font-size:11px; padding:4px 8px;">Save Defaults</button>
+        <button id="resetDefaultsBtn" style="font-size:11px; padding:4px 8px;">Reset Defaults</button>
+        <span style="opacity:.8; font-size:10px; align-self:center;">(stored in local)</span>
       </div>
     </div>
     <button id="panelScrollTop" title="Return to top" style="position:absolute; left:6px; bottom:6px; width:14px; height:14px; border-radius:50%; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.08); color:#fff; font-size:10px; line-height:12px; text-align:center; cursor:pointer; display:none;">↑</button>
   </aside>
 
+  <script>
+    // Force minimized state immediately - runs before any other scripts
+    (function(){
+      const panel = document.getElementById('errlPanel');
+      if (panel) {
+        panel.classList.add('minimized');
+        panel.style.setProperty('width', '44px', 'important');
+        panel.style.setProperty('height', '44px', 'important');
+        panel.style.setProperty('padding', '0', 'important');
+        panel.style.setProperty('border-radius', '999px', 'important');
+        panel.style.setProperty('overflow', 'hidden', 'important');
+        panel.style.setProperty('right', '20px', 'important');
+        panel.style.setProperty('top', '20px', 'important');
+        panel.style.setProperty('left', 'auto', 'important');
+        panel.style.setProperty('bottom', 'auto', 'important');
+        panel.style.setProperty('min-width', '44px', 'important');
+        panel.style.setProperty('max-width', '44px', 'important');
+        panel.style.setProperty('max-height', '44px', 'important');
+      }
+    })();
+  </script>
+
   <script defer src="https://unpkg.com/pixi.js@7/dist/pixi.min.js"></script>
   <!-- L0/L2 DOM canvases -->
-  <script defer src="./bg-particles.js"></script>
-  <script defer src="./rise-bubbles.js"></script>
+  <script type="module" src="./bg-particles.js"></script>
+  <script type="module" src="./rise-bubbles.js"></script>
   <!-- FX registry and GL bubbles (TS modules) -->
   <script type="module" src="./fx/fx-core.ts"></script>
   <script type="module" src="./fx/bubbles-pixi.ts"></script>
@@ -362,9 +345,8 @@
   <script type="module" src="./fx/hue-controller.ts"></script>
   <!-- WebGL runtime and app glue -->
   <script type="module" src="./webgl.js"></script>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./portal-app.js"></script>
   <script type="module" src="./portal/app-legacy.js"></script>
-  <script type="module" src="./errl-battle.js"></script>
 
   <!-- Secondary phone overlay: Colorizer -->
   <div id="colorizerPhone" class="errl-panel" style="display:none; position:fixed; right:12px; top:12px; z-index:3000; width:360px; max-width:90vw; height:80vh;">
@@ -373,7 +355,7 @@
       <div class="panel-mode"><button id="colorizerClose" title="Close">×</button></div>
     </div>
     <div style="flex:1; background:#0b0f18; border-top:1px solid rgba(255,255,255,.08);">
-      <iframe id="colorizerFrame" src="./portal/pages/tools/svg-colorer/index.html" style="width:100%; height:100%; border:0; background:#0b0e14;"></iframe>
+      <iframe id="colorizerFrame" src="./portal/pages/studio/svg-colorer/index.html" style="width:100%; height:100%; border:0; background:#0b0e14;"></iframe>
     </div>
   </div>
 
@@ -381,13 +363,12 @@
     // file:// fallback: classic scripts to avoid module CORS in local file preview
     try {
       if (location.protocol === 'file:') {
-        var d0=document.createElement('script'); d0.defer=true; d0.src='./bg-particles.js'; document.currentScript.after(d0);
-        var d1=document.createElement('script'); d1.defer=true; d1.src='./rise-bubbles.js'; d0.after(d1);
+        var d0=document.createElement('script'); d0.type='module'; d0.src='./bg-particles.js'; document.currentScript.after(d0);
+        var d1=document.createElement('script'); d1.type='module'; d1.src='./rise-bubbles.js'; d0.after(d1);
         var s0=document.createElement('script'); s0.type='module'; s0.src='./fx/fx-core.ts'; d1.after(s0);
         var s00=document.createElement('script'); s00.type='module'; s00.src='./fx/bubbles-pixi.ts'; s0.after(s00);
-        var s1=document.createElement('script'); s1.src='./webgl.js'; s00.after(s1);
-        var s2=document.createElement('script'); s2.src='./app.js'; s1.after(s2);
-        var s3=document.createElement('script'); s3.src='./errl-battle.js'; s2.after(s3);
+        var s1=document.createElement('script'); s1.type='module'; s1.src='./webgl.js'; s00.after(s1);
+        var s2=document.createElement('script'); s2.type='module'; s2.src='./portal-app.js'; s1.after(s2);
       }
     } catch (e) {}
   </script>

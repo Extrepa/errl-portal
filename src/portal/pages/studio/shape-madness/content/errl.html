@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Palette Morph Timeline</title>
+<style>
+:root{
+  --bg:#050816; --ink:#eaf7ff; --edge:#1b2656;
+  --c1:#7cf0ff; --c2:#ffd36a; --c3:#b07cff; --c4:#7cf0ff;
+}
+*{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui}
+.wrap{min-height:100dvh;display:grid;place-items:center}
+.stage{position:relative;width:min(92vw,900px);aspect-ratio:16/10;border:1px solid var(--edge);border-radius:14px;overflow:hidden;background:#040a1c;display:grid;place-items:center}
+.scene{position:relative;width:88%;aspect-ratio:16/9;border-radius:16px;overflow:hidden}
+.layer{position:absolute;inset:0}
+.bg{background:
+  radial-gradient(60% 80% at 20% 20%, color-mix(in oklab, var(--c1), #000 70%), transparent 60%),
+  radial-gradient(50% 60% at 80% 80%, color-mix(in oklab, var(--c2), #000 75%), transparent 60%),
+  #050a18}
+.halo{position:absolute;inset:0;margin:auto;width:52%;aspect-ratio:1;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--c1),var(--c2),var(--c3),var(--c4));
+  -webkit-mask:radial-gradient(closest-side, transparent calc(50% - 24px), #000 calc(50% - 23px));
+          mask:radial-gradient(closest-side, transparent calc(50% - 24px), #000 calc(50% - 23px));
+  animation:spin 10s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dot{position:absolute;inset:0;margin:auto;width:10%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 40% 40%, #fff8, transparent 60%), var(--c2);
+  box-shadow:0 0 30px color-mix(in oklab, var(--c2), #000 20%)}
+.rim{position:absolute;inset:0;margin:auto;width:70%;aspect-ratio:1;border-radius:50%;
+  border:2px solid color-mix(in oklab, var(--c3), #fff 15%); filter:drop-shadow(0 0 10px color-mix(in oklab, var(--c3), #000 20%))}
+.btn{position:absolute;left:10px;bottom:10px;cursor:pointer;background:#141a3c;border:1px solid #29336b;color:#dff5ff;font-size:12px;padding:6px 10px;border-radius:8px}
+</style></head><body>
+<div class="wrap"><div class="stage">
+  <div class="scene">
+    <div class="layer bg"></div>
+    <div class="layer halo"></div>
+    <div class="layer rim"></div>
+    <div class="layer dot"></div>
+  </div>
+  <button class="btn" id="export">Export Palette Timeline</button>
+</div></div>
+<script>
+const PALETTE = [
+  {t:0,   c1:"#7cf0ff", c2:"#ffd36a", c3:"#b07cff", c4:"#7cf0ff"},
+  {t:0.25,c1:"#9df0d8", c2:"#ff9f6a", c3:"#ff87d6", c4:"#9df0d8"},
+  {t:0.5, c1:"#a1b0ff", c2:"#ffd36a", c3:"#7cffad", c4:"#a1b0ff"},
+  {t:0.75,c1:"#ffb3b3", c2:"#ffe66a", c3:"#a07cff", c4:"#ffb3b3"},
+  {t:1.0, c1:"#7cf0ff", c2:"#ffd36a", c3:"#b07cff", c4:"#7cf0ff"},
+];
+// animate by lerping CSS vars every frame
+let t=0, speed=0.015;
+function lerp(a,b,k){ return Math.round(a + (b-a)*k); }
+function hexToRgb(h){ const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h); return m?{r:parseInt(m[1],16),g:parseInt(m[2],16),b:parseInt(m[3],16)}:null; }
+function mixHex(h1,h2,k){ const A=hexToRgb(h1), B=hexToRgb(h2); return `#${[lerp(A.r,B.r,k),lerp(A.g,B.g,k),lerp(A.b,B.b,k)].map(v=>v.toString(16).padStart(2,"0")).join("")}`; }
+function sampleCurve(arr, tt){
+  if(tt<=0) return arr[0];
+  if(tt>=1) return arr[arr.length-1];
+  let i=1; while(i<arr.length && arr[i].t<tt) i++;
+  const a=arr[i-1], b=arr[i]; const k=(tt-a.t)/(b.t-a.t);
+  return {
+    c1:mixHex(a.c1,b.c1,k),
+    c2:mixHex(a.c2,b.c2,k),
+    c3:mixHex(a.c3,b.c3,k),
+    c4:mixHex(a.c4,b.c4,k),
+  };
+}
+(function tick(){
+  t=(t+speed)%1;
+  const p=sampleCurve(PALETTE,t);
+  const r=document.documentElement.style;
+  r.setProperty('--c1',p.c1); r.setProperty('--c2',p.c2); r.setProperty('--c3',p.c3); r.setProperty('--c4',p.c4);
+  requestAnimationFrame(tick);
+})();
+document.getElementById('export').onclick=()=>{
+  const json=JSON.stringify({palette:PALETTE, speed}, null, 2);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));
+  a.download='palette-timeline.json'; a.click(); URL.revokeObjectURL(a.href);
+};
+</script>
+</body></html>
