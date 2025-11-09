@@ -13,12 +13,18 @@ A multi-app epic webapp / website / landing page to showcase our friend group ma
 - `src/index.html` — Main interactive portal
 - `src/portal/pages/about/index.html` — About Errl and the project
 - `src/portal/pages/gallery/index.html` — Art gallery
-- `src/portal/pages/projects/index.html` — Projects
-- `src/portal/pages/tools/index.html` — Tools
+- `src/portal/pages/projects/index.html` — Projects showcase
+- `src/portal/pages/studio/index.html` — Studio hub for interactive labs
+- `src/portal/pages/events/index.html` — Events archive
+- `src/portal/pages/merch/index.html` — Merch concepts
+- `src/portal/pages/games/index.html` — Games (keyboard shortcut bubble)
 
-### Apps & Tools
-- `src/portal/pages/pin-designer/` — Enamel pin designer tool (embedded)
-- `src/portal/pages/tools/` — Atlas Builder, Asset Builder, Pin Widget, etc. (embedded pages)
+### Apps & Tools (Studio)
+- `src/portal/pages/pin-designer/` — Enamel pin designer tool
+- `src/portal/pages/studio/math-lab/` — 100-effect Math Lab playground
+- `src/portal/pages/studio/shape-madness/` — Shape Madness effect gallery
+- `src/portal/pages/studio/pin-widget/` — Pin widget designer + prefab assets
+- `src/portal/pages/studio/svg-colorer/` — SVG color customizer
 - `src/portal/pages/dev/` — Dev panel + live controls
 
 ### Effects & Assets
@@ -37,7 +43,14 @@ index.html (Main Portal)
   ├─→ portal/pages/gallery/index.html
   ├─→ portal/pages/projects/index.html
   ├─→ portal/pages/pin-designer/index.html
-  └─→ portal/pages/tools/index.html
+  ├─→ portal/pages/studio/index.html
+  │      ├─→ studio/math-lab/index.html
+  │      ├─→ studio/shape-madness/index.html
+  │      ├─→ studio/svg-colorer/index.html
+  │      └─→ studio/pin-widget/ErrlPin.Widget/designer.html
+  ├─→ portal/pages/events/index.html
+  ├─→ portal/pages/merch/index.html
+  └─→ portal/pages/games/index.html
 ```
 
 ## Development
@@ -48,7 +61,16 @@ npm run build
 ```
 
 ### Local Dev
-Vite is configured with `src/` as root. Open any HTML file directly or use a local server.
+Vite is configured with `src/` as root. Run a dev server to work on any HTML page:
+```bash
+npm run dev
+```
+
+### Tests
+Playwright UI tests cover the portal and studio experiences:
+```bash
+npm run test
+```
 
 ## Recent Changes
 - Reorganized pages under `src/portal/pages/*`; standardized Back to Portal links

@@ -44,6 +44,28 @@ git reset --hard HEAD~1  # Undo last commit
 
 ---
 
+## 🚀 Warp Handoff — 2025-11-09 11:30 UTC
+
+- **Branch:** `2025-11-07-oz3r-29bd4` (all checks green)  
+- **Latest validation:** `npm run safety-check`, `npm test`, `npm run build` (2025-11-09)  
+- **Safety guardrails:**  
+  - Run `npm run safety-check` before starting.  
+  - Create a checkpoint: `npm run checkpoint "warp session start"` before applying changes.  
+  - Keep `TEAM_UPDATE.md` and `DEV-SYSTEM-GUIDE.md` open for context.  
+- **Focus areas for Warp:**  
+  1. **Dev Panel MVP slice** — Implement element inspector + live hue status; use the registry helpers (`window.errlNavControls`, `window.errlRisingBubbles`) documented in `DEV-SYSTEM-GUIDE.md`.  
+  2. **Visual QA** — Execute `npm run visual-test`, log findings, then perform the mobile/tablet spot check called out in the action plan.  
+  3. **Deploy verification prep** — Stage the plan to exercise both GitHub Pages paths (auto push and manual `workflow_dispatch`) and capture evidence once run.  
+- **Recently updated docs to review:**  
+  - `DEV-SYSTEM-GUIDE.md` (current architecture + registry)  
+  - `README.md` (Studio + Math Lab overview and command cheatsheet)  
+  - `Errl_Portal_Cursor_NextMove_Kit/TEAM_UPDATE_2025-11-09.md` (Warp context kit)  
+- **Open questions:** If additional registry hooks are needed (e.g., wobble/ripple parameters), document them in `DEV-SYSTEM-GUIDE.md` before wiring new overlay controls.
+
+Stay inside the safety workflow: small batches, checkpoint often, and record results back here when milestones land.
+
+---
+
 ## 📚 New Documentation Files
 
 All documentation is in the project root:
