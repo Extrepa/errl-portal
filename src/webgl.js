@@ -21,6 +21,37 @@
     return document.getElementById('errlWebGL');
   }
 
+  const DEBUG_DPR_KEY = 'errl_debug_dpr';
+  let currentResolutionCap = null;
+
+  function normalizeDprCap(value) {
+    if (value === null || value === undefined) return null;
+    if (value === '' || value === 'default' || value === 'auto') return null;
+    const numeric = typeof value === 'number' ? value : parseFloat(String(value));
+    if (Number.isNaN(numeric)) return null;
+    return Math.max(0.5, Math.min(4, numeric));
+  }
+
+  function readInitialDprCap() {
+    try {
+      const stored = normalizeDprCap(localStorage.getItem(DEBUG_DPR_KEY));
+      if (stored !== null) return stored;
+    } catch (_) {
+      /* ignore storage errors */
+    }
+    if (W.__ERRL_DEBUG && W.__ERRL_DEBUG.flags && typeof W.__ERRL_DEBUG.flags.dprCap === 'number') {
+      return normalizeDprCap(W.__ERRL_DEBUG.flags.dprCap);
+    }
+    return null;
+  }
+
+  function resolveResolution(cap) {
+    const limiter = cap !== null ? cap : 2;
+    return Math.min(limiter, W.devicePixelRatio || 1);
+  }
+
+  currentResolutionCap = readInitialDprCap();
+
   function serializeErrlSVGToURL(size = 512) {
     const svg = document.getElementById('errlInlineSVG') || document.querySelector('.errl-wrapper svg');
     if (!svg) return null;
@@ -147,12 +178,13 @@
     const view = getCanvas();
     if (!view || !W.PIXI) return;
 
+    const initialResolution = resolveResolution(currentResolutionCap);
     app = new PIXI.Application({
       view,
       backgroundAlpha: 0,
       antialias: true,
       autoDensity: true,
-      resolution: Math.min(2, W.devicePixelRatio || 1),
+      resolution: initialResolution,
       powerPreference: 'high-performance'
     });
 
@@ -519,4 +551,38 @@
   };
   W.errlGLSetOverlay = function(params){ if (!started) init(); if (!overlay) return; if ('alpha' in params) overlay.alpha = params.alpha; if (overlayFilter){ if ('dx' in params) overlayFilter.uniforms.uDX = params.dx; if ('dy' in params) overlayFilter.uniforms.uDY = params.dy; } };
   W.errlGLGetOverlay = function(){ if (!started) return null; return { alpha: overlay ? overlay.alpha : null, dx: overlayFilter ? overlayFilter.uniforms.uDX : null, dy: overlayFilter ? overlayFilter.uniforms.uDY : null }; };
+  W.errlGLSetDprCap = function(cap){
+    const normalized = normalizeDprCap(cap);
+    currentResolutionCap = normalized;
+    try {
+      if (normalized === null) {
+        localStorage.removeItem(DEBUG_DPR_KEY);
+      } else {
+        localStorage.setItem(DEBUG_DPR_KEY, String(normalized));
+      }
+    } catch (_) {
+      /* ignore */
+    }
+    if (W.__ERRL_DEBUG && W.__ERRL_DEBUG.flags) {
+      W.__ERRL_DEBUG.flags.dprCap = normalized;
+    }
+    if (!app) return;
+    const nextResolution = resolveResolution(currentResolutionCap);
+    app.renderer.resolution = nextResolution;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    app.renderer.resize(width, height);
+    const canvas = getCanvas();
+    if (canvas) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    setTimeout(() => {
+      try {
+        window.dispatchEvent(new Event('resize'));
+      } catch (e) {
+        /* ignore */
+      }
+    }, 0);
+  };
 })();

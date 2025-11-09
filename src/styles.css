@@ -46,6 +46,10 @@ a { color: inherit; text-decoration: none; }
 #bgParticles {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
   z-index: 0; /* L0: stars */
   background: transparent;
   pointer-events: none;
@@ -53,6 +57,10 @@ a { color: inherit; text-decoration: none; }
 #riseBubbles{
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
   z-index: 2; /* L2: rising background bubbles */
   pointer-events:none;
   background: transparent;
@@ -62,6 +70,10 @@ a { color: inherit; text-decoration: none; }
 .errl-webgl-layer {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
   z-index: 1; /* L1: behind rising canvas and scene */
   pointer-events: none;
   opacity: 0;
@@ -76,6 +88,10 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
 .scene-layer {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
   z-index: 3; /* L3: above rising canvas */
   pointer-events: none; /* bubbles will override this individually */
   isolation: isolate; /* Create new stacking context */

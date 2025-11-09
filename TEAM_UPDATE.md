@@ -57,8 +57,8 @@ Hue controller (`src/fx/hue-controller.ts`) spans the entire stack: applies CSS 
 - [ ] 4) Run the app and capture a strict baseline in Safari (layer count, memory, top offenders, reasons for compositing)
 - [x] 5) Inventory canvases and DOM layers with quick checks (see Layer inventory / DEV-SYSTEM-GUIDE.md update)
 - [x] 6) Map observed stack vs canonical layer order; list deltas (confirmed above)
-- [ ] 7) Add a lightweight debug harness with hard toggles (overlay/orbs/riseBubbles/vignette; renderer resolution)
-- [ ] 8) Enforce canonical canvas CSS and z-order (pointer-events:none; fixed sizing; z-index 0/1/2/3/4)
+- [x] 7) Add a lightweight debug harness with hard toggles (overlay/orbs/riseBubbles/vignette; renderer resolution)
+- [x] 8) Enforce canonical canvas CSS and z-order (pointer-events:none; fixed sizing; z-index 0/1/2/3/4)
 - [ ] 9) Audit PIXI stage structure and filter usage (ParticleContainer first; filters on fxRoot only)
 - [ ] 10) Eliminate duplicate canvases and fix HMR/unmount leaks (singleton init; robust destroy)
 - [ ] 11) Reduce CSS compositing triggers on wide surfaces (filters/backdrop-filter/mix-blend/will-change)
@@ -68,6 +68,11 @@ Hue controller (`src/fx/hue-controller.ts`) spans the entire stack: applies CSS 
 - [ ] 15) Protect visual priorities (Errl hero) while optimizing
 - [ ] 16) Push the branch and open a PR with checklist and before/after metrics
 - [ ] 17) Assign concrete subtasks to AI teammates (docs/perf/tasks-queue.md)
+
+## Artifacts / Logs
+- `docs/perf/2025-11-09-safari-layers/` — drop Safari layer screenshots here.
+- `docs/perf/2025-11-09-results.md` — metrics log template (baseline + iterations).
+- `docs/perf/tasks-queue.md` — task assignments/status.
 
 ## Console snippets (for baseline and quick inventory)
 ```js
@@ -96,12 +101,15 @@ Hue controller (`src/fx/hue-controller.ts`) spans the entire stack: applies CSS 
   .map(n => ({ node: n.id || n.className, z: getComputedStyle(n).zIndex, pos: getComputedStyle(n).position, filt: getComputedStyle(n).filter, mix: getComputedStyle(n).mixBlendMode }));
 ```
 
-## Immediate toggles (manual, until debug harness lands)
-- Hide rising bubbles: `document.getElementById('riseBubbles').style.display='none'`
-- Hide overlay vignette: `document.querySelector('.vignette-frame').style.display='none'`
-- Ensure WebGL active: `window.enableErrlGL && window.enableErrlGL()`
-- Lower overlay alpha: `window.errlGLSetOverlay && window.errlGLSetOverlay({ alpha: 0.1 })`
-- Reduce GL bubbles density: `window.errlGLSetBubbles && window.errlGLSetBubbles({ density: 0.6, alpha: 0.6 })`
+## Immediate toggles (via `window.errlDebug`)
+- `window.errlDebug.toggle('risingBubbles')` — hides/shows the DOM canvas (`#riseBubbles`)
+- `window.errlDebug.toggle('vignette')` — toggles `.vignette-frame`
+- `window.errlDebug.toggle('overlay')` — zeroes Pixi overlay alpha without losing the previous state
+- `window.errlDebug.toggle('orbs')` — hides Pixi nav orbs
+- `window.errlDebug.setDprCap(1.25)` — clamp WebGL DPR (pass `null` to restore default); use `{ reload: true }` if you want a hard reload
+- `window.errlDebug.log()` — quick sanity check before handing off to Warp
+
+*(Manual fallbacks remain available if needed: `document.getElementById('riseBubbles').style.display='none'`, etc.)*
 
 ## Done when
 - Safari Layers shows ≤10 layers, ≤250 MB at 1920×1080 with stable paints

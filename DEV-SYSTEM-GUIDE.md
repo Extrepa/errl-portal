@@ -17,6 +17,20 @@ This guide documents the *actual* development overlay that now ships with the po
 | **Portal phone UI** | `#errlPanel` | Classic panel (non-React) wired by `portal-app.js`; acts as the default control surface and shares the same globals as the dev panel. |
 | **Dev panel bootloader** | `src/devpanel/runtime.ts` + `registry.ts` | Only imported when `?devpanel=true` or `localStorage.errl_devpanel_auto === '1'`. Uses the registry to render controls on demand. |
 
+## 0.1 Debug Harness (Nov 2025)
+
+`portal-app.js` now installs a light-weight harness that exposes profiling toggles under `window.errlDebug` for Safari/perf work:
+
+| Method | Description |
+|--------|-------------|
+| `config()` | Returns a shallow copy of the current flag state. |
+| `set(name, value)` / `toggle(name)` | Supports `overlay`, `orbs`, `risingBubbles`, `vignette`. Flags persist to `localStorage.errl_debug_flags_v1`. |
+| `setDprCap(value, { reload })` | Caps the Pixi renderer DPR between `0.5`–`4`, or pass `null` to restore defaults (`min(devicePixelRatio, 2)`). Persists to `localStorage.errl_debug_dpr` and calls `window.errlGLSetDprCap`. Optional `{ reload: true }` forces a page reload after storing. |
+| `reset({ reload })` | Restores all flags to defaults and clears persisted overrides. |
+| `log()` | Console summary (helpful when handing off to Warp). |
+
+Plumbing added in `webgl.js` ensures `window.errlGLSetDprCap(cap)` applies the new resolution immediately and triggers a resize cycle so textures regenerate.
+
 ### Layer drill-down
 
 - **Ambient background (`ErrlBG`)**  

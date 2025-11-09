@@ -989,6 +989,207 @@
     }
   })();
 
+  // ------------------------------------------------------------
+  // Debug harness: toggle heavy layers / adjust DPR cap safely
+  // ------------------------------------------------------------
+  (function debugHarness(){
+    const DEBUG_KEY = 'errl_debug_flags_v1';
+    const DEFAULT_FLAGS = {
+      overlay: true,
+      orbs: true,
+      risingBubbles: true,
+      vignette: true,
+      dprCap: null,
+    };
+
+    let flags = { ...DEFAULT_FLAGS };
+    let overlayCache = null;
+
+    function loadFlags() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(DEBUG_KEY) || 'null');
+        if (stored && typeof stored === 'object') {
+          flags = { ...DEFAULT_FLAGS, ...stored };
+        }
+      } catch (_) {
+        flags = { ...DEFAULT_FLAGS };
+      }
+    }
+
+    function saveFlags() {
+      try {
+        localStorage.setItem(DEBUG_KEY, JSON.stringify(flags));
+      } catch (_) {
+        // ignore storage failures
+      }
+    }
+
+    loadFlags();
+
+    function withGL(fn, attempt = 0) {
+      if (typeof window.errlGLSetOverlay === 'function' || typeof window.errlGLShowOrbs === 'function') {
+        fn();
+        return;
+      }
+      if (attempt > 40) return;
+      setTimeout(() => withGL(fn, attempt + 1), 250);
+    }
+
+    function setOverlayEnabled(enabled) {
+      if (enabled) {
+        withGL(() => {
+          if (overlayCache && typeof overlayCache === 'object' && typeof overlayCache.alpha === 'number' && window.errlGLSetOverlay) {
+            window.errlGLSetOverlay(overlayCache);
+          }
+        });
+        return;
+      }
+      window.enableErrlGL && window.enableErrlGL();
+      withGL(() => {
+        if (!overlayCache && typeof window.errlGLGetOverlay === 'function') {
+          overlayCache = window.errlGLGetOverlay();
+        }
+        if (!overlayCache) overlayCache = { alpha: 0.28 };
+        window.errlGLSetOverlay && window.errlGLSetOverlay({ alpha: 0 });
+      });
+    }
+
+    function setOrbsEnabled(enabled) {
+      if (!enabled) {
+        withGL(() => window.errlGLShowOrbs && window.errlGLShowOrbs(false));
+        return;
+      }
+      window.enableErrlGL && window.enableErrlGL();
+      withGL(() => window.errlGLShowOrbs && window.errlGLShowOrbs(true));
+    }
+
+    function setRisingBubblesEnabled(enabled) {
+      const canvas = document.getElementById('riseBubbles');
+      if (canvas) canvas.style.display = enabled ? '' : 'none';
+    }
+
+    function setVignetteEnabled(enabled) {
+      document.querySelectorAll('.vignette-frame').forEach((el) => {
+        el.style.display = enabled ? '' : 'none';
+      });
+    }
+
+    function applyDprCap(cap, { persist = true } = {}) {
+      const numeric = typeof cap === 'number' && !Number.isNaN(cap)
+        ? Math.max(0.5, Math.min(4, cap))
+        : null;
+      flags.dprCap = numeric;
+      if (persist) saveFlags();
+      try {
+        if (numeric === null) {
+          localStorage.removeItem('errl_debug_dpr');
+        } else {
+          localStorage.setItem('errl_debug_dpr', String(numeric));
+        }
+      } catch (_) {
+        /* ignore */
+      }
+      if (typeof window.errlGLSetDprCap === 'function') {
+        window.errlGLSetDprCap(numeric);
+      }
+    }
+
+    function applyAllFlags() {
+      setOverlayEnabled(flags.overlay);
+      setOrbsEnabled(flags.orbs);
+      setRisingBubblesEnabled(flags.risingBubbles);
+      setVignetteEnabled(flags.vignette);
+      applyDprCap(flags.dprCap, { persist: false });
+    }
+
+    function applyFlag(name, value) {
+      switch (name) {
+        case 'overlay':
+          setOverlayEnabled(value);
+          break;
+        case 'orbs':
+          setOrbsEnabled(value);
+          break;
+        case 'risingBubbles':
+          setRisingBubblesEnabled(value);
+          break;
+        case 'vignette':
+          setVignetteEnabled(value);
+          break;
+        default:
+          break;
+      }
+    }
+
+    function setFlag(name, value) {
+      if (!(name in flags)) {
+        console.warn('[errlDebug] Unknown flag:', name);
+        return { ...flags };
+      }
+      if (name === 'dprCap') {
+        applyDprCap(value);
+        console.info('[errlDebug] DPR cap set to', value === null ? 'default' : value);
+        return { ...flags };
+      }
+      const boolValue = !!value;
+      flags[name] = boolValue;
+      saveFlags();
+      applyFlag(name, boolValue);
+      console.info('[errlDebug]', name, '=>', boolValue);
+      return { ...flags };
+    }
+
+    const debugAPI = {
+      config() {
+        return { ...flags };
+      },
+      set(name, value) {
+        return setFlag(name, value);
+      },
+      toggle(name) {
+        if (!(name in flags) || name === 'dprCap') return { ...flags };
+        return setFlag(name, !flags[name]);
+      },
+      setDprCap(value, { reload = false } = {}) {
+        applyDprCap(value);
+        if (reload) setTimeout(() => window.location.reload(), 50);
+        return { ...flags };
+      },
+      reset({ reload = false } = {}) {
+        flags = { ...DEFAULT_FLAGS };
+        overlayCache = null;
+        saveFlags();
+        try { localStorage.removeItem('errl_debug_dpr'); } catch (_) {}
+        applyAllFlags();
+        if (reload) setTimeout(() => window.location.reload(), 50);
+        return { ...flags };
+      },
+      log() {
+        console.table([{ ...flags }]);
+        return { ...flags };
+      },
+    };
+
+    try {
+      Object.defineProperty(window, 'errlDebug', {
+        value: debugAPI,
+        configurable: true,
+        enumerable: false,
+      });
+    } catch (e) {
+      window.errlDebug = debugAPI;
+    }
+
+    window.__ERRL_DEBUG = window.__ERRL_DEBUG || {};
+    window.__ERRL_DEBUG.flags = flags;
+
+    applyAllFlags();
+
+    if (!flags.overlay || !flags.orbs || !flags.risingBubbles || !flags.vignette || flags.dprCap !== null) {
+      console.info('[errlDebug] Active flags:', { ...flags });
+    }
+  })();
+
   // Lightweight dev panel bootstrap (only loads when requested)
   (function bootstrapDevPanel(){
     let auto = false;
