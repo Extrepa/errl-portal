@@ -60,6 +60,7 @@ Hue controller (`src/fx/hue-controller.ts`) spans the entire stack: applies CSS 
 - [x] 7) Add a lightweight debug harness with hard toggles (overlay/orbs/riseBubbles/vignette; renderer resolution)
 - [x] 8) Enforce canonical canvas CSS and z-order (pointer-events:none; fixed sizing; z-index 0/1/2/3/4)
 - [ ] 9) Audit PIXI stage structure and filter usage (ParticleContainer first; filters on fxRoot only)
+  - Stage graph documented in `docs/perf/2025-11-09-results.md`; overlay render texture + high-DPR surfaces flagged for follow-up
 - [ ] 10) Eliminate duplicate canvases and fix HMR/unmount leaks (singleton init; robust destroy)
 - [ ] 11) Reduce CSS compositing triggers on wide surfaces (filters/backdrop-filter/mix-blend/will-change)
 - [ ] 12) Clamp WebGL renderer resolution and texture memory (cap DPR to 1.0–1.5; debug override)
