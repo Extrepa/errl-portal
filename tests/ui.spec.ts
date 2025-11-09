@@ -68,13 +68,13 @@ test.describe('Core Portal Tests', () => {
     await page.goto(baseURL! + '/index.html');
     await page.waitForLoadState('networkidle');
     
-    // Check for canvas element
-    const canvas = page.locator('canvas');
+    // Check for primary WebGL canvas element
+    const canvas = page.locator('#errlWebGL');
     await expect(canvas).toBeVisible();
     
     // Verify WebGL context exists
     const hasWebGL = await page.evaluate(() => {
-      const canvas = document.querySelector('canvas');
+      const canvas = document.getElementById('errlWebGL') as HTMLCanvasElement | null;
       if (!canvas) return false;
       const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
       return !!gl;
@@ -92,8 +92,13 @@ test.describe('Effects System Tests', () => {
     await expect(page.locator('#hueTarget')).toBeVisible();
 
     // Select Navigation target
+    await page.waitForFunction(() => {
+      // @ts-ignore
+      return Boolean((window as any).ErrlHueController);
+    });
     await page.selectOption('#hueTarget', 'nav');
     await page.check('#hueEnabled');
+    await page.dispatchEvent('#hueEnabled', 'change');
 
     // Listen for one update event
     const gotEvent = page.evaluate(() => new Promise<boolean>((resolve) => {
@@ -110,14 +115,19 @@ test.describe('Effects System Tests', () => {
 
     await expect(gotEvent).resolves.toBeTruthy();
 
-    // Verify controller state reflects target
-    const state = await page.evaluate(() => {
+    // Wait until controller state reflects target
+    const stateHandle = await page.waitForFunction(() => {
       // @ts-ignore
       const hc = (window as any).ErrlHueController;
-      return hc ? { target: hc.currentTarget, st: hc.layers['nav'] } : null;
+      if (!hc) return null;
+      const layer = hc.layers?.nav;
+      if (!layer?.enabled) return null;
+      return { target: hc.currentTarget, st: { enabled: layer.enabled, hue: layer.hue } };
     });
+    const state = await stateHandle.jsonValue<{ target: string; st: { enabled: boolean; hue: number } } | null>();
     expect(state?.target).toBe('nav');
     expect(state?.st?.enabled).toBe(true);
+    expect(Math.round(state?.st?.hue ?? 0)).toBe(180);
   });
 
   test('@ui overlay sliders enable GL and update values', async ({ page, baseURL }) => {
@@ -152,7 +162,7 @@ test.describe('Page Navigation Tests', () => {
     await page.waitForLoadState('networkidle');
     
     // Check for Back to Portal link
-    const backLink = page.locator('a[href*="index.html"]');
+    const backLink = page.locator('a.errl-home-btn');
     await expect(backLink).toBeVisible();
     
     // Verify no critical errors
@@ -169,7 +179,7 @@ test.describe('Page Navigation Tests', () => {
     await page.waitForLoadState('networkidle');
     
     // Check for Back to Portal link
-    const backLink = page.locator('a[href*="index.html"]');
+    const backLink = page.locator('a.errl-home-btn');
     await expect(backLink).toBeVisible();
   });
 
@@ -178,7 +188,7 @@ test.describe('Page Navigation Tests', () => {
     await page.waitForLoadState('networkidle');
     
     // Check for Back to Portal link
-    const backLink = page.locator('a[href*="index.html"]');
+    const backLink = page.locator('a.errl-home-btn');
     await expect(backLink).toBeVisible();
   });
 });

@@ -1,6 +1,6 @@
 # 🎉 Team Update: New AI Development Safety System
 
-**Date:** January 2025  
+**Date:** November 2025  
 **Status:** ✅ Ready to Use
 
 ---
@@ -360,291 +360,212 @@ Happy building! 🚀
 
 ---
 
-# 🔧 Build and Test Status Update - 2025-11-08
+# 🔧 Build and Test Status Update - 2025-11-09
 
 **Branch:** `2025-11-07-oz3r-29bd4`  
-**Commit:** [`16cab44`](https://github.com/Extrepa/errl-portal/commit/16cab44)  
-**Status:** ⚠️ Pushed with Known Issues (App works, tooling needs fixes)
-
----
-
-## 📦 What Was Pushed
-
-### Major Changes (185 files, 20,995 additions, 1,099 deletions)
-- ✅ **AI Safety System** - Complete documentation and scripts
-- ✅ **Studio Rename** - Completed tools → studio throughout portal
-- ✅ **Shape Madness** - Extensive CSS examples and interactive demos
-- ✅ **Enhanced Tests** - Playwright tests for WebGL, effects, navigation, responsive
-- ✅ **React Entry Fix** - Fixed macOS case-sensitivity with explicit import
-- ✅ **Safety Scripts** - checkpoint.sh, rollback.sh, safety-check.sh, visual-test.sh
-- ✅ **CI Updates** - GitHub Actions workflow improvements
+**Commit:** `HEAD` (local)  
+**Status:** ✅ All checks green
 
 ---
 
 ## 🎯 Current Status
 
 | Check | Result | Details |
-|-------|--------|--------|
-| **Git Push** | ✅ DONE | Successfully pushed to GitHub |
-| **Build** | ✅ PASS | Vite build succeeds (with warnings) |
-| **TypeCheck** | ❌ FAIL | 1 TypeScript error |
-| **Tests** | ⚠️ PARTIAL | 7 of 12 tests passing (58%) |
-| **Runtime** | ✅ WORKS | App is functional and deploys |
+|-------|--------|---------|
+| **TypeCheck** | ✅ PASS | `npm run typecheck` |
+| **Tests** | ✅ PASS | `npm test` (12/12) |
+| **Build** | ✅ PASS | `npm run build` |
+| **Runtime** | ✅ WORKS | Portal + Studio load with safety defaults |
 
-**Overall Risk:** 🟡 **LOW-MEDIUM** - App works, issues are tooling/test quality
-
----
-
-## 🚨 Issues Found
-
-### BLOCKING (1 issue - 5 min fix)
-
-**1. TypeScript Import Extension Error**
-- **File:** `src/main.tsx:2`
-- **Error:** `Can't use .tsx extension without allowImportingTsExtensions`
-- **Root Cause:** Workaround for macOS case-insensitive filesystem (`app.js` vs `App.tsx` ambiguity)
-- **Fix:** Rename `src/app.js` → `src/appGlue.js` and change import to `import App from './App'`
-
-### HIGH Priority (5 issues - 20 min fix)
-
-**2. WebGL Canvas Test Selector**
-- **Test:** `tests/ui.spec.ts:67`
-- **Issue:** `locator('canvas')` matches 3 canvases
-- **Fix:** Change to `page.locator('#errlWebGL')`
-
-**3. Hue State Initialization**
-- **Test:** `tests/ui.spec.ts:88`
-- **Issue:** `state?.st?.enabled` is false, expected true
-- **Fix:** Investigate hue controller default state or add wait for initialization
-
-**4-6. Navigation Link Selectors (3 tests)**
-- **Tests:** about, gallery, projects pages (lines 150, 167, 176)
-- **Issue:** `locator('a[href*="index.html"]')` too broad (matches 8-15 links)
-- **Fix:** Use specific selector: `page.locator('a.errl-home-btn')`
-
-### MEDIUM Priority (4 issues - 1 hour fix)
-
-**7. Script Module Type Attributes**
-- Missing `type="module"` on script tags in `index.html` and `svg-colorer/index.html`
-- Scripts: `assets.js`, `bg-particles.js`, `rise-bubbles.js`, `app.js`
-
-**8. Deprecated Glob API**
-- Warning: `as: 'url'` → `query: '?url', import: 'default'`
-- Search codebase for glob imports and update syntax
-
-**9. Missing Build Assets**
-- `../../fx/errl-bg.css`, `assets/phone-bg.jpg`, `./portal/assets/L4_Central/errl-painted-2.svg`
-- May cause 404s at runtime
-
-**10. Case-Sensitivity Cleanup**
-- Standardize naming to avoid `app.js` vs `App.tsx` confusion on Linux/production
+**Overall Risk:** 🟢 **LOW** – Tooling and runtime verified end-to-end.
 
 ---
 
-## 📋 Fix Plan (5 Phases, ~2.5 hours)
+## ✅ Highlights Since Last Update
 
-### Phase 1: Critical Fixes (30 min) 🔴 HIGH PRIORITY
-
-```bash
-# 1. Fix TypeScript import
-mv src/app.js src/appGlue.js
-# Edit src/main.tsx: change import to './App' (no extension)
-# Edit any files importing app.js to use appGlue.js instead
-
-# 2. Fix test selectors
-# Edit tests/ui.spec.ts:
-# - Line 72: change locator('canvas') → locator('#errlWebGL')
-# - Lines 155, 172, 181: change locator('a[href*="index.html"]') → locator('a.errl-home-btn')
-
-# 3. Investigate hue state
-# Debug why state.st.enabled is false or update test expectation
-
-# Verify fixes
-npm run typecheck  # Should pass now
-npm test          # Should pass 12/12
-```
-
-**Checklist:**
-- [ ] Rename `app.js` → `appGlue.js`
-- [ ] Update `main.tsx` import to `./App` (no extension)
-- [ ] Update references to `app.js` → `appGlue.js`
-- [ ] Fix WebGL canvas test selector
-- [ ] Fix 3 navigation link test selectors
-- [ ] Debug/fix hue state test
-- [ ] Verify `npm run typecheck` passes
-- [ ] Verify `npm test` shows 12/12 passing
-
-### Phase 2: Test Stabilization (20 min) 🔴 HIGH PRIORITY
-
-```bash
-# Run full test suite
-npm test
-
-# If hue test still fails, document expected behavior
-# Add comments to test explaining any known quirks
-```
-
-**Checklist:**
-- [ ] All 12 tests passing consistently
-- [ ] Document any test quirks in comments
-- [ ] Verify tests pass in CI environment
-
-### Phase 3: Build Warnings (45 min) 🟡 MEDIUM PRIORITY
-
-```bash
-# 1. Add type="module" to script tags
-# Edit src/index.html - add type="module" to:
-#    <script src="./assets.js" type="module">
-#    <script src="./bg-particles.js" type="module">
-#    <script src="./rise-bubbles.js" type="module">
-# Edit src/portal/pages/studio/svg-colorer/index.html similarly
-
-# 2. Update glob imports
-grep -r "as:.*url" src/
-# Update imports from: import.meta.glob('...', { as: 'url' })
-# To: import.meta.glob('...', { query: '?url', import: 'default' })
-
-# 3. Verify asset paths
-find src/ -name "errl-bg.css" -o -name "phone-bg.jpg" -o -name "errl-painted-2.svg"
-# Fix any broken references
-```
-
-**Checklist:**
-- [ ] Add `type="module"` to all script tags
-- [ ] Update glob API usage
-- [ ] Verify all asset paths exist
-- [ ] Run build and verify warnings reduced
-
-### Phase 4: Code Quality (30 min) 🟡 MEDIUM PRIORITY
-
-```bash
-# 1. Verify studio rename complete
-grep -r "tools" src/ --exclude-dir=node_modules | grep -v studio
-# Fix any remaining tools→studio references
-
-# 2. Verify Errl asset paths
-grep -r "errl-face" src/ --exclude-dir=node_modules
-# Ensure using errl-face-2.svg for coin/about
-# Ensure using main body SVG for hero
-
-# 3. Update .gitignore (already done)
-# .reports/ added
-```
-
-**Checklist:**
-- [ ] Complete tools→studio rename verification
-- [ ] Verify Errl asset references correct
-- [ ] Ensure .gitignore includes .reports/
-
-### Phase 5: Documentation (15 min) 🟢 LOW PRIORITY
-
-```bash
-# 1. Update README.md with current commands
-# Document: npm run dev, build, test, typecheck, safety-check
-
-# 2. Update WARP.md
-# Add concrete commands discovered
-
-# 3. Link reports in TEAM_UPDATE.md (this file)
-# Already done!
-```
-
-**Checklist:**
-- [ ] Update README.md with dev commands
-- [ ] Update WARP.md with concrete workflow
-- [ ] Ensure all docs are current
+- Renamed portal runtime to `portal-app.js` to eliminate `App.tsx` collision on case-sensitive systems.
+- Converted legacy entry scripts (`assets.js`, `bg-particles.js`, `rise-bubbles.js`) to ESM, satisfying Vite bundling.
+- Hardened Playwright suite with precise selectors and Hue controller waits (all 12 tests passing).
+- Confirmed safety pipeline: `npm test && npm run typecheck && npm run build` all green locally (latest run: 2025‑11‑09).
+- Published dev panel registry hooks for Nav Orbit + Rising Bubbles so the overlay can drive live portal controls (`window.errlNavControls`, `window.errlRisingBubbles`).
 
 ---
 
-## 🎯 Success Criteria
+## 🗺️ Action Plan (Nov 2025)
 
-### Minimum Viable (Phase 1-2 Complete)
-- ✅ TypeScript compiles (`npm run typecheck` passes)
-- ✅ Build succeeds with no errors
-- ✅ All 12 tests pass (`npm test` passes)
-- ✅ App runs in dev and production
+1. **Stabilize Tooling Warnings** — ✅ Completed 2025-11-09
+   - Refactor remaining `import.meta.glob({ as: 'url' })` calls to the new `query: '?url', import: 'default'` signature.
+   - Audit build-time asset references (`errl-bg.css`, `phone-bg.jpg`, `errl-painted-2.svg`) and either copy them into the Vite graph or annotate as intentional runtime fetches.
+   - Track progress via `npm run build` until the warnings disappear.
 
-### Full Success (All Phases Complete)
-- ✅ Zero TypeScript errors
-- ✅ All tests green (12/12)
-- ✅ Build warnings at acceptable baseline
-- ✅ Assets verified and paths correct
-- ✅ Documentation updated
-- ✅ CI pipeline clean
+2. **Rebuild Development System (Design → Implementation)**
+   - ✅ Surface live portal selectors + APIs in `DEV-SYSTEM-GUIDE.md` (Nov 2025 architecture snapshot).
+   - ✅ Publish registry setters for Nav Orbit + Rising Bubbles (`errlNavControls`, `errlRisingBubbles`) and register them in the overlay (2025-11-09).
+   - 🔜 Build minimal vertical slice: element selection + hue sync + layer overview.
+   - 🔜 Decide delivery model (separate dev bundle vs. lazy-loaded `?dev=true` module).
+   - 🔜 Iterate toward full panel (FX library, presets, undo/redo) and document in `DEV-SYSTEM-GUIDE.md`.
 
----
+3. **Deployment Verification**
+   - Trigger GitHub Pages workflow via push to `main` and manual `workflow_dispatch` to ensure both paths succeed post-yaml changes.
+   - Capture logs, update TEAM_UPDATE.md with outcome, and add an automated smoke test checklist.
 
-## 📊 Detailed Reports
+4. **Experience QA**
+   - Run `npm run visual-test` and capture the guided walkthrough results.
+   - Schedule one manual mobile/tablet pass to confirm layering fixes and new menu links hold up.
 
-Comprehensive analysis and logs available in `.reports/2025-11-08/`:
+5. **Documentation Sweep**
+   - Sync `README.md`, `WORKFLOW_GUIDE.md`, and `AI_DEVELOPMENT_GUIDE.md` with the new safety workflow and tooling status.
+   - Note Dev System status (design vs. implemented) so expectations match reality.
 
-- **README.md** - Executive summary (start here)
-- **BUILD_STATUS_UPDATE.md** - Full remediation plan
-- **issues-summary.md** - Technical issue breakdown
-- **typecheck.log** - TypeScript output
-- **build.log** - Vite build output
-- **test.log** - Playwright test results
+6. **Optional Enhancements**
+   - Explore automating `npm run safety-check` inside the GitHub Pages workflow for extra guardrails.
+   - Draft ADR covering the decision to split portal runtime (`portal-app.js`) from React `App.tsx`.
 
-**View reports:**
-```bash
-cd .reports/2025-11-08
-cat README.md
-```
+Owners and timing can flex, but sequencing in this order keeps production stable while we design the Dev Tools reboot.
 
 ---
 
-## 🚀 Next Actions
+## 🔭 Next Steps
 
-### Immediate (Today)
-1. Review this update
-2. Execute Phase 1 (critical fixes - 30 min)
-3. Verify typecheck + tests pass
-4. Push fixes to GitHub
-
-### This Week
-1. Complete Phase 2 (test stabilization)
-2. Complete Phase 3 (build warnings)
-3. Complete Phase 4 (code quality)
-4. Optional: Create GitHub tracking issue
-
-### This Month
-1. Complete Phase 5 (documentation)
-2. Review and enhance safety guides
-3. Add pre-commit hooks
-4. Plan next sprint
-
----
-
-## 💡 Key Takeaways
-
-### What Went Well ✅
-- Successfully implemented comprehensive AI safety system
-- Build and deploy pipeline operational
-- Most tests passing (7/12 = 58%)
-- Clear issues with straightforward fixes
-- No runtime bugs identified
-
-### What Needs Immediate Attention ⚠️
-- TypeScript import path (5 min fix)
-- Test selectors too broad (15 min fix)
-- Build warnings accumulating (cleanup needed)
-
-### Lessons Learned
-- macOS case-insensitive filesystem causes `app.js`/`App.tsx` confusion
-- Explicit file extensions in TypeScript imports require special config
-- Test selectors should be specific, not generic
-- Build warnings should be addressed promptly
+- Finish the dev panel MVP slice (element inspector + hue sync status) and capture the plan in `DEV-SYSTEM-GUIDE.md`.
+- Run `npm run visual-test` to baseline the refreshed portal controls, then schedule a manual mobile/tablet QA sweep.
+- Trigger both GitHub Pages deployment paths (auto + manual) and log results in this report.
+- Keep running `npm run safety-check`, `npm run test`, and `npm run build` after meaningful changes.
 
 ---
 
 ## 📞 Contact & Resources
 
-- **GitHub Commit:** https://github.com/Extrepa/errl-portal/commit/16cab44
-- **GitHub Branch:** https://github.com/Extrepa/errl-portal/tree/2025-11-07-oz3r-29bd4
-- **Report Location:** `.reports/2025-11-08/`
-- **Last Updated:** 2025-11-08
+- **GitHub Branch:** https://github.com/Extrepa/errl-portal/tree/2025-11-07-oz3r-29bd4  
+- **Last Updated:** 2025-11-09
 
 ---
 
-*Last updated: January 2025*
 
+# 🔄 Branch Divergence Status - 2025-11-09 02:11 UTC
+
+**Situation:** Our working branch and `main` have diverged after the PR merge.
+
+## 📊 Current State
+
+### Our Branch (`2025-11-07-oz3r-29bd4`)
+- ✅ **All checks passing** (TypeCheck, Build, Tests 12/12)
+- ✅ **AI Safety System** complete with docs and scripts
+- ✅ **Studio naming** standardized (tools → studio throughout)
+- ✅ **Shape Madness** content integrated
+- ✅ **Enhanced test suite** with Playwright
+- ✅ **Build system fixes** (portal-app.js, ESM scripts)
+- 📍 **Common ancestor:** `b6b7a81`
+
+### Main Branch (`origin/main`)
+- ⚠️ **Diverged from our branch** after merge
+- 🔄 **Reverted to "tools" naming** (studio → tools)
+- ➕ **New content:** Math Lab page (`tools/math-lab/index.html`, 3,218 lines)
+- ➕ **New docs:** `docs/math-lab-plan.md` (88 effects roadmap)
+- ❌ **Missing:** AI safety docs, Shape Madness content, studio naming
+- ❌ **Removed:** TEAM_UPDATE.md, AI guides, enhanced tests
+
+### Divergence Summary
+**190 files changed** between branches:
+- **28,932 deletions** on main (our safety system, studio content removed)
+- **4,354 insertions** on main (Math Lab added, tools restored)
+
+---
+
+## 🚀 Recommended Action: Merge Main Into Our Branch
+
+**Why:** Brings Math Lab content while preserving all our work and fixes.
+
+```bash
+# 1. Backup current state
+git branch backup/2025-11-09-pre-merge
+
+# 2. Merge main
+git merge origin/main
+
+# 3. Resolve conflicts (expect):
+#    - tools vs studio directory naming
+#    - TEAM_UPDATE.md (keep ours + add Math Lab section)
+#    - Keep our: AI docs, Shape Madness, test fixes, portal-app.js
+
+# 4. Standardize naming: Move tools/math-lab → studio/math-lab
+mv src/portal/pages/tools/math-lab src/portal/pages/studio/math-lab
+# Update index.html nav links to point to studio/math-lab
+
+# 5. Verify
+npm run typecheck && npm test && npm run build
+
+# 6. Commit
+git add -A
+git commit -m "chore: merge main, integrate Math Lab to studio, preserve safety system"
+git push
+```
+
+---
+
+## 📋 Integration Checklist
+
+### Merge Phase
+- [ ] Create backup branch: `git branch backup/2025-11-09-pre-merge`
+- [ ] Merge main: `git merge origin/main`
+- [ ] Resolve conflicts: Keep studio naming, preserve AI docs
+- [ ] Integrate Math Lab: Move to `studio/math-lab/`
+- [ ] Update navigation links in `src/index.html`
+
+### Verification Phase
+- [ ] Run `npm run typecheck` (should pass)
+- [ ] Run `npm test` (should show 12/12)
+- [ ] Run `npm run build` (should succeed)
+- [ ] Manual check: Visit localhost:5173 and test Math Lab link
+
+### Documentation Phase
+- [ ] Add Math Lab section to TEAM_UPDATE.md
+- [ ] Update WARP.md with studio structure
+- [ ] Update README.md with Math Lab info
+- [ ] Commit and push: `git push origin 2025-11-07-oz3r-29bd4`
+
+---
+
+## 🎯 Key Decisions Made
+
+1. **Naming Convention:** Stick with `studio` (consistent with project rules)
+2. **Content Strategy:** Keep safety system + integrate Math Lab
+3. **Merge Strategy:** Merge main into our branch (Option 1)
+4. **Timeline:** Execute merge ASAP to unblock progress
+
+---
+
+## 📊 After Merge
+
+### Expected State
+- ✅ All our work preserved (safety docs, tests, fixes)
+- ✅ Math Lab integrated under `studio/math-lab/`
+- ✅ Consistent `studio` naming throughout
+- ✅ All checks passing
+- ✅ Ready for deployment
+
+### Math Lab Status
+- 📁 **Location:** `src/portal/pages/studio/math-lab/index.html`
+- 📄 **Plan:** `docs/math-lab-plan.md` (88 effects, 60-70 hour roadmap)
+- 🎯 **Phase 1:** 8 simple CSS/Canvas effects (2-3 hours)
+- 📈 **Total:** 12 phases covering fractals, noise, particles, attractors, etc.
+
+---
+
+## 🚀 Next Actions (Immediate)
+
+1. **Execute merge** (follow checklist above)
+2. **Resolve conflicts** (favor our branch, integrate Math Lab)
+3. **Verify all checks** (typecheck, tests, build)
+4. **Update docs** (TEAM_UPDATE, WARP, README)
+5. **Push to GitHub**
+6. **Deploy to verify** (optional: trigger GitHub Pages)
+
+---
+
+**Status:** 📋 Ready to merge - awaiting execution  
+**Priority:** 🔴 HIGH - blocks further development  
+**Estimated time:** ~1 hour (merge + verification + docs)  
+**Updated:** 2025-11-09 02:11 UTC
+
+---

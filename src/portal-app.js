@@ -444,7 +444,11 @@
   });
 
   // Rotate Skins - load randomly from assets folder (with globbed user overrides)
-  const userSkinGlob = import.meta.glob('./assets/orb-skins/**/*.{png,jpg,jpeg,webp,avif,gif,svg}', { eager: true, as: 'url' });
+  const userSkinGlob = import.meta.glob('./assets/orb-skins/**/*.{png,jpg,jpeg,webp,avif,gif,svg}', {
+    eager: true,
+    import: 'default',
+    query: '?url'
+  });
   const userSkins = Object.values(userSkinGlob);
   const defaultSkins = [
     './assets/fx/Orb_NeedsFriends.png',
@@ -929,5 +933,20 @@
     if (toTop){
       toTop.addEventListener('click', (e)=>{ e.stopPropagation(); panel.scrollTo({ top: 0, behavior: 'smooth' }); });
     }
+  })();
+
+  // Lightweight dev panel bootstrap (only loads when requested)
+  (function bootstrapDevPanel(){
+    let auto = false;
+    try {
+      auto = localStorage.getItem('errl_devpanel_auto') === '1';
+    } catch (e) {
+      auto = false;
+    }
+    const params = new URLSearchParams(window.location.search);
+    if (!auto && !params.has('devpanel')) return;
+    import('./devpanel/runtime.ts')
+      .then((mod) => mod.mountDevPanel())
+      .catch((err) => console.warn('[devpanel] failed to mount', err));
   })();
 })();

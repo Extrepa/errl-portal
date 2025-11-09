@@ -61,11 +61,7 @@ body {
   display: flex;
   flex-direction: column;
   /* Layered background: image + subtle dark overlay */
-  background:
-    linear-gradient(180deg, rgba(8,12,22,.72), rgba(8,12,22,.72)),
-    url('assets/phone-bg.jpg');
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(180deg, rgba(8,12,22,.82), rgba(8,12,22,.74));
   border: 1px solid #22304a;
   border-radius: 16px;
   box-shadow: 0 16px 40px rgba(0,0,0,.55);
