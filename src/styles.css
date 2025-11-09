@@ -110,11 +110,11 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   top: 50%;
   width: clamp(520px, 44vmin, 940px);
   height: clamp(560px, 48vmin, 1080px);
-  background: radial-gradient(circle at 50% 30%, rgba(180,0,255,0.6) 0%, rgba(0,0,0,0) 70%);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(220,130,255,0.35) 0%, rgba(60,0,120,0.18) 38%, rgba(0,0,0,0) 72%);
   transform: translate(-50%, -40%) scale(1,1.1);
   filter: blur(48px);
-  mix-blend-mode: screen;
-  opacity: 0.6;
+  opacity: 0.55;
   pointer-events: none;
   z-index: 0; /* Goo aura behind Errl */
   border-radius: 45% 55% 60% 40% / 40% 50% 55% 45%;
@@ -189,10 +189,9 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 /* Masked aura that follows Errl shape */
 .errl-aura-mask{
   position:absolute; inset:0; margin:auto; pointer-events:none;
-  background: radial-gradient(circle at 50% 35%, rgba(160,0,180,0.7) 0%, rgba(0,0,0,0) 66%);
+  background: radial-gradient(circle at 50% 35%, rgba(210,120,255,0.28) 0%, rgba(90,40,150,0.16) 36%, rgba(0,0,0,0) 68%);
   filter: blur(36px);
-  mix-blend-mode: screen;
-  opacity: .6;
+  opacity: .62;
   z-index: -1; /* Behind Errl image */
   -webkit-mask-image: url('./portal/pages/studio/pin-widget/ErrlPin.Widget/errl-painted-2.svg');
   -webkit-mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; -webkit-mask-position: center;
@@ -202,8 +201,10 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 
 .errl-pool{
   position:absolute; left:50%; top:78%; width: 56%; height: 10%; transform: translateX(-50%);
-  background: radial-gradient(ellipse at center, rgba(90,50,140,0.25) 0%, rgba(0,0,0,0) 70%);
-  opacity: .7; mix-blend-mode: screen; border-radius: 50% / 60%;
+  background:
+    radial-gradient(ellipse at center, rgba(140,90,200,0.24) 0%, rgba(30,0,60,0.18) 36%, rgba(0,0,0,0) 72%);
+  opacity: .68;
+  border-radius: 50% / 60%;
   z-index: 0; /* Behind Errl image */
 }
 

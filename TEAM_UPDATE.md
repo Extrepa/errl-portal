@@ -65,6 +65,7 @@ Hue controller (`src/fx/hue-controller.ts`) spans the entire stack: applies CSS 
   - Stage graph documented in `docs/perf/2025-11-09-results.md`; overlay render texture + high-DPR surfaces flagged for follow-up
 - [ ] 10) Eliminate duplicate canvases and fix HMR/unmount leaks (singleton init; robust destroy)
 - [ ] 11) Reduce CSS compositing triggers on wide surfaces (filters/backdrop-filter/mix-blend/will-change)
+  - Removed `mix-blend-mode` from `.errl-goo`, `.errl-aura-mask`, `.errl-pool` and brightened gradients to keep the glow without extra Safari backing layers
 - [ ] 12) Clamp WebGL renderer resolution and texture memory (cap DPR to 1.0–1.5; debug override)
   - Safari-aware DPR policy + debug override flow documented under “DPR Clamp & Resize Guard Plan” and implemented in `src/webgl.js` (awaiting measurement)
 - [ ] 13) Harden resize logic; avoid 0-size thrash (throttle, guards)
