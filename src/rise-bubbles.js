@@ -3,7 +3,8 @@
   const cvs = document.getElementById('riseBubbles');
   if (!cvs) return;
   const ctx = cvs.getContext('2d');
-  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  const RB_DPR_CAP = /\bSafari\b/.test(ua) && !/\bChrome\b/.test(ua) && !/\bChromium\b/.test(ua) && !/\bAndroid\b/.test(ua) ? 1.5 : 2;
 
   const RB = {
     speed: 1.0,
@@ -44,11 +45,16 @@
 
   function resize(){
     const w = innerWidth, h = innerHeight;
-    cvs.width = Math.max(1, Math.floor(w * DPR));
-    cvs.height = Math.max(1, Math.floor(h * DPR));
+    if (w < 2 || h < 2) {
+      setTimeout(queueResize, 120);
+      return;
+    }
+    const dpr = Math.min(window.devicePixelRatio || 1, RB_DPR_CAP);
+    cvs.width = Math.max(1, Math.floor(w * dpr));
+    cvs.height = Math.max(1, Math.floor(h * dpr));
     cvs.style.width = w+'px';
     cvs.style.height = h+'px';
-    ctx.setTransform(DPR,0,0,DPR,0,0);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
     rebuild();
   }
 
@@ -253,8 +259,17 @@
       RB.ripples.push({x:e.clientX, y:e.clientY, r:4, a:RING_ALPHA}); 
     }
   });
-  addEventListener('resize', resize);
+  let resizeRAF = null;
+  function queueResize(){
+    if (resizeRAF != null) return;
+    resizeRAF = requestAnimationFrame(() => {
+      resizeRAF = null;
+      resize();
+    });
+  }
 
-  resize();
+  addEventListener('resize', queueResize);
+
+  queueResize();
   requestAnimationFrame(loop);
 })();

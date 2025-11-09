@@ -17,13 +17,31 @@
   let overlay = null;
   let overlayFilter = null;
   let fxRoot = null;
+  let scheduleRendererResize = null;
 
   function getCanvas() {
     return document.getElementById('errlWebGL');
   }
 
   const DEBUG_DPR_KEY = 'errl_debug_dpr';
-  let currentResolutionCap = null;
+  const AUTO_DPR_KEY = 'errl_debug_dpr_auto';
+  const MAX_DEFAULT_DPR = 2;
+  const SAFARI_DPR_CAP = 1.5;
+
+  let currentResolutionCap = null; // user override
+  let autoResolutionCap = null;    // computed per browser
+
+  function isSafari(){
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent;
+    return /\bSafari\b/.test(ua) && !/\bChrome\b/.test(ua) && !/\bChromium\b/.test(ua) && !/\bAndroid\b/.test(ua);
+  }
+
+  function computeAutoResolutionCap(){
+    const cap = isSafari() ? SAFARI_DPR_CAP : MAX_DEFAULT_DPR;
+    try { localStorage.setItem(AUTO_DPR_KEY, String(cap)); } catch (_) {}
+    return cap;
+  }
 
   function normalizeDprCap(value) {
     if (value === null || value === undefined) return null;
@@ -47,10 +65,11 @@
   }
 
   function resolveResolution(cap) {
-    const limiter = cap !== null ? cap : 2;
+    const limiter = cap !== null ? cap : (autoResolutionCap ?? MAX_DEFAULT_DPR);
     return Math.min(limiter, W.devicePixelRatio || 1);
   }
 
+  autoResolutionCap = computeAutoResolutionCap();
   currentResolutionCap = readInitialDprCap();
 
   function serializeErrlSVGToURL(size = 512) {
@@ -157,21 +176,30 @@
     return Math.max(360, Math.min(900, Math.floor(Math.max(r.width, r.height))));
   }
 
+  let overlayRenderTexture = null;
   function gradientTexture(w, h){
-    const g = new PIXI.Graphics();
-    const grd = new PIXI.Graphics();
-    const rt = PIXI.RenderTexture.create({width:w, height:h, resolution:1});
-    const c = new PIXI.Container();
-    // background radial gradient using multiple rects approximated
+    if (!app || !app.renderer) return null;
+    if (overlayRenderTexture && overlayRenderTexture.width === w && overlayRenderTexture.height === h) {
+      return overlayRenderTexture;
+    }
+    if (overlayRenderTexture){
+      overlayRenderTexture.destroy(true);
+      overlayRenderTexture = null;
+    }
+    overlayRenderTexture = PIXI.RenderTexture.create({ width: w, height: h, resolution: 1 });
+    const container = new PIXI.Container();
     const bg = new PIXI.Graphics();
     bg.beginFill(0x000000, 0.0).drawRect(0,0,w,h).endFill();
-    c.addChild(bg);
-    const mid = new PIXI.Graphics(); mid.beginFill(0xffffff, 0.12).drawCircle(w*0.5, h*0.45, Math.max(w,h)*0.25).endFill(); c.addChild(mid);
-    const halo = new PIXI.Graphics(); halo.beginFill(0xff00ff, 0.05).drawCircle(w*0.5, h*0.45, Math.max(w,h)*0.35).endFill(); c.addChild(halo);
-    const appTmp = app || new PIXI.Application({width:w, height:h, backgroundAlpha:0});
-    appTmp.renderer.render(c, { renderTexture: rt });
-    if(!app) appTmp.destroy(true);
-    return rt;
+    container.addChild(bg);
+    const mid = new PIXI.Graphics();
+    mid.beginFill(0xffffff, 0.12).drawCircle(w*0.5, h*0.45, Math.max(w,h)*0.25).endFill();
+    container.addChild(mid);
+    const halo = new PIXI.Graphics();
+    halo.beginFill(0xff00ff, 0.05).drawCircle(w*0.5, h*0.45, Math.max(w,h)*0.35).endFill();
+    container.addChild(halo);
+    app.renderer.render(container, { renderTexture: overlayRenderTexture, clear: true });
+    container.destroy({ children: true, texture: true, baseTexture: true });
+    return overlayRenderTexture;
   }
 
   function init() {
@@ -179,10 +207,16 @@
     const view = getCanvas();
     if (!view || !W.PIXI) return;
 
-    const overrideRes = (typeof W.__ERRL_RES_OVERRIDE === 'number' && isFinite(W.__ERRL_RES_OVERRIDE)) ? W.__ERRL_RES_OVERRIDE : null;
-    const limiter = (typeof currentResolutionCap === 'number' && isFinite(currentResolutionCap)) ? currentResolutionCap : 1.0; // default 1.0 cap
-    const baseRes = Math.min((W.devicePixelRatio || 1), limiter);
-    const effectiveRes = (overrideRes != null ? overrideRes : baseRes);
+    const overrideRes = (typeof W.__ERRL_RES_OVERRIDE === 'number' && isFinite(W.__ERRL_RES_OVERRIDE))
+      ? Math.max(0.5, Math.min(MAX_DEFAULT_DPR, W.__ERRL_RES_OVERRIDE))
+      : null;
+    const manualCap = (typeof currentResolutionCap === 'number' && isFinite(currentResolutionCap))
+      ? currentResolutionCap
+      : null;
+    const effectiveRes = overrideRes != null ? overrideRes : resolveResolution(manualCap);
+    try {
+      console.log('[errlGL] init renderer resolution:', effectiveRes.toFixed(2), '(override:', overrideRes, 'manualCap:', manualCap, 'autoCap:', autoResolutionCap, ')');
+    } catch (_) {}
 
     app = new PIXI.Application({
       view,
@@ -275,7 +309,7 @@
       buildOrbs(orbTex);
 
       // Overlay gradient + displacement
-      const gradTex = gradientTexture(innerWidth, innerHeight);
+      const gradTex = gradientTexture(innerWidth, innerHeight) || PIXI.Texture.EMPTY;
       overlay = new PIXI.Sprite(gradTex); overlay.alpha = 0.20; overlay.blendMode = PIXI.BLEND_MODES.SCREEN; fxRoot.addChild(overlay);
       overlayFilter = new PIXI.Filter(vert, `
         precision mediump float;
@@ -362,10 +396,20 @@
       window.addEventListener('pointerleave', ()=>{ if(overlayFilter){ overlayFilter.uniforms.uAmp = 0.0; }});
 
       // keep centered/resized
-      const onResize = () => {
-        const w = Math.max(0, window.innerWidth|0);
-        const h = Math.max(0, window.innerHeight|0);
-        if (!w || !h) { requestAnimationFrame(onResize); return; }
+      let resizeRAF = null;
+      let pendingWidth = innerWidth|0;
+      let pendingHeight = innerHeight|0;
+      const RESIZE_RETRY_DELAY = 120;
+      const MIN_SIZE = 2;
+
+      const applyResize = () => {
+        resizeRAF = null;
+        const w = Math.max(0, pendingWidth|0);
+        const h = Math.max(0, pendingHeight|0);
+        if (w < MIN_SIZE || h < MIN_SIZE) {
+          setTimeout(() => queueResize(), RESIZE_RETRY_DELAY);
+          return;
+        }
         view.width = w;
         view.height = h;
         app.renderer.resize(w, h);
@@ -381,11 +425,25 @@
           filter.uniforms.uResolution = new PIXI.Point(app.renderer.width, app.renderer.height);
         }
         if (overlay) {
-          overlay.texture = gradientTexture(app.renderer.width, app.renderer.height);
-          overlay.width = app.renderer.width; overlay.height = app.renderer.height;
+          const tex = gradientTexture(app.renderer.width, app.renderer.height);
+          if (tex) {
+            overlay.texture = tex;
+            overlay.width = app.renderer.width;
+            overlay.height = app.renderer.height;
+          }
         }
       };
-      window.addEventListener('resize', onResize);
+
+      const queueResize = () => {
+        pendingWidth = window.innerWidth;
+        pendingHeight = window.innerHeight;
+        if (resizeRAF != null) return;
+        resizeRAF = requestAnimationFrame(applyResize);
+      };
+
+      scheduleRendererResize = queueResize;
+      window.addEventListener('resize', queueResize);
+      queueResize();
 
       // Register hue control layers if available
       if (window.ErrlHueController) {
@@ -562,15 +620,6 @@
     else if (kind==='custom' && url) l.set({ textureUrl: url });
   };
   W.errlGLSetOverlay = function(params){ if (!started) init(); if (!overlay) return; if ('alpha' in params) overlay.alpha = params.alpha; if (overlayFilter){ if ('dx' in params) overlayFilter.uniforms.uDX = params.dx; if ('dy' in params) overlayFilter.uniforms.uDY = params.dy; } };
-  W.errlGLSetDprCap = function(val){
-    const num = (val == null) ? null : Math.max(0.5, Math.min(4, Number(val)));
-    currentResolutionCap = num;
-    if (app && app.renderer) {
-      const res = (num == null) ? Math.min((W.devicePixelRatio || 1), 1.0) : Math.min((W.devicePixelRatio || 1), num);
-      app.renderer.resolution = res;
-      app.renderer.resize(innerWidth, innerHeight);
-    }
-  };
   W.errlGLGetOverlay = function(){ if (!started) return null; return { alpha: overlay ? overlay.alpha : null, dx: overlayFilter ? overlayFilter.uniforms.uDX : null, dy: overlayFilter ? overlayFilter.uniforms.uDY : null }; };
   W.errlGLSetDprCap = function(cap){
     const normalized = normalizeDprCap(cap);
@@ -584,26 +633,29 @@
     } catch (_) {
       /* ignore */
     }
+    if (normalized === null) {
+      autoResolutionCap = computeAutoResolutionCap();
+    }
     if (W.__ERRL_DEBUG && W.__ERRL_DEBUG.flags) {
       W.__ERRL_DEBUG.flags.dprCap = normalized;
     }
-    if (!app) return;
+    if (!app || !app.renderer) return;
     const nextResolution = resolveResolution(currentResolutionCap);
     app.renderer.resolution = nextResolution;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    app.renderer.resize(width, height);
-    const canvas = getCanvas();
-    if (canvas) {
-      canvas.width = width;
-      canvas.height = height;
-    }
-    setTimeout(() => {
-      try {
-        window.dispatchEvent(new Event('resize'));
-      } catch (e) {
-        /* ignore */
+    try {
+      console.log('[errlGL] resolution set to', nextResolution.toFixed(2), 'cap=', currentResolutionCap, 'auto=', autoResolutionCap);
+    } catch (_) {}
+    if (scheduleRendererResize) {
+      scheduleRendererResize();
+    } else {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      app.renderer.resize(width, height);
+      const canvas = getCanvas();
+      if (canvas) {
+        canvas.width = width;
+        canvas.height = height;
       }
-    }, 0);
+    }
   };
 })();
