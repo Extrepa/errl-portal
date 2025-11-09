@@ -79,6 +79,32 @@
   /* Dev-only FPS overlay */
   .fps-overlay{ position:fixed; right:.5rem; bottom:.5rem; z-index:9999; background:rgba(10,12,18,.85); color:#bfe4ff; border:1px solid #16304d; border-radius:.5rem; padding:.35rem .5rem; font:600 12px/1 ui-monospace; box-shadow:0 4px 16px rgba(0,0,0,.4) }
 
+  /* Two‑pane shell */
+  .lab-shell{ display:grid; grid-template-columns: 320px 1fr; gap:.75rem; padding:.75rem }
+  .lab-sidebar{ background:var(--card); border:1px solid #0d1522; border-radius:.8rem; overflow:hidden; display:flex; flex-direction:column; min-height:60vh }
+  .lab-sidehdr{ padding:.6rem .75rem; border-bottom:1px solid #0d1522; display:flex; gap:.5rem; align-items:center }
+  .lab-search{ flex:1; background:#0c1420; border:1px solid #0e1a2a; border-radius:.5rem; color:var(--ink); padding:.45rem .6rem }
+  .lab-cats{ display:flex; flex-wrap:wrap; gap:.4rem; padding:.5rem .75rem; border-bottom:1px solid #0d1522 }
+  .lab-cat{ appearance:none; border:0; border-radius:999px; padding:.35rem .6rem; font-weight:600; background:#0c1420; color:#cfe3ff }
+  .lab-cat.active{ background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#04101a }
+  .lab-list{ list-style:none; margin:0; padding:.25rem 0; overflow:auto }
+  .lab-item{ display:flex; justify-content:space-between; align-items:center; gap:.5rem; width:100%; text-align:left; background:transparent; color:var(--ink); padding:.45rem .75rem; border:0 }
+  .lab-item:hover{ background:#0f1420 }
+  .lab-item small{ color:var(--mut) }
+
+  .lab-preview{ background:var(--card); border:1px solid #0d1522; border-radius:.8rem; overflow:hidden }
+  .lab-prevhdr{ padding:.75rem 1rem; border-bottom:1px solid #0d1522; display:flex; align-items:center; justify-content:space-between }
+  .lab-prevhdr h2{ margin:0; font-size:1rem }
+
+  /* Hide legacy bar/panels in two‑pane mode */
+  .bar, #panels{ display:none }
+
+  @media (max-width: 900px){
+    .lab-shell{ grid-template-columns: 1fr; }
+    .lab-sidebar{ order:2 }
+    .lab-preview{ order:1 }
+  }
+
 </style>
 </head>
 <body>
@@ -95,8 +121,31 @@
     </div>
   </header>
 
-<div class="bar" id="tabs"></div>
+<div class="lab-shell">
+  <aside class="lab-sidebar">
+    <div class="lab-sidehdr">
+      <input id="labSearch" class="lab-search" type="search" placeholder="Search effects…" />
+    </div>
+    <div id="labCats" class="lab-cats"></div>
+    <ul id="labList" class="lab-list"></ul>
+  </aside>
+  <main class="lab-preview">
+    <div class="lab-prevhdr">
+      <h2 id="labTitle">Select an effect</h2>
+      <div id="labMeta" style="color:var(--mut); font-weight:600"></div>
+    </div>
+    <div class="wrap" id="labPreview">
+      <header style="padding:.8rem 1rem; border-bottom:1px solid #0d1522; display:flex; align-items:center; justify-content:space-between; gap:.5rem">
+        <div id="tools-active" class="tools"></div>
+      </header>
+      <div class="stage" id="stage-active"></div>
+      <pre class="code" id="code-active"></pre>
+    </div>
+  </main>
+</div>
 
+<!-- Legacy (hidden) -->
+<div class="bar" id="tabs"></div>
 <div class="wrap" id="panels"></div>
 
 <script>
@@ -185,6 +234,86 @@ function appendTool(id,node){ document.getElementById('tools-'+id).appendChild(n
 function setCode(id,src){ document.getElementById('code-'+id).textContent = src.trim(); }
 
 /* ---------- DEV FLAGS & HELPERS ---------- */
+
+/* Two‑pane helpers */
+const LAB = { catsEl:null, listEl:null, searchEl:null, previewEl:null, titleEl:null, metaEl:null, activeId:null, filter:'All', query:'' };
+
+function ensureLabRefs(){
+  LAB.catsEl = LAB.catsEl || document.getElementById('labCats');
+  LAB.listEl = LAB.listEl || document.getElementById('labList');
+  LAB.searchEl = LAB.searchEl || document.getElementById('labSearch');
+  LAB.previewEl = LAB.previewEl || document.getElementById('labPreview');
+  LAB.titleEl = LAB.titleEl || document.getElementById('labTitle');
+  LAB.metaEl = LAB.metaEl || document.getElementById('labMeta');
+}
+
+function categorize(spec){
+  const k = spec.key;
+  if(/newton|fern|koch|dragon|hilbert|lorenz|ikeda|flames|lichtenberg/.test(k)) return 'Fractals & Chaos';
+  if(/perlin|fbm|marble|worley|quasicrystal|interference|contours|nebula/.test(k)) return 'Noise & Procedural';
+  if(/supershape|lissajous|superellipse|conics|polar-roses|spirograph|phase-carpets/.test(k)) return 'Geometry & Curves';
+  if(/conformal-grid|iso-cubes|bitmask|primes|quilt|warp-grid|escher|penrose/.test(k)) return 'Grids & Tilings';
+  if(/curl|circle-pack|magnetic|nbody|voronoi|delaunay|voronoi-pulse/.test(k)) return 'Fields & Particles';
+  if(/rule110|automaton/.test(k)) return 'Cellular Automata';
+  if(/sdf|raymarch|shadow|polar-zipper/.test(k)) return 'SDF & Raymarch';
+  if(/chromaburst|soap|conic|mask|moire|sinewarp|radial-weave|impossible|svg-mesh/.test(k)) return 'SVG/CSS FX';
+  if(/domain-coloring|roots|logo-melt/.test(k)) return 'Complex Analysis';
+  return 'Misc';
+}
+
+function buildCategories(specs){
+  const set = new Set(['All']);
+  specs.forEach(s=> set.add(categorize(s)) );
+  return Array.from(set);
+}
+
+function renderCats(specs){
+  ensureLabRefs();
+  const cats = buildCategories(specs);
+  LAB.catsEl.innerHTML = cats.map(c=>`<button class="lab-cat ${c===LAB.filter?'active':''}" data-cat="${c}">${c}</button>`).join('');
+  LAB.catsEl.querySelectorAll('button').forEach(btn=>{
+    btn.onclick = ()=>{ LAB.filter = btn.dataset.cat; renderList(specs); };
+  });
+}
+
+function renderList(specs){
+  ensureLabRefs();
+  const q = LAB.query.toLowerCase();
+  const items = specs.filter(s=>
+    (LAB.filter==='All' || categorize(s)===LAB.filter) &&
+    (!q || (s.title||'').toLowerCase().includes(q) || (s.desc||'').toLowerCase().includes(q))
+  ).sort((a,b)=>a.id-b.id);
+  LAB.listEl.innerHTML = items.map(s=>`<li><button class="lab-item" data-id="${s.id}"><span>${s.id}. ${s.title||s.key}</span><small>${categorize(s)}</small></button></li>`).join('');
+  LAB.listEl.querySelectorAll('button.lab-item').forEach(btn=>{
+    btn.onclick = ()=> activatePreview(parseInt(btn.dataset.id,10));
+  });
+}
+
+function activatePreview(id){
+  ensureLabRefs();
+  const spec = registry.find(r=>r.id===id) || specs.find(r=>r.id===id);
+  if(!spec) return;
+  LAB.activeId = id;
+  LAB.titleEl.textContent = `${id}. ${spec.title || spec.key}`;
+  LAB.metaEl.textContent = categorize(spec);
+  // Clear preview and create containers with expected ids
+  LAB.previewEl.innerHTML = `
+    <header style="padding:.8rem 1rem; border-bottom:1px solid #0d1522; display:flex; align-items:center; justify-content:space-between; gap:.5rem">
+      <div id="tools-${id}" class="tools"></div>
+    </header>
+    <div class="stage" id="stage-${id}"></div>
+    <pre class="code" id="code-${id}"></pre>
+  `;
+  // Create panel shell so existing activate() can init
+  const ghost = document.createElement('section'); ghost.id = `panel-${id}`; ghost.className='panel active'; ghost.dataset.init='';
+  LAB.previewEl.appendChild(ghost);
+  activate(id);
+}
+
+function wireSearch(specs){
+  ensureLabRefs();
+  LAB.searchEl.oninput = (e)=>{ LAB.query = e.target.value || ''; renderList(specs); };
+}
 
 function isFlagEnabled(name){
   try{
@@ -7183,7 +7312,19 @@ const specs = [
 
 /* Register all specs */
 
-for(const s of specs) addSpec(s);
+// Populate registry and render two‑pane UI instead of building 100 panels upfront
+try {
+  // keep registry in sync
+  registry.splice(0, registry.length, ...specs);
+  renderCats(specs);
+  wireSearch(specs);
+  renderList(specs);
+  // Deep link support
+  const p = new URLSearchParams(location.search);
+  const start = p.get('effect');
+  const firstId = start ? parseInt(start,10) : (specs[0]?.id);
+  if(firstId) activatePreview(firstId);
+} catch(e) { console.warn('Math Lab two‑pane init failed', e); }
 
 /* ---------- SIMPLE PLACEHOLDER INIT FOR MANY KEYS ---------- */
 
