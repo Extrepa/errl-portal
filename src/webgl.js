@@ -178,15 +178,22 @@
     const view = getCanvas();
     if (!view || !W.PIXI) return;
 
-    const initialResolution = resolveResolution(currentResolutionCap);
+    const overrideRes = (W as any).__ERRL_RES_OVERRIDE;
+    const baseRes = Math.min((W.devicePixelRatio || 1), 1.5);
+    const effectiveRes = (typeof overrideRes === 'number' && isFinite(overrideRes) ? overrideRes : baseRes);
+
     app = new PIXI.Application({
       view,
       backgroundAlpha: 0,
       antialias: true,
       autoDensity: true,
-      resolution: initialResolution,
+      resolution: effectiveRes,
       powerPreference: 'high-performance'
     });
+
+    // Ensure zIndex works and expose app for debug harness
+    app.stage.sortableChildren = true;
+    W.__ErrlPIXIApp = app;
 
     const url = getErrlTextureURL();
     if (!url) return;
@@ -354,9 +361,12 @@
 
       // keep centered/resized
       const onResize = () => {
-        view.width = window.innerWidth;
-        view.height = window.innerHeight;
-        app.renderer.resize(window.innerWidth, window.innerHeight);
+        const w = Math.max(0, window.innerWidth|0);
+        const h = Math.max(0, window.innerHeight|0);
+        if (!w || !h) { requestAnimationFrame(onResize); return; }
+        view.width = w;
+        view.height = h;
+        app.renderer.resize(w, h);
         if (sprite) {
           sprite.x = app.renderer.width / 2;
           sprite.y = app.renderer.height / 2;
