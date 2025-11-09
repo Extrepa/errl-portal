@@ -4983,11 +4983,11 @@ inits["sdf-play"]=({id})=>{
 
         const hue=(dist*5+params.time*50)%360;
 
-        const h=hue/60, c2=0.7, l=v/255*0.4+0.3, X=c2*(1-Math.abs((h%2)-1)), m=l-c2/2;
+        const h=hue/60, chroma=0.7, l=v/255*0.4+0.3, X=chroma*(1-Math.abs((h%2)-1)), m=l-chroma/2;
 
         let r=0,g=0,b=0;
 
-        if(h<1){r=c2;g=X}else if(h<2){r=X;g=c2}else if(h<3){g=c2;b=X}else if(h<4){g=X;b=c2}else if(h<5){r=X;b=c2}else{r=c2;b=X}
+        if(h<1){r=chroma;g=X}else if(h<2){r=X;g=chroma}else if(h<3){g=chroma;b=X}else if(h<4){g=X;b=chroma}else if(h<5){r=X;b=chroma}else{r=chroma;b=X}
 
         d[i]=(r+m)*255; d[i+1]=(g+m)*255; d[i+2]=(b+m)*255; d[i+3]=255;
 
