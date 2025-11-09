@@ -5049,11 +5049,11 @@ inits["sdf-play"]=({id})=>{
 
         const c2=circleSDF(x,y, cx-Math.cos(params.time)*50, cy-Math.sin(params.time)*50, 40);
 
-        const b=boxSDF(x,y, cx, cy, 60, 60);
+        const boxv=boxSDF(x,y, cx, cy, 60, 60);
 
         let dist=smoothUnion(c1,c2,params.blend);
 
-        dist=smoothUnion(dist,b,params.blend);
+        dist=smoothUnion(dist,boxv,params.blend);
 
         const v=Math.abs(dist)<2?255:Math.max(0,255-Math.abs(dist)*5);
 
