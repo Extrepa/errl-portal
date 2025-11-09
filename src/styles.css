@@ -312,12 +312,11 @@ body.perf-safe *::after {
   height: min(340px, calc(100vh - 80px));
   overflow-x: hidden; /* prevent horizontal scroll */
   overflow-y: auto;  /* vertical scroll for long tabs */
-  background: rgba(10,10,20,0.6);
+  background: linear-gradient(180deg, rgba(12,12,22,0.9), rgba(12,12,22,0.78));
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: rgba(255,255,255,0.4) transparent;
   border-radius: 12px;
   padding: 16px;
-  backdrop-filter: blur(20px) brightness(1.2);
   box-shadow:
     0 20px 60px rgba(0,0,0,0.8),
     0 0 30px rgba(120,80,255,0.5),

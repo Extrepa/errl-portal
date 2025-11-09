@@ -52,11 +52,10 @@ function ensureStyles() {
       z-index: 4000;
       width: min(320px, calc(100vw - 32px));
       border-radius: 16px;
-      background: rgba(5, 8, 18, 0.92);
+      background: linear-gradient(180deg, rgba(7, 10, 22, 0.94), rgba(7, 10, 22, 0.82));
       color: #f2f5ff;
       box-shadow: 0 20px 45px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08);
       font: 500 13px/1.4 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      backdrop-filter: blur(18px);
       border: 1px solid rgba(255,255,255,0.08);
       display: flex;
       flex-direction: column;
