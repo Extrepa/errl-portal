@@ -22,6 +22,7 @@ let root: HTMLElement | null = null;
 let builtInsRegistered = false;
 let snapshotPending: DevPanelSnapshot | null = null;
 let syncInterval: number | null = null;
+let safetyKeyHandler: ((event: KeyboardEvent) => void) | null = null;
 
 const controlInputs = new Map<string, HTMLInputElement>();
 const controlValueLabels = new Map<string, HTMLElement>();
@@ -31,6 +32,7 @@ export function mountDevPanel() {
   ensureStyles();
   root = buildShell();
   document.body.appendChild(root);
+  installSafetyFeatures(root);
   hookGlobalActions(root);
   hookAutoToggle(root);
   listenToControls(root);
@@ -148,8 +150,45 @@ function ensureStyles() {
       font-size: 12px;
       padding: 24px 0;
     }
+    .errl-devpanel.is-hidden {
+      display: none !important;
+    }
+    .errl-devpanel.is-clickthrough {
+      pointer-events: none !important;
+      opacity: 0.6;
+      transition: opacity 160ms ease;
+    }
+    .errl-devpanel.is-clickthrough * {
+      pointer-events: none !important;
+    }
   `;
   document.head.appendChild(style);
+}
+
+function installSafetyFeatures(container: HTMLElement) {
+  container.classList.remove('is-hidden', 'is-clickthrough');
+  if (safetyKeyHandler) {
+    window.removeEventListener('keydown', safetyKeyHandler);
+  }
+  safetyKeyHandler = (event: KeyboardEvent) => {
+    if (!event.altKey || event.metaKey || event.ctrlKey) return;
+    if (event.code === 'KeyD') {
+      const hidden = container.classList.toggle('is-hidden');
+      try {
+        console.info(`[devpanel] panel ${hidden ? 'hidden' : 'shown'} (Alt+D)`);
+      } catch (_) {}
+      event.preventDefault();
+      return;
+    }
+    if (event.code === 'KeyP') {
+      const clickthrough = container.classList.toggle('is-clickthrough');
+      try {
+        console.info(`[devpanel] panel ${clickthrough ? 'set to click-through' : 'interactive'} (Alt+P)`);
+      } catch (_) {}
+      event.preventDefault();
+    }
+  };
+  window.addEventListener('keydown', safetyKeyHandler, { passive: false });
 }
 
 function buildShell() {
@@ -599,6 +638,10 @@ export function destroyDevPanel() {
   if (root) {
     root.remove();
     root = null;
+  }
+  if (safetyKeyHandler) {
+    window.removeEventListener('keydown', safetyKeyHandler);
+    safetyKeyHandler = null;
   }
   controlInputs.clear();
   controlValueLabels.clear();
