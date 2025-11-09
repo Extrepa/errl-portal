@@ -8,12 +8,64 @@ This guide documents the *actual* development overlay that now ships with the po
 
 | Layer | Selector / Hook | Notes |
 |-------|-----------------|-------|
-| **Background canvases** | `#bgParticles`, `#riseBubbles` | Plain 2D canvas effects (`src/bg-particles.js`, `src/rise-bubbles.js`). Controlled via panel sliders (`rb*`, `bg*` inputs). |
-| **WebGL overlay** | `#errlWebGL` + PIXI runtime (`window.errlGL*`, `window.enableErrlGL`) | Lazily initialised; exposes setters for goo, overlay, orbit scale, burst, etc. |
-| **Scene DOM** | `.scene-layer`, `.errl-wrapper`, `.nav-orbit .bubble` | Positions nav bubbles, toggles hidden Games orb on Shift +B, applies audio + glow via `portal-app.js`. |
-| **Hue system** | `window.ErrlHueController` (`src/fx/hue-controller.ts`) | Manages global hue timeline and per-layer hue targets. Dev panel scrubs `master.baseHue`. |
-| **React overlay** | `#errlPanel` (portal phone UI) | Driven by `portal-app.js` DOM bindings; not part of dev panel but shares sliders and toggles the same globals. |
-| **Dev panel bootloader** | `src/devpanel/runtime.ts` + `registry.ts` | Loaded only when `?devpanel=true` or `localStorage.errl_devpanel_auto === '1'`. Renders controls from registry. |
+| **Ambient background** | `.errl-bg .base`, `.errl-bg .shimmer`, `.errl-bg .vignette` | Injected by `ErrlBG.mount()` (`src/fx/errl-bg.ts`) when the Shimmer toggle is on. Provides the static gradient + shimmer + HUD drip shell. |
+| **Background canvases** | `#bgParticles`, `#riseBubbles` | `src/bg-particles.js` paints a starfield (no globals). `src/rise-bubbles.js` drives the rising bubbles canvas and publishes `window.errlRisingBubbles` (speed/density/alpha setters). |
+| **Vignette frame** | `.vignette-frame` | DOM overlay whose opacity/color are bound to the panel sliders in `portal-app.js`. |
+| **WebGL overlay** | `#errlWebGL` + PIXI runtime (`window.enableErrlGL`, `window.errlGL*`) | Lazily initialised. Exposes `errlGLSetGoo`, `errlGLSetOverlay`, `errlGLSetBubbles`, `errlGLSyncOrbs`, `errlGLBurst`, etc. Registers `window.__ErrlWebGL` for hue filter registration. |
+| **Scene DOM** | `.scene-layer`, `.errl-wrapper`, `.nav-orbit .bubble` | Main DOM presentation layer. `portal-app.js` handles orbit math, audio, goo toggles, Shift +B games bubble toggle, and publishes `window.errlNavControls`. |
+| **Hue system** | `window.ErrlHueController` (`src/fx/hue-controller.ts`) | One controller per logical layer (`background`, `riseBubbles`, `errl`, `nav`, `glOverlay`, `bgBubbles`). Applies CSS filters and registers WebGL hue filters when available. |
+| **Portal phone UI** | `#errlPanel` | Classic panel (non-React) wired by `portal-app.js`; acts as the default control surface and shares the same globals as the dev panel. |
+| **Dev panel bootloader** | `src/devpanel/runtime.ts` + `registry.ts` | Only imported when `?devpanel=true` or `localStorage.errl_devpanel_auto === '1'`. Uses the registry to render controls on demand. |
+
+### Layer drill-down
+
+- **Ambient background (`ErrlBG`)**  
+  - Mount: `ErrlBG.mount({ shimmer, parallax, hud, basePath })`. Default call happens at portal load when the Shimmer toggle is checked.  
+  - Structure: `.errl-bg` root with `.layer.base`, `.layer.shimmer`, `.layer.vignette`; optional `.errl-hud` drip banner.  
+  - Motion: pointer parallax loop (requestAnimationFrame) lives inside `ErrlBG.mount`.  
+
+- **`#bgParticles` (L0)**  
+  - Module: `src/bg-particles.js`.  
+  - Behaviour: paints lighter “star” speckles with additive blending; automatically resizes to viewport.  
+  - External API: none; reads no globals.  
+
+- **`#riseBubbles` (L1)**  
+  - Module: `src/rise-bubbles.js`.  
+  - Behaviour: canvas particle simulation with pointer attraction, ripple rings, jumbo bubbles.  
+  - Dev hooks: publishes `window.errlRisingBubbles` (`getState`, `setSpeed`, `setDensity`, `setAlpha`) used by the dev panel registry.  
+  - Persists: reads/writes `localStorage.errl_rb_settings`.  
+
+- **`.vignette-frame` (L2)**  
+  - Controlled exclusively by `portal-app.js`. Vignette opacity and color respond to `#vignette*` inputs; stored in-line (not persisted).  
+
+- **`#errlWebGL` (L3)**  
+  - Module: `src/webgl.js` (PixiJS).  
+  - Entry: `window.enableErrlGL()` lazily initialises Pixi. Subsequent helpers (`window.errlGLSetGoo`, `errlGLSetOverlay`, `errlGLSetBubbles`, `errlGLShowOrbs`, `errlGLSyncOrbs`, `errlGLBurst`, etc.) mutate uniforms and containers.  
+  - Hue integration: registers hue filters via `window.__ErrlWebGL = { overlay, bubbles }`, which `ErrlHueController` consumes.  
+  - Orbs: maintains a Pixi container that mirrors the DOM nav orbit; `portal-app.js` keeps the positions in sync.  
+
+- **Scene DOM / phone panel (L4)**  
+  - `portal-app.js` wires:  
+    - Nav orbit math (`updateBubbles`) and publishes `window.errlNavControls` (speed/radius/scale + games toggle).  
+    - Rising bubbles + WebGL slider bindings, burst button, randomisers, accessibility toggles, snapshot/export helpers.  
+    - Background toggles (`shimmerToggle`, `vignette*`).  
+  - Persists settings through various `localStorage` keys (`errl_gl_overlay`, `errl_gl_bubbles`, `errl_nav_goo_cfg`, `errl_rb_settings`, `errl_goo_cfg`, `errl_a11y`).  
+
+- **Hue controller (cross-cutting)**  
+  - Module: `src/fx/hue-controller.ts`.  
+  - Manages CSS filters for DOM selectors and optional PIXI hue filters for overlay/background bubbles.  
+  - Global API: `window.ErrlHueController` (timeline scrub, per-layer enable/hue/sat/intensity).  
+  - Dev panel: registry polls `ErrlHueController.master.baseHue` and exposes `Hue Timeline`.  
+
+- **Dev panel (`src/devpanel/runtime.ts`)**  
+  - Boot gating: only imports when `?devpanel=true` query or `errl_devpanel_auto === '1'`.  
+  - Registry: built-ins for hue timeline, WebGL goo intensity, nav orbit (`window.errlNavControls`), and rising bubbles (`window.errlRisingBubbles`).  
+  - Snapshot: saves to `localStorage.errl_devpanel_snapshot`; exposes download/export.  
+
+- **Hue-aware WebGL filters (`src/fx/hue-filter.ts`)**  
+  - Waits for `window.PIXI` before registering `PIXI.filters.HueRotationFilter`.  
+  - Applied by `ErrlHueController` once WebGL refs are registered.  
+
 
 **Gating:** `src/portal-app.js` checks for the query/localStorage flags and dynamic-imports `devpanel/runtime`. Production bundles stay lean because the module is tree-shaken unless the flag is present.
 
