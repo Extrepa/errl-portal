@@ -81,16 +81,29 @@
 
   /* Two‑pane shell */
   .lab-shell{ display:grid; grid-template-columns: 320px 1fr; gap:.75rem; padding:.75rem }
-  .lab-sidebar{ background:var(--card); border:1px solid #0d1522; border-radius:.8rem; overflow:hidden; display:flex; flex-direction:column; min-height:60vh }
+  .lab-sidebar{ background:var(--card); border:1px solid #0d1522; border-radius:.8rem; overflow:hidden; display:flex; flex-direction:column; min-height:60vh; max-height:calc(100vh - 140px) }
   .lab-sidehdr{ padding:.6rem .75rem; border-bottom:1px solid #0d1522; display:flex; gap:.5rem; align-items:center }
   .lab-search{ flex:1; background:#0c1420; border:1px solid #0e1a2a; border-radius:.5rem; color:var(--ink); padding:.45rem .6rem }
   .lab-cats{ display:flex; flex-wrap:wrap; gap:.4rem; padding:.5rem .75rem; border-bottom:1px solid #0d1522 }
   .lab-cat{ appearance:none; border:0; border-radius:999px; padding:.35rem .6rem; font-weight:600; background:#0c1420; color:#cfe3ff }
   .lab-cat.active{ background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#04101a }
-  .lab-list{ list-style:none; margin:0; padding:.25rem 0; overflow:auto }
+  .lab-list{ list-style:none; margin:0; padding:.25rem 0; overflow:auto; flex:1 }
   .lab-item{ display:flex; justify-content:space-between; align-items:center; gap:.5rem; width:100%; text-align:left; background:transparent; color:var(--ink); padding:.45rem .75rem; border:0 }
   .lab-item:hover{ background:#0f1420 }
+  .lab-item[aria-current="true"]{ background:#112033 }
   .lab-item small{ color:var(--mut) }
+  .lab-row{ display:flex; align-items:center; gap:.6rem }
+  .lab-av{ width:22px; height:22px; border-radius:50%; display:inline-block; }
+  .av-fractals{ background:radial-gradient(circle at 30% 30%, #ff7ad9, #6b00ff) }
+  .av-noise{ background:radial-gradient(circle at 30% 70%, #6ef, #2b6) }
+  .av-geom{ background:radial-gradient(circle at 70% 30%, #ffd166, #ef476f) }
+  .av-grids{ background:radial-gradient(circle at 50% 50%, #a0f, #09f) }
+  .av-fields{ background:radial-gradient(circle at 40% 60%, #5df, #0bf) }
+  .av-ca{ background:radial-gradient(circle at 50% 50%, #9cf, #69f) }
+  .av-sdf{ background:radial-gradient(circle at 60% 40%, #f9f, #f6a) }
+  .av-css{ background:radial-gradient(circle at 60% 40%, #9f9, #3c6) }
+  .av-complex{ background:radial-gradient(circle at 40% 60%, #fda, #f86) }
+  .av-misc{ background:radial-gradient(circle at 40% 60%, #ccc, #666) }
 
   .lab-preview{ background:var(--card); border:1px solid #0d1522; border-radius:.8rem; overflow:hidden }
   .lab-prevhdr{ padding:.75rem 1rem; border-bottom:1px solid #0d1522; display:flex; align-items:center; justify-content:space-between; gap:.5rem }
@@ -280,9 +293,9 @@ function buildCategories(specs){
 function renderCats(specs){
   ensureLabRefs();
   const cats = buildCategories(specs);
-  LAB.catsEl.innerHTML = cats.map(c=>`<button class="lab-cat ${c===LAB.filter?'active':''}" data-cat="${c}">${c}</button>`).join('');
+  LAB.catsEl.innerHTML = cats.map(c=>`<button class=\"lab-cat ${c===LAB.filter?'active':''}\" data-cat=\"${c}\">${c}</button>`).join('');
   LAB.catsEl.querySelectorAll('button').forEach(btn=>{
-    btn.onclick = ()=>{ LAB.filter = btn.dataset.cat; renderList(specs); };
+    btn.onclick = ()=>{ LAB.filter = btn.dataset.cat; renderCats(specs); renderList(specs); };
   });
 }
 
@@ -293,7 +306,21 @@ function renderList(specs){
     (LAB.filter==='All' || categorize(s)===LAB.filter) &&
     (!q || (s.title||'').toLowerCase().includes(q) || (s.desc||'').toLowerCase().includes(q))
   ).sort((a,b)=>a.id-b.id);
-  LAB.listEl.innerHTML = items.map(s=>`<li><button class="lab-item" data-id="${s.id}"><span>${s.id}. ${s.title||s.key}</span><small>${categorize(s)}</small></button></li>`).join('');
+  LAB.listEl.innerHTML = items.map((s,idx)=>{
+    const cat = categorize(s);
+    const labelNum = LAB.filter==='All' ? s.id : (idx+1);
+    const avClass = cat.startsWith('Fractals')?'av-fractals':
+      cat.startsWith('Noise')?'av-noise':
+      cat.startsWith('Geometry')?'av-geom':
+      cat.startsWith('Grids')?'av-grids':
+      cat.startsWith('Fields')?'av-fields':
+      cat.startsWith('Cellular')?'av-ca':
+      cat.startsWith('SDF')?'av-sdf':
+      cat.startsWith('SVG')?'av-css':
+      cat.startsWith('Complex')?'av-complex':'av-misc';
+    const current = String(LAB.activeId)===String(s.id);
+    return `<li><button class=\"lab-item\" data-id=\"${s.id}\" aria-current=\"${current}\"><span class=\"lab-row\"><span class=\"lab-av ${avClass}\"></span><span>${labelNum}. ${s.title||s.key}</span></span><small>${cat}</small></button></li>`;
+  }).join('');
   LAB.listEl.querySelectorAll('button.lab-item').forEach(btn=>{
     btn.onclick = ()=> activatePreview(parseInt(btn.dataset.id,10));
   });
@@ -348,17 +375,10 @@ function wireHeader(specs){
 (function installRAFGuard(){
   const origRAF = window.requestAnimationFrame.bind(window);
   const origCancel = window.cancelAnimationFrame.bind(window);
-  const seen = new WeakMap(); // cb -> { wrapped }
   window.requestAnimationFrame = function(cb){
-    let meta = seen.get(cb);
-    if(!meta){
-      const wrapped = function(ts){ if (this.__lab_serial === LAB.serial) cb(ts); };
-      wrapped.__lab_serial = LAB.serial;
-      meta = { wrapped };
-      seen.set(cb, meta);
-    }
-    // if we switch effects, update nothing—old wrapped keeps its serial
-    return origRAF(meta.wrapped);
+    const serialAtSchedule = LAB.serial;
+    const wrapped = function(ts){ if (serialAtSchedule === LAB.serial) cb(ts); };
+    return origRAF(wrapped);
   };
   window.cancelAnimationFrame = function(id){ return origCancel(id); };
 })();
