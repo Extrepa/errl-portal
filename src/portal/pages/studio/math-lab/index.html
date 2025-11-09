@@ -76,6 +76,9 @@
   .errl-bubble-btn.active::before{ background: radial-gradient(circle at 0% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 25% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 75% 50%, rgba(255,255,255,0.8) 0%, transparent 25%), radial-gradient(circle at 100% 50%, rgba(255,255,255,0.8) 0%, transparent 25%); background-size:20% 100%; animation: led-pulse 1s ease-in-out infinite alternate; opacity:.9; }
   @keyframes led-pulse{ 0%{opacity:.5} 100%{opacity:1} }
 
+  /* Dev-only FPS overlay */
+  .fps-overlay{ position:fixed; right:.5rem; bottom:.5rem; z-index:9999; background:rgba(10,12,18,.85); color:#bfe4ff; border:1px solid #16304d; border-radius:.5rem; padding:.35rem .5rem; font:600 12px/1 ui-monospace; box-shadow:0 4px 16px rgba(0,0,0,.4) }
+
 </style>
 </head>
 <body>
@@ -97,6 +100,16 @@
 <div class="wrap" id="panels"></div>
 
 <script>
+
+(function(){
+  try{
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', ()=>{ try{ setupFPSOverlay(); }catch(e){ console.warn('FPS overlay init failed', e); } });
+    } else {
+      setupFPSOverlay();
+    }
+  }catch(e){ console.warn('FPS overlay init failed', e); }
+})();
 
 /* ---------- UTILITIES ---------- */
 
@@ -138,6 +151,19 @@ function addSpec(spec){
 
   panels.appendChild(p);
 
+  // Dev-only: add Export button when enabled via ?export=1 or localStorage mathlab_export=1
+  try{
+    if(isFlagEnabled('export')){
+      const btn=document.createElement('button');
+      btn.className='tool';
+      btn.type='button';
+      btn.textContent='Export';
+      btn.title='Download PNG (canvas) or SVG (vector) depending on the effect';
+      btn.onclick=()=>exportStage(spec.id, spec.title);
+      appendTool(spec.id, btn);
+    }
+  }catch(e){ console.warn('Export button init failed', e); }
+
 }
 
 function activate(id){
@@ -157,6 +183,58 @@ function appendStage(id,node){ document.getElementById('stage-'+id).appendChild(
 function appendTool(id,node){ document.getElementById('tools-'+id).appendChild(node); }
 
 function setCode(id,src){ document.getElementById('code-'+id).textContent = src.trim(); }
+
+/* ---------- DEV FLAGS & HELPERS ---------- */
+
+function isFlagEnabled(name){
+  try{
+    const p=new URLSearchParams(location.search);
+    return p.has(name) || localStorage.getItem('mathlab_'+name)==='1';
+  }catch(e){ return false; }
+}
+
+function downloadFile(filename, blobOrDataUrl){
+  const a=document.createElement('a');
+  a.download=filename;
+  if(typeof blobOrDataUrl==='string'){ a.href=blobOrDataUrl; }
+  else{ a.href=URL.createObjectURL(blobOrDataUrl); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); }
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+function exportStage(id, title){
+  const stage=document.getElementById('stage-'+id);
+  if(!stage){ alert('Stage not found'); return; }
+  const canvas=stage.querySelector('canvas');
+  if(canvas){
+    try{
+      const url=canvas.toDataURL('image/png');
+      downloadFile(`mathlab-${id}.png`, url);
+      return;
+    }catch(e){ console.warn('Canvas export failed', e); }
+  }
+  const svg=stage.querySelector('svg');
+  if(svg){
+    try{
+      const xml=new XMLSerializer().serializeToString(svg);
+      const blob=new Blob([xml], {type:'image/svg+xml'});
+      downloadFile(`mathlab-${id}.svg`, blob);
+      return;
+    }catch(e){ console.warn('SVG export failed', e); }
+  }
+  alert('No exportable canvas/svg found for this effect.');
+}
+
+function setupFPSOverlay(){
+  if(!isFlagEnabled('fps')) return;
+  const box=document.createElement('div'); box.className='fps-overlay'; box.textContent='FPS — …'; document.body.appendChild(box);
+  let last=performance.now(), acc=0, frames=0;
+  function tick(now){
+    const dt=now-last; last=now; frames++; acc+=dt;
+    if(acc>=1000){ const fps=Math.round(frames*1000/acc); box.textContent=`FPS — ${fps}`; acc=0; frames=0; }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
 
 /* ---------- PRIMITIVES ---------- */
 
