@@ -110,6 +110,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     if (state.vignette === false) setVignette(false);
     if (state.riseBubbles === false) setRise(false);
+    else setRise(true);
     if (state.orbs === false) { ensureGL(); setOrbs(false); }
     if (state.overlay === false) { ensureGL(); setOverlay(false); }
     if (state.resolution != null) setResolution(state.resolution as any);
