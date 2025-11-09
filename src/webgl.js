@@ -16,6 +16,7 @@
   let bubblesFXLayers = null; // multi-layer array
   let overlay = null;
   let overlayFilter = null;
+  let fxRoot = null;
 
   function getCanvas() {
     return document.getElementById('errlWebGL');
@@ -206,7 +207,7 @@
       // stage graph: particles (first) + fxRoot (filters only here)
       particles = new PIXI.ParticleContainer(5000, { scale: true, alpha: true, position: true });
       app.stage.addChild(particles);
-      const fxRoot = new PIXI.Container();
+      fxRoot = new PIXI.Container();
       app.stage.addChild(fxRoot);
 
       // center sprite
@@ -343,8 +344,8 @@
         } catch (e) { console.warn('Bubbles init failed', e); }
       }
 
-      // Expose refs for late Hue registration if needed
-      window.__ErrlWebGL = { overlay, bubbles: bubblesFXLayers };
+      // Expose refs for late Hue registration/debug harness
+      window.__ErrlWebGL = { overlay, bubbles: bubblesFXLayers, fxRoot, moodFilter, overlayFilter };
 
       app.ticker.add((delta) => {
         if (paused) return;

@@ -15,6 +15,7 @@
   function save(s: State) { try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {} }
 
   const state = load();
+  function getGL(){ return (window as any).__ErrlWebGL || {}; }
 
   function setDisplay(sel: string, show: boolean) {
     const el = document.querySelector(sel) as HTMLElement | null;
@@ -28,10 +29,12 @@
   function setOverlay(on?: boolean) {
     if (on == null) on = !(state.overlay ?? true);
     state.overlay = on;
-    // Try GL overlay first
+    // Prefer toggling the GL overlay sprite visibility to avoid extra composite surfaces
+    const refs = getGL();
+    if (refs && refs.overlay) { refs.overlay.visible = !!on; }
+    // Also set alpha for good measure if setter exists
     const g = (window as any).errlGLSetOverlay;
     if (g) { g({ alpha: on ? 0.20 : 0.0 }); }
-    // No DOM element for GL overlay; keep vignette separate
     save(state);
   }
 
@@ -87,6 +90,9 @@
   (window as any).ERRL = Object.freeze({
     toggle: {
       overlay: (b?: boolean) => { ensureGL(); setOverlay(b); },
+      overlayNode: (b?: boolean) => { const r=getGL(); if (r && r.overlay) r.overlay.visible = (b==null ? !r.overlay.visible : !!b); },
+      overlayFilter: (b?: boolean) => { const r=getGL(); if(r && r.overlay){ if(b==null) b = !(r.overlay.filters && r.overlay.filters.length); r.overlay.filters = b ? [r.overlayFilter||r.overlay.filters?.[0]].filter(Boolean) : []; } },
+      fxFilter: (b?: boolean) => { const r=getGL(); if(r && r.fxRoot){ if(b==null) b = !(r.fxRoot.filters && r.fxRoot.filters.length); r.fxRoot.filters = b ? [r.moodFilter||r.fxRoot.filters?.[0]].filter(Boolean) : []; } },
       orbs: (b?: boolean) => { ensureGL(); setOrbs(b); },
       riseBubbles: (b?: boolean) => setRise(b),
       vignette: (b?: boolean) => setVignette(b),
