@@ -354,6 +354,8 @@ function registerBuiltInControls() {
   builtInsRegistered = true;
   registerHueTimeline();
   registerGooIntensity();
+  registerNavOrbitControls();
+  registerRisingBubbleControls();
 }
 
 function registerHueTimeline(retry = 0) {
@@ -415,6 +417,142 @@ function registerGooIntensity(retry = 0) {
       if (!win.errlGLSetGoo && win.enableErrlGL) win.enableErrlGL();
       win.errlGLSetGoo?.({ intensity: numeric });
     },
+  });
+}
+
+type NavControls = {
+  getState?: () => { speed?: number; radius?: number; orbScale?: number; gamesVisible?: boolean };
+  setSpeed?: (value: number, opts?: Record<string, unknown>) => unknown;
+  setRadius?: (value: number, opts?: Record<string, unknown>) => unknown;
+  setOrbScale?: (value: number, opts?: Record<string, unknown>) => unknown;
+  setGamesVisible?: (value: boolean, opts?: Record<string, unknown>) => unknown;
+  toggleGames?: () => unknown;
+};
+
+function registerNavOrbitControls(retry = 0) {
+  const controls = (window as WindowWithEffects & { errlNavControls?: NavControls }).errlNavControls;
+  if (!controls) {
+    if (retry > 30) return;
+    setTimeout(() => registerNavOrbitControls(retry + 1), 200);
+    return;
+  }
+  const descriptors = [
+    {
+      id: 'nav.speed',
+      label: 'Orbit Speed',
+      min: 0,
+      max: 2,
+      step: 0.01,
+      getter: () => controls.getState?.()?.speed ?? 0,
+      setter: (value: number) => controls.setSpeed?.(value),
+    },
+    {
+      id: 'nav.radius',
+      label: 'Orbit Radius',
+      min: 0.6,
+      max: 1.6,
+      step: 0.01,
+      getter: () => controls.getState?.()?.radius ?? 1,
+      setter: (value: number) => controls.setRadius?.(value),
+    },
+    {
+      id: 'nav.scale',
+      label: 'Bubble Scale',
+      min: 0.6,
+      max: 1.6,
+      step: 0.01,
+      getter: () => controls.getState?.()?.orbScale ?? 1,
+      setter: (value: number) => controls.setOrbScale?.(value),
+    },
+  ];
+
+  descriptors.forEach((cfg) => {
+    if (getControl(cfg.id)) return;
+    registerControl({
+      id: cfg.id,
+      label: cfg.label,
+      group: 'Nav Orbit',
+      kind: 'slider',
+      min: cfg.min,
+      max: cfg.max,
+      step: cfg.step,
+      getValue: () => cfg.getter(),
+      setValue: (value) => cfg.setter(Number(value) || 0),
+      format: (value) => `${(Number(value) || 0).toFixed(2)}`,
+    });
+  });
+
+  const gamesId = 'nav.games';
+  if (!getControl(gamesId)) {
+    registerControl({
+      id: gamesId,
+      label: 'Games Bubble',
+      group: 'Nav Orbit',
+      kind: 'toggle',
+      getValue: () => !!controls.getState?.()?.gamesVisible,
+      setValue: (value) => controls.setGamesVisible?.(!!value),
+    });
+  }
+}
+
+type RisingBubblesControls = {
+  getState?: () => { speed?: number; density?: number; alpha?: number };
+  setSpeed?: (value: number, opts?: Record<string, unknown>) => unknown;
+  setDensity?: (value: number, opts?: Record<string, unknown>) => unknown;
+  setAlpha?: (value: number, opts?: Record<string, unknown>) => unknown;
+};
+
+function registerRisingBubbleControls(retry = 0) {
+  const controls = (window as WindowWithEffects & { errlRisingBubbles?: RisingBubblesControls }).errlRisingBubbles;
+  if (!controls) {
+    if (retry > 30) return;
+    setTimeout(() => registerRisingBubbleControls(retry + 1), 250);
+    return;
+  }
+  const descriptors = [
+    {
+      id: 'rb.speed',
+      label: 'Rise Speed',
+      min: 0,
+      max: 3,
+      step: 0.01,
+      getter: () => controls.getState?.()?.speed ?? 1,
+      setter: (value: number) => controls.setSpeed?.(value),
+    },
+    {
+      id: 'rb.density',
+      label: 'Density',
+      min: 0,
+      max: 2,
+      step: 0.01,
+      getter: () => controls.getState?.()?.density ?? 1,
+      setter: (value: number) => controls.setDensity?.(value),
+    },
+    {
+      id: 'rb.alpha',
+      label: 'Alpha',
+      min: 0,
+      max: 1,
+      step: 0.01,
+      getter: () => controls.getState?.()?.alpha ?? 0.95,
+      setter: (value: number) => controls.setAlpha?.(value),
+    },
+  ];
+
+  descriptors.forEach((cfg) => {
+    if (getControl(cfg.id)) return;
+    registerControl({
+      id: cfg.id,
+      label: cfg.label,
+      group: 'Rising Bubbles',
+      kind: 'slider',
+      min: cfg.min,
+      max: cfg.max,
+      step: cfg.step,
+      getValue: () => cfg.getter(),
+      setValue: (value) => cfg.setter(Number(value) || 0),
+      format: (value) => `${(Number(value) || 0).toFixed(2)}`,
+    });
   });
 }
 

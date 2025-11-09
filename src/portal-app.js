@@ -3,6 +3,11 @@
   function $(id){ return document.getElementById(id); }
 
   function on(el, ev, fn){ if (el) el.addEventListener(ev, fn); }
+  function clamp(value, min, max){
+    if (typeof value !== 'number' || Number.isNaN(value)) return min;
+    if (min > max) return value;
+    return Math.min(max, Math.max(min, value));
+  }
 
   // Lightweight audio engine for nav bubble hover pings
   const audioEngine = (function(){
@@ -110,17 +115,64 @@
   const errl = $("errl");
   let bubbles = Array.from(document.querySelectorAll('.bubble:not(.hidden-bubble)'));
   const hiddenBubble = document.getElementById('gamesBubble');
+  const navOrbitSpeedInput = $("navOrbitSpeed");
+  const navRadiusInput = $("navRadius");
+  const navOrbSizeInput = $("navOrbSize");
   let gamesVisible = false;
-  
-  bubbles.forEach((b, i)=> { if (b && b.dataset) b.dataset.orbIndex = String(i); });
-  let navOrbitSpeed = parseFloat($("navOrbitSpeed")?.value || '0.25');
-  let navRadius = parseFloat($("navRadius")?.value || '1.0');
-  let navOrbScale = parseFloat($("navOrbSize")?.value || '1');
-  on($("navOrbitSpeed"), 'input', ()=> navOrbitSpeed = parseFloat($("navOrbitSpeed").value||'1'));
-  on($("navRadius"), 'input', ()=> navRadius = parseFloat($("navRadius").value||'1'));
-  on($("navOrbSize"), 'input', ()=>{
-    navOrbScale = parseFloat($("navOrbSize").value||'1');
-    window.errlGLSetOrbScale && window.errlGLSetOrbScale(navOrbScale);
+  let navOrbitSpeed = parseFloat(navOrbitSpeedInput?.value || '0.25');
+  let navRadius = parseFloat(navRadiusInput?.value || '1.0');
+  let navOrbScale = parseFloat(navOrbSizeInput?.value || '1');
+
+  function setNavOrbitSpeed(value, { syncInput = true } = {}){
+    const min = parseFloat(navOrbitSpeedInput?.min ?? '0');
+    const max = parseFloat(navOrbitSpeedInput?.max ?? '2');
+    navOrbitSpeed = clamp(Number(value), min, max);
+    if (syncInput && navOrbitSpeedInput) navOrbitSpeedInput.value = String(navOrbitSpeed);
+    return navOrbitSpeed;
+  }
+  function setNavRadius(value, { syncInput = true } = {}){
+    const min = parseFloat(navRadiusInput?.min ?? '0.6');
+    const max = parseFloat(navRadiusInput?.max ?? '1.6');
+    navRadius = clamp(Number(value), min, max);
+    if (syncInput && navRadiusInput) navRadiusInput.value = String(navRadius);
+    return navRadius;
+  }
+  function setNavOrbScale(value, { syncInput = true } = {}){
+    const min = parseFloat(navOrbSizeInput?.min ?? '0.6');
+    const max = parseFloat(navOrbSizeInput?.max ?? '1.6');
+    navOrbScale = clamp(Number(value), min, max);
+    if (syncInput && navOrbSizeInput) navOrbSizeInput.value = String(navOrbScale);
+    if (window.errlGLSetOrbScale) window.errlGLSetOrbScale(navOrbScale);
+    window.errlGLSyncOrbs && window.errlGLSyncOrbs();
+    return navOrbScale;
+  }
+  function setGamesVisible(next, { skipListenerReset = false } = {}){
+    gamesVisible = !!next;
+    if (hiddenBubble) hiddenBubble.style.display = gamesVisible ? 'block' : 'none';
+    if (!skipListenerReset){
+      bubbles = Array.from(document.querySelectorAll('.bubble'));
+      bubbles.forEach((b, i)=> {
+        if (b && b.dataset){
+          b.dataset.orbIndex = String(i);
+          delete b.dataset.listenersAttached;
+        }
+      });
+      attachBubbleListeners();
+    }
+    return gamesVisible;
+  }
+
+  on(navOrbitSpeedInput, 'input', ()=>{
+    const next = parseFloat(navOrbitSpeedInput?.value || '0');
+    setNavOrbitSpeed(next, { syncInput: false });
+  });
+  on(navRadiusInput, 'input', ()=>{
+    const next = parseFloat(navRadiusInput?.value || '1');
+    setNavRadius(next, { syncInput: false });
+  });
+  on(navOrbSizeInput, 'input', ()=>{
+    const next = parseFloat(navOrbSizeInput?.value || '1');
+    setNavOrbScale(next, { syncInput: false });
   });
 
   function updateBubbles(ts){
@@ -192,24 +244,26 @@
     });
   }
   attachBubbleListeners();
+
+  window.errlNavControls = {
+    getState: () => ({
+      speed: navOrbitSpeed,
+      radius: navRadius,
+      orbScale: navOrbScale,
+      gamesVisible,
+    }),
+    setSpeed: (value, opts) => setNavOrbitSpeed(Number(value), opts),
+    setRadius: (value, opts) => setNavRadius(Number(value), opts),
+    setOrbScale: (value, opts) => setNavOrbScale(Number(value), opts),
+    setGamesVisible: (value, opts) => setGamesVisible(value, opts),
+    toggleGames: () => setGamesVisible(!gamesVisible),
+  };
   
   // Shift-B handler to toggle hidden Games bubble and re-attach listeners
   const shiftBHandler = (e)=>{
     if (e.key === 'B' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
       e.preventDefault();
-      gamesVisible = !gamesVisible;
-      if (hiddenBubble) {
-        hiddenBubble.style.display = gamesVisible ? 'block' : 'none';
-      }
-      // Rebuild bubbles array and re-attach listeners
-      bubbles = Array.from(document.querySelectorAll('.bubble'));
-      bubbles.forEach((b, i)=> { 
-        if (b && b.dataset) {
-          b.dataset.orbIndex = String(i);
-          delete b.dataset.listenersAttached; // Allow re-attachment
-        }
-      });
-      attachBubbleListeners();
+      setGamesVisible(!gamesVisible);
     }
   };
   window.addEventListener('keydown', shiftBHandler);

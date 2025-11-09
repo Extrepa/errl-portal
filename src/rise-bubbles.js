@@ -184,6 +184,48 @@
   const at=document.getElementById('rbAttract'); if(at) at.addEventListener('change', ()=> RB.attract = !!(at).checked);
   const rp=document.getElementById('rbRipples');
 
+  const RB_PARAM_IDS = {
+    speed: 'rbSpeed',
+    density: 'rbDensity',
+    alpha: 'rbAlpha',
+  };
+
+  function setRBParam(key, value, { syncInput = true } = {}){
+    const id = RB_PARAM_IDS[key];
+    if (!id) return RB[key];
+    const el = document.getElementById(id);
+    if (!el) return RB[key];
+    const num = Number(value);
+    if (Number.isNaN(num)) return RB[key];
+    if (syncInput){
+      el.value = String(num);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    } else {
+      RB[key] = num;
+      if (key === 'density') rebuild();
+    }
+    return RB[key];
+  }
+
+  window.errlRisingBubbles = {
+    getState(){
+      return {
+        speed: RB.speed,
+        density: RB.density,
+        alpha: RB.alpha,
+      };
+    },
+    setSpeed(value, opts){
+      return setRBParam('speed', value, opts);
+    },
+    setDensity(value, opts){
+      return setRBParam('density', value, opts);
+    },
+    setAlpha(value, opts){
+      return setRBParam('alpha', value, opts);
+    },
+  };
+
   const isPanelEvent = (e)=> e?.target?.closest && e.target.closest('#errlPanel');
 
   addEventListener('pointermove', e=>{
