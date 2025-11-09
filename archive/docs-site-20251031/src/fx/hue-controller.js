@@ -8,12 +8,15 @@
     background: { label: 'Background (L0)', selectors: ['.l0'] },
     motes:      { label: 'Motes (L2)', selectors: ['.l2 .mote', '#motesLayer .mote', '.mote'] },
     drip:       { label: 'Drip Frame (L3)', selectors: ['.l3 .drip'] },
-    errl:       { label: 'Errl (L4)', selectors: ['#errl-img', '#errl-inline', '.l4 .errl'] },
-    nav:        { label: 'Nav Bubbles (L5)', selectors: ['.ui-orbit .btn'] },
+    // Updated selectors to match current portal DOM
+    errl:       { label: 'Errl (L4)', selectors: ['#errlCenter', '.errl-wrapper .errl-svg', '#errl-inline', '#errl-img'] },
+    nav:        { label: 'Nav Bubbles (L5)', selectors: ['#navOrbit .bubble', '#navOrbit .menuOrb', '.bubble', '.menuOrb'] },
     awakening:  { label: 'Awakening (L6)', selectors: ['.l6 .portal-drip', '.l6 .sigil'] },
     hud:        { label: 'HUD', selectors: ['#hud', '#hud .bubble', '#hud .chip'] },
+    backGlow:   { label: 'Back Glow', selectors: ['#errlGoo', '.errl-goo', '#halo'] },
     glOverlay:  { label: 'GL Overlay', type: 'webglOverlay' },
     bgBubbles:  { label: 'GL Background Bubbles', type: 'webglBubbles' },
+    riseBubbles:{ label: 'Rising Bubbles (Canvas)', selectors: ['#riseBubbles'] },
   };
 
   const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: true };
@@ -99,8 +102,31 @@
     applyAllCSS(){ for(const k of Object.keys(LAYERS)){ this.applyLayerCSS(k); } },
 
     // WebGL application for specific layers
-    applyWebGLLayer(layer){ if(!this.webglEnabled || !window.ErrlHueFilter) return; const st = this.layers[layer]; if(layer==='bgBubbles'){ const fx = this.webglRefs.bgBubbles; if(fx && fx.sprites){ if(!this.webglFilters.bgBubbles) this.webglFilters.bgBubbles = new window.ErrlHueFilter(); const F = this.webglFilters.bgBubbles; F.hue = st.hue; F.saturation = st.saturation; F.intensity = st.intensity; fx.sprites.forEach(s=>{ if(!s) return; s.filters = (s.filters||[]).filter(f=>!(f instanceof window.ErrlHueFilter)); if(st.enabled){ s.filters.push(F); } }); } }
-      else if(layer==='glOverlay'){ const spr = this.webglRefs.glOverlay; if(spr){ if(!this.webglFilters.glOverlay) this.webglFilters.glOverlay = new window.ErrlHueFilter(); const F = this.webglFilters.glOverlay; F.hue = st.hue; F.saturation = st.saturation; F.intensity = st.intensity; spr.filters = (spr.filters||[]).filter(f=>!(f instanceof window.ErrlHueFilter)); if(st.enabled){ spr.filters.push(F); } } }
+    applyWebGLLayer(layer){
+      if(!this.webglEnabled || !window.ErrlHueFilter) return;
+      const st = this.layers[layer];
+      if(layer==='bgBubbles'){
+        const refs = this.webglRefs.bgBubbles;
+        const list = Array.isArray(refs) ? refs : (refs? [refs] : []);
+        if(!this.webglFilters.bgBubbles) this.webglFilters.bgBubbles = new window.ErrlHueFilter();
+        const F = this.webglFilters.bgBubbles; F.hue = st.hue; F.saturation = st.saturation; F.intensity = st.intensity;
+        const applyTo = (ref)=>{
+          if(!ref) return;
+          const applyOnce = (inst)=>{
+            const target = inst.root || inst; // apply at container level so it survives rebuilds
+            if(!target) return;
+            const arr = (target.filters||[]).filter(f=>!(f instanceof window.ErrlHueFilter));
+            if(st.enabled) arr.push(F);
+            target.filters = arr;
+          };
+          if(typeof ref.then==='function'){ ref.then(applyOnce).catch(()=>{}); }
+          else applyOnce(ref);
+        };
+        list.forEach(applyTo);
+      } else if(layer==='glOverlay'){
+        const spr = this.webglRefs.glOverlay;
+        if(spr){ if(!this.webglFilters.glOverlay) this.webglFilters.glOverlay = new window.ErrlHueFilter(); const F = this.webglFilters.glOverlay; F.hue = st.hue; F.saturation = st.saturation; F.intensity = st.intensity; spr.filters = (spr.filters||[]).filter(f=>!(f instanceof window.ErrlHueFilter)); if(st.enabled){ spr.filters.push(F); } }
+      }
     },
 
     // Public setters (operate on specific layer or current target)
@@ -109,8 +135,15 @@
     setIntensity(inten, layer=this.currentTarget){ this.layers[layer].intensity = Math.max(0, Math.min(1, inten)); this.persist(); this.applyLayerCSS(layer); this.applyWebGLLayer(layer); this.triggerUpdate(layer); },
     setEnabled(on, layer=this.currentTarget){ this.layers[layer].enabled = !!on; this.persist(); this.applyLayerCSS(layer); this.applyWebGLLayer(layer); this.triggerUpdate(layer); },
 
+    // Temporary (non-persistent) setters for in-page phone UI
+    setHueTemp(hue, layer=this.currentTarget){ this.layers[layer].hue = ((hue%360)+360)%360; this.applyLayerCSS(layer); this.applyWebGLLayer(layer); this.triggerUpdate(layer); },
+    setSaturationTemp(sat, layer=this.currentTarget){ this.layers[layer].saturation = Math.max(0, Math.min(2, sat)); this.applyLayerCSS(layer); this.applyWebGLLayer(layer); this.triggerUpdate(layer); },
+    setIntensityTemp(inten, layer=this.currentTarget){ this.layers[layer].intensity = Math.max(0, Math.min(1, inten)); this.applyLayerCSS(layer); this.applyWebGLLayer(layer); this.triggerUpdate(layer); },
+    setEnabledTemp(on, layer=this.currentTarget){ this.layers[layer].enabled = !!on; this.applyLayerCSS(layer); this.applyWebGLLayer(layer); this.triggerUpdate(layer); },
+
     // Themes per-layer
     applyTheme(layer, theme){ const themes={ normal:{hue:0,saturation:1.0,intensity:1.0}, warm:{hue:30,saturation:1.1,intensity:1.0}, cool:{hue:180,saturation:1.05,intensity:1.0}, electric:{hue:270,saturation:1.3,intensity:1.0}, sunset:{hue:15,saturation:1.25,intensity:1.0}, ocean:{hue:200,saturation:1.15,intensity:1.0}, forest:{hue:120,saturation:1.1,intensity:1.0} }; const cfg=themes[theme]; if(!cfg) return; Object.assign(this.layers[layer], cfg); this.persist(); this.applyLayerCSS(layer); this.applyWebGLLayer(layer); this.triggerUpdate(layer); },
+    applyThemeTemp(layer, theme){ const themes={ normal:{hue:0,saturation:1.0,intensity:1.0}, warm:{hue:30,saturation:1.1,intensity:1.0}, cool:{hue:180,saturation:1.05,intensity:1.0}, electric:{hue:270,saturation:1.3,intensity:1.0}, sunset:{hue:15,saturation:1.25,intensity:1.0}, ocean:{hue:200,saturation:1.15,intensity:1.0}, forest:{hue:120,saturation:1.1,intensity:1.0} }; const cfg=themes[theme]; if(!cfg) return; Object.assign(this.layers[layer], cfg); this.applyLayerCSS(layer); this.applyWebGLLayer(layer); this.triggerUpdate(layer); },
 
     // Animation controls (per-layer)
     toggleAnimation(speed=1, layer=this.currentTarget){ if(this.animation.active){ this.stopAnimation(); } else { this.startAnimation(speed, layer); } },

@@ -23,7 +23,7 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
     conic-gradient(from 0deg,#1a2542,#16243d,#122033,#101a2b,#0b1020,#13243c,#1a2542);
   animation:hueShift 120s linear infinite;
 }
-@keyframes hueShift{ 0%{filter:hue-rotate(0deg) saturate(110%);} 50%{filter:hue-rotate(60deg) saturate(120%);} 100%{filter:hue-rotate(0deg) saturate(110%);} }
+@keyframes hueShift{ 0%{filter:hue-rotate(0deg) saturate(110%);} 50%{filter:hue-rotate(180deg) saturate(120%);} 100%{filter:hue-rotate(360deg) saturate(110%);} }
 
 #gl{ position:absolute; inset:0; pointer-events:none; }
 .l1{ z-index:2; }
@@ -145,8 +145,9 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 @keyframes blobPulse{ 0%,100%{ --blob:1; } 50%{ --blob:1.06; } }
 .btn{ background-color:transparent; background-blend-mode:normal; }
 .btn:hover{ --s: 1.06; background-color: rgba(8,10,22,.22); background-blend-mode: multiply; box-shadow:0 0 24px rgba(0,229,255,.25); filter: saturate(125%) brightness(1.05) contrast(1.06); }
-.btn .label{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); max-width:80%; text-align:center; font-weight:900; font-size:clamp(12px, 1.6vmin, 17px); line-height:1.05; color:#d7efff; letter-spacing:.01em; text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 10px rgba(0,229,255,.28); opacity:0; transition:opacity .18s ease; pointer-events:none; z-index:3; }
-.btn:hover .label, .btn:focus-visible .label{ opacity:1; }
+@keyframes navLabelFade{ 0%,100%{ opacity:0; } 50%{ opacity:.9; } }
+.btn .label{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); max-width:80%; text-align:center; font-weight:900; font-size:clamp(12px, 1.6vmin, 17px); line-height:1.05; color:#d7efff; letter-spacing:.01em; text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 10px rgba(0,229,255,.28); opacity:0; transition:opacity .18s ease; pointer-events:none; z-index:3; animation: navLabelFade 4.5s ease-in-out infinite; }
+.btn:hover .label, .btn:focus-visible .label{ opacity:1; animation:none; }
 
 .l6{ z-index:6; display:grid; place-items:center; opacity:0; transition:opacity .5s ease; background: radial-gradient(80vmax 80vmax at 50% 30%, rgba(15,12,40,.65), rgba(5,8,18,.9)); }
 .l6.active{ opacity:1; }
@@ -155,27 +156,6 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; bac
 .sigil{ font-size: clamp(22px, 5vmin, 44px); letter-spacing: .28em; color:#cdeafe; text-shadow: 0 0 18px rgba(123,92,255,.6); opacity:0; animation:sigilIn .9s .7s ease forwards; }
 @keyframes sigilIn{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
 
-.hud{ position:fixed; left:50%; transform:translateX(-50%); bottom:12px; display:flex; gap:12px; z-index:1000; direction:ltr; }
-/* Ensure HUD never mirrors */
-.hud, .hud *{ transform-style: flat; }
-body.mirror-active .hud{ transform:translateX(-50%) !important; }
-.hud .chip{ cursor:pointer; position:relative; }
-.hud .bubble{ width:56px; height:56px; border:0; border-radius:50%; background:transparent; box-shadow:0 4px 14px rgba(0,0,0,.38); animation:hubBob 3.8s ease-in-out infinite; transform-origin:center; transition: transform .18s ease; }
-.hud .bubble:hover{ transform:scale(1.14); }
-.hud .chip .label{ transition: opacity .15s ease, transform .15s ease; }
-.hud .chip:hover .label{ transform: translate(-50%,-50%) scale(1.08); }
-.hud .chip span.vh{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
-@keyframes hubBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
-.hud .bubble-purp-1{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png") center/contain no-repeat; }
-.hud .bubble-purp-2{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-2.png") center/contain no-repeat; }
-.hud .bubble-purp-3{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png") center/contain no-repeat; }
-.hud .bubble-purp-4{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-4.png") center/contain no-repeat; }
-.hud .bubble-purp-5{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-5.png") center/contain no-repeat; }
-/* Slightly larger primary toggle (Reveal/Hide) */
-.hud .chip[data-toggle="reveal"]{ width:64px; height:64px; }
-.hud .chip .label{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); padding:.2em .45em; border-radius:8px; font-family:'Castellar', serif; font-weight:900; font-size:12px; color:#0a0a0c; background:transparent; text-shadow: 0 0 6px rgba(255,255,255,.55), 0 0 2px rgba(255,255,255,.8); -webkit-text-stroke: .25px rgba(255,255,255,.35); opacity:0.95; white-space:nowrap; }
-.hud .chip:hover .label, .hud .chip:focus-visible .label{ opacity:1; }
-.hud .chip.toggled{ outline:2px solid rgba(0,229,255,.35); box-shadow:0 0 16px rgba(0,229,255,.25); filter:saturate(115%) brightness(1.06); }
 
 /* Dev panel */
 .devpanel{ position:fixed; right:12px; top:12px; z-index:3000; background:rgba(10,14,22,.78); color:#d7e6ff; backdrop-filter:blur(6px) saturate(115%); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 12px; font-size:12px; line-height:1.35; box-shadow:0 6px 18px rgba(0,0,0,.35); }
@@ -189,27 +169,30 @@ body.mirror-active .hud{ transform:translateX(-50%) !important; }
 .devdot{ position:absolute; left:50%; top:50%; width:8px; height:8px; border-radius:50%; background:#00e5ff; box-shadow:0 0 8px #00e5ff; transform:translate(calc(-50% + var(--x)), calc(-50% + var(--y))); pointer-events:none; opacity:.85; }
 
 /* Errl Phone UI inside dev panel */
-.devpanel .phone{ position:relative; width:320px; border-radius:22px; padding:10px; background:
-  radial-gradient(160px 120px at 20% 0%, rgba(123,92,255,.20), rgba(123,92,255,0) 70%),
-  radial-gradient(220px 180px at 80% 20%, rgba(0,229,255,.14), rgba(0,229,255,0) 70%),
-  linear-gradient(175deg, rgba(12,16,28,.85), rgba(10,14,22,.85));
+        .devpanel .phone{ position:relative; width:440px; border-radius:22px; padding:12px; background:
+  radial-gradient(180px 140px at 20% 0%, rgba(123,92,255,.20), rgba(123,92,255,0) 70%),
+  radial-gradient(240px 200px at 80% 20%, rgba(0,229,255,.14), rgba(0,229,255,0) 70%),
+  linear-gradient(175deg, rgba(12,16,28,.90), rgba(10,14,22,.88));
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 10px 26px rgba(0,0,0,.45);
 }
 .devpanel .phone-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .devpanel .phone-top strong{ font-family:'Fredoka', system-ui, sans-serif; letter-spacing:.08em; font-size:13px; color:#d9ecff; text-shadow:0 1px 6px rgba(0,229,255,.25); }
-.devpanel .apps{ display:grid; grid-template-columns: repeat(5, 1fr); gap:8px; margin-bottom:8px; }
-.devpanel .app-icon{ height:48px; border-radius:14px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); color:#eaf6ff; font-weight:700; font-size:11px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.35); transition:transform .12s ease, background .12s ease, box-shadow .12s ease; }
+.devpanel .apps{ display:grid; grid-template-columns: repeat(6, 1fr); gap:8px; margin-bottom:8px; justify-items:center; }
+.devpanel .app-icon{ width:56px; height:56px; border-radius:50%; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); color:#f6fbff; font-weight:800; font-size:11px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.35); transition:transform .12s ease, background .12s ease, box-shadow .12s ease; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; text-align:center; padding:0; text-shadow: 0 1px 2px rgba(0,0,0,.85), 0 0 8px rgba(0,0,0,.6); }
  .devpanel .app-icon:hover, .devpanel .app-icon.active{ transform:translateY(-1px); background:linear-gradient(135deg, rgba(123,92,255,.20), rgba(0,229,255,.14)); box-shadow:0 6px 18px rgba(0,0,0,.45), 0 0 14px rgba(0,229,255,.28) inset, 0 0 22px rgba(123,92,255,.28) inset; }
  /* App icon background art */
- .devpanel .app-icon{ position:relative; overflow:hidden; }
- .devpanel .app-icon::before{ content:""; position:absolute; inset:0; opacity:.9; background-position:center; background-size:cover; filter:saturate(110%) contrast(1.05) brightness(0.95); }
+ .devpanel .app-icon::before{ content:""; position:absolute; inset:0; opacity:.9; background-position:center; filter:saturate(110%) contrast(1.05) brightness(0.95); }
+ .devpanel .app-icon::after{ content:""; position:absolute; inset:-10%; background: linear-gradient(60deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 65%); transform: translateX(-150%); animation: appIconShine 5.5s ease-in-out infinite; pointer-events:none; mix-blend-mode:screen; }
+ @keyframes appIconShine{ 0%{ transform: translateX(-150%) rotate(0.001deg); } 45%{ transform: translateX(150%); } 100%{ transform: translateX(150%); } }
  .devpanel .app-icon span{ position:relative; z-index:1; }
- .devpanel .app-icon[data-app="intro"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png"); }
- .devpanel .app-icon[data-app="orbit"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-2.png"); }
- .devpanel .app-icon[data-app="bubbles"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png"); }
- .devpanel .app-icon[data-app="gl"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-4.png"); }
- .devpanel .app-icon[data-app="layers"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-5.png"); }
- .devpanel .pages{ position:relative; border-radius:14px; padding:8px; border:1px solid rgba(255,255,255,.10); background:rgba(6,10,18,.55); max-height: 58vh; overflow:auto; }
+ /* Icons for tabs */
+ .devpanel .app-icon[data-app="hud"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png"); }
+ .devpanel .app-icon[data-app="hue"]::before{ background: conic-gradient(from 0deg, #ff004c,#ffa300,#ffee00,#53f900,#00e5ff,#7b5cff,#ff00b1,#ff004c); animation: spinAura 3s linear infinite; }
+ .devpanel .app-icon[data-app="errl"]::before{ background-image:url("../assets/L4_Central/errl-face-2.svg"); background-size:80% 80%; background-repeat:no-repeat; background-position:center; filter:drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
+ .devpanel .app-icon[data-app="nav"]::before{ background-image:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png"); }
+ .devpanel .app-icon[data-app="backfx"]::before{ background-image:url("../../assets/fx/Orb_NeedsFriends.png"); background-size:60% 60%; background-repeat:no-repeat; background-position:center; }
+ .devpanel .app-icon[data-app="gl"]::before{ background: radial-gradient(circle at 50% 50%, rgba(0,229,255,.9), rgba(123,92,255,.6) 40%, rgba(0,0,0,0) 60%); box-shadow: 0 0 12px rgba(0,229,255,.7), 0 0 18px rgba(123,92,255,.5) inset; }
+ .devpanel .pages{ position:relative; border-radius:14px; padding:10px; border:1px solid rgba(255,255,255,.10); background:rgba(6,10,18,.55); max-height: 62vh; overflow:auto; }
  .devpanel .app-page{ display:none; }
  .devpanel .app-page.active{ display:block; }
  .devpanel .row{ display:flex; gap:6px; align-items:center; margin:6px 0; }
@@ -226,48 +209,22 @@ body.mirror-active .hud{ transform:translateX(-50%) !important; }
  .layer-badge[data-layer="errl"]{ background:linear-gradient(135deg, rgba(123,92,255,.28), rgba(0,229,255,.18)); }
  .layer-badge[data-layer="nav"]{ background:linear-gradient(135deg, rgba(0,229,255,.22), rgba(123,92,255,.20)); }
  .layer-badge[data-layer="backfx"]{ background:linear-gradient(135deg, rgba(58,77,158,.26), rgba(90,166,255,.18)); }
- .layer-badge[data-layer="gl"]{ background:linear-gradient(135deg, rgba(0,229,255,.24), rgba(90,166,255,.24)); }
-.feature-box{ border:2px dashed rgba(0,229,255,.35); margin:10px; padding:10px; position:relative; }
+        .layer-badge[data-layer="gl"]{ background:linear-gradient(135deg, rgba(0,229,255,.24), rgba(90,166,255,.24)); }
+        /* HUD controls inside dev panel */
+        .devpanel .hud-bubbles{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; align-items:center; }
+        .devpanel .hud-bubbles .bubble{ width:48px; height:48px; border:0; border-radius:50%; background:transparent; cursor:pointer; }
+        .devpanel .hud-bubbles .chip{ position:relative; }
+        /* Restore subtle ring glow when toggled */
+        .devpanel .hud-bubbles .chip.toggled{ outline:2px solid rgba(0,229,255,.35); box-shadow:0 0 16px rgba(0,229,255,.25); filter:saturate(112%) brightness(1.04); }
+        .devpanel .hud-bubbles .chip .label{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); padding:.15em .35em; border-radius:8px; font-family:'Castellar', serif; font-weight:900; font-size:10px; color:#0a0a0c; background:transparent; text-shadow: 0 0 4px rgba(255,255,255,.55), 0 0 2px rgba(255,255,255,.75); -webkit-text-stroke: .25px rgba(255,255,255,.3); opacity:.95; white-space:nowrap; pointer-events:none; }
+        /* Reuse same purple bubble art inside dev panel */
+        .devpanel .bubble-purp-1{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png") center/contain no-repeat; }
+        .devpanel .bubble-purp-2{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-2.png") center/contain no-repeat; }
+        .devpanel .bubble-purp-3{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-3.png") center/contain no-repeat; }
+        .devpanel .bubble-purp-4{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-4.png") center/contain no-repeat; }
+        .devpanel .bubble-purp-5{ background:url("../../assets/Bubbles_ErrlSiteDecor/Bubble-Purp-5.png") center/contain no-repeat; }
+        .feature-box{ border:2px dashed rgba(0,229,255,.35); margin:10px; padding:10px; position:relative; }
 .feature-box::before{ content:attr(id); position:absolute; top:-1.2em; left:0; font-size:.8rem; color:#0ff; background:rgba(0,0,0,.6); padding:2px 6px; border-radius:4px; }
-/* Dev overlay mode for existing layers without wrapping */
-/* Lightweight outlines (kept), plus a high-Z interactive overlay */
-body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
-
-/* Interactive overlay layer */
-#dev-overlay-layer{ position:fixed; inset:0; z-index:3500; pointer-events:none; }
-#dev-overlay-layer .box{ position:absolute; border:2px dashed rgba(0,229,255,.55); border-radius:8px; pointer-events:auto; }
-#dev-overlay-layer.element-mode .box{ cursor:move; }
-#dev-overlay-layer .box .tag{ position:absolute; left:0; top:-1.2em; background:rgba(0,0,0,.65); color:#0ff; font-size:12px; padding:2px 6px; border-radius:6px; opacity:0; transition:opacity .12s ease; }
-#dev-overlay-layer .box:hover{ background:rgba(0,229,255,.06); }
-#dev-overlay-layer .box:hover .tag, #dev-overlay-layer .box.active .tag{ opacity:1; }
-#dev-overlay-layer .box.active{ border-color:#00e5ff; box-shadow:0 0 0 2px rgba(0,229,255,.25) inset, 0 0 18px rgba(0,229,255,.25); }
-#dev-overlay-layer .ctl{ position:fixed; right:10px; top:10px; pointer-events:auto; background:rgba(10,14,22,.95); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:4px 10px; color:#cfeaff; font-size:12px; }
-#dev-overlay-layer .ctl b{ color:#0ff; }
-/* Layers panel */
-#dev-layers{ position:fixed; right:12px; top:46px; z-index:3600; width:220px; background:rgba(10,14,22,.96); border:1px solid rgba(255,255,255,.16); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.55); color:#d7e6ff; font-size:12px; display:none; }
-#dev-layers header{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.08); }
-#dev-layers ul{ list-style:none; margin:0; padding:6px; max-height:50vh; overflow:auto; }
-#dev-layers li{ display:flex; align-items:center; justify-content:space-between; gap:6px; padding:6px 6px; border-radius:8px; }
-#dev-layers li.active{ background:rgba(0,229,255,.08); }
-#dev-layers .name{ flex:1; }
-#dev-layers .btns button{ padding:2px 6px; border-radius:6px; border:1px solid #2a3a6a; background:#1a2340; color:#eaf6ff; cursor:pointer; }
-#dev-layers .btns button:hover{ background:#213056; }
-/* Chooser popover */
-#dev-chooser{ position:fixed; z-index:3600; background:rgba(10,14,22,.98); color:#d7e6ff; border:1px solid rgba(255,255,255,.14); border-radius:10px; box-shadow:0 12px 28px rgba(0,0,0,.55); padding:6px; min-width:200px; display:none; }
-#dev-chooser .item{ padding:6px 8px; border-radius:6px; cursor:pointer; }
-#dev-chooser .item small{ display:block; opacity:.75; }
-#dev-chooser .item:hover{ background:rgba(0,229,255,.10); }
-
-/* Dev edit modal */
-#dev-edit{ position:fixed; right:16px; top:80px; z-index:3600; width:380px; max-width:88vw; background:rgba(10,14,22,.92); border:1px solid rgba(255,255,255,.14); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.55); color:#d7e6ff; font-size:12px; display:none; }
-#dev-edit header{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.08); cursor:move; }
-#dev-edit header strong{ font-family:'Fredoka', system-ui, sans-serif; letter-spacing:.04em; }
-#dev-edit .body{ padding:10px; display:grid; gap:8px; }
-#dev-edit select, #dev-edit textarea{ width:100%; background:#0e1524; color:#eaf6ff; border:1px solid #2a3550; border-radius:8px; padding:6px 8px; }
-#dev-edit textarea{ min-height:120px; resize:vertical; }
-#dev-edit .row{ display:flex; gap:8px; justify-content:flex-end; }
-#dev-edit button{ background:#1a2340; color:#eaf6ff; border:1px solid #2a3a6a; border-radius:8px; padding:6px 10px; cursor:pointer; }
-#dev-edit button:hover{ background:#213056; }
 
 /* Circular 3D spinning coin with Errl's face */
   .coin {
@@ -485,7 +442,6 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
       <button class="btn" data-pos="2" data-img="bubbles-2" title="Art Gallery"><span class="vh">Art Gallery</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Art Gallery</span></button>
       <button class="btn" data-pos="3" data-img="bubbles-3" title="Projects"><span class="vh">Projects</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Projects</span></button>
       <button class="btn" data-pos="4" data-img="bubbles-4" title="Pin Designer"><span class="vh">Errl Pin Designer</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Errl Pin Designer</span></button>
-      <button class="btn" data-pos="5" data-img="bubbles-5" title="Drippy Text Maker"><span class="vh">Drippy Text Maker</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Drippy Text Maker</span></button>
       <button class="btn" data-pos="6" data-img="bubbles-6" title="Tools"><span class="vh">Tools</span><span class="puddle-ghost" aria-hidden="true"></span><span class="label">Tools</span></button>
     </div>
   </div>
@@ -493,14 +449,6 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
   <div class="layer l6" data-layer="L6" id="awakening"><div class="portal-drip"></div><div class="sigil">FOR THE NOMADS</div></div>
 </div>
 
-<div class="hud" id="hud">
-  <button class="chip bubble bubble-purp-1 toggled" data-toggle="parallax" title="Parallax cursor depth"><span class="label">Parallax</span><span class="vh">Parallax: toggle pointer-based depth</span></button>
-  <button class="chip bubble bubble-purp-2 toggled" data-toggle="gl" title="WebGL shimmer + refraction"><span class="label">WebGL</span><span class="vh">WebGL: toggle PixiJS shimmer and refraction effects</span></button>
-  <button class="chip bubble bubble-purp-4" data-toggle="reveal" title="Show/Hide Errl (dbl‑click Errl swaps modes)"><span class="label">Reveal</span><span class="vh">Reveal: show or hide Errl; double click Errl to switch inline/painted</span></button>
-  <button class="chip bubble bubble-purp-3" data-toggle="bubbles" title="Bubble UI: moving → paused → hidden"><span class="label">Bubbles</span><span class="vh">Bubbles control: moving, paused, hidden</span></button>
-  <button class="chip bubble bubble-purp-5" data-toggle="mirror" title="Mirror X; double‑click: mirror both"><span class="label">Mirror</span><span class="vh">Mirror: flip horizontally; double click to flip both axes</span></button>
-  <button class="chip bubble bubble-purp-2" data-toggle="coin" title="Flip Coin"><span class="label">Coin</span><span class="vh">Coin: show/hide spinning coin</span></button>
-</div>
 
 <!-- Dev panel -->
 <div id="devpanel" class="devpanel hidden" role="dialog" aria-label="Dev Panel">
@@ -508,44 +456,39 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
     <div class="phone-top">
       <strong>ERRL PHONE</strong>
       <div style="display:flex; gap:6px; align-items:center;">
-        <button id="dev-overlay" class="n" title="Toggle Dev Overlay">□</button>
+        <a id="dev-link" class="n" title="Open Dev Page">DEV</a>
         <button id="dev-hide" class="n" title="Close">×</button>
       </div>
     </div>
     <div class="apps" id="dev-apps">
       <button class="app-icon active" data-app="hud" title="HUD">HUD</button>
+      <button class="app-icon" data-app="hue" title="Hue">Hue</button>
       <button class="app-icon" data-app="errl" title="Errl">Errl</button>
-      <button class="app-icon" data-app="nav" title="Nav">Nav</button>
-      <button class="app-icon" data-app="backfx" title="Back FX">Back</button>
-      <button class="app-icon" data-app="gl" title="Overlay FX">Overlay FX</button>
+      <button class="app-icon" data-app="nav" title="Nav Bubbles">Nav Bubbles</button>
+      <button class="app-icon" data-app="backfx" title="BG Bubbles">BG Bubbles</button>
+      <button class="app-icon" data-app="gl" title="ExFX">ExFX</button>
     </div>
     <div class="pages" id="dev-pages">
       <section class="app-page active" data-app="hud">
-<div class="section-title">HUD</div>
-        <div class="mini-toggles">
-          <button class="mini-btn" id="hud-parallax">Parallax</button>
-          <button class="mini-btn" id="hud-gl">WebGL</button>
-          <button class="mini-btn" id="hud-bubbles">Bubbles</button>
-          <button class="mini-btn" id="hud-mirror">Mirror</button>
+        <div class="section-title">HUD Controls</div>
+        <div class="hud-bubbles" id="dev-hud-bubbles">
+          <button class="chip bubble bubble-purp-1" data-toggle="parallax" title="Parallax On/Off"><span class="label">Parallax</span></button>
+          <button class="chip bubble bubble-purp-2" data-toggle="gl" title="WebGL On/Off"><span class="label">WebGL</span></button>
+          <button class="chip bubble bubble-purp-4" data-toggle="reveal" title="Reveal/Hide Errl"><span class="label">Reveal</span></button>
+          <button class="chip bubble bubble-purp-3" data-toggle="bubbles" title="Bubbles moving/hidden"><span class="label">Bubbles</span></button>
+          <button class="chip bubble bubble-purp-5" data-toggle="mirror" title="Mirror"><span class="label">Mirror</span></button>
+          <button class="chip bubble bubble-purp-2" data-toggle="coin" title="Coin visibility"><span class="label">Coin</span></button>
         </div>
-        <div class="form-row"><label><input type="checkbox" id="hud-hidebar"/> Hide bottom HUD bar</label></div>
       </section>
       <section class="app-page" data-app="errl">
         <div class="section-title">Errl</div>
         <div class="row"><button id="errl-toggle">Toggle Visibility</button><span style="opacity:.8">Hold M to move</span></div>
         <div class="row"><button id="open-colorizer">Open Customizer</button><span style="opacity:.8">Live-sync to inline Errl</span></div>
         
-        <div class="section-title" style="margin-top:8px;">Errl Color (Hue)</div>
-        <div class="row"><label><input type="checkbox" id="errl-hue-enabled" checked/> Color Effects Enabled</label></div>
-        <div class="row"><label>Errl Hue</label><input id="errl-hue" type="range" min="0" max="360" step="1" value="0"/><span id="errl-hue-val">0°</span></div>
-        <div class="row"><label>Errl Saturation</label><input id="errl-sat" type="range" min="0" max="2" step="0.01" value="1.0"/><span id="errl-sat-val">100%</span></div>
-        <div class="row"><label>Errl Blend</label><input id="errl-int" type="range" min="0" max="1" step="0.01" value="1.0"/><span id="errl-int-val">100%</span></div>
-        <div class="row"><label>Theme</label><select id="errl-hue-theme"><option value="normal">Normal</option><option value="warm">Warm</option><option value="cool">Cool</option><option value="electric">Electric</option><option value="sunset">Sunset</option><option value="ocean">Ocean</option><option value="forest">Forest</option></select><button id="errl-hue-animate">Animate</button><button id="errl-hue-reset" style="margin-left:auto;">Reset</button></div>
-        
         <div class="section-title" style="margin-top:8px;">Errl Goo (wobble)</div>
         <div class="row"><label><input type="checkbox" id="errl-goo-enabled" checked/> Goo Enabled</label></div>
         <div class="row"><label>Displacement Strength</label><input id="errl-goo-strength" type="range" min="0" max="2" step="0.01" value="1.00"/><span id="errl-goo-strength-val">1.00</span></div>
-        <div class="row"><label>Wobble Speed</label><input id="errl-goo-wobble" type="range" min="0" max="2" step="0.01" value="1.00"/><span id="errl-goo-wobble-val">1.00</span></div>
+        <div class="row"><label>Wobble Speed</label><input id="errl-goo-wobble" type="range" min="0" max="2" step="0.01" value="1.00"/><span id="errl-goo-wobble-val">1.00</span><button id="errl-goo-animate">Animate Goo</button><button id="errl-goo-random" style="margin-left:auto;">Random Goo</button></div>
       </section>
       <section class="app-page" data-app="nav">
 <div class="section-title">Nav Bubbles</div>
@@ -557,13 +500,6 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
         <div class="row"><label>Stagger(ms)</label><input id="nav-stagger" type="number" min="0" step="50" value="250"/></div>
         <div class="row"><button id="nav-replay">Replay fan</button></div>
         
-        <div class="section-title" style="margin-top:8px;">Hue — Nav Bubbles</div>
-        <div class="row"><label><input type="checkbox" id="nav-hue-enabled" checked/> Enabled</label></div>
-        <div class="row"><label>Hue</label><input id="nav-hue" type="range" min="0" max="360" step="1" value="0"/><span id="nav-hue-val">0°</span></div>
-        <div class="row"><label>Saturation</label><input id="nav-sat" type="range" min="0" max="2" step="0.01" value="1.0"/><span id="nav-sat-val">100%</span></div>
-        <div class="row"><label>Intensity</label><input id="nav-int" type="range" min="0" max="1" step="0.01" value="1.0"/><span id="nav-int-val">100%</span></div>
-        <div class="row"><label>Theme</label><select id="nav-hue-theme"><option value="normal">Normal</option><option value="warm">Warm</option><option value="cool">Cool</option><option value="electric">Electric</option><option value="sunset">Sunset</option><option value="ocean">Ocean</option><option value="forest">Forest</option></select><button id="nav-hue-animate">Animate</button><button id="nav-hue-reset" style="margin-left:auto;">Reset</button></div>
-        
         <div class="section-title" style="margin-top:8px;">Goo — Nav Bubbles</div>
         <div class="row"><label><input type="checkbox" id="nav-goo-enabled" checked/> Goo Enabled</label></div>
         <div class="row"><label>Blur</label><input id="nav-goo-blur" type="range" min="0" max="16" step="0.1" value="6"/><span id="nav-goo-blur-val">6.0</span></div>
@@ -572,6 +508,17 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
       </section>
       <section class="app-page" data-app="backfx">
 <div class="section-title">Background Bubbles</div>
+        <div class="row" id="bub-instance-row" style="align-items:center; gap:8px;">
+          <span class="layer-badge" data-layer="backfx">Instances</span>
+          <div class="mini-toggles" id="bub-instances">
+            <button class="mini-btn" data-bub="0">1</button>
+            <button class="mini-btn" data-bub="1">2</button>
+            <button class="mini-btn" data-bub="2">3</button>
+          </div>
+          <label style="margin-left:auto; display:flex; align-items:center; gap:6px;">
+            <input type="checkbox" id="bub-edit-all" /> Edit all
+          </label>
+        </div>
         <div class="row"><label>Speed</label><input id="bub-speed" type="range" min="0" max="2" step="0.01" value="1"/><span id="bub-speed-val">1.00</span></div>
         <div class="row"><label>Wobble</label><input id="bub-wobble" type="range" min="0" max="2" step="0.01" value="1"/><span id="bub-wobble-val">1.00</span></div>
         <div class="row"><label>Frequency</label><input id="bub-freq" type="range" min="0" max="2" step="0.01" value="1"/><span id="bub-freq-val">1.00</span></div>
@@ -582,31 +529,37 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
         <div class="row"><label>Size change rate (Hz)</label><input id="bub-sizefreq" type="range" min="0" max="1" step="0.01" value="0"/><span id="bub-sizefreq-val">0.00</span></div>
         <div class="row"><label>Jumbo chance</label><input id="bub-jumbochance" type="range" min="0" max="0.5" step="0.01" value="0.00"/><span id="bub-jumbochance-val">0.00</span></div>
         <div class="row"><label>Jumbo scale</label><input id="bub-jumboscale" type="range" min="1.0" max="2.5" step="0.05" value="1.60"/><span id="bub-jumboscale-val">1.60</span></div>
-        <div class="row"><label>Texture</label><select id="bub-tex"><option value="orb">Orb_NeedsFriends.png</option><option value="proc">Fallback (procedural)</option></select><button id="bub-apply-tex">Apply</button></div>
+        <div class="row"><label>Texture</label><select id="bub-tex"><option value="orb">Orb_NeedsFriends.png</option><option value="proc">Fallback (procedural)</option><option value="custom">Custom...</option></select><button id="bub-apply-tex">Apply</button><input type="file" id="bub-upload" accept="image/*" style="display:none"/><button id="bub-upload-btn" title="Load texture">Load…</button></div>
         <div class="row"><button id="bub-pause">Pause</button><button id="bub-resume">Resume</button><button id="bub-reset">Reset</button><button id="bub-randomize" style="margin-left:auto;">Randomize</button></div>
       </section>
       <section class="app-page" data-app="gl">
-<div class="section-title">Overlay FX</div>
+<div class="section-title">ExFX</div>
         <div class="row"><label>Alpha</label><input id="gl-alpha" type="range" min="0" max="1" step="0.01" value="0.20"/><span id="gl-alpha-val">0.20</span></div>
         <div class="row"><label>Disp X</label><input id="gl-dx" type="range" min="0" max="64" step="1" value="24"/><span id="gl-dx-val">24</span></div>
         <div class="row"><label>Disp Y</label><input id="gl-dy" type="range" min="0" max="64" step="1" value="18"/><span id="gl-dy-val">18</span></div>
         
-        <div class="section-title" style="margin-top: 15px;">Visual Effects</div>
-        <div class="row">
-          <label>Target</label>
-          <select id="hue-target"></select>
+      </section>
+      <section class="app-page" data-app="hue">
+        <div class="section-title">Hue</div>
+        <div class="row" style="margin-bottom:6px; gap:10px; align-items:flex-end;">
+          <label>Target
+            <select id="hue-target" style="margin-left:6px;">
+              <option value="errl">Errl</option>
+              <option value="nav">Nav Bubbles</option>
+              <option value="bgBubbles">BG Bubbles</option>
+              <option value="glOverlay">ExFX Overlay</option>
+              <option value="backGlow">Back Glow</option>
+            </select>
+          </label>
+          <label style="margin-left:auto;">
+            <input type="checkbox" id="hue-enabled" checked /> Enabled
+          </label>
         </div>
-        
-        <!-- Contextual controls: HUE (WebGL/CSS) -->
-        <div id="hue-controls">
-          <div class="row" style="align-items:center; gap:10px;">
-            <label style="margin-left:auto;"><input type="checkbox" id="hue-enabled" checked/> <span id="hue-enabled-label">Enabled</span></label>
-          </div>
-          <div class="row"><label id="hue-label">Hue</label><input id="hue-shift" type="range" min="0" max="360" step="1" value="0"/><span id="hue-shift-val">0°</span></div>
-          <div class="row"><label id="sat-label">Saturation</label><input id="hue-saturation" type="range" min="0" max="2" step="0.01" value="1.0"/><span id="hue-saturation-val">100%</span></div>
-          <div class="row"><label id="int-label">Intensity</label><input id="hue-intensity" type="range" min="0" max="1" step="0.01" value="1.0"/><span id="hue-intensity-val">100%</span></div>
-          <div class="row">
-            <label>Theme</label>
+        <div class="row">
+          <label>Hue <input id="hue-shift" type="range" min="0" max="360" step="1" value="0"/></label><span id="hue-shift-val">0°</span>
+          <label>Saturation <input id="hue-saturation" type="range" min="0" max="2" step="0.01" value="1"/></label><span id="hue-saturation-val">100%</span>
+          <label>Intensity <input id="hue-intensity" type="range" min="0" max="1" step="0.01" value="1"/></label><span id="hue-intensity-val">100%</span>
+          <label>Theme
             <select id="hue-theme">
               <option value="normal">Normal</option>
               <option value="warm">Warm</option>
@@ -616,22 +569,15 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
               <option value="ocean">Ocean</option>
               <option value="forest">Forest</option>
             </select>
-          </div>
-          <div class="row">
-            <button id="hue-animate">Animate</button>
-            <button id="hue-reset">Reset Target</button>
-            <button id="hue-reset-all" style="margin-left:auto;">Reset All</button>
-          </div>
+          </label>
+          <button id="hue-animate">Animate</button>
         </div>
-        
       </section>
     </div>
   <div class="phone-foot" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
         <div style="display:flex; gap:6px;">
-          <button id="dev-save" class="mini-btn">Save</button>
-          <button id="dev-load" class="mini-btn">Load</button>
           <button id="dev-reset" class="mini-btn">Reset</button>
-          <button id="dev-replay" class="mini-btn">Replay Intro</button>
+          <button id="dev-snapshot" class="mini-btn">Snapshot</button>
         </div>
         <span style="opacity:.8">Hotkeys: D = toggle panel</span>
       </div>
@@ -661,16 +607,32 @@ body.dev-mode [data-layer]{ outline:2px dashed rgba(0,229,255,.18); }
 <script src="../../fx/bubbles-pixi.js"></script>
 <script src="../../fx/hue-filter.js"></script>
 <script src="../../fx/hue-controller.js"></script>
+<!-- Dev System (only loads if ?dev=true) -->
+<script src="../../fx/dev-system.js"></script>
+<script src="../../fx/parameter-controls.js"></script>
 <script>
+/*
+  Errl Portal (Pixi/GL variant) — architecture + controls overview
+  - Layers L0..L6: background backdrops, GL canvas, motes, Errl, orbit UI, awakening overlay.
+  - Dev panel (“Errl Phone”): HUD toggles, Errl hue/goo, Nav Bubbles layout + hue/goo, Background Bubbles FX, GL Overlay hue/intensity.
+  - WebGL stack: Pixi app + overlay gradient + displacement filter + Bubbles FX via ErrlFX manager.
+  - Hue system: window.ErrlHueController exposes per-layer hue controls; this page registers glOverlay and bgBubbles.
+  - Persistence: localStorage keys — errl_dev_nav (nav intro/layout), errl_bubbles_fx (BG bubbles), errl_goo_cfg (Errl goo), errl_nav_goo_cfg (nav goo).
+  - Live control API: window.ErrlLive exposes get/set methods used by the external Dev Controls page to live-tweak and persist.
+  - Interaction: hold “M” to drag Errl; double-click near center to reveal; buttons orbit around Errl’s head anchor.
+  Notes: comments below document key sections and controls wiring for easier future maintenance.
+*/
 (function(){
   const portal = document.getElementById('portal');
   const halo = document.getElementById('halo');
   const motesLayer = document.getElementById('motesLayer');
   const awakening = document.getElementById('awakening');
   const hud = document.getElementById('hud');
-  // Hide HUD by default; toggle with 'H'
-if(hud) hud.style.display='';
+// Hide HUD bar by default (controls relocated to dev panel HUD tab); toggle with 'H'
+if(hud) hud.style.display='none';
 const toggles = { parallax:true, gl:true, bubbles: 'moving', mirror:false, mirrorBoth:false, errlGoo:true, coin:false };
+// Broadcast global state changes so dev panel can stay in sync
+function broadcastState(){ try{ dispatchEvent(new CustomEvent('errl-statechange',{ detail:{ toggles: Object.assign({}, toggles), errlVisible } })); }catch(e){} }
 // Goo effect tuning (dev-panel adjustable)
 const GOO = { enabled: true, mult: 1.00, wobble: 1.00 };
 
@@ -716,6 +678,7 @@ const errlInline = document.getElementById('errl-inline');
   const btns = Array.from(uiOrbit.querySelectorAll('.btn'));
   const layerL5 = document.querySelector('[data-layer="L5"]');
   const devPanel = document.getElementById('devpanel');
+<<<<<<<< HEAD:archive/dev-panel-backup/pixi-gl-with-devpanel.html
   const colorizerPhone = document.getElementById('colorizerPhone');
   const colorizerClose = document.getElementById('colorizerClose');
   const openColorizerBtn = document.getElementById('open-colorizer');
@@ -724,6 +687,17 @@ const errlInline = document.getElementById('errl-inline');
   }
   if (colorizerClose && colorizerPhone) {
     colorizerClose.addEventListener('click', ()=> colorizerPhone.classList.add('hidden'));
+========
+  const devLink = document.getElementById('dev-link');
+  if (devLink) {
+    const devPage = new URL('../../apps/dev/index.html', location.href);
+    const tgt = location.pathname + location.search + location.hash;
+    devPage.searchParams.set('target', tgt);
+    devLink.href = devPage.toString();
+    devLink.target = '_blank';
+    devLink.rel = 'noopener noreferrer';
+    devLink.title = 'Open Dev Controls Page';
+>>>>>>>> erc-20251030-082458:src/portal/pixi-gl/index.html
   }
 
   // Nav bubble art rotation: cycle through local assets Bubbles-1..6 on each load
@@ -769,6 +743,7 @@ const errlInline = document.getElementById('errl-inline');
     localStorage.setItem('nav_skin_idx', String((start+1)%NAV_SKINS.length));
   }
   assignNavBubbleSkins();
+<<<<<<<< HEAD:archive/dev-panel-backup/pixi-gl-with-devpanel.html
 
   // Listen for customizer changes from iframe
   function ensureInlineErrlMode(){
@@ -814,6 +789,9 @@ const errlInline = document.getElementById('errl-inline');
   });
 
   // Hide nav layer until intro begins
+========
+  // Hide nav layer until intro begins (restored)
+>>>>>>>> erc-20251030-082458:src/portal/pixi-gl/index.html
   if(layerL5) layerL5.style.display = 'none';
   let last = performance.now(); let driftT = 0; let introActive = true; let navIntroStarted = false;
   let bubbleState = 'running'; // running → paused → hidden
@@ -839,11 +817,10 @@ const errlInline = document.getElementById('errl-inline');
     const ay = centerY + off.dy;
     const m = getBubbleMargin();
     
-    // On mobile, allow bubbles to move off-screen more freely
+    // On mobile, keep bubbles fully within the viewport
     if (isMobile()) {
-      // Much more permissive boundaries - allow most of the bubble to go off screen
-      const left = ax + m, right = innerWidth - ax + m, top = ay + m, bottom = innerHeight - ay + m;
-      return Math.max(60, Math.min(navSpread * 1.5, left, right, top, bottom)); // Allow 1.5x spread on mobile
+      const left = ax - m, right = innerWidth - ax - m, top = ay - m, bottom = innerHeight - ay - m;
+      return Math.max(40, Math.min(navSpread, left, right, top, bottom));
     } else {
       // Desktop: keep bubbles mostly on screen
       const left = ax - m, right = innerWidth - ax - m, top = ay - m, bottom = innerHeight - ay - m;
@@ -933,18 +910,21 @@ const errlInline = document.getElementById('errl-inline');
     }
     requestAnimationFrame(uiTick);
   }
-  const media = matchMedia('(prefers-reduced-motion: reduce)');
-  if(!media.matches){ requestAnimationFrame(uiTick); }
+  // Always animate orbit; respect reduced-motion by lowering speed elsewhere if needed
+  requestAnimationFrame(uiTick);
 
   // Nav buttons click
   btns.forEach(b=>{
-    b.addEventListener('click', ()=>{
+    b.addEventListener('click', (e)=>{
+      console.log('Button clicked:', b.dataset.pos, b.title);
       const pos = b.dataset.pos;
-      if(pos==='1') window.location.href='../../apps/about/index.html';
+      if(pos==='1') {
+        console.log('Navigating to about page:', '../../apps/about.html');
+        window.location.href='../../apps/about.html';
+      }
       if(pos==='2') window.location.href='../../apps/gallery/index.html';
       if(pos==='3') window.location.href='../../apps/projects/index.html';
       if(pos==='4') window.location.href='../../apps/pin-designer/index.html';
-      if(pos==='5') window.location.href='../../apps/drippy-text/index.html';
       if(pos==='6') window.location.href='../../apps/tools/index.html';
     });
   });
@@ -955,7 +935,7 @@ const errlInline = document.getElementById('errl-inline');
   let prog = 0;
   let lastClickTime = 0;
   let isInlineSVG = false;
-  let errlVisible = false; // start hidden
+let errlVisible = true; // revealed by default
 const errlImg = document.getElementById('errl-img');
 
   // Robust loader: prefer painted SVG, fall back to inline on error
@@ -978,8 +958,14 @@ const errlImg = document.getElementById('errl-img');
   errlInline.addEventListener('pointermove', onErrlPointerMove);
   errlInline.addEventListener('pointerup', onErrlPointerUp);
 
-  const revealBtn = () => hud.querySelector('[data-toggle="reveal"]');
-  const revealLabel = () => hud.querySelector('[data-toggle="reveal"] .label');
+  const revealBtn = () => {
+    const panel = document.getElementById('dev-hud-bubbles');
+    return panel ? panel.querySelector('[data-toggle="reveal"]') : null;
+  };
+  const revealLabel = () => {
+    const b = revealBtn();
+    return b ? b.querySelector('.label') : null;
+  };
 
   async function ensureInlineLoaded(){
     if(errlInline.childElementCount > 0) return;
@@ -1022,6 +1008,7 @@ async function showErrl(useInline=false, updateHud=true){
         errlImg.style.display='none'; errlInline.style.display='block'; errlInline.style.opacity='1'; isInlineSVG=true;
         // Apply gooey filter/class for inline mode
         errlInline.classList.toggle('goo', !!toggles.errlGoo);
+        try{ if(window.ErrlHueController) window.ErrlHueController.applyLayerCSS('errl'); }catch(e){}
       } else {
         // Try painted first; if it fails, fall back to inline
         await ensurePaintedLoaded().catch(async ()=>{ await ensureInlineLoaded(); useInline=true; });
@@ -1030,6 +1017,7 @@ async function showErrl(useInline=false, updateHud=true){
         else { errlInline.style.display='none'; errlImg.style.display='block'; requestAnimationFrame(()=> errlImg.style.opacity='1'); isInlineSVG=false; }
         // Apply gooey filter/class
         const active = isInlineSVG ? errlInline : errlImg; active.classList.toggle('goo', !!toggles.errlGoo);
+        try{ if(window.ErrlHueController) window.ErrlHueController.applyLayerCSS('errl'); }catch(e){}
       }
     }catch(e){
       console.warn('Errl load failed; attempting inline fallback.', e);
@@ -1040,6 +1028,7 @@ async function showErrl(useInline=false, updateHud=true){
     }
     applyErrlTransform();
     if(updateHud){ const lab = revealLabel(); if(lab) lab.textContent='Hide'; const b=revealBtn(); if(b) b.classList.add('toggled'); }
+    broadcastState();
   }
 function hideErrl(silent=false){
     errlVisible = false;
@@ -1048,6 +1037,7 @@ function hideErrl(silent=false){
     errlImg.style.opacity='0'; errlInline.style.opacity='0';
     setTimeout(()=>{ errlImg.style.display='none'; errlInline.style.display='none'; }, 900);
     if(!silent){ const lab = revealLabel(); if(lab) lab.textContent='Reveal'; const b=revealBtn(); if(b) b.classList.remove('toggled'); }
+    broadcastState();
   }
   async function toggleErrlVisibility(){ if(errlVisible) hideErrl(false); else showErrl(false,true); }
 
@@ -1080,8 +1070,7 @@ function hideErrl(silent=false){
     const c = {x: innerWidth/2, y: innerHeight/2};
     const d = Math.hypot(e.clientX - c.x, e.clientY - c.y);
     const thresh = Math.min(innerWidth, innerHeight) * 0.18;
-    const hudRect = hud.getBoundingClientRect();
-    const inHud = e.clientY >= hudRect.top;
+    const inHud = false; // bottom HUD removed
     if(!inHud && d < thresh && !errlVisible){ showErrl(false, true); }
   });
 
@@ -1089,18 +1078,36 @@ function hideErrl(silent=false){
 
   /* === PIXI / WebGL === */
   let app, stage, disp, dispFilter, overlay, ripples=[];
-let fxm = null, fxRoot = null, bubblesFX = null;
+let fxm = null, fxRoot = null, bubblesFX = []; // up to 3 instances
   const canvas = document.getElementById('gl');
+  if(canvas) canvas.style.display = (toggles.gl ? 'block' : 'none');
+/* WebGL bootstrap: Pixi app, overlay gradient sprite, displacement filter and Bubbles FX. Also binds hue and GL dev controls. */
   function initGL(){
     try{
       app = new PIXI.Application({ view: canvas, resizeTo: window, backgroundAlpha: 0, antialias: true, powerPreference: "high-performance", autoDensity: true, resolution: Math.min(devicePixelRatio||1, 2) });
+      // Helper to robustly resolve the Orb texture URL under file:// or http(s)
+      async function resolveOrbUrl(){
+        const candidates = [
+          assetUrl('fx/Orb_NeedsFriends.png'),
+          '../../assets/fx/Orb_NeedsFriends.png',
+          '../assets/fx/Orb_NeedsFriends.png',
+          './Orb_NeedsFriends.png'
+        ];
+        for(const u of candidates){
+          try{
+            await new Promise((res, rej)=>{ const img=new Image(); img.onload=()=>res(true); img.onerror=()=>rej(); img.src=u; });
+            return u;
+          }catch(_){/* try next */}
+        }
+        return null;
+      }
       stage = app.stage;
 
       // FX root below overlay
       fxRoot = new PIXI.Container(); stage.addChildAt(fxRoot, 0);
 
-      // Always try to use the external PNG orb; BubblesFX falls back to a procedural texture if load fails
-      const bubbleTex = assetUrl('fx/Orb_NeedsFriends.png');
+      // Use the external PNG orb by default; if it fails at runtime, instances will gracefully fall back.
+      let bubbleTex = assetUrl('fx/Orb_NeedsFriends.png');
       // Snapshot current UI state for bubbles so we can apply immediately on init
       try{ if(typeof bubSnapshotFromUI === 'function') bubSnapshotFromUI(); }catch(e){}
       // overlay to refract
@@ -1112,26 +1119,28 @@ let fxm = null, fxRoot = null, bubblesFX = null;
       disp = new PIXI.Sprite(noiseTex); disp.texture.baseTexture.wrapMode = PIXI.WRAP_MODES.REPEAT; disp.scale.set(2.2); stage.addChild(disp);
       dispFilter = (PIXI.DisplacementFilter? new PIXI.DisplacementFilter(disp) : new PIXI.filters.DisplacementFilter(disp)); dispFilter.scale.x = 24; dispFilter.scale.y = 18; overlay.filters = [dispFilter];
 
-      // Initialize FX manager + bubbles
+      // Initialize FX manager + bubbles (3 instances)
 fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
-      // Bubbles auto-registers itself with ErrlFX.Manager via bubbles-pixi.js
-      console.info('FX: enabling bubbles with texture', bubbleTex);
-      bubblesFX = fxm.enable('bubbles', { textureUrl: bubbleTex, alpha: 0.95, minSize: 18, maxSize: 44, densityBase: 52, pointerInfluence: false });
-      if(bubblesFX && typeof bubblesFX.then==='function'){
-        bubblesFX.then(inst=>{ bubblesFX = inst; bubblesFX.setSpeed(1); bubblesFX.setCountFactor(1);
-          // Apply persisted settings if available
-          try{ if(BUB && BUB.params){ const p=BUB.params; inst.setSpeed(p.speed??1); inst.setWobbleMult(p.wobble??1); inst.setFreqMult(p.freq??1); inst.setCountFactor(p.density??1); inst.set({ alpha:p.alpha??0.95, minSize:p.min??18, maxSize:p.max??44, farRatio:p.far??0.33, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null) }); } }catch(e){}
-        }).catch(()=>{});
-      } else if(bubblesFX){
-        bubblesFX.setSpeed(1); bubblesFX.setCountFactor(1);
-        try{ if(BUB && BUB.params){ const p=BUB.params; bubblesFX.setSpeed(p.speed??1); bubblesFX.setWobbleMult(p.wobble??1); bubblesFX.setFreqMult(p.freq??1); bubblesFX.setCountFactor(p.density??1); bubblesFX.set({ alpha:p.alpha??0.95, minSize:p.min??18, maxSize:p.max??44, farRatio:p.far??0.33, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null) }); } }catch(e){}
-      } else if(window.ErrlFX && window.ErrlFX.Bubbles){
-        // Fallback: construct directly if registry lookup failed for any reason
-        const inst = new window.ErrlFX.Bubbles(app, fxRoot, { textureUrl: bubbleTex, alpha: 0.95, minSize: 18, maxSize: 44, densityBase: 52 });
-        const maybe = inst.init && inst.init();
-        if(maybe && typeof maybe.then==='function'){ maybe.then(()=>{ inst.setSpeed(1); inst.setCountFactor(1); try{ if(BUB && BUB.params){ const p=BUB.params; inst.setSpeed(p.speed??1); inst.setWobbleMult(p.wobble??1); inst.setFreqMult(p.freq??1); inst.setCountFactor(p.density??1); inst.set({ alpha:p.alpha??0.95, minSize:p.min??18, maxSize:p.max??44, farRatio:p.far??0.33, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null) }); } }catch(e){} }).catch(()=>{}); }
-        bubblesFX = inst;
+      // Helper to create a bubbles layer and push to array (handles promise/instance)
+      function addBubblesInstance(idx){
+        const opts = { textureUrl: bubbleTex, alpha: 0.95, minSize: 18, maxSize: 44, densityBase: 52, pointerInfluence: false };
+        const res = fxm.enable('bubbles', opts);
+        const applyDefaults = (inst)=>{ try{ inst.setSpeed(1); inst.setCountFactor(1); }catch(_){} };
+        if(res && typeof res.then==='function'){
+          res.then(inst=>{ bubblesFX[idx] = inst; applyDefaults(inst); }).catch(()=>{});
+          bubblesFX[idx] = res; // store promise for now
+        } else if(res){ bubblesFX[idx] = res; applyDefaults(res); }
+        else if(window.ErrlFX && window.ErrlFX.Bubbles){
+          const inst = new window.ErrlFX.Bubbles(app, fxRoot, opts); const maybe=inst.init && inst.init();
+          if(maybe && typeof maybe.then==='function'){ maybe.then(()=>applyDefaults(inst)).catch(()=>{}); }
+          bubblesFX[idx] = inst;
+        }
       }
+      addBubblesInstance(0);
+      addBubblesInstance(1);
+      addBubblesInstance(2);
+      // After instances exist, resolve the best Orb URL and apply it to all
+      resolveOrbUrl().then((u)=>{ if(!u) return; bubbleTex=u; for(let i=0;i<3;i++){ const inst=bubblesFX[i]; if(!inst) continue; if(inst.then){ inst.then(r=>{ try{ r.set({ textureUrl:bubbleTex }); }catch(_){} }); } else { try{ inst.set({ textureUrl:bubbleTex }); }catch(_){} } } }).catch(()=>{});
 
       app.ticker.add((delta)=>{
         disp.x += 0.35 * delta; disp.y += 0.25 * delta;
@@ -1147,29 +1156,45 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
   }
   
   // Hue controller WebGL integration
+/* Register GL layers with the Hue controller so the unified hue UI can target them. */
   function initHueIntegration() {
     if (window.ErrlHueController) {
       // Register WebGL references so controller can target layers
       if (overlay) window.ErrlHueController.registerWebGLLayer('glOverlay', overlay);
-      if (bubblesFX && bubblesFX.sprites) window.ErrlHueController.registerWebGLLayer('bgBubbles', bubblesFX);
-      // Also re-register when bubblesFX resolves async
-      if (bubblesFX && typeof bubblesFX.then==='function'){
-        bubblesFX.then(inst=>{
-          window.ErrlHueController.registerWebGLLayer('bgBubbles', inst);
-        }).catch(()=>{});
-      }
+      // Pass all bubble instances so hue can affect them collectively
+      if (Array.isArray(bubblesFX) && bubblesFX.length){ window.ErrlHueController.registerWebGLLayer('bgBubbles', bubblesFX); }
     }
   }
   // Wait for Hue controller (TS module) to load before wiring GL + panel bindings
   function whenHueReady(cb){ if(window.ErrlHueController) { try{ cb(); } catch(e){} } else { setTimeout(()=> whenHueReady(cb), 60); } }
 
+  // Errl inline fill color updates driven by Hue Controller (Errl layer)
+  function hsl(h,s,l){ h=((h%360)+360)%360; s=Math.max(0,Math.min(2,s)); const ss=Math.round(Math.min(100,Math.max(0, s*80))); const ll=Math.round(Math.min(90,Math.max(5, l))); return `hsl(${h} ${ss}% ${ll}%)`; }
+  function updateErrlFillColors(state){ try{
+    const root = errlInline && errlInline.querySelector('svg'); if(!root) return;
+    const h = state.hue||0, s = state.saturation!=null? state.saturation : 1.0, inten = state.intensity!=null? state.intensity : 1.0;
+    const face = root.querySelector('[data-region="face"]');
+    const eyeL = root.querySelector('[data-region="eyeL"]');
+    const eyeR = root.querySelector('[data-region="eyeR"]');
+    const mouth = root.querySelector('[data-region="mouth"]');
+    const faceColor = hsl(h, s, 36 + Math.round(12*inten));
+    const eyeColor  = 'hsl(0 0% 92%)';
+    const mouthColor = hsl(h+10, s*0.8, 45 + Math.round(10*inten));
+    if(face) face.setAttribute('fill', faceColor);
+    if(eyeL) eyeL.setAttribute('fill', eyeColor);
+    if(eyeR) eyeR.setAttribute('fill', eyeColor);
+    if(mouth) mouth.setAttribute('fill', mouthColor);
+  }catch(e){} }
+  document.addEventListener('hueUpdate', (ev)=>{ try{ const {layer,state}=ev.detail||{}; if(layer==='errl'){ updateErrlFillColors(state); } }catch(e){} });
+
   // Dev panel: context-sensitive controls for Hue/Goo
+/* Populate target dropdown and wire hue sliders/toggles to the active target; sync labels dynamically. */
   function initGlDevControls(){
     const ctrl = window.ErrlHueController;
     const sel = document.getElementById('hue-target');
     if(!sel || !ctrl) return;
     // Populate targets (GL + key objects)
-    const wanted = ['bgBubbles','glOverlay','nav','errl'];
+    const wanted = ['errl','nav','bgBubbles','glOverlay','backGlow'];
     sel.innerHTML = '';
     for(const k of wanted){ const opt=document.createElement('option'); opt.value=k; opt.textContent=(k==='bgBubbles'?'Bubbles':(k==='glOverlay'?'Overlay':(k==='nav'?'The Orbit':(k==='errl'?'Errl':k)))); sel.appendChild(opt); }
     sel.value = 'glOverlay'; ctrl.setTarget('glOverlay');
@@ -1186,8 +1211,9 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
     const $t = (id)=>document.getElementById(id);
     const VALS = { hue: $t('hue-shift-val'), sat: $t('hue-saturation-val'), inten: $t('hue-intensity-val') };
 
-    function labelsFor(target){ if(target==='bgBubbles'){ labHue.textContent='Bubbles Hue'; labSat.textContent='Bubbles Saturation'; labInt.textContent='Bubbles Intensity'; }
+    function labelsFor(target){ if(!labHue || !labSat || !labInt) return; if(target==='bgBubbles'){ labHue.textContent='Bubbles Hue'; labSat.textContent='Bubbles Saturation'; labInt.textContent='Bubbles Intensity'; }
       else if(target==='glOverlay'){ labHue.textContent='Overlay Hue'; labSat.textContent='Overlay Saturation'; labInt.textContent='Overlay Intensity'; }
+      else if(target==='backGlow'){ labHue.textContent='Back Glow Hue'; labSat.textContent='Back Glow Saturation'; labInt.textContent='Back Glow Intensity'; }
       else { labHue.textContent='Hue'; labSat.textContent='Saturation'; labInt.textContent='Intensity'; } }
 
     function syncHueUI(layer){ const st = ctrl.layers[layer]; if(!st) return; if(hueEnabled) hueEnabled.checked = !!st.enabled; if(hueShift){ hueShift.value = String(st.hue||0); VALS.hue.textContent = (st.hue|0)+'°'; }
@@ -1198,11 +1224,11 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
     sel.addEventListener('change', onTargetChange);
 
     // Hue handlers
-    if(hueEnabled) hueEnabled.addEventListener('change', ()=> ctrl.setEnabled(!!hueEnabled.checked, sel.value));
-    if(hueShift) hueShift.addEventListener('input', ()=>{ ctrl.setHue(+hueShift.value, sel.value); VALS.hue.textContent = (Math.round(+hueShift.value))+'°'; });
-    if(hueSat) hueSat.addEventListener('input', ()=>{ ctrl.setSaturation(+hueSat.value, sel.value); VALS.sat.textContent = Math.round(+hueSat.value*100)+'%'; });
-    if(hueInt) hueInt.addEventListener('input', ()=>{ ctrl.setIntensity(+hueInt.value, sel.value); VALS.inten.textContent = Math.round(+hueInt.value*100)+'%'; });
-    if(hueTheme) hueTheme.addEventListener('change', ()=> ctrl.applyTheme(sel.value, hueTheme.value));
+    if(hueEnabled) hueEnabled.addEventListener('change', ()=> ctrl.setEnabledTemp(!!hueEnabled.checked, sel.value));
+    if(hueShift) hueShift.addEventListener('input', ()=>{ ctrl.setHueTemp(+hueShift.value, sel.value); VALS.hue.textContent = (Math.round(+hueShift.value))+'°'; });
+    if(hueSat) hueSat.addEventListener('input', ()=>{ ctrl.setSaturationTemp(+hueSat.value, sel.value); VALS.sat.textContent = Math.round(+hueSat.value*100)+'%'; });
+    if(hueInt) hueInt.addEventListener('input', ()=>{ ctrl.setIntensityTemp(+hueInt.value, sel.value); VALS.inten.textContent = Math.round(+hueInt.value*100)+'%'; });
+    if(hueTheme) hueTheme.addEventListener('change', ()=> ctrl.applyThemeTemp(sel.value, hueTheme.value));
 
     // Initial state
     onTargetChange();
@@ -1211,6 +1237,7 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
   // --- Gooey animation driver (vary displacement by pointer + time) ---
   let ptr={x:innerWidth/2, y:innerHeight/2};
   addEventListener('mousemove', (e)=>{ ptr.x=e.clientX; ptr.y=e.clientY; });
+/* Drive Errl's wobble (SVG filter) based on pointer distance and time; respects Goo multipliers. */
   function tickGoo(t){
     try{
       const disp = document.getElementById('errlGooDisp');
@@ -1243,6 +1270,7 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
     g.putImageData(img,0,0); return PIXI.Texture.from(c);
   }
 
+/* Simple additive ripple ring for click feedback on the GL stage. */
   function spawnRipple(x,y){
     if(!app) return;
     const g = new PIXI.Graphics(); g.position.set(x,y); g.alpha = 0.85; g.blendMode = PIXI.BLEND_MODES.ADD; g.scale.set(0.6);
@@ -1250,6 +1278,7 @@ fxm = new window.ErrlFX.Manager({ app, rootContainer: fxRoot });
     ripples.push({ g, life: 24 });
   }
 
+/* 3D spinning coin overlay — uses Errl face SVG on both sides; toggled via HUD 'Coin'. */
 let coinEl = null;
 let coinRAF = null;
 const COIN_SPEED = -0.12; // deg per ms (~3s per turn) negative = clockwise
@@ -1304,35 +1333,8 @@ function showCoin(){ if(coinEl) return; const wrap=document.createElement('div')
   startCoinSpin(); }
 function hideCoin(){ if(coinRAF){ cancelAnimationFrame(coinRAF); coinRAF=null; } if(coinEl){ coinEl.remove(); coinEl=null; } }
 
-  hud.addEventListener('click', (e)=>{
-    const b=e.target.closest('[data-toggle]'); if(!b) return;
-    const key=b.dataset.toggle;
-    if(key==='parallax'){ toggles.parallax=!toggles.parallax; b.classList.toggle('toggled', toggles.parallax); if(!toggles.parallax){ portal.querySelectorAll('[data-layer]').forEach(el=>el.style.transform='none'); } }
-    if(key==='gl'){ toggles.gl=!toggles.gl; b.classList.toggle('toggled', toggles.gl); canvas.style.display = toggles.gl ? 'block' : 'none'; if(toggles.gl && !app) initGL(); if(fxm){ toggles.gl ? fxm.resumeAll() : fxm.pauseAll(); } }
-    if(key==='bubbles'){
-      // Cycle nav bubble layer visibility: moving (shown) → hidden → moving
-      const l5 = document.querySelector('[data-layer="L5"]');
-      const label = b.querySelector('.label');
-      if(toggles.bubbles==='moving'){
-        toggles.bubbles='hidden'; l5.style.display = 'none'; if(label) label.textContent = 'Hidden';
-      } else {
-        toggles.bubbles='moving'; l5.style.display = 'grid'; if(label) label.textContent = 'Bubbles';
-      }
-    }
-    if(key==='reveal'){ 
-      toggleErrlVisibility();
-      const label = b.querySelector('.label'); if(label) label.textContent = errlVisible ? 'Hide' : 'Reveal';
-      b.classList.toggle('toggled', errlVisible);
-    }
-    if(key==='mirror'){ toggles.mirror=!toggles.mirror; b.classList.toggle('toggled', toggles.mirror); if(mirrorApplyTimer) clearTimeout(mirrorApplyTimer); mirrorApplyTimer = setTimeout(()=>{ applyMirror(); mirrorApplyTimer=null; }, 180); }
-    if(key==='coin'){
-      toggles.coin = !toggles.coin; b.classList.toggle('toggled', toggles.coin);
-      if(toggles.coin) showCoin(); else hideCoin();
-    }
-  });
-
-  // Secret double-click on Mirror to flip both axes
-  const mirrorBtn = hud.querySelector('[data-toggle="mirror"]');
+  // Bottom HUD removed
+/* Mirror modes: none, X-only, or both axes (quick composition checks). */
   function applyMirror(){
     const target = document.getElementById('portal');
     if(!target) return;
@@ -1342,10 +1344,9 @@ function hideCoin(){ if(coinRAF){ cancelAnimationFrame(coinRAF); coinRAF=null; }
     else { target.style.transform = 'none'; document.body.classList.remove('mirror-active'); }
   }
   let mirrorApplyTimer = null;
-  mirrorBtn.addEventListener('dblclick', ()=>{ if(mirrorApplyTimer){ clearTimeout(mirrorApplyTimer); mirrorApplyTimer=null; } toggles.mirrorBoth = !toggles.mirrorBoth; applyMirror(); });
 
 
-  // Intro: auto-reveal after 5s; then bring in nav bubbles one-by-one along a swoop path
+  // Intro timing
   const autoRevealDelay = 1000;
   function entryPath(u, R){
     // u in [0,1] around a lopsided loop (bulge up-left)
@@ -1390,10 +1391,12 @@ function hideCoin(){ if(coinRAF){ cancelAnimationFrame(coinRAF); coinRAF=null; }
   function easeOutQuad(t){ return 1 - (1 - t)*(1 - t); }
 // Tunable nav-intro settings
 const NAV_INTRO = {
-    dur: 4000,
+    dur: 2200,
     lift: 0,
     wobbleAmp: 0,
-    origin: 'center' // 'center' | 'mouth'
+    origin: 'spiral', // 'spiral' (fast spins into orbit) | 'drop' (from top) | 'center' | 'mouth'
+    spins: 2.5,
+    tightness: 0.95 // 0..1 (1 = very circular, minimal radial change)
   };
   function nearestAngleForTarget(tx, ty, R){
     // Search for the orbit angle whose position is closest to (tx,ty)
@@ -1408,6 +1411,7 @@ const NAV_INTRO = {
     return bestT;
   }
 // Dev state (persisted)
+/* Dev/persisted Nav layout params (localStorage: errl_dev_nav). */
   const DEV = { enabled:false, params:null };
   const LS_KEY = 'errl_dev_nav';
   function devLoad(){ try{ const raw=localStorage.getItem(LS_KEY); if(!raw) return; const obj=JSON.parse(raw); if(obj.params) DEV.params=obj.params; }catch(e){} }
@@ -1415,18 +1419,23 @@ const NAV_INTRO = {
   function getIntroParams(){ const p=Object.assign({}, NAV_INTRO, DEV.params||{}); return p; }
 
   // Persisted params for Background Bubbles FX
-  const BUB = { params:null };
+/* Persisted Background Bubbles FX params (localStorage: errl_bubbles_fx). */
+  const BUB = { params:null, selected:0, editAll:false };
   const LS_BUB = 'errl_bubbles_fx';
-  function bubLoad(){ try{ const raw=localStorage.getItem(LS_BUB); if(!raw) return; BUB.params = JSON.parse(raw)||null; }catch(e){} }
-  function bubSave(){ try{ localStorage.setItem(LS_BUB, JSON.stringify(BUB.params||{})); }catch(e){} }
+  function defaultBub(){ return { speed:1, wobble:1, freq:1, density:1, alpha:0.95, min:18, max:44, far:0.33, tex:'orb', sizefreq:0, jumbochance:0, jumboscale:1.6 }; }
+  function bubLoad(){ try{ const raw=localStorage.getItem(LS_BUB); if(!raw) { BUB.params=[defaultBub(), defaultBub(), defaultBub()]; return; } const obj=JSON.parse(raw); if(Array.isArray(obj)) BUB.params=obj; else BUB.params=[obj||defaultBub(), defaultBub(), defaultBub()]; }catch(e){ BUB.params=[defaultBub(), defaultBub(), defaultBub()]; } }
+  function bubSave(){ try{ localStorage.setItem(LS_BUB, JSON.stringify(BUB.params||[])); }catch(e){} }
   function bubSnapshotFromUI(){
     const g=(id,def)=>{ const el=document.getElementById(id); return el? (el.type==='number'? +el.value : +el.value || def) : def; };
     const s=(id)=>{ const el=document.getElementById(id); return el? el.value : null; };
-    BUB.params = {
+    const p = {
       speed: g('bub-speed',1), wobble:g('bub-wobble',1), freq:g('bub-freq',1), density:g('bub-density',1),
       alpha: g('bub-alpha',0.95), min: g('bub-min',18), max: g('bub-max',44), far: g('bub-far',0.33), tex: s('bub-tex')||'orb',
       sizefreq: g('bub-sizefreq',0), jumbochance: g('bub-jumbochance',0), jumboscale: g('bub-jumboscale',1.6)
     };
+    if(!Array.isArray(BUB.params)) BUB.params=[defaultBub(), defaultBub(), defaultBub()];
+    if(BUB.editAll){ BUB.params = [Object.assign({},p), Object.assign({},p), Object.assign({},p)]; }
+    else { BUB.params[BUB.selected||0] = p; }
     bubSave();
   }
   function showDevDots(){ uiOrbit.querySelectorAll('.devdot').forEach(n=>n.remove()); if(!finalFanLocal) return; const off=currentHeadOffset(); for(const t of finalFanLocal){ const d=document.createElement('div'); d.className='devdot'; d.style.setProperty('--x', (off.dx + t.x)+'px'); d.style.setProperty('--y', (off.dy + t.y)+'px'); uiOrbit.appendChild(d); } }
@@ -1434,6 +1443,7 @@ const NAV_INTRO = {
   devLoad();
 
   // Start orbit immediately without intro fan-in animation
+/* Skip intro and seed physics directly at fan endpoints; immediately start orbit. */
   function startOrbitImmediately(){
     if(navIntroStarted) return; navIntroStarted = true; introActive = false;
     if(layerL5) layerL5.style.display = 'grid';
@@ -1473,6 +1483,7 @@ const NAV_INTRO = {
     t0 = 0; orbitActive = true;
   }
 
+/* Animated fan-in intro for nav bubbles; clamps to safe radius around Errl's head anchor. */
   async function startNavIntro(){
     if(navIntroStarted) return; navIntroStarted = true; introActive = true;
     if(layerL5) layerL5.style.display = 'grid';
@@ -1492,7 +1503,6 @@ const NAV_INTRO = {
         // Snapshot current head offset to avoid drifting target while animating this bubble
         const off = currentHeadOffset();
         const mouthOff = currentMouthOffset();
-        const origin = (getIntroParams().origin==='mouth') ? mouthOff : {dx:0,dy:0};
         const local = finalFanLocal[i];
         // Clamp target to viewport by scaling vector to a safe radius
         const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null);
@@ -1505,32 +1515,37 @@ const NAV_INTRO = {
         
         const ocx = cx + centerOffsetX; const ocy = cy - 8; const safeR = safeRadiusAt(ocx, ocy, off);
         const rLen = Math.hypot(local.x, local.y) || 1; const scale = Math.min(1, safeR / rLen);
-        // Start all from the same origin point
-        const sx = origin.dx, sy = origin.dy;
-        b.style.setProperty('--x', sx.toFixed(2)+'px');
-        b.style.setProperty('--y', sy.toFixed(2)+'px');
+        // Quick spiral into final orbit, then hand off to slow orbit
         const txTarget = off.dx + local.x*scale, tyTarget = off.dy + local.y*scale;
+        const Rfinal = Math.hypot(txTarget - off.dx, tyTarget - off.dy) || 1;
+        const base = (orbitPhase && orbitPhase[i]!=null) ? orbitPhase[i] : Math.atan2(local.y, local.x);
+        const spins = (getIntroParams().spins!=null) ? +getIntroParams().spins : 2.5;
+        // Start just outside the final orbit, with adjustable tightness toward a near-circle
+        const tight = Math.max(0, Math.min(1, (getIntroParams().tightness!=null? +getIntroParams().tightness : 0.95)));
+        const Rstart = Math.min(
+          safeR,
+          Rfinal * (1 + 0.08 * (1 - tight)) + 30 * (1 - tight)
+        );
+        const a0 = base - spins*2*Math.PI;
+        const px0 = off.dx + Rstart * Math.cos(a0);
+        const py0 = off.dy + Rstart * Math.sin(a0);
+        b.style.setProperty('--x', px0.toFixed(2)+'px');
+        b.style.setProperty('--y', py0.toFixed(2)+'px');
         const tStart = performance.now();
         function step(now){
           const pLin = Math.min(1, (now - tStart)/dur);
-          const p = easeInOutCubic(pLin);
-          // Ensure exact center at start: swirl and wobble ramp up from 0
-          const swirl = 0.9 * Math.sin(p * Math.PI) * p; // 0 at p=0,0 at p=1, peak mid
-          const lift = getIntroParams().lift * (p*p); // ease-in lift
-          const vx = txTarget - sx, vy = tyTarget - sy;
-          const vlen = Math.hypot(vx,vy) || 1;
-          let px = sx + vx * p - (vy/vlen) * swirl;
-          let py = sy + vy * p + (vx/vlen) * swirl + lift;
-          const wob = getIntroParams().wobbleAmp * Math.sin(p * Math.PI * 1.2 + i*0.6) * (p*p);
-          px += -(vy/vlen) * wob;
-          py +=  (vx/vlen) * wob;
+          const p = easeOutQuad(pLin);
+          const a = base - spins*2*Math.PI*(1 - p);
+          const r = Rfinal + (Rstart - Rfinal) * (1 - p);
+          const px = off.dx + r * Math.cos(a);
+          const py = off.dy + r * Math.sin(a);
           b.style.setProperty('--x', px.toFixed(2)+'px');
           b.style.setProperty('--y', py.toFixed(2)+'px');
-          const sv = 0.5 + 0.5*p; b.style.setProperty('--sv', sv.toFixed(3));
+          const sv = 0.7 + 0.3*p; b.style.setProperty('--sv', sv.toFixed(3));
           b.style.opacity = String(Math.min(1, 0.25 + p*0.9));
-        if(pLin < 1){ requestAnimationFrame(step); } else { finished++; if(finished===n){ introActive=false; t0=0; orbitActive=true; // seed physics targets at current endpoints
-            for(let k=0;k<n;k++){ const ph=phys[k]; if(ph){ ph.tx = finalFanLocal[k].x + currentHeadOffset().dx; ph.ty = finalFanLocal[k].y + currentHeadOffset().dy; ph.px = ph.tx; ph.py = ph.ty; ph.vx=0; ph.vy=0; ph.init=true; } }
-          } }
+          if(pLin < 1){ requestAnimationFrame(step); } else { finished++; if(finished===n){ introActive=false; t0=0; orbitActive=true; // seed physics targets at current endpoints
+              for(let k=0;k<n;k++){ const ph=phys[k]; if(ph){ ph.tx = finalFanLocal[k].x + currentHeadOffset().dx; ph.ty = finalFanLocal[k].y + currentHeadOffset().dy; ph.px = ph.tx; ph.py = ph.ty; ph.vx=0; ph.vy=0; ph.init=true; } }
+            } }
         }
         requestAnimationFrame(step);
       }, i*baseDelay);
@@ -1543,157 +1558,57 @@ const NAV_INTRO = {
   function saveParamsFromPanel(){ DEV.params={ dur:+$('dev-dur').value, cxOff:+$('nav-cx').value }; devSave(); }
   function replayIntro(){ // soft replay
     introActive=true; navIntroStarted=false; if(layerL5) layerL5.style.display='grid'; btns.forEach(b=>{ b.style.opacity='0'; b.style.setProperty('--sv','0.9'); }); startNavIntro(); }
-  // Dev overlay runtime boxes
-  let devOverlayOn = false; let devOverlayEl = null; let devOverlayUp = null; let devOverlayMode = 'layer'; // 'layer' | 'element'
-  const LAYER_NAMES = {
-    'L0':'Background',
-    'L1':'Subsurface (future)',
-    'L2':'Motes',
-    'L3':'Drip Frame',
-    'L4':'Errl',
-    'L5':'Nav Bubbles',
-    'L6':'Awakening Overlay',
-    HUD:'HUD',
-    GL:'WebGL Shimmer',
-    ORBIT:'UI Orbit'
-  };
-  const LAYER_DESCRIPTIONS = {
-    L0:'Animated cosmic gradient backdrop (hue-shifting).',
-    L1:'Reserved layer for subsurface/ambient depth elements (currently unused).',
-    L2:'CSS “motes” particles drifting upward; small twinkles.',
-    L3:'Top streak/drip frame decoration around the portal.',
-    L4:'Central Errl silhouette (inline/painted), draggable, interactive regions.',
-    L5:'Orbiting navigation bubbles — fan-in, orbit, click to navigate.',
-    L6:'“Awakening” overlay: portal drip and FOR THE NOMADS sigil.',
-    HUD:'Bottom HUD chips: Parallax/WebGL/Reveal/Bubbles/Mirror.',
-    GL:'PixiJS shimmer + refraction overlay with displacement.',
-    ORBIT:'Invisible container that positions/nav animates the bubble buttons.'
-  };
-  function devOverlayTargets(){
-    const t=[];
-    if(devOverlayMode==='layer'){
-      document.querySelectorAll('[data-layer]').forEach(el=>{
-        const key = el.getAttribute('data-layer'); const label = LAYER_NAMES[key] || key; t.push({ el, key, label });
-      });
-      const hudEl=document.getElementById('hud'); if(hudEl) t.push({ el:hudEl, key:'HUD', label:LAYER_NAMES.HUD });
-      const glEl=document.getElementById('gl'); if(glEl) t.push({ el:glEl, key:'GL', label:LAYER_NAMES.GL });
-      const orbit=document.querySelector('.ui-orbit'); if(orbit) t.push({ el:orbit, key:'ORBIT', label:LAYER_NAMES.ORBIT });
-      const act = activeErrlEl && activeErrlEl(); if(act) t.push({ el:act, key:'L4', label:LAYER_NAMES['L4'] });
-    } else {
-      const add=(el,key,label)=>{ if(el){ const r=el.getBoundingClientRect(); if(r.width>0 && r.height>0) t.push({ el, key, label }); } };
-      // HUD chips
-      document.querySelectorAll('#hud .chip').forEach((el)=> add(el, 'HUD:'+((el.querySelector('.label')? el.querySelector('.label').textContent : 'Chip')), 'HUD: '+((el.querySelector('.label')? el.querySelector('.label').textContent : 'Chip'))));
-      // Nav buttons
-      document.querySelectorAll('.ui-orbit .btn').forEach((el,i)=> add(el, 'NAV:'+((el.getAttribute('title'))||('Button '+(i+1))), 'Nav: '+(el.getAttribute('title')||('Button '+(i+1)))));
-      // Errl regions (if inline available)
-      const inline = document.querySelector('#errl-inline svg, #errl');
-      if(inline){ inline.querySelectorAll('[data-region]').forEach((el)=> add(el, 'ERRL-REGION:'+el.getAttribute('data-region'), 'Errl region: '+el.getAttribute('data-region'))); }
-    }
-    return t;
-  }
-  let devChooserEl=null; function hideChooser(){ if(devChooserEl){ devChooserEl.style.display='none'; } }
-let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3','L4','L5','L6']; const hiddenLayers=new Set();
-  function applyLayerStack(){ layersOrder.forEach((k,idx)=>{ const el=document.querySelector(`[data-layer="${k}"]`); if(el){ el.style.zIndex = String(200+idx); } }); }
-  function toggleLayerVisibility(k){ const el=document.querySelector(`[data-layer="${k}"]`); if(!el) return; if(hiddenLayers.has(k)){ hiddenLayers.delete(k); el.style.display = (k==='L5'?'grid':''); } else { hiddenLayers.add(k); el.style.display='none'; } buildLayersPanel(); }
-  function moveLayer(k,dir){ const i=layersOrder.indexOf(k); if(i<0) return; const j = i + (dir==='up'?-1:1); if(j<0 || j>=layersOrder.length) return; const tmp=layersOrder[i]; layersOrder[i]=layersOrder[j]; layersOrder[j]=tmp; applyLayerStack(); buildLayersPanel(); }
-  function buildLayersPanel(){ if(!devLayersEl) return; const ul=devLayersEl.querySelector('ul'); ul.innerHTML=''; for(const k of [...layersOrder].reverse()){ const li=document.createElement('li'); li.classList.toggle('active', selectedKey===k); const name=document.createElement('div'); name.className='name'; name.textContent=LAYER_NAMES[k]||k; name.title=name.textContent; name.onclick=()=>{ selectedKey=k; devOverlayApply(); }; li.appendChild(name); const btns=document.createElement('div'); btns.className='btns'; const eye=document.createElement('button'); eye.textContent = hiddenLayers.has(k)? 'Show':'Hide'; eye.title='Toggle visibility'; eye.onclick=()=> toggleLayerVisibility(k); btns.appendChild(eye); const up=document.createElement('button'); up.textContent='↑'; up.title='Raise'; up.onclick=()=> moveLayer(k,'up'); btns.appendChild(up); const down=document.createElement('button'); down.textContent='↓'; down.title='Lower'; down.onclick=()=> moveLayer(k,'down'); btns.appendChild(down); li.appendChild(btns); ul.appendChild(li); } devLayersEl.style.display='block'; }
-  function devOverlayApply(){ if(!devOverlayOn) return; if(!devOverlayEl){ devOverlayEl=document.createElement('div'); devOverlayEl.id='dev-overlay-layer'; document.body.appendChild(devOverlayEl); }
-    devOverlayEl.classList.toggle('element-mode', devOverlayMode==='element');
-    devOverlayEl.innerHTML=''; hideChooser();
-    const targets = devOverlayTargets();
-    // Mode pill
-    const ctl=document.createElement('div'); ctl.className='ctl'; ctl.textContent = 'Overlay: '; const b=document.createElement('b'); b.textContent=(devOverlayMode==='layer'?'Layers':'Elements'); ctl.appendChild(b); ctl.title='Click to toggle overlay mode'; ctl.onclick=()=>{ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }; devOverlayEl.appendChild(ctl);
-    // Layers stack panel (only in layer mode)
-    if(devOverlayMode==='layer'){
-      if(!devLayersEl){ devLayersEl=document.createElement('div'); devLayersEl.id='dev-layers'; devLayersEl.innerHTML='<header><strong>Layers</strong><div><button id="dev-layers-close" title="Hide">×</button></div></header><ul></ul>'; document.body.appendChild(devLayersEl); devLayersEl.querySelector('#dev-layers-close').onclick=()=> devLayersEl.style.display='none'; }
-      applyLayerStack();
-      buildLayersPanel();
-    } else { if(devLayersEl) devLayersEl.style.display='none'; }
-    const boxes=[]; // keep refs for hit-testing
-    for(const {el, key, label:pretty} of targets){
-      const r = el.getBoundingClientRect();
-      const box = document.createElement('div'); box.className='box'; box.style.left=r.left+'px'; box.style.top=r.top+'px'; box.style.width=r.width+'px'; box.style.height=r.height+'px';
-      box.dataset.key = key||'#'; box.dataset.label = pretty||key||'#'; box.dataset.left=r.left; box.dataset.top=r.top; box.dataset.width=r.width; box.dataset.height=r.height;
-      box.title = LAYER_DESCRIPTIONS[key] || pretty || key || '#';
-      const label=document.createElement('div'); label.className='tag'; label.textContent=pretty||key||'#'; label.title = box.title; box.appendChild(label);
-      box.addEventListener('click', (ev)=>{
-        ev.stopPropagation();
-        if(devOverlayMode==='element'){ // select only; open with double-click
-          selectedKey = box.dataset.key; boxes.forEach(b=>b.classList.toggle('active', b===box)); return;
-        }
-        const x=ev.clientX, y=ev.clientY; const under = boxes.filter(b=> x>=+b.dataset.left && x<=+b.dataset.left+ +b.dataset.width && y>=+b.dataset.top && y<=+b.dataset.top+ +b.dataset.height);
-        if(ev.shiftKey){ showChooser(x,y, under.map(b=>({key:b.dataset.key, label:b.dataset.label}))); return; }
-        // single click just selects highlight in layer mode; open with double-click
-        selectedKey = box.dataset.key; boxes.forEach(b=>b.classList.toggle('active', b===box));
-      });
-      box.addEventListener('dblclick', ()=> gotoTag(box.dataset.key));
-      // Drag-to-move in element mode for Nav bubbles and Errl
-      let dragS=null; box.addEventListener('pointerdown', (e)=>{
-        if(devOverlayMode!=='element' || !e.metaKey) return; // require Cmd for drag
-        e.preventDefault(); dragS={x:e.clientX,y:e.clientY, key:box.dataset.key, elRef: (targets.find(t=>t.label===box.dataset.label || t.key===box.dataset.key)||{}).el };
-        box.setPointerCapture && box.setPointerCapture(e.pointerId);
-      });
-      box.addEventListener('pointermove', (e)=>{
-        if(!dragS) return; const dx=e.clientX-dragS.x, dy=e.clientY-dragS.y; applyDevMove(dragS.key, dragS.elRef, dx, dy); box.classList.add('active');
-      });
-      box.addEventListener('pointerup', (e)=>{
-        if(!dragS) return; const dx=e.clientX-dragS.x, dy=e.clientY-dragS.y; finalizeDevMove(dragS.key, dx, dy); dragS=null;
-      });
-      devOverlayEl.appendChild(box); boxes.push(box);
-    }
-  }
-  function gotoTag(key){ const map={ HUD:'hud', GL:'gl', ORBIT:'nav', 'L5':'nav', 'L4':'errl', 'L2':'backfx' }; const page = map[key] || (key&&key.startsWith('L')? 'layers' : ((key&&key.startsWith('NAV:'))?'nav' : ((key&&key.startsWith('ERRL-REGION:'))?'errl' : ((key&&key.startsWith('HUD:'))?'hud' : null)))); if(page){ const btn = document.querySelector(`#dev-apps .app-icon[data-app=\"${page}\"]`); if(btn) btn.click(); } }
-  function showChooser(x,y,items){ if(!devChooserEl){ devChooserEl=document.createElement('div'); devChooserEl.id='dev-chooser'; document.body.appendChild(devChooserEl); }
-    devChooserEl.innerHTML='';
-    for(const it of items){ const row=document.createElement('div'); row.className='item'; row.textContent=it.label; row.title=LAYER_DESCRIPTIONS[it.key]||it.label; row.onclick=()=>{ hideChooser(); gotoTag(it.key); }; devChooserEl.appendChild(row); }
-    devChooserEl.style.left = Math.min(x, innerWidth-220)+'px'; devChooserEl.style.top = Math.min(y, innerHeight-180)+'px'; devChooserEl.style.display='block';
-  }
-  function applyDevMove(key, el, dx, dy){ if(!el) return; if(/^NAV:/.test(key)){ el.style.setProperty('--dx', dx.toFixed(0)+'px'); el.style.setProperty('--dy', dy.toFixed(0)+'px'); }
-    else if(/^ERRL/.test(key) || key==='L4'){ errlOffset.x = Math.round(dx); errlOffset.y = Math.round(dy); applyErrlTransform(); }
-  }
-  function finalizeDevMove(key, dx, dy){ const msg = `Move ${key} by (${Math.round(dx)}, ${Math.round(dy)})px`; console.log('[DEV]', msg); }
-
-  // Dev edit helper modal disabled for now (stability)
-  function openDevEdit(){ /* no-op */ }
-  function devOverlayToggle(on){ devOverlayOn = (on==null? !devOverlayOn : !!on); document.body.classList.toggle('dev-mode', devOverlayOn); if(devOverlayOn){ devOverlayApply(); if(!devOverlayUp){ devOverlayUp = ()=> devOverlayApply(); addEventListener('resize', devOverlayUp); } } else { if(devOverlayEl) devOverlayEl.remove(); devOverlayEl=null; if(devOverlayUp) removeEventListener('resize', devOverlayUp); devOverlayUp=null; } }
   document.addEventListener('keydown', (e)=>{
     if(e.key==='d' || e.key==='D'){ DEV.enabled=!DEV.enabled; toggleDev(!DEV.enabled?false:true); populateDev(); }
-    if(e.key==='o' || e.key==='O'){ devOverlayToggle(); }
-    if(e.key==='e' || e.key==='E'){ devOverlayMode = (devOverlayMode==='layer'?'element':'layer'); devOverlayApply(); }
-    if(e.key==='h' || e.key==='H'){ const hb=document.getElementById('hud'); if(hb){ const hide = hb.style.display!== 'none' ? true : false; hb.style.display = hide? 'none' : ''; const chk=document.getElementById('hud-hidebar'); if(chk) chk.checked = (hb.style.display==='none'); } }
   });
   { const e=$('dev-hide'); if(e) e.onclick=()=> toggleDev(false); }
-  { const e=$('dev-overlay'); if(e) e.onclick=()=> devOverlayToggle(); }
-  { const e=$('dev-save'); if(e) e.onclick=()=>{ saveParamsFromPanel(); populateDev(); }; }
-  { const e=$('dev-load'); if(e) e.onclick=()=>{ devLoad(); populateDev(); showDevDots(); }; }
-  { const e=$('dev-reset'); if(e) e.onclick=()=>{ DEV.params=null; devSave(); populateDev(); showDevDots(); }; }
-  { const e=$('dev-replay'); if(e) e.onclick=()=> replayIntro(); }
+  { const e=$('dev-reset'); if(e) e.onclick=()=>{ try{ resetAllDefaults(); }catch(err){} populateDev(); showDevDots(); }; }
   devPanel.addEventListener('click', (e)=>{ const b=e.target.closest('button.n'); if(!b) return; const t=b.dataset.t, d=+b.dataset.d; const map={dur:'dev-dur'}; const id=map[t]; if(!id) return; const el=$(id); el.value = String((+el.value||0) + d); saveParamsFromPanel(); populateDev(); });
 
   // Dev phone tabs + controls
+/* Errl Phone UI: tabs, HUD chips, layout sliders, FX sliders; wires UI to live scene and persistence. */
   function initDevPhone(){
     const apps = Array.from(document.querySelectorAll('#dev-apps .app-icon'));
     bubLoad(); // load persisted bubbles params early
     const pages = Array.from(document.querySelectorAll('#dev-pages .app-page'));
     function activate(name){ apps.forEach(a=>a.classList.toggle('active', a.dataset.app===name)); pages.forEach(p=>p.classList.toggle('active', p.dataset.app===name)); }
     apps.forEach(a=> a.addEventListener('click', ()=> activate(a.dataset.app)));
-    // HUD mini toggles
-    const hudPar = document.getElementById('hud-parallax');
-    const hudGL = document.getElementById('hud-gl');
-    const hudBub = document.getElementById('hud-bubbles');
-    const hudMir = document.getElementById('hud-mirror');
-    const hudHide = document.getElementById('hud-hidebar');
-    function syncHUD(){ if(hudPar) hudPar.classList.toggle('toggled', !!toggles.parallax); if(hudGL) hudGL.classList.toggle('toggled', !!toggles.gl); if(hudBub) hudBub.classList.toggle('toggled', toggles.bubbles!=='hidden'); if(hudMir) hudMir.classList.toggle('toggled', !!(toggles.mirror||toggles.mirrorBoth)); if(hudHide){ var hb=document.getElementById('hud'); hudHide.checked = (hb && hb.style.display==='none'); } }
-    function setParallax(on){ toggles.parallax=!!on; if(!on){ portal.querySelectorAll('[data-layer]').forEach(el=>el.style.transform='none'); } syncHUD(); }
-    function setGL(on){ toggles.gl=!!on; const canvas=document.getElementById('gl'); canvas.style.display = on? 'block':'none'; if(on && !app) initGL(); if(fxm){ on? fxm.resumeAll(): fxm.pauseAll(); } if(on) applyBubFromUI(); syncHUD(); }
-    function setBubbles(on){ const l5=document.querySelector('[data-layer="L5"]'); if(on){ toggles.bubbles='moving'; if(l5) l5.style.display='grid'; } else { toggles.bubbles='hidden'; if(l5) l5.style.display='none'; } syncHUD(); }
-    function cycleMirror(){ if(toggles.mirrorBoth){ toggles.mirrorBoth=false; toggles.mirror=false; } else if(toggles.mirror){ toggles.mirror=false; toggles.mirrorBoth=true; } else { toggles.mirror=true; } applyMirror(); syncHUD(); }
-    hudPar && hudPar.addEventListener('click', ()=> setParallax(!toggles.parallax));
-    hudGL && hudGL.addEventListener('click', ()=> setGL(!toggles.gl));
-    hudBub && hudBub.addEventListener('click', ()=> setBubbles(toggles.bubbles==='hidden'));
-    hudMir && hudMir.addEventListener('click', cycleMirror);
-    hudHide && hudHide.addEventListener('change', ()=>{ const hb=document.getElementById('hud'); if(hb) hb.style.display = hudHide.checked? 'none':''; });
-    syncHUD();
+    // HUD controls in dev panel (bubble-style)
+    const hudPanel = document.getElementById('dev-hud-bubbles');
+    const HUD_ASSETS = {
+      parallax: { on:'Bubbles-1.png', off:'Bubble-Purp-1.png' },
+      gl:       { on:'Bubbles-2.png', off:'Bubble-Purp-2.png' },
+      reveal:   { on:'Bubbles-4.png', off:'Bubble-Purp-4.png' },
+      bubbles:  { on:'Bubbles-3.png', off:'Bubble-Purp-3.png' },
+      mirror:   { on:'Bubbles-5.png', off:'Bubble-Purp-5.png' },
+      coin:     { on:'Bubbles-2.png', off:'Bubble-Purp-2.png' }
+    };
+    const hudAssetUrl = (name)=> assetUrl(`Bubbles_ErrlSiteDecor/${name}`);
+    function setHudChipFill(button, k, on){ const skin = HUD_ASSETS[k]; if(!button || !skin) return; const name = on? skin.on : skin.off; button.style.backgroundImage = `url("${hudAssetUrl(name)}")`; button.style.backgroundPosition='center'; button.style.backgroundSize='contain'; button.style.backgroundRepeat='no-repeat'; }
+    function syncPanelHUD(){ if(!hudPanel) return; const q=(k)=> hudPanel.querySelector(`[data-toggle=\"${k}\"]`); const set=(k,on)=>{ const b=q(k); if(!b) return; b.classList.toggle('toggled', !!on); setHudChipFill(b, k, !!on); if(k==='reveal'){ const lab=b.querySelector('.label'); if(lab) lab.textContent = errlVisible? 'Hide':'Reveal'; } if(k==='bubbles'){ const lab=b.querySelector('.label'); if(lab) lab.textContent = (toggles.bubbles==='hidden'?'Hidden': (toggles.bubbles==='paused'?'Paused':'Bubbles')); } };
+      set('parallax', toggles.parallax);
+      set('gl', toggles.gl);
+      set('reveal', errlVisible);
+      set('bubbles', toggles.bubbles!=='hidden');
+      set('mirror', (toggles.mirror||toggles.mirrorBoth));
+      set('coin', toggles.coin);
+    }
+    function setParallax(on){ toggles.parallax=!!on; if(!on){ portal.querySelectorAll('[data-layer]').forEach(el=>el.style.transform='none'); } syncPanelHUD(); }
+    function setGL(on){ toggles.gl=!!on; const canvas=document.getElementById('gl'); canvas.style.display = on? 'block':'none'; if(on && !app) initGL(); if(fxm){ on? fxm.resumeAll(): fxm.pauseAll(); } if(on) applyBubFromUI(); syncPanelHUD(); }
+    function setBubbles(on){ const l5=document.querySelector('[data-layer=\"L5\"]'); if(on){ toggles.bubbles = 'moving'; if(l5) l5.style.display='grid'; orbitActive = true; } else { toggles.bubbles='hidden'; if(l5) l5.style.display='none'; orbitActive = false; } syncPanelHUD(); }
+    function pauseBubbles(){ const l5=document.querySelector('[data-layer=\"L5\"]'); toggles.bubbles = 'paused'; if(l5) l5.style.display='grid'; orbitActive = false; syncPanelHUD(); }
+    function resumeBubbles(){ const l5=document.querySelector('[data-layer=\"L5\"]'); toggles.bubbles = 'moving'; if(l5) l5.style.display='grid'; orbitActive = true; syncPanelHUD(); }
+    function cycleMirror(){ if(toggles.mirrorBoth){ toggles.mirrorBoth=false; toggles.mirror=false; } else if(toggles.mirror){ toggles.mirror=false; toggles.mirrorBoth=true; } else { toggles.mirror=true; } applyMirror(); syncPanelHUD(); }
+    if(hudPanel){
+    hudPanel && hudPanel.addEventListener('click', (e)=>{ const b=e.target.closest('[data-toggle]'); if(!b) return; const key=b.dataset.toggle; if(key==='parallax') setParallax(!toggles.parallax); if(key==='gl') setGL(!toggles.gl); if(key==='bubbles'){ if(introActive) return; if(toggles.bubbles==='moving'){ pauseBubbles(); } else if(toggles.bubbles==='paused'){ resumeBubbles(); } else { setBubbles(true); } } if(key==='mirror') cycleMirror(); if(key==='reveal'){ if(introActive) return; toggleErrlVisibility(); } if(key==='coin'){ toggles.coin=!toggles.coin; if(toggles.coin) showCoin(); else hideCoin(); } broadcastState(); });
+      const bubBtn = hudPanel.querySelector('[data-toggle=\"bubbles\"]');
+      bubBtn && bubBtn.addEventListener('dblclick', (e)=>{ e.stopPropagation(); setBubbles(false); broadcastState(); });
+      const mirBtn = hudPanel.querySelector('[data-toggle=\"mirror\"]');
+      mirBtn && mirBtn.addEventListener('dblclick', (e)=>{ e.stopPropagation(); if(mirrorApplyTimer){ clearTimeout(mirrorApplyTimer); mirrorApplyTimer=null; } toggles.mirrorBoth = !toggles.mirrorBoth; applyMirror(); syncPanelHUD(); broadcastState(); });
+    }
+    addEventListener('errl-statechange', ()=> syncPanelHUD());
+    // Initialize chip fills to current state
+    syncPanelHUD();
     // Nav fan controls
     const ns = document.getElementById('nav-spread'); const na = document.getElementById('nav-arc'); const nh = document.getElementById('nav-headY'); const nst = document.getElementById('nav-stagger');
     const nsv = document.getElementById('nav-spread-val'); const navv = document.getElementById('nav-arc-val'); const nhv = document.getElementById('nav-headY-val');
@@ -1707,14 +1622,27 @@ let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3'
     (function(){ var nr=document.getElementById('nav-replay'); if(nr) nr.addEventListener('click', ()=>{ applyNav(); replayIntro(); }); })();
     applyNav();
     // Bubbles controls (if available)
-    const bub = ()=> bubblesFX;
-    function applyBubFromUI(){ if(!BUB.params) return; const p=BUB.params; if(bub()){ bub().setSpeed(p.speed); bub().setWobbleMult(p.wobble); bub().setFreqMult(p.freq); bub().setCountFactor(p.density); bub().set({ alpha:p.alpha, minSize:p.min, maxSize:p.max, farRatio:p.far, textureUrl: (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null), sizeJitterFreq: p.sizefreq||0, jumboChance: p.jumbochance||0, jumboScale: p.jumboscale||1.6 }); } }
+    function bub(i){ const inst = bubblesFX[i!=null? i : (BUB.selected||0)]; return inst; }
+    function setBubButtonsActive(){ document.querySelectorAll('[data-bub]').forEach((b,i)=> b.classList.toggle('toggled', i=== (BUB.selected||0))); const ea=$('bub-edit-all'); if(ea) ea.checked = !!BUB.editAll; }
+    function syncBubUIFromSelected(){ const p = (Array.isArray(BUB.params)? (BUB.params[BUB.selected||0]||defaultBub()) : defaultBub()); const set=(id,val,fmt)=>{ const el=$(id), lab=$(id+'-val'); if(!el) return; el.value=String(val); if(lab){ lab.textContent = (fmt?fmt(val): (typeof val==='number' && String(val).includes('.')? (+val).toFixed(2) : String(val))); } };
+      set('bub-speed', p.speed); set('bub-wobble', p.wobble); set('bub-freq', p.freq); set('bub-density', p.density);
+      set('bub-alpha', p.alpha); const mi=$('bub-min'), ma=$('bub-max'); if(mi) mi.value=String(p.min); if(ma) ma.value=String(p.max); set('bub-far', p.far); set('bub-sizefreq', p.sizefreq); set('bub-jumbochance', p.jumbochance); set('bub-jumboscale', p.jumboscale);
+      const texSel=$('bub-tex'); if(texSel) texSel.value = (p.tex==='proc'?'proc': (p.tex==='custom'?'custom':'orb'));
+      setBubButtonsActive(); }
+    // instance selectors
+    document.querySelectorAll('[data-bub]').forEach(btn=> btn.addEventListener('click', ()=>{ BUB.selected = +btn.dataset.bub; BUB.editAll=false; syncBubUIFromSelected(); applyBubFromUI(); }));
+    const editAll=$('bub-edit-all'); if(editAll){ editAll.addEventListener('change', ()=>{ BUB.editAll = !!editAll.checked; setBubButtonsActive(); applyBubFromUI(); }); }
+    syncBubUIFromSelected();
+    // Apply any persisted settings to all three instances once available
+    (function applyAllFromStorage(){ if(Array.isArray(BUB.params)){ for(let i=0;i<3;i++){ const p=BUB.params[i]||defaultBub(); const inst=bub(i); if(inst){ const urlChoice=(p.tex==='custom' && BUB.customUrl)? BUB.customUrl : (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null); if(inst.then){ inst.then(r=>{ try{ r.setSpeed(p.speed); r.setWobbleMult(p.wobble); r.setFreqMult(p.freq); r.setCountFactor(p.density); r.set({ alpha:p.alpha, minSize:p.min, maxSize:p.max, farRatio:p.far, textureUrl:urlChoice, sizeJitterFreq:p.sizefreq||0, jumboChance:p.jumbochance||0, jumboScale:p.jumboscale||1.6 }); }catch(_){ } }); } else { try{ inst.setSpeed(p.speed); inst.setWobbleMult(p.wobble); inst.setFreqMult(p.freq); inst.setCountFactor(p.density); inst.set({ alpha:p.alpha, minSize:p.min, maxSize:p.max, farRatio:p.far, textureUrl:urlChoice, sizeJitterFreq:p.sizefreq||0, jumboChance:p.jumbochance||0, jumboScale:p.jumboscale||1.6 }); }catch(_){ } } } } }})();
+    function applyTo(inst, p){ if(!inst) return; const urlChoice = (p.tex==='custom' && BUB.customUrl)? BUB.customUrl : (p.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null); if(inst && typeof inst.then==='function'){ inst.then(real=> applyTo(real, p)).catch(()=>{}); return; } try{ inst.setSpeed(p.speed); inst.setWobbleMult(p.wobble); inst.setFreqMult(p.freq); inst.setCountFactor(p.density); inst.set({ alpha:p.alpha, minSize:p.min, maxSize:p.max, farRatio:p.far, textureUrl: urlChoice, sizeJitterFreq: p.sizefreq||0, jumboChance: p.jumbochance||0, jumboScale: p.jumboscale||1.6 }); }catch(_){} }
+    function applyBubFromUI(){ if(!BUB.params) return; if(BUB.editAll){ for(let i=0;i<3;i++) applyTo(bub(i), BUB.params[i]||defaultBub()); } else { const p=BUB.params[BUB.selected||0]||defaultBub(); applyTo(bub(), p); } }
     function bindRange(id, labelId, on){ const el=$(id); const lab=$(labelId); if(!el||!lab) return; const update=()=>{ const v=+el.value; lab.textContent=v.toFixed(2); on(v); bubSnapshotFromUI(); }; el.addEventListener('input', update); update(); }
-    bindRange('bub-speed','bub-speed-val',(v)=>{ if(bub()) bub().setSpeed(v); });
-    bindRange('bub-wobble','bub-wobble-val',(v)=>{ if(bub()) bub().setWobbleMult(v); });
-    bindRange('bub-freq','bub-freq-val',(v)=>{ if(bub()) bub().setFreqMult(v); });
-    bindRange('bub-density','bub-density-val',(v)=>{ if(bub()) bub().setCountFactor(v); });
-    bindRange('bub-alpha','bub-alpha-val',(v)=>{ if(bub()) bub().set({alpha:v}); });
+    bindRange('bub-speed','bub-speed-val',(v)=>{ if(BUB.editAll){ for(let i=0;i<3;i++){ const inst=bub(i); if(inst) (inst.then? inst.then(r=>r.setSpeed(v)) : inst.setSpeed(v)); } } else { const inst=bub(); if(inst) (inst.then? inst.then(r=>r.setSpeed(v)) : inst.setSpeed(v)); } });
+    bindRange('bub-wobble','bub-wobble-val',(v)=>{ if(BUB.editAll){ for(let i=0;i<3;i++){ const inst=bub(i); if(inst) (inst.then? inst.then(r=>r.setWobbleMult(v)) : inst.setWobbleMult(v)); } } else { const inst=bub(); if(inst) (inst.then? inst.then(r=>r.setWobbleMult(v)) : inst.setWobbleMult(v)); } });
+    bindRange('bub-freq','bub-freq-val',(v)=>{ if(BUB.editAll){ for(let i=0;i<3;i++){ const inst=bub(i); if(inst) (inst.then? inst.then(r=>r.setFreqMult(v)) : inst.setFreqMult(v)); } } else { const inst=bub(); if(inst) (inst.then? inst.then(r=>r.setFreqMult(v)) : inst.setFreqMult(v)); } });
+    bindRange('bub-density','bub-density-val',(v)=>{ if(BUB.editAll){ for(let i=0;i<3;i++){ const inst=bub(i); if(inst) (inst.then? inst.then(r=>r.setCountFactor(v)) : inst.setCountFactor(v)); } } else { const inst=bub(); if(inst) (inst.then? inst.then(r=>r.setCountFactor(v)) : inst.setCountFactor(v)); } });
+    bindRange('bub-alpha','bub-alpha-val',(v)=>{ if(BUB.editAll){ for(let i=0;i<3;i++){ const inst=bub(i); if(inst) (inst.then? inst.then(r=>r.set({alpha:v})) : inst.set({alpha:v})); } } else { const inst=bub(); if(inst) (inst.then? inst.then(r=>r.set({alpha:v})) : inst.set({alpha:v})); } });
     // Size + far ratio
     (function(){ const mi=$('bub-min'), ma=$('bub-max'), fr=$('bub-far'), frv=$('bub-far-val'); if(mi&&ma){ const apply=()=>{ const min=Math.max(6, Math.min(+mi.value||18, +ma.value||44)); const max=Math.max(min+1, +ma.value||44); mi.value=String(min); ma.value=String(max); if(bub()) bub().set({minSize:min, maxSize:max}); bubSnapshotFromUI(); }; mi.addEventListener('change', apply); ma.addEventListener('change', apply); }
       if(fr&&frv){ const upd=()=>{ frv.textContent=(+fr.value).toFixed(2); if(bub()) bub().set({farRatio:+fr.value}); bubSnapshotFromUI(); }; fr.addEventListener('input', upd); upd(); }
@@ -1723,18 +1651,27 @@ let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3'
       const js=$('bub-jumboscale'), jsv=$('bub-jumboscale-val'); if(js&&jsv){ const updJS=()=>{ jsv.textContent=(+js.value).toFixed(2); if(bub()) bub().set({ jumboScale:+js.value }); bubSnapshotFromUI(); }; js.addEventListener('input', updJS); updJS(); }
     })();
     // Texture swap + controls
-    (function(){ const sel=$('bub-tex'), btn=$('bub-apply-tex'); if(sel&&btn){ if(BUB.params && BUB.params.tex){ sel.value=BUB.params.tex; }
-      btn.addEventListener('click', ()=>{ const choice=sel.value; const url = (choice==='orb')? assetUrl('fx/Orb_NeedsFriends.png') : null; if(bub()) bub().set({ textureUrl:url }).catch(()=>{}); BUB.params = Object.assign({}, BUB.params||{}, { tex: choice }); bubSave(); }); } })();
+    (function(){ const sel=$('bub-tex'), btn=$('bub-apply-tex'), up=$('bub-upload'), upBtn=$('bub-upload-btn'); if(sel&&btn){
+      const cur = (Array.isArray(BUB.params)? (BUB.params[BUB.selected||0]||{}) : (BUB.params||{}));
+      sel.value = (cur.tex==='proc'?'proc': (cur.tex==='custom'?'custom':'orb'));
+      btn.addEventListener('click', ()=>{ let choice=sel.value; let url = null; if(choice==='orb'){ url = assetUrl('fx/Orb_NeedsFriends.png'); } else if(choice==='custom' && window.BUB && BUB.customUrl){ url = BUB.customUrl; }
+        const apply=(inst)=>{ if(!inst) return; if(inst.then){ inst.then(r=>r.set({ textureUrl:url })).catch(()=>{}); } else { try{ inst.set({ textureUrl:url }); }catch(_){} } };
+        if(BUB.editAll){ for(let i=0;i<3;i++) apply(bub(i)); } else apply(bub());
+        // persist
+        if(!Array.isArray(BUB.params)) BUB.params=[defaultBub(),defaultBub(),defaultBub()];
+        if(BUB.editAll){ for(let i=0;i<3;i++){ BUB.params[i].tex = choice; } } else { BUB.params[BUB.selected||0].tex = choice; }
+        bubSave(); });
+      if(upBtn && up){ upBtn.addEventListener('click', ()=> up.click()); up.addEventListener('change', ()=>{ const f=up.files && up.files[0]; if(!f) return; const url = URL.createObjectURL(f); BUB.customUrl = url; if(bub()) bub().set({ textureUrl:url }).catch(()=>{}); sel.value='custom'; BUB.params = Object.assign({}, BUB.params||{}, { tex: 'custom' }); bubSave(); }); }
+    } })();
     // Pause/Resume/Reset/Randomize
     (function(){ const p=$('bub-pause'), r=$('bub-resume'), z=$('bub-reset'), rnd=$('bub-randomize');
-      if(p) p.onclick=()=>{ if(bub()) bub().pause(); };
-      if(r) r.onclick=()=>{ if(bub()) bub().resume(); };
+      if(p) p.onclick=()=>{ if(BUB.editAll){ for(let i=0;i<3;i++){ const inst=bub(i); if(inst) (inst.then? inst.then(r=>r.pause&&r.pause()) : inst.pause&&inst.pause()); } } else { const inst=bub(); if(inst) (inst.then? inst.then(r=>r.pause&&r.pause()) : inst.pause&&inst.pause()); } };
+      if(r) r.onclick=()=>{ if(BUB.editAll){ for(let i=0;i<3;i++){ const inst=bub(i); if(inst) (inst.then? inst.then(r=>r.resume&&r.resume()) : inst.resume&&inst.resume()); } } else { const inst=bub(); if(inst) (inst.then? inst.then(r=>r.resume&&r.resume()) : inst.resume&&inst.resume()); } };
       if(z) z.onclick=()=>{
-        if(bub()){
-          bub().resume();
-          bub().set({minSize:18,maxSize:44,alpha:0.95,farRatio:0.33, sizeJitterFreq:0, jumboChance:0, jumboScale:1.6});
-          bub().setSpeed(1); bub().setWobbleMult(1); bub().setFreqMult(1); bub().setCountFactor(1);
-        }
+        const resetInst=(inst)=>{ if(!inst) return; const doReset=(obj)=>{ try{ obj.resume && obj.resume(); obj.set({minSize:18,maxSize:44,alpha:0.95,farRatio:0.33, sizeJitterFreq:0, jumboChance:0, jumboScale:1.6}); obj.setSpeed(1); obj.setWobbleMult(1); obj.setFreqMult(1); obj.setCountFactor(1); }catch(_){} };
+          if(inst.then) inst.then(doReset); else doReset(inst);
+        };
+        if(BUB.editAll){ for(let i=0;i<3;i++) resetInst(bub(i)); } else resetInst(bub());
         if($('bub-tex')) $('bub-tex').value='orb';
         const set=(id,val)=>{ const el=$(id); if(el) el.value=String(val); };
         set('bub-speed',1); set('bub-wobble',1); set('bub-freq',1); set('bub-density',1);
@@ -1782,6 +1719,7 @@ let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3'
       const elTheme = get('hue-theme');
       const elAnim = get('hue-animate');
       const elReset = get('hue-reset');
+      const elRand  = get('hue-random');
       const sync = ()=>{
         const st = window.ErrlHueController.layers[layer]; if(!st) return;
         if(elEnabled) elEnabled.checked = !!st.enabled;
@@ -1789,18 +1727,23 @@ let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3'
         if(elSat){ elSat.value = String(st.saturation??1); if(elSatVal) elSatVal.textContent = Math.round((st.saturation??1)*100)+'%'; }
         if(elInt){ elInt.value = String(st.intensity??1); if(elIntVal) elIntVal.textContent = Math.round((st.intensity??1)*100)+'%'; }
       };
-      elEnabled && elEnabled.addEventListener('change', ()=> window.ErrlHueController.setEnabled(!!elEnabled.checked, layer));
-      elHue && elHue.addEventListener('input', ()=>{ window.ErrlHueController.setHue(+elHue.value, layer); if(elHueVal) elHueVal.textContent = (Math.round(+elHue.value))+'°'; });
-      elSat && elSat.addEventListener('input', ()=>{ window.ErrlHueController.setSaturation(+elSat.value, layer); if(elSatVal) elSatVal.textContent = Math.round(+elSat.value*100)+'%'; });
-      elInt && elInt.addEventListener('input', ()=>{ window.ErrlHueController.setIntensity(+elInt.value, layer); if(elIntVal) elIntVal.textContent = Math.round(+elInt.value*100)+'%'; });
-      elTheme && elTheme.addEventListener('change', ()=> window.ErrlHueController.applyTheme(layer, elTheme.value));
-      elAnim && elAnim.addEventListener('click', ()=>{ const L=layer; window.ErrlHueController.toggleAnimation(1, L); elAnim.textContent = window.ErrlHueController.animation.active ? 'Stop Animation' : 'Animate'; });
+      elEnabled && elEnabled.addEventListener('change', ()=> window.ErrlHueController.setEnabledTemp(!!elEnabled.checked, layer));
+      elHue && elHue.addEventListener('input', ()=>{ window.ErrlHueController.setHueTemp(+elHue.value, layer); if(elHueVal) elHueVal.textContent = (Math.round(+elHue.value))+'°'; });
+      elSat && elSat.addEventListener('input', ()=>{ window.ErrlHueController.setSaturationTemp(+elSat.value, layer); if(elSatVal) elSatVal.textContent = Math.round(+elSat.value*100)+'%'; });
+      elInt && elInt.addEventListener('input', ()=>{ window.ErrlHueController.setIntensityTemp(+elInt.value, layer); if(elIntVal) elIntVal.textContent = Math.round(+elInt.value*100)+'%'; });
+      elTheme && elTheme.addEventListener('change', ()=> window.ErrlHueController.applyThemeTemp(layer, elTheme.value));
+      // Animate: cycle through theme presets instead of continuous hue
+      let themeTimer=null; let themeIdx=0; const THEMES=['normal','warm','cool','electric','sunset','ocean','forest'];
+      function stopThemeCycle(){ if(themeTimer){ clearInterval(themeTimer); themeTimer=null; } elAnim.textContent='Animate'; }
+      function startThemeCycle(){ themeIdx=0; elAnim.textContent='Stop Animation'; themeTimer=setInterval(()=>{ const name=THEMES[themeIdx%THEMES.length]; window.ErrlHueController.applyThemeTemp(layer, name); if(elTheme) elTheme.value=name; themeIdx++; }, 1600); }
+      elAnim && elAnim.addEventListener('click', ()=>{ if(themeTimer){ stopThemeCycle(); } else { startThemeCycle(); } });
+      elRand && elRand.addEventListener('click', ()=>{ const THEMES=['normal','warm','cool','electric','sunset','ocean','forest']; const name=THEMES[Math.floor(Math.random()*THEMES.length)]; window.ErrlHueController.applyThemeTemp(layer, name); if(elTheme) elTheme.value=name; });
       elReset && elReset.addEventListener('click', ()=>{ window.ErrlHueController.reset(layer); sync(); if(elAnim) elAnim.textContent='Animate'; });
       sync();
       return sync;
     }
     // Bind hue sections (may run before TS module loads; ensure retry)
-    function ensureHueBindings(){ if(window.ErrlHueController){ bindHueSection('errl','errl'); bindHueSection('nav','nav'); } else { setTimeout(ensureHueBindings, 80); } }
+    function ensureHueBindings(){ if(window.ErrlHueController){ bindHueSection('errl','errl'); bindHueSection('nav','nav'); bindHueSection('gl','glOverlay'); bindHueSection('halo','backGlow'); } else { setTimeout(ensureHueBindings, 80); } }
     ensureHueBindings();
     
     // Errl Goo controls
@@ -1814,11 +1757,27 @@ let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3'
       const gSV = document.getElementById('errl-goo-strength-val');
       const gW = document.getElementById('errl-goo-wobble');
       const gWV = document.getElementById('errl-goo-wobble-val');
-      if(gEn){ gEn.checked = !!toggles.errlGoo; gEn.addEventListener('change', ()=>{ toggles.errlGoo = !!gEn.checked; gooSave(); }); }
+      const gAnim = document.getElementById('errl-goo-animate');
+      const gRand = document.getElementById('errl-goo-random');
+      if(gEn){ gEn.checked = !!toggles.errlGoo; gEn.addEventListener('change', ()=>{ toggles.errlGoo = !!gEn.checked; const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null); if(active) active.classList.toggle('goo', !!gEn.checked); try{ if(window.ErrlHueController) window.ErrlHueController.applyLayerCSS('errl'); }catch(_){} gooSave(); }); }
       const syncVals = ()=>{ if(gS){ gS.value=String(GOO.mult.toFixed(2)); if(gSV) gSV.textContent=Number(gS.value).toFixed(2); } if(gW){ gW.value=String(GOO.wobble.toFixed(2)); if(gWV) gWV.textContent=Number(gW.value).toFixed(2); } };
       syncVals();
       gS && gS.addEventListener('input', ()=>{ GOO.mult = +gS.value; if(gSV) gSV.textContent = (+gS.value).toFixed(2); gooSave(); });
       gW && gW.addEventListener('input', ()=>{ GOO.wobble = +gW.value; if(gWV) gWV.textContent = (+gW.value).toFixed(2); gooSave(); });
+      // Goo theme animator (cycles presets)
+      let gooTimer=null; const GOO_THEMES=[
+        { mult:0.6, wobble:0.5 }, // subtle
+        { mult:1.0, wobble:1.0 }, // default
+        { mult:1.4, wobble:1.2 }, // watery
+        { mult:1.8, wobble:0.8 }, // jelly
+        { mult:2.0, wobble:2.0 }, // hyper
+      ];
+      let gooIdx=0;
+      function applyGooPreset(p){ GOO.mult=p.mult; GOO.wobble=p.wobble; syncVals(); gooSave(); }
+      function startGooCycle(){ if(gooTimer) return; gAnim.textContent='Stop Goo'; gooIdx=0; applyGooPreset(GOO_THEMES[gooIdx]); gooTimer=setInterval(()=>{ gooIdx=(gooIdx+1)%GOO_THEMES.length; applyGooPreset(GOO_THEMES[gooIdx]); }, 1600); }
+      function stopGooCycle(){ if(!gooTimer) return; clearInterval(gooTimer); gooTimer=null; gAnim.textContent='Animate Goo'; }
+      if(gAnim){ gAnim.addEventListener('click', ()=>{ if(gooTimer) stopGooCycle(); else startGooCycle(); }); }
+      if(gRand){ gRand.addEventListener('click', ()=>{ const p=GOO_THEMES[Math.floor(Math.random()*GOO_THEMES.length)]; applyGooPreset(p); }); }
     })();
     
     // Nav Goo controls (for #gooey-ui)
@@ -1856,13 +1815,159 @@ let devLayersEl=null; let selectedKey=null; let layersOrder=['L0','L2','GL','L3'
     }
 
   ;initDevPhone();
+  // Snapshot button
+  (function(){ const b=document.getElementById('dev-snapshot'); if(b) b.addEventListener('click', snapshotAll); })();
   // Also ensure GL hue controls wire up once controller is ready (even if GL not yet started)
   whenHueReady(()=>{ try{ initHueIntegration(); initGlDevControls(); }catch(e){} });
 
-  // Kick things off
-  setTimeout(()=>{ if(!errlVisible) { showErrl(false, true); setTimeout(startOrbitImmediately, 500); } }, autoRevealDelay);
+  // Kick things off (restore intro fan-in) — start GL at same time as reveal
+  setTimeout(()=>{ try{ showErrl(false, true); }catch(e){} whenPixiReady(()=>{ if(toggles.gl){ canvas.style.display='block'; if(!app) initGL(); } }); startNavIntro();
+    // Apply initial Errl inline fill colors if controller already loaded
+    try{ if(window.ErrlHueController){ updateErrlFillColors(window.ErrlHueController.layers.errl||{hue:0,saturation:1,intensity:1}); } }catch(_){}
+  }, autoRevealDelay);
 
-  if(window.PIXI && PIXI.utils.isWebGLSupported()) initGL(); else { document.getElementById('gl').style.display='none'; }
+  // Utility: run when Pixi is ready (used to start GL with intro)
+  // Do not gate on WebGL support; Pixi can fall back to Canvas if needed
+  function whenPixiReady(cb){ if(window.PIXI){ try{ cb(); }catch(e){} } else { setTimeout(()=> whenPixiReady(cb), 60); } }
+
+  function snapshotAll(){ try{
+    // Hue layers
+    if(window.ErrlHueController){ localStorage.setItem('errl_hue_layers', JSON.stringify(window.ErrlHueController.layers)); }
+    // Errl Goo
+    localStorage.setItem('errl_goo_cfg', JSON.stringify({ enabled: !!toggles.errlGoo, mult: GOO.mult, wobble: GOO.wobble }));
+    // Nav Goo
+    (function(){ const filt=document.getElementById('gooey-ui'); if(!filt) return; const blur=filt.querySelector('feGaussianBlur'); const mat=filt.querySelector('feColorMatrix'); if(!blur||!mat) return; const vals=(mat.getAttribute('values')||'').trim().split(/\s+/).map(Number); const mult=vals[18]||24, thresh=vals[19]||-14; const state={ enabled: (document.querySelector('.ui-orbit')?.style.filter||'').includes('gooey-ui'), blur:+(blur.getAttribute('stdDeviation')||6), mult, thresh }; localStorage.setItem('errl_nav_goo_cfg', JSON.stringify(state)); })();
+    // Bubbles FX
+    try{ if(BUB && BUB.params){ localStorage.setItem('errl_bubbles_fx', JSON.stringify(BUB.params)); } }catch(_){ }
+  }catch(e){}
+  }
+
+  /* Reset all tweakable parameters to sensible defaults and clear persisted values. */
+  function resetAllDefaults(){
+    try{
+      localStorage.removeItem('errl_hue_layers');
+      localStorage.removeItem('errl_goo_cfg');
+      localStorage.removeItem('errl_nav_goo_cfg');
+      localStorage.removeItem('errl_bubbles_fx');
+      localStorage.removeItem('errl_dev_nav');
+    }catch(e){}
+    // Hue: reset known layers if controller is present
+    try{ if(window.ErrlHueController){
+      ['errl','nav','bgBubbles','glOverlay'].forEach(l=>{ try{ window.ErrlHueController.reset(l); }catch(_){} });
+    } }catch(e){}
+    // Errl Goo
+    try{
+      toggles.errlGoo = true; GOO.mult = 1.0; GOO.wobble = 1.0;
+      const gEn=$('errl-goo-enabled'), gS=$('errl-goo-strength'), gSV=$('errl-goo-strength-val'), gW=$('errl-goo-wobble'), gWV=$('errl-goo-wobble-val');
+      if(gEn) gEn.checked = true; if(gS){ gS.value='1.00'; if(gSV) gSV.textContent='1.00'; } if(gW){ gW.value='1.00'; if(gWV) gWV.textContent='1.00'; }
+    }catch(e){}
+    // Nav Goo (SVG filter)
+    try{
+      const filt=document.getElementById('gooey-ui'); if(filt){ const blur=filt.querySelector('feGaussianBlur'); const mat=filt.querySelector('feColorMatrix'); if(blur) blur.setAttribute('stdDeviation','6'); if(mat) mat.setAttribute('values', '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -14'); }
+      ['nav-goo-enabled','nav-goo-blur','nav-goo-mult','nav-goo-thresh'].forEach((id,i)=>{ const el=$(id); if(!el) return; if(id==='nav-goo-enabled') el.checked=true; if(id==='nav-goo-blur') el.value='6'; if(id==='nav-goo-mult') el.value='24'; if(id==='nav-goo-thresh') el.value='-14'; });
+    }catch(e){}
+    // Bubbles FX
+    try{
+      const resetOne=(inst)=>{ if(!inst) return; if(inst.then){ inst.then(real=> resetOne(real)); return; } try{ inst.resume && inst.resume(); inst.set({minSize:18,maxSize:44,alpha:0.95,farRatio:0.33, sizeJitterFreq:0, jumboChance:0, jumboScale:1.6}); inst.setSpeed(1); inst.setWobbleMult(1); inst.setFreqMult(1); inst.setCountFactor(1); }catch(_){} };
+      if(Array.isArray(bubblesFX)){ for(const it of bubblesFX) resetOne(it); } else resetOne(bubblesFX);
+      ['bub-speed','bub-wobble','bub-freq','bub-density','bub-alpha','bub-min','bub-max','bub-far','bub-sizefreq','bub-jumbochance','bub-jumboscale'].forEach((id)=>{ const el=$(id); if(!el) return; const def={ 'bub-speed':1,'bub-wobble':1,'bub-freq':1,'bub-density':1,'bub-alpha':0.95,'bub-min':18,'bub-max':44,'bub-far':0.33,'bub-sizefreq':0,'bub-jumbochance':0,'bub-jumboscale':1.6 }[id]; el.value=String(def); const lab=$(id+'-val'); if(lab){ lab.textContent = (typeof def==='number' && String(def).includes('.')? def.toFixed(2) : String(def)); } });
+      const tex=$('bub-tex'); if(tex) tex.value='orb';
+    }catch(e){}
+    // GL overlay
+    try{ if(overlay) overlay.alpha=0.20; if(dispFilter){ dispFilter.scale.x=24; dispFilter.scale.y=18; }
+      const a=$('gl-alpha'), dx=$('gl-dx'), dy=$('gl-dy'), av=$('gl-alpha-val'), dxv=$('gl-dx-val'), dyv=$('gl-dy-val'); if(a){ a.value='0.20'; if(av) av.textContent='0.20'; } if(dx){ dx.value='24'; if(dxv) dxv.textContent='24'; } if(dy){ dy.value='18'; if(dyv) dyv.textContent='18'; }
+    }catch(e){}
+    // Nav layout
+    try{
+      navSpread=220; navArcDeg=120; headYRatio=0.32; navCenterOffsetX=-280; navStagger=250;
+      ['nav-spread','nav-arc','nav-headY','nav-cx','nav-stagger'].forEach((id)=>{ const el=$(id); if(!el) return; const def={ 'nav-spread':220,'nav-arc':120,'nav-headY':0.32,'nav-cx':-280,'nav-stagger':250 }[id]; el.value=String(def); });
+      const nsv=$('nav-spread-val'), navv=$('nav-arc-val'), nhv=$('nav-headY-val'), ncv=$('nav-cx-val'); if(nsv) nsv.textContent='220'; if(navv) navv.textContent='120'; if(nhv) nhv.textContent='0.32'; if(ncv) ncv.textContent='-280';
+      finalFanLocal = fanTargets(btns.length, navSpread, navArcDeg); orbitPhase = finalFanLocal.map(p=> Math.atan2(p.y, p.x)); showDevDots();
+    }catch(e){}
+  }
+
+  // Live control API for Dev Controls page
+/* Live control surface consumed by the external Dev Controls page (docs/apps/dev). */
+  window.ErrlLive = {
+    getState(){ try{
+      const hue = (window.ErrlHueController && window.ErrlHueController.layers) ? JSON.parse(JSON.stringify(window.ErrlHueController.layers)) : null;
+      let navState = null; try{ const raw=localStorage.getItem('errl_dev_nav'); navState = raw? JSON.parse(raw): null; }catch(e){}
+      const filt=document.getElementById('gooey-ui');
+      const blur = filt && filt.querySelector('feGaussianBlur');
+      const mat = filt && filt.querySelector('feColorMatrix');
+      let mult=24, thresh=-14, bl=6; try{ if(blur) bl = +(blur.getAttribute('stdDeviation')||6); if(mat){ const v=(mat.getAttribute('values')||'').trim().split(/\s+/).map(Number); if(v.length>=20){ mult=v[18]||24; thresh=v[19]||-14; } } }catch(e){}
+      const ui=document.querySelector('.ui-orbit'); const navGooEn = !!(ui && ui.style.filter && ui.style.filter.includes('gooey-ui'));
+      const bubLS = (function(){ try{ const raw=localStorage.getItem('errl_bubbles_fx'); return raw? JSON.parse(raw): null; }catch(e){ return null; } })();
+      return {
+        hueLayers: hue,
+        errlGoo: { enabled: !!toggles.errlGoo, mult: GOO.mult, wobble: GOO.wobble },
+        navGoo: { enabled: navGooEn, blur: bl, mult, thresh },
+        bubbles: bubLS || { speed:1, wobble:1, freq:1, density:1, alpha:0.95, min:18, max:44, far:0.33, sizefreq:0, jumbochance:0, jumboscale:1.6, tex:'orb' },
+        overlay: { alpha: overlay? overlay.alpha : 0.2, dx: (dispFilter? dispFilter.scale.x : 24), dy: (dispFilter? dispFilter.scale.y : 18) },
+        navLayout: { spread: navSpread, arc: navArcDeg, headY: headYRatio, cx: navCenterOffsetX, stagger: navStagger, saved: navState },
+        hud: {
+          parallax: !!toggles.parallax,
+          gl: !!toggles.gl,
+          reveal: !!errlVisible,
+          bubbles: toggles.bubbles,
+          mirror: (toggles.mirrorBoth? 'both' : (toggles.mirror? 'x' : 'none')),
+          coin: !!toggles.coin
+        }
+      };
+    }catch(e){ return null; } },
+    setErrlGoo(cfg){ try{
+      if(typeof cfg.enabled==='boolean'){ toggles.errlGoo = !!cfg.enabled; const active = (errlVisible ? (isInlineSVG ? errlInline : errlImg) : null); if(active) active.classList.toggle('goo', !!cfg.enabled); }
+      if(typeof cfg.mult==='number') { GOO.mult = cfg.mult; }
+      if(typeof cfg.wobble==='number') { GOO.wobble = cfg.wobble; }
+      try{ localStorage.setItem('errl_goo_cfg', JSON.stringify({ enabled: !!toggles.errlGoo, mult: GOO.mult, wobble: GOO.wobble })); }catch(e){}
+    }catch(e){} },
+    setNavGoo(cfg){ try{
+      const ui = document.querySelector('.ui-orbit');
+      const filt = document.getElementById('gooey-ui');
+      if(!ui || !filt) return;
+      const blur = filt.querySelector('feGaussianBlur');
+      const mat = filt.querySelector('feColorMatrix');
+      const st = { enabled: cfg.enabled!=null? !!cfg.enabled : true, blur: (cfg.blur!=null? +cfg.blur : +((blur && blur.getAttribute('stdDeviation'))||6)), mult: (cfg.mult!=null? +cfg.mult : 24), thresh: (cfg.thresh!=null? +cfg.thresh : -14) };
+      if(blur) blur.setAttribute('stdDeviation', String(st.blur));
+      if(mat){ const vals=[1,0,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0, st.mult, st.thresh]; mat.setAttribute('values', vals.join(' ')); }
+      ui.style.filter = st.enabled ? 'url(#gooey-ui)' : 'none';
+      try{ localStorage.setItem('errl_nav_goo_cfg', JSON.stringify(st)); }catch(e){}
+    }catch(e){} },
+    setBubbles(cfg){ try{
+      const setCfg=(inst)=>{
+        if(!inst) return;
+        if(cfg.speed!=null && inst.setSpeed) inst.setSpeed(+cfg.speed);
+        if(cfg.wobble!=null && inst.setWobbleMult) inst.setWobbleMult(+cfg.wobble);
+        if(cfg.freq!=null && inst.setFreqMult) inst.setFreqMult(+cfg.freq);
+        if(cfg.density!=null && inst.setCountFactor) inst.setCountFactor(+cfg.density);
+        const opt={}; if(cfg.alpha!=null) opt.alpha=+cfg.alpha; if(cfg.min!=null) opt.minSize=+cfg.min; if(cfg.max!=null) opt.maxSize=+cfg.max; if(cfg.far!=null) opt.farRatio=+cfg.far; if(cfg.sizefreq!=null) opt.sizeJitterFreq=+cfg.sizefreq; if(cfg.jumbochance!=null) opt.jumboChance=+cfg.jumbochance; if(cfg.jumboscale!=null) opt.jumboScale=+cfg.jumboscale; if(cfg.tex){ opt.textureUrl = (cfg.tex==='orb'? assetUrl('fx/Orb_NeedsFriends.png') : null); }
+        if(Object.keys(opt).length && inst.set) inst.set(opt);
+        try{ const saved = Object.assign({}, cfg); localStorage.setItem('errl_bubbles_fx', JSON.stringify(saved)); }catch(e){}
+      };
+      if(bubblesFX && typeof bubblesFX.then==='function'){ bubblesFX.then(setCfg).catch(()=>{}); }
+      else setCfg(bubblesFX);
+    }catch(e){} },
+    setGLOverlay(cfg){ try{ if(cfg.alpha!=null && overlay) overlay.alpha=+cfg.alpha; if(dispFilter){ if(cfg.dx!=null) dispFilter.scale.x=+cfg.dx; if(cfg.dy!=null) dispFilter.scale.y=+cfg.dy; } }catch(e){} },
+    setNavLayout(cfg){ try{
+      if(cfg.spread!=null) navSpread = +cfg.spread;
+      if(cfg.arc!=null) navArcDeg = +cfg.arc;
+      if(cfg.headY!=null) headYRatio = +cfg.headY;
+      if(cfg.cx!=null) navCenterOffsetX = +cfg.cx;
+      if(cfg.stagger!=null) navStagger = +cfg.stagger;
+      finalFanLocal = fanTargets(btns.length, navSpread, navArcDeg);
+      orbitPhase = finalFanLocal.map(p=> Math.atan2(p.y, p.x));
+      showDevDots();
+    }catch(e){} },
+    /* Live HUD toggles from master Dev page */
+    setHUD(cfg){ try{
+      if(cfg.parallax!=null){ toggles.parallax = !!cfg.parallax; if(!toggles.parallax){ portal.querySelectorAll('[data-layer]').forEach(el=> el.style.transform='none'); } }
+      if(cfg.gl!=null){ const on=!!cfg.gl; toggles.gl=on; canvas.style.display = on? 'block':'none'; if(on && !app) initGL(); if(fxm){ on? fxm.resumeAll(): fxm.pauseAll(); } }
+      if(cfg.reveal!=null){ if(!!cfg.reveal) showErrl(false,true); else hideErrl(false); }
+      if(cfg.bubbles){ const state=cfg.bubbles; const l5=document.querySelector('[data-layer="L5"]'); if(state==='hidden'){ toggles.bubbles='hidden'; if(l5) l5.style.display='none'; orbitActive=false; } else if(state==='paused'){ toggles.bubbles='paused'; if(l5) l5.style.display='grid'; orbitActive=false; } else { toggles.bubbles='moving'; if(l5) l5.style.display='grid'; orbitActive=true; } }
+      if(cfg.mirror){ toggles.mirror=false; toggles.mirrorBoth=false; if(cfg.mirror==='x'){ toggles.mirror=true; } else if(cfg.mirror==='both'){ toggles.mirrorBoth=true; } applyMirror(); }
+      if(cfg.coin!=null){ toggles.coin=!!cfg.coin; if(toggles.coin) showCoin(); else hideCoin(); }
+    }catch(e){} }
+  };
 })();
 </script>
 </body>
