@@ -384,9 +384,9 @@ Happy building! 🚀
 
 # 🔧 Build and Test Status Update - 2025-11-09
 
-**Branch:** `2025-11-07-oz3r-29bd4`  
-**Commit:** `HEAD` (local)  
-**Status:** ✅ All checks green
+**Branch:** `main`  
+**Commit:** [`1602daa`](https://github.com/Extrepa/errl-portal/commit/1602daa)  
+**Status:** ✅ All checks green (`npm run safety-check`, 2025‑11‑09)
 
 ---
 
@@ -405,10 +405,14 @@ Happy building! 🚀
 
 ## ✅ Highlights Since Last Update
 
+- Merged both long-running branches into `main`:
+  - `2025-11-07-oz3r-29bd4` (AI safety system, Studio rebuild, Shape Madness, Math Lab)
+  - `erc-20251030-082458` (archived Pixi/GL portal, docs-site snapshot, 2025 art atlas)
+- Archived legacy Pixi portal + dev tooling under `archive/` and checked in the full “Recent Generations” art set (`src/assets/Recent_Generations/**`) for reference.
 - Renamed portal runtime to `portal-app.js` to eliminate `App.tsx` collision on case-sensitive systems.
 - Converted legacy entry scripts (`assets.js`, `bg-particles.js`, `rise-bubbles.js`) to ESM, satisfying Vite bundling.
 - Hardened Playwright suite with precise selectors and Hue controller waits (all 12 tests passing).
-- Confirmed safety pipeline: `npm test && npm run typecheck && npm run build` all green locally (latest run: 2025‑11‑09).
+- Confirmed safety pipeline: `npm run safety-check` (typecheck + build + tests) all green as of 2025‑11‑09.
 - Published dev panel registry hooks for Nav Orbit + Rising Bubbles so the overlay can drive live portal controls (`window.errlNavControls`, `window.errlRisingBubbles`).
 
 ---
@@ -458,206 +462,28 @@ Owners and timing can flex, but sequencing in this order keeps production stable
 
 ## 📞 Contact & Resources
 
-- **GitHub Branch:** https://github.com/Extrepa/errl-portal/tree/2025-11-07-oz3r-29bd4  
+- **GitHub Repo:** https://github.com/Extrepa/errl-portal  
 - **Last Updated:** 2025-11-09
 
 ---
 
+## 📦 Branch Integration Summary (2025-11-09)
 
-# 🔄 Branch Divergence Status - 2025-11-09 02:11 UTC
+- `main` now includes:
+  - AI safety tooling, Studio rebuild, Shape Madness, Math Lab (from `2025-11-07-oz3r-29bd4`)
+  - Archived Pixi/GL portal, docs-site snapshot, and art atlas (from `erc-20251030-082458`)
+- Legacy experiences live under `archive/`:
+  - `archive/dev-panel-backup/` – Pixi-era portal with dev panel wiring
+  - `archive/docs-site-20251031/` – static docs-site snapshot for historical reference
+- Historical art and assets are preserved in `src/assets/Recent_Generations/` (247 JPEGs, 2025 OpenArt batch).
+- New public-facing fallbacks (`public/**`, `src/apps/**`) mirror the pre-Vite build for archival comparison; they are not part of the production build graph.
+- Validation: `npm run safety-check` (typecheck + build + Playwright) passes on `main` @ `1602daa`.
 
-**Situation:** Our working branch and `main` have diverged after the PR merge.
+### Follow-up Notes
 
-## 📊 Current State
-
-### Our Branch (`2025-11-07-oz3r-29bd4`)
-- ✅ **All checks passing** (TypeCheck, Build, Tests 12/12)
-- ✅ **AI Safety System** complete with docs and scripts
-- ✅ **Studio naming** standardized (tools → studio throughout)
-- ✅ **Shape Madness** content integrated
-- ✅ **Enhanced test suite** with Playwright
-- ✅ **Build system fixes** (portal-app.js, ESM scripts)
-- 📍 **Common ancestor:** `b6b7a81`
-
-### Main Branch (`origin/main`)
-- ⚠️ **Diverged from our branch** after merge
-- 🔄 **Reverted to "tools" naming** (studio → tools)
-- ➕ **New content:** Math Lab page (`tools/math-lab/index.html`, 3,218 lines)
-- ➕ **New docs:** `docs/math-lab-plan.md` (88 effects roadmap)
-- ❌ **Missing:** AI safety docs, Shape Madness content, studio naming
-- ❌ **Removed:** TEAM_UPDATE.md, AI guides, enhanced tests
-
-### Divergence Summary
-**190 files changed** between branches:
-- **28,932 deletions** on main (our safety system, studio content removed)
-- **4,354 insertions** on main (Math Lab added, tools restored)
-
----
-
-## 🚀 Recommended Action: Merge Main Into Our Branch
-
-**Why:** Brings Math Lab content while preserving all our work and fixes.
-
-```bash
-# 1. Backup current state
-git branch backup/2025-11-09-pre-merge
-
-# 2. Merge main
-git merge origin/main
-
-# 3. Resolve conflicts (expect):
-#    - tools vs studio directory naming
-#    - TEAM_UPDATE.md (keep ours + add Math Lab section)
-#    - Keep our: AI docs, Shape Madness, test fixes, portal-app.js
-
-# 4. Standardize naming: Move tools/math-lab → studio/math-lab
-mv src/portal/pages/tools/math-lab src/portal/pages/studio/math-lab
-# Update index.html nav links to point to studio/math-lab
-
-# 5. Verify
-npm run typecheck && npm test && npm run build
-
-# 6. Commit
-git add -A
-git commit -m "chore: merge main, integrate Math Lab to studio, preserve safety system"
-git push
-```
-
----
-
-## 📋 Integration Checklist
-
-### Merge Phase
-- [ ] Create backup branch: `git branch backup/2025-11-09-pre-merge`
-- [ ] Merge main: `git merge origin/main`
-- [ ] Resolve conflicts: Keep studio naming, preserve AI docs
-- [ ] Integrate Math Lab: Move to `studio/math-lab/`
-- [ ] Update navigation links in `src/index.html`
-
-### Verification Phase
-- [ ] Run `npm run typecheck` (should pass)
-- [ ] Run `npm test` (should show 12/12)
-- [ ] Run `npm run build` (should succeed)
-- [ ] Manual check: Visit localhost:5173 and test Math Lab link
-
-### Documentation Phase
-- [ ] Add Math Lab section to TEAM_UPDATE.md
-- [ ] Update WARP.md with studio structure
-- [ ] Update README.md with Math Lab info
-- [ ] Commit and push: `git push origin 2025-11-07-oz3r-29bd4`
-
----
-
-## 🎯 Key Decisions Made
-
-1. **Naming Convention:** Stick with `studio` (consistent with project rules)
-2. **Content Strategy:** Keep safety system + integrate Math Lab
-3. **Merge Strategy:** Merge main into our branch (Option 1)
-4. **Timeline:** Execute merge ASAP to unblock progress
-
----
-
-## 📊 After Merge
-
-### Expected State
-- ✅ All our work preserved (safety docs, tests, fixes)
-- ✅ Math Lab integrated under `studio/math-lab/`
-- ✅ Consistent `studio` naming throughout
-- ✅ All checks passing
-- ✅ Ready for deployment
-
-### Math Lab Status
-- 📁 **Location:** `src/portal/pages/studio/math-lab/index.html`
-- 📄 **Plan:** `docs/math-lab-plan.md` (88 effects, 60-70 hour roadmap)
-- 🎯 **Phase 1:** 8 simple CSS/Canvas effects (2-3 hours)
-- 📈 **Total:** 12 phases covering fractals, noise, particles, attractors, etc.
-
----
-
-## 🚀 Next Actions (Immediate)
-
-1. **Execute merge** (follow checklist above)
-2. **Resolve conflicts** (favor our branch, integrate Math Lab)
-3. **Verify all checks** (typecheck, tests, build)
-4. **Update docs** (TEAM_UPDATE, WARP, README)
-5. **Push to GitHub**
-6. **Deploy to verify** (optional: trigger GitHub Pages)
-
----
-
-**Status:** 📋 Ready to merge - awaiting execution  
-**Priority:** 🔴 HIGH - blocks further development  
-**Estimated time:** ~1 hour (merge + verification + docs)  
-**Updated:** 2025-11-09 02:11 UTC
-
----
-
-# ✅ Merge Complete - 2025-11-09 02:17 UTC
-
-**Status:** Successfully merged `origin/main` into `2025-11-07-oz3r-29bd4`
-
-## 🎉 Merge Results
-
-### What Happened
-- ✅ **Clean merge** - No conflicts!
-- ✅ **Math Lab integrated** - Located at `src/portal/pages/studio/math-lab/`
-- ✅ **Studio naming preserved** - All paths remain under `studio/`
-- ✅ **All checks passing** - TypeCheck, Build, Tests (12/12)
-
-### Commits Merged
-1. **904deee** - Dev panel controls (nav orbit, rising bubbles)
-2. **4e71ae6** - Merge commit from origin/main
-
-### Integration Summary
-- **Math Lab** automatically placed under `studio/math-lab/`
-- **169.75 kB** Math Lab page built successfully
-- **Docs** preserved: `docs/math-lab-plan.md` (88 effects roadmap)
-- **Safety system** intact: All AI docs, Shape Madness content preserved
-- **Dev panel** working: Nav controls + rising bubbles registered
-
----
-
-## 📊 Post-Merge Status
-
-### All Systems Green ✅
-
-| Check | Status | Details |
-|-------|--------|---------|
-| **TypeCheck** | ✅ PASS | `npm run typecheck` - 0 errors |
-| **Tests** | ✅ PASS | `npm test` - 12/12 passing |
-| **Build** | ✅ PASS | `npm run build` - 757ms |
-| **Math Lab** | ✅ INTEGRATED | `studio/math-lab/` with 3,218 lines |
-| **Naming** | ✅ CONSISTENT | All under `studio/` directory |
-
-### Branch State
-- **Current:** `2025-11-07-oz3r-29bd4`
-- **Latest commit:** `4e71ae6`
-- **Pushed to:** `origin/2025-11-07-oz3r-29bd4` ✅
-- **Backup:** `backup/2025-11-09-pre-merge` (if rollback needed)
-
----
-
-## 📁 Current Structure
-
-```
-src/portal/pages/studio/
-├── asset-builder.zip
-├── assets/
-├── index.html
-├── math-lab/          ← NEW! 3,218 lines
-│   └── index.html
-├── pin-widget/
-├── shape-madness/     ← Preserved
-└── svg-colorer/
-```
-
-### Math Lab Details
-- **Location:** `src/portal/pages/studio/math-lab/index.html`
-- **Size:** 3,218 lines of code
-- **Plan:** `docs/math-lab-plan.md`
-- **Effects:** 88 total (12 phases, 60-70 hours)
-- **Phase 1:** 8 simple CSS/Canvas effects (2-3 hours)
-- **Built size:** 169.75 kB (37.35 kB gzipped)
+- Document archive layout in `README.md` and `WORKFLOW_GUIDE.md`.
+- Monitor repo size/bundle impact from archived assets; consider splitting to LFS or a downloadable bundle if needed.
+- Keep backup branches (`backup/2025-11-09-pre-merge`) for historical diffing; no further action required unless we prune history later.
 
 ---
 
