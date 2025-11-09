@@ -1,0 +1,35 @@
+{
+  "project": "Errl Portal",
+  "entry": "src/portal/pages/studio/math-lab/index.html",
+  "devServer": {
+    "command": "npm run dev",
+    "expectedOutput": "VITE v7",
+    "url": "http://localhost:5173/"
+  },
+  "test": {
+    "framework": "Playwright",
+    "install": [
+      "npm i -D @playwright/test",
+      "npx playwright install"
+    ],
+    "run": "npx playwright test"
+  },
+  "tasks": [
+    {
+      "id": "verify-mathlab",
+      "description": "Ensure all 100 Math Lab effects load and respond to sliders without console errors."
+    },
+    {
+      "id": "export-feature",
+      "description": "Add PNG/SVG export button to each effect panel."
+    },
+    {
+      "id": "fps-overlay",
+      "description": "Add dev-only FPS meter overlay (toggle in corner)."
+    },
+    {
+      "id": "preset-system",
+      "description": "Add save/load preset logic via localStorage with shareable query string."
+    }
+  ]
+}

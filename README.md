@@ -72,6 +72,36 @@ Playwright UI tests cover the portal and studio experiences:
 npm run test
 ```
 
+## Studio — Math Lab
+
+A playground of **100 interactive mathematical effects** (Canvas, SVG, CSS) living at `/studio/math-lab/`.
+
+### Run It
+```bash
+npm run dev
+# ➜ http://localhost:5173/studio/math-lab/
+```
+
+### QA Checklist
+- Confirm the dev server boots without errors and the Math Lab route loads.
+- Tabs should swap between effects with live Canvas/SVG/CSS updates.
+- Slider/toggle controls must re-render visuals without console errors.
+- Basic responsive layout should hold on tablet/mobile widths.
+- Watch CPU/GPU load at default presets; clamp any heavy settings if needed.
+
+### Dev Testing
+```bash
+npm i -D @playwright/test
+npx playwright install
+npx playwright test
+```
+
+### Upcoming Enhancements
+- PNG/SVG export buttons (per effect)
+- Preset save/load + sharable URLs
+- Category filters / search
+- Dev-only FPS overlay toggle
+
 ## Recent Changes
 - Reorganized pages under `src/portal/pages/*`; standardized Back to Portal links
 - Ported About page to `src/portal/pages/about/index.html` with animated eyes/mouth

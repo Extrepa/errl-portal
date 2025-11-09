@@ -4,13 +4,26 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Commands
 
-Current repo has no configured tooling (no `package.json`, `Makefile`, `Dockerfile`, or language-specific config). There are no build, lint, or test commands yet.
+### Development
+- **Start dev server**: `npm run dev`
+  - Expected output: "VITE v7"
+  - URL: http://localhost:5173/
+  - Entry point: `src/portal/pages/studio/math-lab/index.html`
 
-When tooling is added, discover commands via:
-- Node: check `package.json` scripts (`cat package.json | jq .scripts` or open the file), then run `npm run <script>`/`pnpm <script>`/`yarn <script>`.
-- Python: check `pyproject.toml`/`requirements*.txt`/`make` targets; run `pytest -k "<test_name>"` for a single test.
-- Go: `go test ./... -run <Regex>`.
-Update this file with concrete commands once the stack is introduced.
+### Testing
+- **Framework**: Playwright
+- **Install**:
+  ```bash
+  npm i -D @playwright/test
+  npx playwright install
+  ```
+- **Run tests**: `npx playwright test`
+
+### Other commands
+Check `package.json` scripts for additional commands:
+```bash
+cat package.json | jq .scripts
+```
 
 ## Architecture overview
 
