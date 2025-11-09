@@ -93,15 +93,19 @@
   .lab-item small{ color:var(--mut) }
 
   .lab-preview{ background:var(--card); border:1px solid #0d1522; border-radius:.8rem; overflow:hidden }
-  .lab-prevhdr{ padding:.75rem 1rem; border-bottom:1px solid #0d1522; display:flex; align-items:center; justify-content:space-between }
+  .lab-prevhdr{ padding:.75rem 1rem; border-bottom:1px solid #0d1522; display:flex; align-items:center; justify-content:space-between; gap:.5rem }
   .lab-prevhdr h2{ margin:0; font-size:1rem }
+  .lab-actions{ display:flex; gap:.4rem }
+  .lab-btn{ appearance:none; border:1px solid #0e1a2a; border-radius:.5rem; background:#0c1420; color:var(--ink); padding:.35rem .6rem; font-weight:600 }
 
   /* Hide legacy bar/panels in two‑pane mode */
   .bar, #panels{ display:none }
 
+  /* Mobile drawer */
   @media (max-width: 900px){
     .lab-shell{ grid-template-columns: 1fr; }
-    .lab-sidebar{ order:2 }
+    .lab-sidebar{ order:2; display:none }
+    .lab-shell.drawer-open .lab-sidebar{ display:flex }
     .lab-preview{ order:1 }
   }
 
@@ -132,6 +136,11 @@
   <main class="lab-preview">
     <div class="lab-prevhdr">
       <h2 id="labTitle">Select an effect</h2>
+      <div class="lab-actions">
+        <button id="labBrowse" class="lab-btn" type="button">Browse</button>
+        <button id="labStop" class="lab-btn" type="button">Stop</button>
+        <button id="labStart" class="lab-btn" type="button">Start</button>
+      </div>
       <div id="labMeta" style="color:var(--mut); font-weight:600"></div>
     </div>
     <div class="wrap" id="labPreview">
@@ -236,7 +245,7 @@ function setCode(id,src){ document.getElementById('code-'+id).textContent = src.
 /* ---------- DEV FLAGS & HELPERS ---------- */
 
 /* Two‑pane helpers */
-const LAB = { catsEl:null, listEl:null, searchEl:null, previewEl:null, titleEl:null, metaEl:null, activeId:null, filter:'All', query:'' };
+const LAB = { catsEl:null, listEl:null, searchEl:null, previewEl:null, titleEl:null, metaEl:null, activeId:null, filter:'All', query:'', shellEl:null, serial:0 };
 
 function ensureLabRefs(){
   LAB.catsEl = LAB.catsEl || document.getElementById('labCats');
@@ -245,6 +254,7 @@ function ensureLabRefs(){
   LAB.previewEl = LAB.previewEl || document.getElementById('labPreview');
   LAB.titleEl = LAB.titleEl || document.getElementById('labTitle');
   LAB.metaEl = LAB.metaEl || document.getElementById('labMeta');
+  LAB.shellEl = LAB.shellEl || document.querySelector('.lab-shell');
 }
 
 function categorize(spec){
@@ -293,7 +303,10 @@ function activatePreview(id){
   ensureLabRefs();
   const spec = registry.find(r=>r.id===id) || specs.find(r=>r.id===id);
   if(!spec) return;
+  // bump serial to stop previous RAF loops via patched scheduler
+  LAB.serial++;
   LAB.activeId = id;
+  localStorage.setItem('mathlab_last', String(id));
   LAB.titleEl.textContent = `${id}. ${spec.title || spec.key}`;
   LAB.metaEl.textContent = categorize(spec);
   // Clear preview and create containers with expected ids
@@ -310,10 +323,45 @@ function activatePreview(id){
   activate(id);
 }
 
+function stopActive(){
+  ensureLabRefs();
+  LAB.serial++; // invalidate scheduled frames
+  LAB.previewEl.innerHTML = '<div style="padding:1rem; color:#9fb3cc">Stopped.</div>';
+}
+
 function wireSearch(specs){
   ensureLabRefs();
   LAB.searchEl.oninput = (e)=>{ LAB.query = e.target.value || ''; renderList(specs); };
 }
+
+function wireHeader(specs){
+  ensureLabRefs();
+  const startBtn = document.getElementById('labStart');
+  const stopBtn = document.getElementById('labStop');
+  const browseBtn = document.getElementById('labBrowse');
+  startBtn.onclick = ()=>{ if(LAB.activeId) activatePreview(LAB.activeId); };
+  stopBtn.onclick = ()=>{ stopActive(); };
+  browseBtn.onclick = ()=>{ LAB.shellEl.classList.toggle('drawer-open'); };
+}
+
+/* RequestAnimationFrame guard: skip callbacks from previous activations */
+(function installRAFGuard(){
+  const origRAF = window.requestAnimationFrame.bind(window);
+  const origCancel = window.cancelAnimationFrame.bind(window);
+  const seen = new WeakMap(); // cb -> { wrapped }
+  window.requestAnimationFrame = function(cb){
+    let meta = seen.get(cb);
+    if(!meta){
+      const wrapped = function(ts){ if (this.__lab_serial === LAB.serial) cb(ts); };
+      wrapped.__lab_serial = LAB.serial;
+      meta = { wrapped };
+      seen.set(cb, meta);
+    }
+    // if we switch effects, update nothing—old wrapped keeps its serial
+    return origRAF(meta.wrapped);
+  };
+  window.cancelAnimationFrame = function(id){ return origCancel(id); };
+})();
 
 function isFlagEnabled(name){
   try{
@@ -7319,9 +7367,10 @@ try {
   renderCats(specs);
   wireSearch(specs);
   renderList(specs);
-  // Deep link support
+  wireHeader(specs);
+  // Deep link support or last selection
   const p = new URLSearchParams(location.search);
-  const start = p.get('effect');
+  const start = p.get('effect') || localStorage.getItem('mathlab_last');
   const firstId = start ? parseInt(start,10) : (specs[0]?.id);
   if(firstId) activatePreview(firstId);
 } catch(e) { console.warn('Math Lab two‑pane init failed', e); }
