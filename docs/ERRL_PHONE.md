@@ -22,8 +22,7 @@ This document summarizes the tabs and controls in the Errl Phone panel.
 - GLB (Particles)
   - GPU Bubbles: Speed, Density, Alpha. Each has its own Animate and speed controls directly beneath.
 - BG (Background)
-  - Shimmer (mount effect), Vignette opacity.
-  - GL Overlay: Alpha, Disp X/Y, Randomize.
+  - Background effects removed (Shimmer, Vignette, GL Overlay).
 - Hue
   - Enabled toggle in section header; Target selector; Hue/Saturation/Intensity sliders. Animate with speed.
 - DEV

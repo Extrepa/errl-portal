@@ -19,10 +19,9 @@
   <!-- Background shimmer via ErrlBG -->
   <canvas id="bgParticles"></canvas>
   <!-- Rising bubbles (Stable mode + fallback) -->
-  <canvas id="riseBubbles"></canvas>
+  <canvas id="riseBubbles" style="display:none"></canvas>
 
   <!-- WebGL layer (hidden in Stable mode) -->
-  <div class="vignette-frame"></div>
   
   <!-- WebGL layer (hidden in Stable mode) -->
   <canvas id="errlWebGL" class="errl-webgl-layer"></canvas>
@@ -30,7 +29,7 @@
   <!-- Main scene -->
   <div class="scene-layer">
     <!-- Goo aura (CSS version, sits behind Errl) -->
-    <div class="errl-goo" id="errlGoo"></div>
+    <div class="errl-goo" id="errlGoo" style="display:none"></div>
 
     <!-- Errl (painted SVG as center) -->
     <div class="errl-wrapper" id="errl">
@@ -98,7 +97,7 @@
   </svg>
 
   <!-- Control panel -->
-  <aside class="errl-panel minimized" id="errlPanel" style="width:44px !important;height:44px !important;padding:0 !important;border-radius:999px !important;overflow:hidden !important;right:20px !important;top:20px !important;left:auto !important;bottom:auto !important;min-width:44px !important;max-width:44px !important;max-height:44px !important;">
+  <aside class="errl-panel minimized" id="errlPanel">
     <div class="panel-header" id="errlPhoneHeader" title="Drag to move">
       <div class="panel-title">ERRL PHONE</div>
       <div class="panel-mode">
@@ -119,24 +118,14 @@
 
     <div class="panel-section" data-tab="bg">
       <div class="sectionLabel" title="Background decorations">Background</div>
-      <div class="sliderRow">
-        <label title="Mount animated shimmer layer">Shimmer</label>
-        <input type="checkbox" id="shimmerToggle" title="Toggle shimmer">
-      </div>
-      <div class="sliderRow"><label title="Dark frame intensity">Vignette</label><input id="vignetteOpacity" type="range" min="0" max="1" step="0.01" value="0.85" title="Vignette opacity"/> <label style="width:auto">Color</label> <input type="color" id="vignetteColor" value="#000000" title="Vignette color"> <label style="width:auto">On</label> <input type="checkbox" id="vignetteEnabled" checked title="Enable vignette"></div>
-      <div class="sectionDivider"></div>
-      <div class="sectionLabel">GL Overlay</div>
-      <div class="sliderRow"><label title="Overlay opacity">Overlay Alpha</label><input type="range" id="glAlpha" min="0" max="1" step="0.01" value="0.28" title="Overlay alpha"></div>
-      <div class="sliderRow"><label title="Horizontal displacement">Overlay Disp X</label><input type="range" id="glDX" min="0" max="64" step="1" value="22" title="Overlay displacement X"></div>
-      <div class="sliderRow"><label title="Vertical displacement">Overlay Disp Y</label><input type="range" id="glDY" min="0" max="64" step="1" value="16" title="Overlay displacement Y"></div>
-      <div class="sliderRow" style="justify-content:flex-end"><button id="overlayRandom" title="Random overlay settings">Randomize</button></div>
+      <!-- Shimmer, Vignette, and GL Overlay removed -->
     </div>
 
     <!-- Rising Bubbles (Canvas) -->
     <div class="panel-section" data-tab="rb">
       <div class="sectionLabel" title="Canvas particle bubbles rising behind the scene">Rising Bubbles (Canvas)</div>
       <div class="sliderRow"><label title="Pointer attracts/repels bubbles">Attract</label><input type="checkbox" id="rbAttract" checked title="Toggle attraction/repulsion"> <label title="Attract effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.0" id="rbAttractIntensity" title="How strong the attraction/repulsion effect is"></div>
-      <div class="sliderRow"><label title="Show water-like ripples on click">Ripples</label><input type="checkbox" id="rbRipples" checked title="Toggle ripple effect"> <label title="Ripple effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.2" id="rbRippleIntensity" title="How visible and strong the ripple effect is"></div>
+      <div class="sliderRow"><label title="Show water-like ripples on click">Ripples</label><input type="checkbox" id="rbRipples" title="Toggle ripple effect"> <label title="Ripple effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.2" id="rbRippleIntensity" title="How visible and strong the ripple effect is"></div>
       <div class="sliderRow"><label title="How fast bubbles rise">Speed</label><input type="range" min="0" max="3" step="0.01" value="1" id="rbSpeed" title="Bubble rise speed"></div>
       <div class="sliderRow"><label title="How many bubbles appear">Density</label><input type="range" min="0" max="2" step="0.01" value="1" id="rbDensity" title="Bubble density"></div>
       <div class="sliderRow"><label title="Opacity of the bubbles">Alpha</label><input type="range" min="0" max="1" step="0.01" value="0.95" id="rbAlpha" title="Bubble opacity"></div>
@@ -184,7 +173,7 @@
       <div class="sliderRow"><label title="Overall scale of Errl">Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1.35" title="Drag to scale Errl"></div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel">Errl Goo (wobble)</div>
-      <div class="sliderRow"><label>Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked></div>
+      <div class="sliderRow"><label>Goo Enabled</label><input type="checkbox" id="classicGooEnabled"></div>
       <div class="sliderRow"><label title="Amount of displacement wobble applied to the Errl shape">Displacement</label><input id="classicGooStrength" type="range" min="0" max="2" step="0.01" value="0.35"></div>
       <div class="sliderRow"><label title="Oscillation amplitude of the wobble">Wobble</label><input id="classicGooWobble" type="range" min="0" max="2" step="0.01" value="0.55"></div>
       <div class="sliderRow"><label title="Rate of the internal classic SVG noise animation">Speed</label><input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="0.45"></div>
@@ -203,7 +192,7 @@
       <div class="sectionLabel" title="Floating menu bubbles around Errl">Nav Bubbles</div>
 <div class="sliderRow">
         <label title="How fast bubbles orbit around Errl">Orbit</label>
-<input type="range" min="0" max="2" step="0.01" value="0.18" id="navOrbitSpeed" title="Orbit speed">
+<input type="range" min="0" max="2" step="0.01" value="0.10" id="navOrbitSpeed" title="Orbit speed">
       </div>
       <div class="sliderRow">
         <label title="Distance of bubbles from Errl">Radius</label>

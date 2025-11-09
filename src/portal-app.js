@@ -92,14 +92,7 @@
   on(audioMasterSlider, 'input', ()=> audioEngine.setMaster(parseFloat(audioMasterSlider.value || '0')));
   on(audioBassSlider, 'input', ()=> audioEngine.setBass(parseFloat(audioBassSlider.value || '0')));
 
-  // GL Overlay bindings + persist
-  function persistOverlay(){
-    const obj = { alpha: parseFloat($("glAlpha")?.value||'0.2'), dx: parseFloat($("glDX")?.value||'24'), dy: parseFloat($("glDY")?.value||'18') };
-    try{ localStorage.setItem('errl_gl_overlay', JSON.stringify(obj)); }catch(e){}
-  }
-  on($("glAlpha"), 'input', ()=>{ const v=parseFloat($("glAlpha").value); window.errlGLSetOverlay && window.errlGLSetOverlay({ alpha: v }); persistOverlay(); });
-  on($("glDX"), 'input', ()=>{ const v=parseFloat($("glDX").value); window.errlGLSetOverlay && window.errlGLSetOverlay({ dx: v }); persistOverlay(); });
-  on($("glDY"), 'input', ()=>{ const v=parseFloat($("glDY").value); window.errlGLSetOverlay && window.errlGLSetOverlay({ dy: v }); persistOverlay(); });
+  // GL Overlay controls removed
 
   // GL background bubbles + persist minimal defaults
   function setBubs(p){ window.errlGLSetBubbles && window.errlGLSetBubbles(p); }
@@ -175,17 +168,30 @@
     setNavOrbScale(next, { syncInput: false });
   });
 
+  // Throttle orbit updates to ~30 FPS and avoid heavy DOM queries every frame
+  let lastOrbitUpdate = 0;
+  const orbitIntervalMs = 33; // ~30fps
   function updateBubbles(ts){
     if (!errl) return requestAnimationFrame(updateBubbles);
+    if (ts - lastOrbitUpdate < orbitIntervalMs){
+      return requestAnimationFrame(updateBubbles);
+    }
+    lastOrbitUpdate = ts;
+
     const rect = errl.getBoundingClientRect();
     const cx = rect.left + rect.width/2;
     const cy = rect.top + rect.height/2;
-    // Update bubbles array in case hidden bubble was toggled
-    bubbles = Array.from(document.querySelectorAll('.bubble'));
+
+    // Refresh bubble list only if count changed (e.g., toggled games bubble)
+    const currentCount = document.querySelectorAll('.bubble').length;
+    if (currentCount !== bubbles.length){
+      bubbles = Array.from(document.querySelectorAll('.bubble'));
+    }
+
     // Track visible index separately to maintain alternating orbit direction
     let visibleIndex = 0;
-    bubbles.forEach((el, i)=>{
-      if (el.style.display === 'none') return; // Skip hidden bubbles
+    bubbles.forEach((el)=>{
+      if (!el || el.style.display === 'none') return; // Skip hidden bubbles
       const base = parseFloat((el.dataset && el.dataset.angle) || '0');
       const dist = parseFloat((el.dataset && el.dataset.dist) || '160') * navRadius;
       // Use visibleIndex instead of i to maintain proper alternating pattern
@@ -196,7 +202,7 @@
       el.style.left = x + 'px';
       el.style.top = y + 'px';
       el.style.transform = `translate(-50%, -50%) scale(${navOrbScale})`;
-      visibleIndex++; // Only increment for visible bubbles
+      visibleIndex++;
     });
     window.errlGLSyncOrbs && window.errlGLSyncOrbs();
     requestAnimationFrame(updateBubbles);
@@ -330,18 +336,8 @@
     const d = document.getElementById('navDrip');
     const v = document.getElementById('navVisc');
     function apply(){
-      // Ensure WebGL is initialized before applying goo effects
-      if (!window.errlGLSetGoo) {
-        // Try to initialize WebGL if available
-        if (window.enableErrlGL) {
-          window.enableErrlGL();
-          // Wait a frame for initialization
-          requestAnimationFrame(() => {
-            if (window.errlGLSetGoo) apply();
-          });
-        }
-        return;
-      }
+      // Only apply if WebGL goo setter exists; do NOT auto-initialize GL
+      if (!window.errlGLSetGoo) return;
       const params = {};
       if (w) params.wiggle = parseFloat(w.value);
       if (f) params.speed = parseFloat(f.value);
@@ -356,8 +352,7 @@
       window.errlGLSetGoo(params);
     }
     ;[w,f,g,d,v].forEach(el=> el && el.addEventListener('input', apply));
-    // Delay initial apply to ensure WebGL is ready
-    setTimeout(apply, 100);
+    // No delayed auto-apply; wait for user to enable GL explicitly
   })();
 
   // Classic SVG goo controls (Errl tab)
@@ -530,10 +525,7 @@
   // Apply persisted defaults on load (overlay + gl bubbles + nav goo + RB + Goo)
   (function loadPersisted(){
     try{
-      const ov = JSON.parse(localStorage.getItem('errl_gl_overlay')||'null');
-      if (ov && window.errlGLSetOverlay) window.errlGLSetOverlay(ov);
-      const gb = JSON.parse(localStorage.getItem('errl_gl_bubbles')||'null');
-      if (gb && window.errlGLSetBubbles) window.errlGLSetBubbles(gb);
+      // Do not auto-apply GL bubbles on load to avoid initializing WebGL implicitly
       const ng = JSON.parse(localStorage.getItem('errl_nav_goo_cfg')||'null');
       if (ng){ const e=(id,v)=>{ const el=document.getElementById(id); if(el){ el.value = String(v); el.dispatchEvent(new Event('input')); } }; const c=(id,v)=>{ const el=document.getElementById(id); if(el){ el.checked=!!v; el.dispatchEvent(new Event('input')); } }; c('navGooEnabled', ng.enabled); e('navGooBlur', ng.blur); e('navGooMult', ng.mult); e('navGooThresh', ng.thresh); }
       const rb = JSON.parse(localStorage.getItem('errl_rb_settings')||'null');
@@ -543,7 +535,6 @@
     }catch(e){}
     // Always apply current UI values once on load (acts as baked defaults when nothing persisted)
     const kick = (id) => { const el = document.getElementById(id); if (el) el.dispatchEvent(new Event('input')); };
-    kick('glAlpha'); kick('glDX'); kick('glDY');
     kick('bgSpeed'); kick('bgDensity'); kick('bgAlpha');
     kick('errlSize');
   })();
@@ -590,24 +581,7 @@
     on(playBtn,'click', ()=> withHue(H=> H.toggleTimeline()));
   })();
 
-  // Background / Vignette controls
-  (function bgVignette(){
-    const frame = document.querySelector('.vignette-frame');
-    const op = document.getElementById('vignetteOpacity');
-    const en = document.getElementById('vignetteEnabled');
-    const col = document.getElementById('vignetteColor');
-    function apply(){ if (!frame) return; frame.style.opacity = en && en.checked ? (op?.value||'0.85') : '0'; if (col) frame.style.boxShadow = `0 40px 120px rgba(0,0,0,1) inset, 0 0 80px rgba(0,0,0,0.8) inset, 0 0 40px ${col.value}22`; }
-    ;[op,en,col].forEach(el=> el && el.addEventListener('input', apply));
-    apply();
-  })();
-
-  // Shimmer background toggling
-  (function shimmer(){
-    const t = document.getElementById('shimmerToggle');
-    function mount(){ try{ if (window.ErrlBG && typeof window.ErrlBG.mount==='function'){ window.ErrlBG.mount({ headerVariant: 2, shimmer: true, parallax: true, hud: false, basePath: '.' }); } }catch(e){} }
-    function hide(show){ const root = document.querySelector('.errl-bg'); if (root) root.style.display = show? 'block':'none'; }
-    if (t){ t.addEventListener('change', ()=>{ if (t.checked){ const root=document.querySelector('.errl-bg'); if (!root) mount(); else hide(true); } else hide(false); }); if (t.checked) mount(); }
-  })();
+  // Background vignette, shimmer removed
 
   // Accessibility toggles
   (function a11y(){
@@ -644,14 +618,7 @@
   })();
   
   // Random buttons
-  on($("overlayRandom"), 'click', ()=>{
-    const alpha = Math.random();
-    const dx = Math.floor(Math.random() * 64);
-    const dy = Math.floor(Math.random() * 64);
-    const a = $("glAlpha"); if(a) { a.value = alpha.toFixed(2); a.dispatchEvent(new Event('input')); }
-    const x = $("glDX"); if(x) { x.value = dx; x.dispatchEvent(new Event('input')); }
-    const y = $("glDY"); if(y) { y.value = dy; y.dispatchEvent(new Event('input')); }
-  });
+  // Overlay randomizer removed
   
   on($("glbRandom"), 'click', ()=>{
     const speed = Math.random() * 3;
@@ -840,29 +807,10 @@
     if (!panel) return;
     
     // Initialize: ALWAYS start minimized by default (user must click to expand)
-    // Force minimized state - ignore localStorage on initial load
-    // Clear any stored expanded state to ensure it starts minimized
-    localStorage.removeItem('errl_phone_min');
+    // Rely on CSS for minimized styling; avoid inline !important that can block restoring.
+    try { localStorage.removeItem('errl_phone_min'); } catch(_) {}
     panel.classList.add('minimized');
-    panel.style.setProperty('width', '44px', 'important');
-    panel.style.setProperty('height', '44px', 'important');
-    panel.style.setProperty('padding', '0', 'important');
-    panel.style.setProperty('border-radius', '999px', 'important');
-    panel.style.setProperty('overflow', 'hidden', 'important');
-    panel.style.setProperty('right', '20px', 'important');
-    panel.style.setProperty('top', '20px', 'important');
-    panel.style.setProperty('left', 'auto', 'important');
-    panel.style.setProperty('bottom', 'auto', 'important');
-    panel.style.setProperty('min-width', '44px', 'important');
-    panel.style.setProperty('max-width', '44px', 'important');
-    panel.style.setProperty('max-height', '44px', 'important');
-    // Hide all content inside when minimized
-    const headerEl = panel.querySelector('.panel-header');
-    const tabsEl = panel.querySelector('.panel-tabs');
-    const sectionsEl = panel.querySelectorAll('.panel-section');
-    if (headerEl) headerEl.style.display = 'none';
-    if (tabsEl) tabsEl.style.display = 'none';
-    sectionsEl.forEach(s => s.style.display = 'none');
+    // no inline size constraints; CSS .errl-panel.minimized handles the bubble look
     
     const header = document.getElementById('errlPhoneHeader');
     const tabsWrap = document.getElementById('panelTabs');
@@ -884,6 +832,12 @@
         sec.style.display = on ? 'block' : 'none';
       });
     }
+
+    // Helper: clear any inline minimized constraints (from previous versions or HTML)
+    function clearMinimizedInlineStyles(){
+      const props = ['width','height','padding','border-radius','overflow','right','top','left','bottom','min-width','max-width','max-height'];
+      props.forEach(p => { try { panel.style.removeProperty(p); } catch(_) {} });
+    }
     // initial tab
     activateTab('hud');
     // tab clicks
@@ -903,32 +857,21 @@
         if (panel.classList.contains('minimized')) {
           // Restore
           panel.classList.remove('minimized');
-          panel.style.width = '';
-          panel.style.height = '';
-          panel.style.padding = '';
-          panel.style.borderRadius = '';
-          panel.style.overflow = '';
-          // Show content again
+          clearMinimizedInlineStyles();
+          // Show content again (CSS handles layout)
           const headerEl = panel.querySelector('.panel-header');
           const tabsEl = panel.querySelector('.panel-tabs');
           const sectionsEl = panel.querySelectorAll('.panel-section');
           if (headerEl) headerEl.style.display = '';
           if (tabsEl) tabsEl.style.display = '';
           sectionsEl.forEach(s => s.style.display = '');
-          localStorage.setItem('errl_phone_min', '0');
+          try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
         } else {
-          // Minimize to top right
+          // Minimize
           panel.classList.add('minimized');
-          panel.style.width = '44px';
-          panel.style.height = '44px';
-          panel.style.padding = '0';
-          panel.style.borderRadius = '999px';
-          panel.style.overflow = 'hidden';
-          panel.style.right = '20px';
-          panel.style.top = '20px';
-          panel.style.left = 'auto';
-          panel.style.bottom = 'auto';
-          localStorage.setItem('errl_phone_min', '1');
+          // Ensure no stale inline constraints linger
+          clearMinimizedInlineStyles();
+          try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
         }
       });
     }
@@ -938,11 +881,7 @@
         // Only expand if clicking the panel itself (not child elements)
         if (e.target === panel || e.target.classList.contains('errl-panel')) {
           panel.classList.remove('minimized');
-          panel.style.width = '';
-          panel.style.height = '';
-          panel.style.padding = '';
-          panel.style.borderRadius = '';
-          panel.style.overflow = '';
+          clearMinimizedInlineStyles();
           // Show content again
           const headerEl = panel.querySelector('.panel-header');
           const tabsEl = panel.querySelector('.panel-tabs');
@@ -950,7 +889,7 @@
           if (headerEl) headerEl.style.display = '';
           if (tabsEl) tabsEl.style.display = '';
           sectionsEl.forEach(s => s.style.display = '');
-          localStorage.setItem('errl_phone_min', '0');
+          try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
         }
       }
     });
@@ -995,11 +934,12 @@
   (function debugHarness(){
     const DEBUG_KEY = 'errl_debug_flags_v1';
     const DEFAULT_FLAGS = {
-      overlay: true,
-      orbs: true,
-      risingBubbles: true,
-      vignette: true,
-      dprCap: null,
+      overlay: false,
+      orbs: false,
+      risingBubbles: false,
+      vignette: false,
+      dprCap: 1.0,
+      perfSafe: false,
     };
 
     let flags = { ...DEFAULT_FLAGS };
@@ -1044,7 +984,7 @@
         });
         return;
       }
-      window.enableErrlGL && window.enableErrlGL();
+      // Do NOT initialize WebGL just to disable overlay; apply lazily if GL exists
       withGL(() => {
         if (!overlayCache && typeof window.errlGLGetOverlay === 'function') {
           overlayCache = window.errlGLGetOverlay();
@@ -1094,7 +1034,13 @@
       }
     }
 
+    function setPerfSafeEnabled(enabled) {
+      const on = !!enabled;
+      document.body.classList.toggle('perf-safe', on);
+    }
+
     function applyAllFlags() {
+      setPerfSafeEnabled(flags.perfSafe);
       setOverlayEnabled(flags.overlay);
       setOrbsEnabled(flags.orbs);
       setRisingBubblesEnabled(flags.risingBubbles);
@@ -1115,6 +1061,9 @@
           break;
         case 'vignette':
           setVignetteEnabled(value);
+          break;
+        case 'perfSafe':
+          setPerfSafeEnabled(value);
           break;
         default:
           break;
@@ -1149,6 +1098,9 @@
       toggle(name) {
         if (!(name in flags) || name === 'dprCap') return { ...flags };
         return setFlag(name, !flags[name]);
+      },
+      perfSafe(on) {
+        return setFlag('perfSafe', on == null ? !flags.perfSafe : !!on);
       },
       setDprCap(value, { reload = false } = {}) {
         applyDprCap(value);

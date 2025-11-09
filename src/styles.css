@@ -293,6 +293,14 @@ body.high-contrast { filter: contrast(1.5) saturate(1.3) brightness(1.1); }
 /* Invert all colors (accessibility option) */
 body.invert-colors { filter: invert(1) hue-rotate(180deg); }
 
+/* Perf Safe mode: disable animations/transitions to reduce paint/composite cost */
+body.perf-safe *,
+body.perf-safe *::before,
+body.perf-safe *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
 /* 7. Control Panel (“Errl Phone”) */
 .errl-panel {
   position: fixed;

@@ -179,9 +179,10 @@
     const view = getCanvas();
     if (!view || !W.PIXI) return;
 
-    const overrideRes = (W as any).__ERRL_RES_OVERRIDE;
-    const baseRes = Math.min((W.devicePixelRatio || 1), 1.5);
-    const effectiveRes = (typeof overrideRes === 'number' && isFinite(overrideRes) ? overrideRes : baseRes);
+    const overrideRes = (typeof W.__ERRL_RES_OVERRIDE === 'number' && isFinite(W.__ERRL_RES_OVERRIDE)) ? W.__ERRL_RES_OVERRIDE : null;
+    const limiter = (typeof currentResolutionCap === 'number' && isFinite(currentResolutionCap)) ? currentResolutionCap : 1.0; // default 1.0 cap
+    const baseRes = Math.min((W.devicePixelRatio || 1), limiter);
+    const effectiveRes = (overrideRes != null ? overrideRes : baseRes);
 
     app = new PIXI.Application({
       view,
@@ -561,6 +562,15 @@
     else if (kind==='custom' && url) l.set({ textureUrl: url });
   };
   W.errlGLSetOverlay = function(params){ if (!started) init(); if (!overlay) return; if ('alpha' in params) overlay.alpha = params.alpha; if (overlayFilter){ if ('dx' in params) overlayFilter.uniforms.uDX = params.dx; if ('dy' in params) overlayFilter.uniforms.uDY = params.dy; } };
+  W.errlGLSetDprCap = function(val){
+    const num = (val == null) ? null : Math.max(0.5, Math.min(4, Number(val)));
+    currentResolutionCap = num;
+    if (app && app.renderer) {
+      const res = (num == null) ? Math.min((W.devicePixelRatio || 1), 1.0) : Math.min((W.devicePixelRatio || 1), num);
+      app.renderer.resolution = res;
+      app.renderer.resize(innerWidth, innerHeight);
+    }
+  };
   W.errlGLGetOverlay = function(){ if (!started) return null; return { alpha: overlay ? overlay.alpha : null, dx: overlayFilter ? overlayFilter.uniforms.uDX : null, dy: overlayFilter ? overlayFilter.uniforms.uDY : null }; };
   W.errlGLSetDprCap = function(cap){
     const normalized = normalizeDprCap(cap);

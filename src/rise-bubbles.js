@@ -151,12 +151,25 @@
   }
 
   let last = performance.now();
-  let slow = false; let acc = 0; let phase = 0;
+  let slow = false; let acc = 0; let phase = 0; let slowFrames = 0; let fastFrames = 0;
+  function isHidden(){
+    // skip work if canvas is hidden (debug toggle), reduces CPU when RB is off
+    const disp = cvs.style.display || getComputedStyle(cvs).display;
+    return disp === 'none';
+  }
   function loop(ts){
     const dt = Math.max(0.5, Math.min(3, (ts-last)/16.667));
     last = ts;
+    if (isHidden()) { requestAnimationFrame(loop); return; }
     acc = acc*0.9 + dt*0.1; slow = acc > 1.4; // simple perf heuristic
     phase = (phase+1) & 1; // toggle 0/1
+
+    // adaptive density: gently drop when slow, gently restore when fast
+    if (slow) { slowFrames++; fastFrames = 0; }
+    else { fastFrames++; slowFrames = 0; }
+    if (slowFrames > 30 && RB.density > 0.7) { setRBParam('density', 0.7, { syncInput: false }); slowFrames = 0; }
+    if (fastFrames > 60 && RB.density < 1.0) { setRBParam('density', 1.0, { syncInput: false }); fastFrames = 0; }
+
     advance(dt);
     draw();
     // advance ripples (slower on slow frames)
