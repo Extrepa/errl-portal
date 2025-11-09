@@ -24,9 +24,7 @@ Extended `errlDebug` harness with:
 - Direct access to `__ErrlWebGL.fxRoot`, `.mood`, `.overlayFilter`
 
 ### Performance Artifacts
-Added Safari performance audit artifacts to `docs/perf/2025-11-09-safari-layers/`:
-- 16 screenshots documenting layer inspector findings
-- `localhost-recording.json` - Performance recording data
+Safari performance audit exports previously lived in `docs/perf/2025-11-09-safari-layers/`; the folder was cleared on 2025-11-11 to reduce noise. Capture fresh assets as needed.
 
 ## Key Learnings
 
