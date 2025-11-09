@@ -97,12 +97,12 @@
   // GL background bubbles + persist minimal defaults
   function setBubs(p){ window.errlGLSetBubbles && window.errlGLSetBubbles(p); }
   function persistBubs(){
-    const obj = { speed: parseFloat($("bgSpeed")?.value||'1'), density: parseFloat($("bgDensity")?.value||'1'), alpha: parseFloat($("bgAlpha")?.value||'0.9') };
+    const obj = { speed: parseFloat($("bgSpeed")?.value||'1'), density: parseFloat($("bgDensity")?.value||'1'), alpha: parseFloat($("glAlpha")?.value||'0.9') };
     try{ localStorage.setItem('errl_gl_bubbles', JSON.stringify(obj)); }catch(e){}
   }
   on($("bgSpeed"), 'input', ()=> { setBubs({ speed: parseFloat($("bgSpeed").value) }); persistBubs(); });
   on($("bgDensity"), 'input', ()=> { setBubs({ density: parseFloat($("bgDensity").value) }); persistBubs(); });
-  on($("bgAlpha"), 'input', ()=> { setBubs({ alpha: parseFloat($("bgAlpha").value) }); persistBubs(); });
+  on($("glAlpha"), 'input', ()=> { setBubs({ alpha: parseFloat($("glAlpha").value) }); persistBubs(); });
 
   // Orbiting nav bubbles around Errl
   const errl = $("errl");
@@ -181,6 +181,8 @@
     const rect = errl.getBoundingClientRect();
     const cx = rect.left + rect.width/2;
     const cy = rect.top + rect.height/2;
+    const minViewport = Math.min(window.innerWidth, window.innerHeight);
+    const viewportScale = clamp(minViewport / 900, 0.55, 1.05);
 
     // Refresh bubble list only if count changed (e.g., toggled games bubble)
     const currentCount = document.querySelectorAll('.bubble').length;
@@ -193,7 +195,8 @@
     bubbles.forEach((el)=>{
       if (!el || el.style.display === 'none') return; // Skip hidden bubbles
       const base = parseFloat((el.dataset && el.dataset.angle) || '0');
-      const dist = parseFloat((el.dataset && el.dataset.dist) || '160') * navRadius;
+      const baseDist = parseFloat((el.dataset && el.dataset.dist) || '160');
+      const dist = baseDist * navRadius * viewportScale;
       // Use visibleIndex instead of i to maintain proper alternating pattern
       const ang = base + (ts * 0.00003 * navOrbitSpeed * (visibleIndex % 2 === 0 ? 1 : -1)) * 360;
       const rad = ang * Math.PI/180;
@@ -535,7 +538,7 @@
     }catch(e){}
     // Always apply current UI values once on load (acts as baked defaults when nothing persisted)
     const kick = (id) => { const el = document.getElementById(id); if (el) el.dispatchEvent(new Event('input')); };
-    kick('bgSpeed'); kick('bgDensity'); kick('bgAlpha');
+    kick('bgSpeed'); kick('bgDensity'); kick('glAlpha');
     kick('errlSize');
   })();
 
@@ -626,7 +629,7 @@
     const alpha = Math.random();
     const s = $("bgSpeed"); if(s) { s.value = speed.toFixed(2); s.dispatchEvent(new Event('input')); }
     const d = $("bgDensity"); if(d) { d.value = density.toFixed(2); d.dispatchEvent(new Event('input')); }
-    const a = $("bgAlpha"); if(a) { a.value = alpha.toFixed(2); a.dispatchEvent(new Event('input')); }
+    const a = $("glAlpha"); if(a) { a.value = alpha.toFixed(2); a.dispatchEvent(new Event('input')); }
   });
   
   on($("navRandom"), 'click', ()=>{

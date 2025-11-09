@@ -142,8 +142,8 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   position: absolute;
   left: 50%;
   top: 50%;
-  width: clamp(360px, 38vmin, 780px);
-  height: clamp(360px, 38vmin, 780px);
+  width: clamp(320px, 34vmin, 780px);
+  height: clamp(320px, 34vmin, 780px);
   --errlScale: 1;
   transform: translate(-50%, -50%) scale(var(--errlScale, 1));
   z-index: 1; /* Errl above goo aura, below bubbles */
@@ -211,18 +211,18 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 /* 6. Orbiting / menu bubbles */
 .bubble {
   position: absolute;
-  width: 72px;
-  height: 72px;
+  width: clamp(48px, 7vw, 84px);
+  height: clamp(48px, 7vw, 84px);
   border-radius: 50%;
   box-shadow:
     0 0 20px rgba(180,120,255,0.6),
     0 0 40px rgba(0,200,255,0.4);
-  line-height: 72px;
+  line-height: clamp(48px, 7vw, 84px);
   text-align: center;
-  font-size: 12px;
-  font-weight: 800;
-  font-family: "Ink Free", "Comic Sans MS", "Inter", system-ui, sans-serif;
-  color: transparent; /* base text hidden; label controls visibility */
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #f0f4ff;
+  background: radial-gradient(circle, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.65) 35%, rgba(255,255,255,0.1) 100%);
   text-shadow: 0 2px 4px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.6);
   mix-blend-mode: screen;
   user-select: none;
@@ -287,6 +287,23 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   box-shadow:
     0 0 30px rgba(255,255,255,0.9),
     0 0 60px rgba(0,200,255,0.7);
+}
+
+@media (max-width: 768px) {
+  .errl-wrapper {
+    width: clamp(260px, 56vw, 520px);
+    height: clamp(260px, 56vw, 520px);
+  }
+}
+
+@media (max-width: 480px) {
+  .errl-wrapper {
+    width: clamp(220px, 64vw, 420px);
+    height: clamp(220px, 64vw, 420px);
+  }
+  .bubble {
+    font-size: clamp(10px, 3.4vw, 13px);
+  }
 }
 
 /* Accessibility helpers */

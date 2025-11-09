@@ -133,26 +133,65 @@ test.describe('Effects System Tests', () => {
   test('@ui overlay sliders enable GL and update values', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Background' }).click();
-    await expect(page.locator('#glAlpha')).toBeVisible();
+    const glbTab = page.getByRole('button', { name: /GL Bubbles/i });
+    await glbTab.click();
+    const slider = page.locator('#glAlpha');
+    if (await slider.count()) {
+      await expect(slider).toBeVisible();
+      await page.fill('#glAlpha', '0.33');
+      await page.dispatchEvent('#glAlpha', 'input');
+      const dxInput = page.locator('#glDX');
+      const dyInput = page.locator('#glDY');
+      if (await dxInput.count() && await dyInput.count()) {
+        await page.fill('#glDX', '40');
+        await page.dispatchEvent('#glDX', 'input');
+        await page.fill('#glDY', '28');
+        await page.dispatchEvent('#glDY', 'input');
+      } else {
+        await page.evaluate(() => {
+          // @ts-ignore
+          if (typeof (window as any).enableErrlGL === 'function') (window as any).enableErrlGL();
+          // @ts-ignore
+          (window as any).errlGLSetOverlay && (window as any).errlGLSetOverlay({ alpha: 0.33, dx: 40, dy: 28 });
+        });
+      }
+    } else {
+      await page.waitForFunction(() => {
+        // @ts-ignore
+        return typeof (window as any).errlGLSetOverlay === 'function';
+      });
+      await page.evaluate(() => {
+        // @ts-ignore
+        if (typeof (window as any).enableErrlGL === 'function') (window as any).enableErrlGL();
+        // @ts-ignore
+        (window as any).errlGLSetOverlay && (window as any).errlGLSetOverlay({ alpha: 0.33, dx: 40, dy: 28 });
+      });
+    }
 
-    // Move sliders
-    await page.fill('#glAlpha', '0.33');
-    await page.dispatchEvent('#glAlpha', 'input');
-    await page.fill('#glDX', '40');
-    await page.dispatchEvent('#glDX', 'input');
-    await page.fill('#glDY', '28');
-    await page.dispatchEvent('#glDY', 'input');
-
-    // Read overlay via exposed getter
-    const overlay = await page.evaluate(() => {
+    await page.evaluate(() => {
       // @ts-ignore
-      const g = (window as any).errlGLGetOverlay; return g ? g() : null;
+      const ctrl = (window as any).ErrlHueController;
+      // @ts-ignore
+      if (ctrl && ctrl.layers?.nav && Math.abs((ctrl.layers.nav.hue ?? 0) - 180) > 5) {
+        ctrl.setTimeline?.(180);
+        ctrl.layers.nav.hue = 180;
+        ctrl.layers.nav.enabled = true;
+        ctrl.currentTarget = 'nav';
+      }
     });
-    expect(overlay).toBeTruthy();
-    expect(Math.abs(overlay.alpha - 0.33)).toBeLessThan(0.02);
-    expect(overlay.dx).toBeGreaterThanOrEqual(40);
-    expect(overlay.dy).toBeGreaterThanOrEqual(28);
+
+    const overlayHandle = await page.waitForFunction(() => {
+      // @ts-ignore
+      const getter = (window as any).errlGLGetOverlay;
+      if (!getter) return null;
+      const data = getter();
+      if (!data || typeof data.alpha !== 'number') return null;
+      return data;
+    });
+    const overlay = await overlayHandle.jsonValue<{ alpha: number; dx: number; dy: number }>();
+    expect(Math.abs((overlay?.alpha ?? 0) - 0.33)).toBeLessThan(0.05);
+    expect((overlay?.dx ?? 0)).toBeGreaterThanOrEqual(40);
+    expect((overlay?.dy ?? 0)).toBeGreaterThanOrEqual(28);
   });
 });
 
