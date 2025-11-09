@@ -5,7 +5,7 @@
 
 | ID | Task | Owner | Status | Notes |
 |----|------|-------|--------|-------|
-| T-001 | Capture baseline Safari layers + memory metrics | _unassigned_ | ☐ | Populate `docs/perf/2025-11-09-results.md` and drop screenshots under `docs/perf/2025-11-09-safari-layers/` |
+| T-001 | Capture baseline Safari layers + memory metrics | _unassigned_ | ☑ | Baseline logged in `docs/perf/2025-11-09-results.md` (≈5.1 GB, 27 layers) with screenshots + audit export |
 | T-002 | Build debug harness (overlay/orb/bubbles/vignette toggles, renderer clamp) | _unassigned_ | ☐ | Add CLI/UI toggles + persistent flags per TEAM_UPDATE plan |
 | T-003 | Harden canvas CSS & z-order invariants | _unassigned_ | ☐ | Ensure pointer-events, fixed sizing, canonical z-index order |
 | T-004 | Audit PIXI stage & filters for extra composites | _unassigned_ | ☐ | Validate ParticleContainer ordering, relocate filters if needed |

@@ -10,10 +10,10 @@ Scope: Reduce composite layer count and GPU memory/jank on the portal landing (S
 - Open http://localhost:5173/ in Safari
 - Open Web Inspector → Layers (3D), Graphics, Timelines
 
-## Baseline (from current screenshots)
-- Layer Count: ~27
-- Graphics Memory: ~418.4 MB
-- Notable: multiple “Unknown node” layers with high paints (10–16) and 2.0–13.6 MB each
+## Baseline (Safari 2025-11-09)
+- Layer Count: 27
+- Graphics Memory: ≈ 5.1 GB (seven ~544 MB surfaces, plus several 80–500 MB layers)
+- Notable: multiple large backing layers for WebGL/DOM blending; highest paint count observed: 17 (4.66 MB surface)
 - 3D view: long stacked ribbons → likely many stacking contexts across full-bleed nodes
 
 ## Target stack (back → front)
@@ -54,7 +54,7 @@ Hue controller (`src/fx/hue-controller.ts`) spans the entire stack: applies CSS 
 - [ ] 1) Create branch for the audit: perf/layer-audit-portal-landing-2025-11-09
 - [ ] 2) Set up audit workspace and import latest Safari screenshots under docs/perf/2025-11-09-safari-layers
 - [ ] 3) Publish quick team update (this file) so other AI/devs can assist
-- [ ] 4) Run the app and capture a strict baseline in Safari (layer count, memory, top offenders, reasons for compositing)
+- [x] 4) Run the app and capture a strict baseline in Safari (layer count, memory, top offenders, reasons for compositing)
 - [x] 5) Inventory canvases and DOM layers with quick checks (see Layer inventory / DEV-SYSTEM-GUIDE.md update)
 - [x] 6) Map observed stack vs canonical layer order; list deltas (confirmed above)
 - [x] 7) Add a lightweight debug harness with hard toggles (overlay/orbs/riseBubbles/vignette; renderer resolution)
