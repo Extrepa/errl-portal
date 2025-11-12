@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Strange Attractor — CSS Example</title>
+  <style>
+    :root{
+      --bg:#0f1220;
+      --card:#151a2e;
+      --ink:#e6e7ef;
+      --muted:#a7acc9;
+      --accent:#7cf0ff;
+      --accent2:#ffd36a;
+      --code-bg:#0d0f1a;
+      --border:#232845;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;margin:0;font:14px/1.4 system-ui;color:var(--ink);background:var(--bg)}
+    body{display:grid;place-items:center;padding:2rem}
+    .container{max-width:600px;width:100%}
+    .preview{
+      padding:2rem;
+      background:radial-gradient(1200px 300px at 20% 0%, rgba(124,240,255,.12), transparent 55%);
+      border:1px solid var(--border);
+      border-radius:16px;
+      min-height:200px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    
+    :root{
+      --bg:#0f1220;
+      --card:#151a2e;
+      --ink:#e6e7ef;
+      --muted:#a7acc9;
+      --accent:#7cf0ff;
+      --accent2:#ffd36a;
+      --code-bg:#0d0f1a;
+      --border:#232845;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
+      color:var(--ink);
+      background:linear-gradient(180deg,#0b1020 0%, #111633 100%);
+    }
+    header{
+      padding:24px 20px 8px;
+      text-align:center;
+    }
+    header h1{margin:0;font-size:clamp(22px,2.8vw,36px)}
+    header p{margin:6px 0 0;color:var(--muted)}
+    .sheet{
+      width:100%;
+      max-width:1050px;
+      margin:18px auto 28px;
+      padding:10px;
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+      page-break-inside: avoid;
+      background:transparent;
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
+      display:grid;
+      grid-template-rows:auto auto 1fr;
+    }
+    .card header{
+      text-align:left;
+      padding:12px 14px 8px;
+      border-bottom:1px solid var(--border);
+    }
+    .card header h2{
+      font-size:16px;
+      margin:0;
+    }
+    .card header small{
+      color:var(--muted);
+    }
+    .preview{
+      padding:14px;
+      background:radial-gradient(1200px 300px at 20% 0%, rgba(124,240,255,.12), transparent 55%);
+      border-bottom:1px dashed var(--border);
+      min-height:120px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .code{
+      background:var(--code-bg);
+      padding:10px 12px;
+      overflow:auto;
+      border-top:1px solid #0003;
+      font:12px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      position:relative;
+    }
+    .tips{
+      padding:10px 12px 14px;
+      color:var(--muted);
+      border-top:1px dashed var(--border);
+      background:linear-gradient(0deg, rgba(255,255,255,0.02), rgba(255,255,255,0.0));
+      font-size:12.5px;
+    }
+    code, pre{color:#e9f1ff}
+    pre{margin:0; white-space:pre; tab-size:2}
+    /* Utilities used inside previews */
+    .u-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center}
+    .u-col{display:grid; gap:8px}
+    .u-center{text-align:center}
+    /* Example-specific styles are namespaced by .example-XX within each preview to avoid leaking */
+    /* Print styles */
+    @media print{
+      body{background:white;color:black}
+      .sheet{page-break-after:always; background:transparent;}
+      .card{border-color:#ddd; box-shadow:none}
+      .code{background:#f7f7f7;color:#222}
+      .tips{color:#333}
+      header, .app-note{display:none}
+    }
+    .app-note{ text-align:center; color:var(--muted); margin-bottom:10px;}
+    .label{display:inline-block; padding:2px 6px; border:1px solid var(--border); border-radius:999px; font-size:11px; color:var(--muted)}
+    /* Reduce motion for accessibility and to prevent flashing */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    /* Slow down animations in previews to reduce visual overload */
+    .preview {
+      --anim-slowdown: 2;
+    }
+  
+    
+    .u-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
+    .u-col{display:grid;gap:8px}
+    .u-center{text-align:center}
+  </style>
+  <link rel="stylesheet" href="examples.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="preview example-43">
+      
+        <canvas class="attractor" width="240" height="120" aria-label="strange attractor"></canvas>
+      
+    </div>
+  </div>
+  <script src="examples.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Errl Portal — Layered Scaffold (L0–L7)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0-a:#1a1f2b;
+  --bg0-b:#0b1020;
+  --ink:#e5eaf1;
+  --line:#ffffff22;
+  --halo:#7b5cff;
+  --teal:#00e5ff;
+  --gold:#fde047;
+  --pink:#ff4d6d;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#0a0f18; color:var(--ink); overflow:hidden}
+
+/* === Layer host === */
+.portal{
+  position:fixed; inset:0;
+  perspective:900px; /* subtle parallax feel */
+}
+
+/* Utility */
+.layer{position:absolute; inset:0; pointer-events:none;}
+.hidden{display:none !important;}
+
+/* === L0 Background Realm === */
+.l0{
+  background:
+    radial-gradient(120vmax 120vmax at 20% 10%, #1e1440 0%, #0b1020 60%),
+    conic-gradient(from 0deg,#1a2542,#16243d,#122033,#101a2b,#0b1020,#13243c,#1a2542);
+  mix-blend-mode: normal;
+  animation:hueShift 120s linear infinite;
+}
+@keyframes hueShift{
+  0%{filter:hue-rotate(0deg) saturate(110%);}
+  50%{filter:hue-rotate(60deg) saturate(120%);}
+  100%{filter:hue-rotate(0deg) saturate(110%);}
+}
+
+/* === L1 Subsurface Motion Field (transparent shimmer) === */
+.l1{
+  background:
+    repeating-conic-gradient(from 0deg, rgba(255,255,255,.05) 0 6deg, rgba(0,0,0,0) 6deg 12deg);
+  opacity:.15;
+  transform:translate3d(0,0,-1px) scale(1.02);
+}
+
+/* === L2 Floating Motes === */
+.l2{ overflow:hidden; }
+.mote{
+  position:absolute; width:10px; height:10px; border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,0) 70%);
+  opacity:0; pointer-events:none; filter:blur(.6px);
+  animation:floatY var(--dur,18s) ease-in-out var(--delay,0s) infinite;
+}
+@keyframes floatY{
+  0%{transform:translateY(10vh); opacity:0;}
+  10%{opacity:.6;}
+  50%{opacity:.35;}
+  90%{opacity:.6;}
+  100%{transform:translateY(-20vh); opacity:0;}
+}
+
+/* === L3 Decorative Frame === */
+.l3{
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 40px rgba(123,92,255,.08);
+  animation:pulse 4.5s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 40px rgba(123,92,255,.08);}
+  50%{box-shadow: inset 0 0 0 1px rgba(255,255,255,.10), inset 0 0 52px rgba(0,229,255,.12);}
+}
+.drip{
+  position:absolute; width:36vw; max-width:720px; height:14px; left:50%; transform:translateX(-50%);
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  opacity:.35; top:3vh; filter:blur(.6px);
+}
+
+/* === L4 Central Being (placeholder SVG silhouette) === */
+.l4{ display:grid; place-items:center; }
+.errl{
+  width:min(50vmin,60vw);
+  filter: drop-shadow(0 0 18px rgba(123,92,255,.45)) drop-shadow(0 0 48px rgba(0,229,255,.18));
+  transition:transform .25s ease, filter .25s ease;
+  pointer-events:auto;
+}
+.errl:hover{ transform:translateY(-2px) scale(1.01); }
+
+/* Reactive halo */
+.halo{
+  position:absolute; width:46vmin; height:46vmin; border-radius:50%; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  background: radial-gradient(circle, rgba(123,92,255,.25), rgba(0,229,255,.15) 35%, transparent 60%);
+  filter:blur(18px);
+  pointer-events:none; opacity:.6; transition:opacity .2s linear;
+}
+
+/* === L5 Interface Orbit (buttons) === */
+.l5{ display:grid; place-items:center; }
+.ui-orbit{
+  position:absolute; width:70vmin; height:70vmin; border-radius:50%; pointer-events:none;
+  animation:orbit 36s linear infinite;
+}
+@keyframes orbit{
+  from{transform:rotate(0turn);} to{transform:rotate(1turn);}
+}
+.btn{
+  position:absolute; pointer-events:auto;
+  padding:8px 12px; border-radius:999px; border:1px solid var(--line);
+  background:rgba(255,255,255,.06); color:#e5eaf1; font-weight:600; font-size:14px;
+  backdrop-filter:saturate(120%) blur(2px);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.btn:hover{
+  transform:scale(1.06);
+  background:rgba(255,255,255,.12);
+  box-shadow:0 0 24px rgba(0,229,255,.25);
+}
+.btn[data-pos="1"]{ top:0; left:50%; transform:translate(-50%,-50%); }
+.btn[data-pos="2"]{ right:0; top:50%; transform:translate(50%,-50%); }
+.btn[data-pos="3"]{ bottom:0; left:50%; transform:translate(-50%,50%); }
+.btn[data-pos="4"]{ left:0; top:50%; transform:translate(-50%,-50%); }
+
+/* === L6 Secret / Awakening === */
+.l6{
+  display:grid; place-items:center;
+  opacity:0; transition:opacity .5s ease;
+  background: radial-gradient(80vmax 80vmax at 50% 30%, rgba(15,12,40,.65), rgba(5,8,18,.9));
+}
+.l6.active{ opacity:1; }
+.portal-drip{
+  position:absolute; width:64vw; max-width:900px; height:0; top:-40vh; left:50%; transform:translateX(-50%);
+  background:linear-gradient(180deg, rgba(123,92,255,.65), rgba(0,229,255,.5), transparent 70%);
+  border-radius:999px 999px 0 0;
+  animation:dripFall 1.25s ease forwards;
+}
+@keyframes dripFall{
+  0%{ height:0; top:-40vh; }
+  100%{ height:140vh; top:-10vh; }
+}
+.sigil{
+  font-size: clamp(22px, 5vmin, 44px); letter-spacing: .28em;
+  color:#cdeafe; text-shadow: 0 0 18px rgba(123,92,255,.6);
+  opacity:0; animation:sigilIn .9s .7s ease forwards;
+}
+@keyframes sigilIn{
+  from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}
+}
+
+/* === L7 Foreground FX === */
+.l7{}
+.ripple{
+  position:absolute; width:4px; height:4px; border-radius:50%;
+  background: radial-gradient(circle, rgba(255,255,255,.7), rgba(255,255,255,0) 60%);
+  pointer-events:none; transform:translate(-50%,-50%);
+  animation:ripple 800ms ease-out forwards;
+}
+@keyframes ripple{
+  from{opacity:.9; transform:translate(-50%,-50%) scale(1);}
+  to{opacity:0; transform:translate(-50%,-50%) scale(22);}
+}
+.bloom{
+  position:absolute; width:10px; height:10px; border-radius:50%;
+  background: conic-gradient(from 0deg, #ff004c,#ffa300,#ffee00,#53f900,#00e5ff,#7b5cff,#ff00b1,#ff004c);
+  filter:blur(12px); opacity:.8; pointer-events:none;
+  transform:translate(-50%,-50%) scale(.6);
+  animation:bloom 900ms ease-out forwards;
+}
+@keyframes bloom{
+  from{opacity:.8; transform:translate(-50%,-50%) scale(.6) rotate(0turn);}
+  to{opacity:0; transform:translate(-50%,-50%) scale(3.4) rotate(.25turn);}
+}
+
+/* === Controls HUD === */
+.hud{
+  position:fixed; left:14px; bottom:12px; display:flex; gap:8px; z-index:1000;
+}
+.hud .chip{
+  padding:6px 10px; border-radius:8px; border:1px solid var(--line);
+  background:rgba(255,255,255,.08); color:#e7ecf5; font-size:12px; cursor:pointer;
+}
+.hud .chip:active{transform:scale(.98)}
+.hud .chip.toggled{ outline:2px solid rgba(0,229,255,.4); background:rgba(255,255,255,.12); }
+.hud .chip.warn{ border-color:#ff4d4d44; color:#ffd0d0; }
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce){
+  .ui-orbit{ animation:none }
+  .l0{ animation:none }
+}
+</style>
+</head>
+<body>
+<div class="portal" id="portal" data-theme="normal">
+  <div class="layer l0" data-layer="L0"></div>
+  <div class="layer l1" data-layer="L1"></div>
+  <div class="layer l2" data-layer="L2" id="motesLayer"></div>
+  <div class="layer l3" data-layer="L3">
+    <div class="drip"></div>
+  </div>
+  <div class="layer l4" data-layer="L4">
+    <div class="halo" id="halo"></div>
+    <!-- Placeholder Errl silhouette (replace later with real SVG/PNG) -->
+    <svg class="errl" id="errl" viewBox="0 0 600 820" xmlns="http://www.w3.org/2000/svg" aria-label="Errl silhouette">
+      <defs>
+        <filter id="gitd"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <g fill="#7b5cff" filter="url(#gitd)">
+        <path d="M65,410 C65,190 240,40 360,60 C510,85 555,210 555,325 C555,510 460,615 345,695 C285,740 210,775 155,740 C110,711 65,630 65,410 Z"/>
+      </g>
+      <g fill="#eaf2ff">
+        <ellipse cx="320" cy="290" rx="110" ry="95" opacity=".9"/>
+      </g>
+      <g fill="#0a0a0c">
+        <ellipse cx="285" cy="270" rx="16" ry="28"/>
+        <ellipse cx="355" cy="270" rx="16" ry="28"/>
+        <ellipse cx="320" cy="330" rx="42" ry="18"/>
+      </g>
+      <path d="M65,410 C65,190 240,40 360,60 C510,85 555,210 555,325 C555,510 460,615 345,695 C285,740 210,775 155,740 C110,711 65,630 65,410 Z" fill="none" stroke="#0a0a0c" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="layer l5" data-layer="L5">
+    <div class="ui-orbit">
+      <button class="btn" data-pos="1" onclick="alert('Gallery soon')">Gallery</button>
+      <button class="btn" data-pos="2" onclick="alert('About soon')">About</button>
+      <button class="btn" data-pos="3" onclick="alert('Pin Designer soon')">Pin Designer</button>
+      <button class="btn" data-pos="4" onclick="alert('Nomad Sigil?')">?</button>
+    </div>
+  </div>
+  <div class="layer l6" data-layer="L6" id="awakening">
+    <div class="portal-drip"></div>
+    <div class="sigil">FOR THE NOMADS</div>
+  </div>
+  <div class="layer l7" data-layer="L7" id="fx"></div>
+</div>
+
+<!-- HUD controls -->
+<div class="hud" id="hud">
+  <button class="chip" data-toggle="dream">Idle Dream ON</button>
+  <button class="chip toggled" data-toggle="parallax">Parallax ON</button>
+  <button class="chip" data-toggle="layers">Toggle Layers</button>
+  <button class="chip warn" data-toggle="mirror">Mirror Realm</button>
+</div>
+
+<script>
+(function(){
+  const portal = document.getElementById('portal');
+  const motesLayer = document.getElementById('motesLayer');
+  const fx = document.getElementById('fx');
+  const halo = document.getElementById('halo');
+  const awakening = document.getElementById('awakening');
+  const hud = document.getElementById('hud');
+  const toggles = { dream:true, parallax:true, mirror:false };
+
+  /* === L2: spawn motes === */
+  function spawnMote(){
+    const m=document.createElement('div');
+    m.className='mote';
+    const x = Math.random()*100;
+    const size = 4 + Math.random()*8;
+    const dur = 14 + Math.random()*14;
+    const delay = Math.random()*8;
+    m.style.left = x+'vw';
+    m.style.bottom = (-10 + Math.random()*20)+'vh';
+    m.style.width = m.style.height = size+'px';
+    m.style.setProperty('--dur', dur+'s');
+    m.style.setProperty('--delay', delay+'s');
+    motesLayer.appendChild(m);
+    // remove later
+    setTimeout(()=>m.remove(), (dur+delay)*1000 + 2000);
+  }
+  for(let i=0;i<48;i++) spawnMote();
+  setInterval(()=>spawnMote(), 900);
+
+  /* === L7: click ripple + bloom === */
+  window.addEventListener('click', (e)=>{
+    // secret sequence: left eye -> mouth -> right eye
+    handleSecret(e);
+    ripple(e.clientX, e.clientY);
+  });
+  function ripple(x,y){
+    const r=document.createElement('div'); r.className='ripple';
+    r.style.left=x+'px'; r.style.top=y+'px';
+    const b=document.createElement('div'); b.className='bloom';
+    b.style.left=x+'px'; b.style.top=y+'px';
+    fx.appendChild(r); fx.appendChild(b);
+    setTimeout(()=>{r.remove(); b.remove();}, 1100);
+  }
+
+  /* === Parallax + halo === */
+  const center = ()=>({ x: window.innerWidth/2, y: window.innerHeight/2 });
+  window.addEventListener('mousemove', (e)=>{
+    if(!toggles.parallax) return;
+    const c=center();
+    const dx=(e.clientX-c.x)/c.x, dy=(e.clientY-c.y)/c.y;
+    // translate layers at different depths
+    portal.querySelectorAll('[data-layer]').forEach((el,i)=>{
+      const depth = (i-3)*4; // rough multiplier
+      el.style.transform = `translate3d(${dx*depth}px, ${dy*depth}px, 0)`;
+    });
+    // halo intensity
+    const dist = Math.hypot(dx,dy);
+    halo.style.opacity = String(0.8 - Math.min(dist,0.8));
+  });
+
+  /* === Idle dream mode === */
+  let idleTimer=null, dreaming=false;
+  function resetIdle(){
+    clearTimeout(idleTimer); if(dreaming){ portal.dataset.theme='normal'; dreaming=false; }
+    idleTimer=setTimeout(()=>{
+      dreaming=true; portal.dataset.theme='dream';
+      // could also slow motes by toggling class; here we just dim halo
+      halo.style.opacity = .35;
+    }, 60000); // 60s
+  }
+  ['mousemove','keydown','mousedown','touchstart'].forEach(ev=>window.addEventListener(ev, resetIdle));
+  resetIdle();
+
+  // reflect dream theme with CSS filter
+  const obs=new MutationObserver(()=>{
+    if(portal.dataset.theme==='dream'){
+      document.documentElement.style.filter='saturate(95%) hue-rotate(-8deg)';
+    }else{
+      document.documentElement.style.filter='none';
+    }
+  });
+  obs.observe(portal,{attributes:true, attributeFilter:['data-theme']});
+
+  /* === Mirror realm toggle === */
+  function toggleMirror(){
+    toggles.mirror=!toggles.mirror;
+    document.body.style.transform = toggles.mirror ? 'scaleX(-1)' : 'none';
+  }
+
+  /* === HUD toggles === */
+  hud.addEventListener('click', (e)=>{
+    const b=e.target.closest('[data-toggle]'); if(!b) return;
+    const key=b.dataset.toggle;
+    if(key==='dream'){ toggles.dream=!toggles.dream; b.classList.toggle('toggled', toggles.dream); /* dream handled by idle */ }
+    if(key==='parallax'){ toggles.parallax=!toggles.parallax; b.classList.toggle('toggled', toggles.parallax); if(!toggles.parallax){ portal.querySelectorAll('[data-layer]').forEach(el=>el.style.transform='none'); } }
+    if(key==='mirror'){ toggleMirror(); b.classList.toggle('toggled', toggles.mirror); }
+    if(key==='layers'){ // quick demo: toggle decorative + UI layers
+      document.querySelector('[data-layer="L3"]').classList.toggle('hidden');
+      document.querySelector('[data-layer="L5"]').classList.toggle('hidden');
+    }
+  });
+
+  /* === Secret sequence (eyeL -> mouth -> eyeR) === */
+  const errl = document.getElementById('errl');
+  const seq = ['eyeL','mouth','eyeR'];
+  let prog = 0;
+  function pickPart(x,y){
+    const pt = errl.createSVGPoint(); pt.x=x; pt.y=y;
+    const ctm = errl.getScreenCTM();
+    if(!ctm) return null;
+    const inv = ctm.inverse();
+    const svgP = pt.matrixTransform(inv);
+    // rough hitzones relative to viewBox
+    const vb = errl.viewBox.baseVal;
+    const relX = (svgP.x - vb.x)/vb.width, relY = (svgP.y - vb.y)/vb.height;
+    if(relY>0.28 && relY<0.46 && relX>0.29 && relX<0.36) return 'eyeL';
+    if(relY>0.28 && relY<0.46 && relX>0.56 && relX<0.63) return 'eyeR';
+    if(relY>0.38 && relY<0.46 && relX>0.45 && relX<0.56) return 'mouth';
+    return null;
+  }
+  function handleSecret(ev){
+    const part = pickPart(ev.clientX, ev.clientY);
+    if(!part) { prog = 0; return; }
+    if(part===seq[prog]) { prog++; if(prog===seq.length){ prog=0; openPortal(); } }
+    else { prog = (part===seq[0]) ? 1 : 0; }
+  }
+  function openPortal(){
+    awakening.classList.add('active');
+    setTimeout(()=>awakening.classList.remove('active'), 2200);
+  }
+})();
+</script>
+</body>
+</html>

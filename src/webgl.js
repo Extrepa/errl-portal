@@ -1,5 +1,6 @@
 /* Errl WebGL layer using PixiJS: goo distortion over serialized SVG texture */
 (function(){
+  const BASE_URL = (import.meta?.env?.BASE_URL) ?? '/';
   const W = window;
   let app = null;
   let sprite = null;
@@ -94,7 +95,7 @@
     // As a last resort, serialize whatever inline SVG is present.
     const inline = serializeErrlSVGToURL(768);
     if (inline) return inline;
-    return '/portal/assets/L4_Central/errl-body-with-limbs.svg';
+    return `${BASE_URL}assets/portal/L4_Central/errl-body-with-limbs.svg`;
   }
 
   const vert = `
@@ -609,13 +610,13 @@
   W.errlGLSetBubblesTexture = function(kind, url){
     if (!started) init(); if (!bubblesFXLayers) return;
     const layers = bubblesFXLayers.filter(Boolean);
-    const apply = (l,k,u)=>{ if(!l||!l.set) return; if (k==='orb') l.set({ textureUrl: '../src/assets/fx/Orb_NeedsFriends.png' }); else if (k==='proc') l.set({ textureUrl: null }); else if (k==='custom' && u) l.set({ textureUrl: u }); };
+    const apply = (l,k,u)=>{ if(!l||!l.set) return; if (k==='orb') l.set({ textureUrl: `${BASE_URL}assets/shared/fx/Orb_NeedsFriends.png` }); else if (k==='proc') l.set({ textureUrl: null }); else if (k==='custom' && u) l.set({ textureUrl: u }); };
     layers.forEach(l=> apply(l, kind, url));
   };
   W.errlGLSetBubblesLayerTexture = function(index, kind, url){
     if (!started) init(); if (!bubblesFXLayers || bubblesFXLayers.length<=index) return;
     const l = bubblesFXLayers[index]; if (!l) return;
-    if (kind==='orb') l.set({ textureUrl: '../src/assets/fx/Orb_NeedsFriends.png' });
+    if (kind==='orb') l.set({ textureUrl: `${BASE_URL}assets/shared/fx/Orb_NeedsFriends.png` });
     else if (kind==='proc') l.set({ textureUrl: null });
     else if (kind==='custom' && url) l.set({ textureUrl: url });
   };

@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Math Lab (dev flags)', () => {
   test('page loads at explicit path and shows the correct title', async ({ page, baseURL }) => {
-    const url = baseURL! + '/portal/pages/studio/math-lab/index.html?export=1&fps=1';
+    const url = baseURL! + '/legacy/portal/pages/studio/math-lab/index.html?export=1&fps=1';
     await page.goto(url);
     await page.waitForLoadState('domcontentloaded');
     await expect(page).toHaveTitle(/Psychedelic Math Lab/i);

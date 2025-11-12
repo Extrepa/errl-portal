@@ -11,7 +11,11 @@
     "types": ["react", "react-dom"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@assets/*": ["src/assets/*"],
+      "@portal/*": ["src/portal/*"],
+      "@studio/*": ["src/studio/*"],
+      "@legacy/*": ["src/legacy/*"]
     }
   },
   "include": ["src"],

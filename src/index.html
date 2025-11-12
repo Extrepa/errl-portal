@@ -4,10 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Errl Portal</title>
+  <base href="%BASE_URL%">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./fx/effects.css" />
   <link rel="stylesheet" href="./fx/hue-effects.css" />
   <link rel="stylesheet" href="./fx/errl-bg.css" />
@@ -44,20 +46,20 @@
         </svg>
       </div>
       <!-- Visible IMG for Errl (classic goo applies here) -->
-      <img src="./portal/assets/L4_Central/errl-body-with-limbs.svg" alt="Errl — full body with limbs" id="errlCenter" class="errl-svg" />
+      <img src="./assets/portal/L4_Central/errl-body-with-limbs.svg" alt="Errl — full body with limbs" id="errlCenter" class="errl-svg" />
       <div id="errlPool" class="errl-pool" style="filter:url(#poolRipple)"></div>
     </div>
 
     <!-- Orbiting nav bubbles (7 visible + 1 hidden) -->
     <div id="navOrbit" class="nav-orbit">
-      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="./portal/pages/about/index.html"><span class="label">About</span></a>
-      <a class="bubble menuOrb" data-angle="260" data-dist="175" href="./portal/pages/gallery/index.html"><span class="label">Gallery</span></a>
-      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="./portal/pages/projects/index.html"><span class="label">Projects</span></a>
-      <a class="bubble menuOrb" data-angle="20"  data-dist="200" href="./portal/pages/studio/index.html"><span class="label">Studio</span></a>
-      <a class="bubble menuOrb" data-angle="75"  data-dist="150" href="./portal/pages/pin-designer/index.html"><span class="label">Designer</span></a>
-      <a class="bubble menuOrb" data-angle="120" data-dist="165" href="./portal/pages/events/index.html" id="eventsBubble"><span class="label">Events</span></a>
-      <a class="bubble menuOrb" data-angle="160" data-dist="185" href="./portal/pages/merch/index.html" id="merchBubble"><span class="label">Merch</span></a>
-      <a class="bubble menuOrb hidden-bubble" data-angle="180" data-dist="190" href="./portal/pages/games/index.html" id="gamesBubble" style="display:none;"><span class="label">Games</span></a>
+      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="/legacy/portal/pages/about/index.html" data-portal-link="pages/about/index.html"><span class="label">About</span></a>
+      <a class="bubble menuOrb" data-angle="260" data-dist="175" href="/legacy/portal/pages/gallery/index.html" data-portal-link="pages/gallery/index.html"><span class="label">Gallery</span></a>
+      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="/legacy/portal/pages/assets/index.html" data-portal-link="pages/assets/index.html"><span class="label">Assets</span></a>
+      <a class="bubble menuOrb" data-angle="20"  data-dist="200" href="/studio/"><span class="label">Studio</span></a>
+      <a class="bubble menuOrb" data-angle="75"  data-dist="150" href="/studio/pin-designer"><span class="label">Design</span></a>
+      <a class="bubble menuOrb" data-angle="120" data-dist="165" href="/legacy/portal/pages/events/index.html" id="eventsBubble" data-portal-link="pages/events/index.html"><span class="label">Events</span></a>
+      <a class="bubble menuOrb" data-angle="160" data-dist="185" href="/legacy/portal/pages/merch/index.html" id="merchBubble" data-portal-link="pages/merch/index.html"><span class="label">Merch</span></a>
+      <a class="bubble menuOrb hidden-bubble" data-angle="180" data-dist="190" href="/legacy/portal/pages/games/index.html" id="gamesBubble" style="display:none;" data-portal-link="pages/games/index.html"><span class="label">Games</span></a>
     </div>
   </div>
 
@@ -170,20 +172,46 @@
 
     <div class="panel-section" data-tab="errl">
       <div class="sectionLabel" title="Overall scale of the Errl image">Errl Size</div>
-      <div class="sliderRow"><label for="errlSize" title="Overall scale of Errl">Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1.35" title="Drag to scale Errl"></div>
+      <div class="sliderRow"><label for="errlSize" title="Overall scale of Errl">Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1.0" title="Drag to scale Errl"></div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel">Errl Goo (wobble)</div>
-      <div class="sliderRow"><label for="classicGooEnabled">Goo Enabled</label><input type="checkbox" id="classicGooEnabled"></div>
-      <div class="sliderRow"><label for="classicGooStrength" title="Amount of displacement wobble applied to the Errl shape">Displacement</label><input id="classicGooStrength" type="range" min="0" max="2" step="0.01" value="0.35"></div>
-      <div class="sliderRow"><label for="classicGooWobble" title="Oscillation amplitude of the wobble">Wobble</label><input id="classicGooWobble" type="range" min="0" max="2" step="0.01" value="0.55"></div>
-      <div class="sliderRow"><label for="classicGooSpeed" title="Rate of the internal classic SVG noise animation">Speed</label><input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="0.45"></div>
-      <div class="sectionDivider"></div>
-      <div class="sliderRow" style="justify-content:flex-end; gap:8px">
-        <label for="classicGooAnimMode" style="width:auto; opacity:.8">Mode</label>
-        <select id="classicGooAnimMode" class="mini-select"><option value="ping">Ping-Pong</option><option value="loop">Loop</option></select>
-        <label for="classicGooAnimSpeed" style="width:auto; opacity:.8">Speed</label>
-        <input id="classicGooAnimSpeed" class="speed-number" type="number" min="0.02" max="1.0" step="0.10" value="0.10" aria-label="Animation Speed"/>
-        <button id="classicGooAnimate" class="btn-animate">Animate</button>
+      <div class="sliderRow"><label for="classicGooEnabled">Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked></div>
+      <div class="sliderRow">
+        <label for="classicGooStrength" title="Amount of displacement wobble applied to the Errl shape">Displacement</label>
+        <div style="display:flex; align-items:center; gap:8px; flex:1;">
+          <input id="classicGooStrength" type="range" min="0" max="2" step="0.01" value="0.35" style="flex:1">
+          <label for="classicGooStrengthAuto" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for displacement">
+            <input type="checkbox" id="classicGooStrengthAuto"> Auto
+          </label>
+        </div>
+      </div>
+      <div class="sliderRow">
+        <label for="classicGooWobble" title="Oscillation amplitude of the wobble">Wobble</label>
+        <div style="display:flex; align-items:center; gap:8px; flex:1;">
+          <input id="classicGooWobble" type="range" min="0" max="2" step="0.01" value="0.55" style="flex:1">
+          <label for="classicGooWobbleAuto" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for wobble">
+            <input type="checkbox" id="classicGooWobbleAuto"> Auto
+          </label>
+        </div>
+      </div>
+      <div class="sliderRow">
+        <label for="classicGooSpeed" title="Rate of the internal classic SVG noise animation">Speed</label>
+        <div style="display:flex; align-items:center; gap:8px; flex:1;">
+          <input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="0.45" style="flex:1">
+          <label for="classicGooSpeedAuto" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for speed">
+            <input type="checkbox" id="classicGooSpeedAuto"> Auto
+          </label>
+        </div>
+      </div>
+      <div class="sliderRow">
+        <label for="classicGooAutoSpeed" title="Speed of the auto fade sweep">Auto Speed</label>
+        <input id="classicGooAutoSpeed" type="range" min="0.01" max="0.5" step="0.01" value="0.05">
+      </div>
+      <div class="sliderRow">
+        <label for="classicGooMouseReact" title="Let Errl goo respond to cursor proximity">Mouse Reactive</label>
+        <input type="checkbox" id="classicGooMouseReact">
+      </div>
+      <div class="sliderRow" style="justify-content:flex-end">
         <button id="classicGooRandom">Random</button>
       </div>
     </div>
@@ -192,11 +220,11 @@
       <div class="sectionLabel" title="Floating menu bubbles around Errl">Nav Bubbles</div>
 <div class="sliderRow">
         <label for="navOrbitSpeed" title="How fast bubbles orbit around Errl">Orbit</label>
-<input type="range" min="0" max="2" step="0.01" value="0.10" id="navOrbitSpeed" title="Orbit speed">
+<input type="range" min="0" max="2" step="0.01" value="1.0" id="navOrbitSpeed" title="Orbit speed">
       </div>
       <div class="sliderRow">
         <label for="navRadius" title="Distance of bubbles from Errl">Radius</label>
-        <input type="range" min="0.6" max="1.6" step="0.01" value="1.1" id="navRadius" title="Orbit radius">
+        <input type="range" min="0.6" max="1.6" step="0.01" value="1.2" id="navRadius" title="Orbit radius">
       </div>
       <div class="sliderRow">
         <label for="navOrbSize" title="Overall size of nav bubbles">Size</label>
@@ -226,11 +254,10 @@
     </div>
 
     <div class="panel-section" data-tab="hue">
-      <div class="sectionLabel" title="Color adjustments for different layers">Hue <span style="margin-left:auto; font-weight:500; font-size:10px; opacity:.9"><label for="hueEnabled" style="cursor:pointer">Enabled</label> <input type="checkbox" id="hueEnabled" checked title="Toggle Hue for target"></span></div>
+      <div class="sectionLabel" title="Color adjustments for different layers">Hue <span style="margin-left:auto; font-weight:500; font-size:10px; opacity:.9"><label for="hueEnabled" style="cursor:pointer">Enabled</label> <input type="checkbox" id="hueEnabled" title="Toggle Hue for target"></span></div>
       <div class="sliderRow">
         <label for="hueTarget" title="Which layer to affect">Target</label>
         <select id="hueTarget" style="flex:1" title="Select target layer">
-          <option value="errl">Errl</option>
           <option value="nav">Navigation</option>
           <option value="riseBubbles">Rising Bubbles</option>
           <option value="bgBubbles">Particles</option>
@@ -253,7 +280,7 @@
       <div class="sliderRow" style="justify-content:flex-start; gap:10px; align-items:center; flex-wrap:wrap">
         <label for="hueTimeline" style="font-size:9px; opacity:.75; min-width:50px;">Timeline</label>
         <input id="hueTimeline" type="range" min="0" max="360" step="1" value="0" title="Global hue timeline" style="flex:1; max-width:200px;">
-        <button id="huePlayPause" class="btn-animate" title="Play/Pause">Play/Pause</button>
+        <button id="huePlayPause" class="btn-animate" title="Play hue animation" aria-pressed="false">Play</button>
       </div>
     </div>
 
@@ -346,7 +373,7 @@
       <div class="panel-mode"><button id="colorizerClose" title="Close">×</button></div>
     </div>
     <div style="flex:1; background:#0b0f18; border-top:1px solid rgba(255,255,255,.08);">
-      <iframe id="colorizerFrame" src="./portal/pages/studio/svg-colorer/index.html" style="width:100%; height:100%; border:0; background:#0b0e14;"></iframe>
+      <iframe id="colorizerFrame" src="/legacy/portal/pages/studio/svg-colorer/index.html" data-portal-frame="pages/studio/svg-colorer/index.html" style="width:100%; height:100%; border:0; background:#0b0e14;"></iframe>
     </div>
   </div>
 
@@ -379,6 +406,20 @@
       var closeBtn = document.getElementById('colorizerClose');
       if (openBtn && phone) openBtn.addEventListener('click', function(){ phone.style.display='block'; });
       if (closeBtn && phone) closeBtn.addEventListener('click', function(){ phone.style.display='none'; });
+    });
+  </script>
+  <script type="module">
+    const env = (typeof import.meta !== 'undefined' && 'env' in import.meta) ? import.meta.env : {};
+    const baseUrl = typeof env.BASE_URL === 'string' ? env.BASE_URL : '/';
+    const trimmed = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const portalBase = `${trimmed || ''}/legacy/portal`.replace(/^\/\//, '/');
+    document.querySelectorAll('[data-portal-link]').forEach((el) => {
+      const target = el.getAttribute('data-portal-link');
+      if (target) el.setAttribute('href', `${portalBase}/${target}`);
+    });
+    document.querySelectorAll('[data-portal-frame]').forEach((el) => {
+      const target = el.getAttribute('data-portal-frame');
+      if (target) el.setAttribute('src', `${portalBase}/${target}`);
     });
   </script>
 </body>

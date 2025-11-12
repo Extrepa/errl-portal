@@ -112,9 +112,11 @@
   const navRadiusInput = $("navRadius");
   const navOrbSizeInput = $("navOrbSize");
   let gamesVisible = false;
-  let navOrbitSpeed = parseFloat(navOrbitSpeedInput?.value || '0.25');
+  let navOrbitSpeed = parseFloat(navOrbitSpeedInput?.value || '1');
   let navRadius = parseFloat(navRadiusInput?.value || '1.0');
   let navOrbScale = parseFloat(navOrbSizeInput?.value || '1');
+  let keyboardNavActive = false;
+  let keyboardNavIndex = -1;
 
   function setNavOrbitSpeed(value, { syncInput = true } = {}){
     const min = parseFloat(navOrbitSpeedInput?.min ?? '0');
@@ -153,6 +155,30 @@
       attachBubbleListeners();
     }
     return gamesVisible;
+  }
+
+  function getActiveBubbles(){
+    return bubbles.filter((el)=> el && el.style.display !== 'none');
+  }
+  function focusKeyboardBubble(nextIndex){
+    const active = getActiveBubbles();
+    if (!active.length) return;
+    keyboardNavIndex = (nextIndex + active.length) % active.length;
+    active.forEach((el)=> el.classList.remove('bubble--focus'));
+    const target = active[keyboardNavIndex];
+    target.classList.add('bubble--focus');
+    target.focus({ preventScroll: true });
+  }
+  function deactivateKeyboardNav(){
+    keyboardNavActive = false;
+    keyboardNavIndex = -1;
+    bubbles.forEach((el)=> el && el.classList && el.classList.remove('bubble--focus'));
+  }
+  function activateKeyboardNav(){
+    const active = getActiveBubbles();
+    if (!active.length) return;
+    keyboardNavActive = true;
+    focusKeyboardBubble(0);
   }
 
   on(navOrbitSpeedInput, 'input', ()=>{
@@ -205,6 +231,14 @@
       el.style.left = x + 'px';
       el.style.top = y + 'px';
       el.style.transform = `translate(-50%, -50%) scale(${navOrbScale})`;
+      const isBehind = Math.sin(rad) < 0;
+      if (isBehind) {
+        el.classList.add('bubble--behind');
+        el.style.zIndex = '0';
+      } else {
+        el.classList.remove('bubble--behind');
+        el.style.zIndex = '5';
+      }
       visibleIndex++;
     });
     window.errlGLSyncOrbs && window.errlGLSyncOrbs();
@@ -250,7 +284,14 @@
         b.style.boxShadow = '';
         window.errlGLOrbHover && window.errlGLOrbHover(i,false);
       });
+      b.addEventListener('click', ()=>{
+        if (keyboardNavActive) deactivateKeyboardNav();
+      });
     });
+    if (keyboardNavActive) {
+      const nextIndex = keyboardNavIndex >= 0 ? keyboardNavIndex : 0;
+      focusKeyboardBubble(nextIndex);
+    }
   }
   attachBubbleListeners();
 
@@ -276,6 +317,52 @@
     }
   };
   window.addEventListener('keydown', shiftBHandler);
+
+  const keyboardNavHandler = (e)=>{
+    if ((e.key === 'k' || e.key === 'K') && e.metaKey && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+      e.preventDefault();
+      if (keyboardNavActive) {
+        deactivateKeyboardNav();
+      } else {
+        activateKeyboardNav();
+      }
+      return;
+    }
+    if (!keyboardNavActive) return;
+    const active = getActiveBubbles();
+    if (!active.length) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      deactivateKeyboardNav();
+      return;
+    }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      focusKeyboardBubble(keyboardNavIndex + 1);
+      return;
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      focusKeyboardBubble(keyboardNavIndex - 1);
+      return;
+    }
+    if (e.key === 'Home') {
+      e.preventDefault();
+      focusKeyboardBubble(0);
+      return;
+    }
+    if (e.key === 'End') {
+      e.preventDefault();
+      focusKeyboardBubble(active.length - 1);
+      return;
+    }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      const target = active[keyboardNavIndex];
+      if (target) target.click();
+    }
+  };
+  window.addEventListener('keydown', keyboardNavHandler);
 
   // GL Orbs toggle
   on($("glOrbsToggle"), 'change', ()=>{
@@ -365,9 +452,11 @@
     const strength = $("classicGooStrength");
     const wobble = $("classicGooWobble");
     const speed = $("classicGooSpeed");
-    const modeSel = $("classicGooAnimMode");
-    const animSpeed = $("classicGooAnimSpeed");
-    const animateBtn = $("classicGooAnimate");
+    const strengthAuto = $("classicGooStrengthAuto");
+    const wobbleAuto = $("classicGooWobbleAuto");
+    const speedAuto = $("classicGooSpeedAuto");
+    const autoSpeed = $("classicGooAutoSpeed");
+    const mouseReactive = $("classicGooMouseReact");
     const errlImg = $("errlCenter");
     const aura = $("errlAuraMask");
     const nodes = {
@@ -376,10 +465,16 @@
       disp: document.getElementById('classicGooDisp'),
       drip: document.getElementById('classicGooDrip')
     };
+    const autoDescriptors = [
+      { key: 'strength', slider: strength, toggle: strengthAuto },
+      { key: 'wobble', slider: wobble, toggle: wobbleAuto },
+      { key: 'speed', slider: speed, toggle: speedAuto },
+    ];
     let animating = false;
-    let phase = 0;
-    let dir = 1;
     let raf = null;
+    let lastTs = 0;
+    let pointerBoost = 0;
+    let pointerDecayRaf = null;
 
     function toggleClass(on){
       if (errlImg) errlImg.classList.toggle('goo', on);
@@ -389,98 +484,220 @@
       const on = !!enabled?.checked;
       toggleClass(on);
       if (!on) return;
+      const boost = pointerBoost;
       const mult = parseFloat(strength?.value || '0');
       const wob = parseFloat(wobble?.value || '0');
       const spd = parseFloat(speed?.value || '0');
-      if (nodes.disp) nodes.disp.setAttribute('scale', (6 + mult * 18).toFixed(2));
-      if (nodes.blur) nodes.blur.setAttribute('stdDeviation', (wob * 6).toFixed(2));
-      if (nodes.noise) nodes.noise.setAttribute('baseFrequency', `${(0.004 + wob * 0.01).toFixed(4)} ${(0.006 + spd * 0.01).toFixed(4)}`);
-      if (nodes.drip) nodes.drip.setAttribute('dy', (spd * 6).toFixed(2));
+      const dispScale = 6 + mult * 18 + boost * 10;
+      const wobBlur = (wob + boost * 0.4) * 6;
+      const noiseWob = 0.004 + (wob + boost * 0.3) * 0.01;
+      const noiseSpd = 0.006 + (spd + boost * 0.5) * 0.01;
+      const dripVal = (spd + boost * 0.7) * 6;
+      if (nodes.disp) nodes.disp.setAttribute('scale', dispScale.toFixed(2));
+      if (nodes.blur) nodes.blur.setAttribute('stdDeviation', wobBlur.toFixed(2));
+      if (nodes.noise) nodes.noise.setAttribute('baseFrequency', `${noiseWob.toFixed(4)} ${noiseSpd.toFixed(4)}`);
+      if (nodes.drip) nodes.drip.setAttribute('dy', dripVal.toFixed(2));
     }
-    function stopAnim(){
-      animating = false;
-      if (raf) cancelAnimationFrame(raf);
-      raf = null;
-      if (animateBtn){
-        animateBtn.classList.remove('active');
-        animateBtn.textContent = 'Animate';
+    const autoStates = new Map();
+
+    function advanceSlider(descriptor, delta){
+      const slider = descriptor.slider;
+      if (!slider) return;
+      const min = parseFloat(slider.min || '0');
+      const max = parseFloat(slider.max || '1');
+      const span = Math.max(0.0001, max - min);
+      const currentValue = parseFloat(slider.value || String(min));
+      const currentNorm = Math.min(1, Math.max(0, (currentValue - min) / span));
+      let state = autoStates.get(descriptor.key);
+      if (!state) {
+        state = { target: null, direction: 1 };
+        autoStates.set(descriptor.key, state);
       }
+      if (state.target == null || Math.abs(state.target - currentNorm) < 0.01) {
+        let nextTarget = Math.random();
+        // avoid tiny jitter by ensuring meaningful distance
+        if (Math.abs(nextTarget - currentNorm) < 0.05) {
+          nextTarget = Math.min(1, Math.max(0, currentNorm + (Math.random() > 0.5 ? 0.15 : -0.15)));
+        }
+        state.target = Math.min(1, Math.max(0, nextTarget));
+        state.direction = state.target >= currentNorm ? 1 : -1;
+      }
+      const step = Math.min(delta, 0.2);
+      let nextNorm = currentNorm + state.direction * step;
+      const overshootForward = state.direction > 0 && nextNorm > state.target;
+      const overshootBackward = state.direction < 0 && nextNorm < state.target;
+      if (overshootForward || overshootBackward) {
+        nextNorm = state.target;
+        state.target = null;
+      }
+      nextNorm = Math.min(1, Math.max(0, nextNorm));
+      const nextValue = min + nextNorm * span;
+      slider.value = nextValue.toFixed(2);
+      slider.dispatchEvent(new Event('input', { bubbles: true }));
     }
-    function step(){
-      if (!animating) return;
-      const mode = modeSel?.value || 'ping';
-      const speedFactor = Math.max(0.02, parseFloat(animSpeed?.value || '0.1')) * 0.5;
-      phase += speedFactor * dir;
-      if (mode === 'ping'){
-        if (phase > 1){ phase = 1; dir = -1; }
-        if (phase < 0){ phase = 0; dir = 1; }
-      } else {
-        if (phase > 1) phase -= 1;
-      }
-      const swing = mode === 'loop' ? phase : Math.sin(phase * Math.PI);
-      const baseMult = parseFloat(strength?.value || '0');
-      if (nodes.disp) nodes.disp.setAttribute('scale', (6 + baseMult * 18 + swing * 5).toFixed(2));
-      if (nodes.noise) nodes.noise.setAttribute('seed', String(2 + Math.floor(swing * 60)));
+
+    function anyAutoEnabled(){
+      return autoDescriptors.some(({ toggle }) => !!toggle?.checked);
+    }
+
+    function startAnimation(){
+      if (animating) return;
+      animating = true;
+      lastTs = 0;
       raf = requestAnimationFrame(step);
     }
 
-    ;[enabled,strength,wobble,speed].forEach(el=> el && el.addEventListener('input', apply));
-    on(modeSel, 'change', ()=>{
-      phase = 0;
-      dir = 1;
-    });
-    on(animSpeed, 'input', ()=>{
-      // keep animation responsive without restarting
-    });
-    on(animateBtn, 'click', (evt)=>{
-      evt.preventDefault();
-      if (!enabled || !enabled.checked){
-        enabled.checked = true;
-        apply();
-      }
-      animating = !animating;
-      if (animateBtn){
-        animateBtn.classList.toggle('active', animating);
-        animateBtn.textContent = animating ? 'Stop' : 'Animate';
-      }
-      if (animating){
-        phase = 0;
-        dir = 1;
-        raf = requestAnimationFrame(step);
+    function stopAnimation(){
+      if (!animating) return;
+      animating = false;
+      if (raf) cancelAnimationFrame(raf);
+      raf = null;
+      lastTs = 0;
+    }
+
+    function syncAnimationState(){
+      if (anyAutoEnabled() && enabled?.checked !== false) {
+        startAnimation();
       } else {
-        stopAnim();
+        stopAnimation();
       }
-      // Persist animation state
+    }
+
+    function step(timestamp){
+      if (!animating) return;
+      if (!enabled?.checked){
+        stopAnimation();
+        return;
+      }
+      if (!anyAutoEnabled()){
+        stopAnimation();
+        return;
+      }
+      if (!lastTs) lastTs = timestamp;
+      const deltaSeconds = (timestamp - lastTs) / 1000;
+      lastTs = timestamp;
+      const rate = clamp(parseFloat(autoSpeed?.value || '0.05'), 0.01, 0.5);
+      const delta = Math.max(0.0002, rate) * deltaSeconds;
+      autoDescriptors.forEach((descriptor) => {
+        const { toggle } = descriptor;
+        if (toggle?.checked) {
+          advanceSlider(descriptor, delta);
+        } else {
+          autoStates.delete(descriptor.key);
+        }
+      });
+      raf = requestAnimationFrame(step);
+    }
+
+    function saveAutoConfig(){
       try{
-        let cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
-        cfg.classicAnimating = animating;
+        const cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
+        cfg.auto = {
+          rate: parseFloat(autoSpeed?.value || '0.05'),
+          strength: !!strengthAuto?.checked,
+          wobble: !!wobbleAuto?.checked,
+          speed: !!speedAuto?.checked,
+        };
+        cfg.mouseReactive = !!mouseReactive?.checked;
         localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
       }catch(e){}
+    }
+
+    function loadAutoConfig(){
+      try{
+        const cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
+        const auto = cfg.auto || {};
+        if (autoSpeed && typeof auto.rate === 'number') {
+          autoSpeed.value = String(auto.rate);
+        }
+        if (strengthAuto && typeof auto.strength === 'boolean') strengthAuto.checked = auto.strength;
+        if (wobbleAuto && typeof auto.wobble === 'boolean') wobbleAuto.checked = auto.wobble;
+        if (speedAuto && typeof auto.speed === 'boolean') speedAuto.checked = auto.speed;
+        if (mouseReactive && typeof cfg.mouseReactive === 'boolean') {
+          mouseReactive.checked = cfg.mouseReactive;
+        }
+      }catch(e){}
+    }
+
+    function setPointerBoost(value){
+      const clamped = Math.max(0, Math.min(1, value));
+      if (Math.abs(clamped - pointerBoost) < 0.005) return;
+      pointerBoost = clamped;
+      if (enabled?.checked) apply();
+    }
+
+    function pointerMoveHandler(event){
+      if (!mouseReactive?.checked || !enabled?.checked) return;
+      const target = errlImg || aura;
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = event.clientX - cx;
+      const dy = event.clientY - cy;
+      const maxDim = Math.max(rect.width, rect.height) || 1;
+      const dist = Math.min(Math.hypot(dx, dy) / maxDim, 1);
+      setPointerBoost(dist);
+      if (pointerDecayRaf) cancelAnimationFrame(pointerDecayRaf);
+      pointerDecayRaf = null;
+    }
+
+    function pointerLeaveHandler(){
+      if (pointerDecayRaf) cancelAnimationFrame(pointerDecayRaf);
+      const decay = () => {
+        pointerBoost = Math.max(0, pointerBoost - 0.02);
+        if (pointerBoost > 0.01) {
+          apply();
+          pointerDecayRaf = requestAnimationFrame(decay);
+        } else {
+          pointerBoost = 0;
+          pointerDecayRaf = null;
+          apply();
+        }
+      };
+      pointerDecayRaf = requestAnimationFrame(decay);
+    }
+
+    ;[enabled,strength,wobble,speed].forEach(el=> el && el.addEventListener('input', apply));
+    autoDescriptors.forEach((descriptor) => {
+      const { toggle } = descriptor;
+      if (!toggle) return;
+      on(toggle, 'change', () => {
+        if (toggle.checked) {
+          if (enabled && !enabled.checked) {
+            enabled.checked = true;
+            enabled.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        } else {
+          autoStates.delete(descriptor.key);
+        }
+        saveAutoConfig();
+        syncAnimationState();
+      });
+    });
+    on(autoSpeed, 'input', () => {
+      saveAutoConfig();
+    });
+    on(mouseReactive, 'change', () => {
+      if (!mouseReactive?.checked) {
+        setPointerBoost(0);
+      }
+      saveAutoConfig();
     });
     on(enabled, 'change', ()=>{
-      if (!enabled.checked) stopAnim();
+      if (!enabled.checked) {
+        stopAnimation();
+        setPointerBoost(0);
+      }
       apply();
+      syncAnimationState();
     });
+    loadAutoConfig();
     apply();
-
-    // Auto-start animation if persisted or default to ON
-    try{
-      let cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
-      if (cfg.classicAnimating === undefined) {
-        cfg.classicAnimating = true; // default ON
-        localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-      }
-      if (cfg.classicAnimating && enabled?.checked !== false) {
-        animating = true;
-        if (animateBtn){
-          animateBtn.classList.add('active');
-          animateBtn.textContent = 'Stop';
-        }
-        phase = 0;
-        dir = 1;
-        raf = requestAnimationFrame(step);
-      }
-    }catch(e){}
+    syncAnimationState();
+    window.addEventListener('pointermove', pointerMoveHandler, { passive: true });
+    window.addEventListener('pointerleave', pointerLeaveHandler, { passive: true });
   })();
 
   // Slow Gradient button
@@ -496,20 +713,20 @@
   });
 
   // Rotate Skins - load randomly from assets folder (with globbed user overrides)
-  const userSkinGlob = import.meta.glob('./assets/orb-skins/**/*.{png,jpg,jpeg,webp,avif,gif,svg}', {
+  const userSkinGlob = import.meta.glob('./assets/shared/orb-skins/**/*.{png,jpg,jpeg,webp,avif,gif,svg}', {
     eager: true,
     import: 'default',
     query: '?url'
   });
   const userSkins = Object.values(userSkinGlob);
   const defaultSkins = [
-    './assets/fx/Orb_NeedsFriends.png',
-    './assets/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png',
-    './assets/Bubbles_ErrlSiteDecor/Bubble-Purp-2.png',
-    './assets/Bubbles_ErrlSiteDecor/Bubbles-1.png',
-    './assets/Bubbles_ErrlSiteDecor/Bubbles-2.png',
-    './assets/BubbleSheets/Bubble_Sheet-Rainbow.png',
-    './assets/BubbleSheets/Bubble_Sheet-PinkRed.png'
+    './assets/shared/fx/Orb_NeedsFriends.png',
+    './assets/shared/Bubbles_ErrlSiteDecor/Bubble-Purp-1.png',
+    './assets/shared/Bubbles_ErrlSiteDecor/Bubble-Purp-2.png',
+    './assets/shared/Bubbles_ErrlSiteDecor/Bubbles-1.png',
+    './assets/shared/Bubbles_ErrlSiteDecor/Bubbles-2.png',
+    './assets/shared/BubbleSheets/Bubble_Sheet-Rainbow.png',
+    './assets/shared/BubbleSheets/Bubble_Sheet-PinkRed.png'
   ];
   const skinFiles = [...new Set([...userSkins, ...defaultSkins])];
   skinFiles.push(null); // null = procedural fallback
@@ -539,6 +756,7 @@
     // Always apply current UI values once on load (acts as baked defaults when nothing persisted)
     const kick = (id) => { const el = document.getElementById(id); if (el) el.dispatchEvent(new Event('input')); };
     kick('bgSpeed'); kick('bgDensity'); kick('glAlpha');
+    kick('navOrbitSpeed');
     kick('errlSize');
   })();
 
@@ -550,6 +768,21 @@
     }
     const target = $("hueTarget"), onEl=$("hueEnabled"), h=$("hueShift"), s=$("hueSat"), i=$("hueInt"),
           timeline=$("hueTimeline"), playBtn=$("huePlayPause");
+    const ensureTimelineInit = (() => {
+      let done = false;
+      return (H) => {
+        if (done) return;
+        H.pauseTimeline();
+        done = true;
+      };
+    })();
+    const syncPlayButton = (H) => {
+      if (!playBtn || !H || !H.master) return;
+      const playing = !!H.master.playing;
+      playBtn.textContent = playing ? 'Pause' : 'Play';
+      playBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+      playBtn.title = playing ? 'Pause hue animation' : 'Play hue animation';
+    };
     // late WebGL registration bridge
     withHue(H=>{
       const refs = window.__ErrlWebGL;
@@ -572,6 +805,8 @@
       if (h) H.setHue(+h.value, target?.value||H.currentTarget);
       if (s) H.setSaturation(+s.value, target?.value||H.currentTarget);
       if (i) H.setIntensity(+i.value, target?.value||H.currentTarget);
+      ensureTimelineInit(H);
+      syncPlayButton(H);
     });
 
     on(target,'change', ()=> withHue(H=> H.setTarget(target.value)));
@@ -581,7 +816,7 @@
     on(i,'input', ()=> withHue(H=> H.setIntensity(+i.value)));
     // Global timeline controls (fixed speed)
     on(timeline,'input', ()=> withHue(H=> H.setTimeline(+timeline.value)));
-    on(playBtn,'click', ()=> withHue(H=> H.toggleTimeline()));
+    on(playBtn,'click', ()=> withHue(H=> { H.toggleTimeline(); syncPlayButton(H); }));
   })();
 
   // Background vignette, shimmer removed

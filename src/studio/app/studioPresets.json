@@ -1,0 +1,25 @@
+{
+  "presets": [
+    {
+      "id": "blank",
+      "name": "Blank",
+      "html": "<div class=\"wrap\"><h1>Blank Project</h1></div>",
+      "css": "body{font-family:system-ui;margin:0;padding:24px} .wrap{max-width:900px;margin:0 auto}",
+      "js": "console.log('Blank project ready');"
+    },
+    {
+      "id": "bubbles",
+      "name": "Rising Bubbles",
+      "html": "<div class=\"sky\"></div>",
+      "css": ".sky{position:fixed;inset:0;overflow:hidden;background:#0b0b12} .b{position:absolute;bottom:-80px;width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.8), rgba(255,255,255,.1));left:var(--x);animation:rise var(--t) linear infinite;opacity:.8}@keyframes rise{to{transform:translateY(-120vh)}}",
+      "js": "const sky=document.querySelector('.sky');for(let i=0;i<60;i++){const d=document.createElement('div');d.className='b';d.style.setProperty('--x', Math.random()*100+'vw');d.style.setProperty('--s', 10+Math.random()*60+'px');d.style.setProperty('--t', (8+Math.random()*16)+'s');sky.appendChild(d);}"
+    },
+    {
+      "id": "errl-svg",
+      "name": "Errl SVG Playground",
+      "html": "<svg id=\"errl\" viewBox=\"0 0 300 300\" width=\"300\"><circle cx=\"150\" cy=\"150\" r=\"120\" fill=\"#8a5cff\"/><circle cx=\"120\" cy=\"130\" r=\"12\"/><circle cx=\"180\" cy=\"130\" r=\"12\"/><rect x=\"130\" y=\"170\" rx=\"8\" ry=\"8\" width=\"40\" height=\"16\"/></svg>",
+      "css": "body{display:grid;place-items:center;height:100vh;background:#0b0b12}#errl{filter:drop-shadow(0 10px 30px rgba(0,0,0,.35))}",
+      "js": "const e=document.getElementById('errl');let t=0;setInterval(()=>{t+=.04;e.style.transform='scale('+(1+Math.sin(t)*.02)+')'},16)"
+    }
+  ]
+}

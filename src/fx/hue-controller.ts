@@ -3,7 +3,6 @@
 const LAYERS: Record<string, { label: string; selectors?: string[]; type?: string }> = {
     background: { label: 'Background', selectors: ['.errl-bg .base', '.errl-bg .shimmer', '.vignette-frame'] },
     riseBubbles: { label: 'Rising Bubbles', selectors: ['#riseBubbles'] },
-    errl: { label: 'Errl', selectors: ['#errlCenter', '#errlInlineSVG', '.errl-svg'] },
     nav: { label: 'Navigation', selectors: ['.nav-orbit .bubble'] },
     glOverlay: { label: 'GL Overlay', type: 'webglOverlay' },
     bgBubbles: { label: 'GL Background Bubbles', type: 'webglBubbles' },
@@ -33,7 +32,7 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
 
     // Global master timeline (fixed speed)
     master: {
-      playing: true,
+      playing: false,
       anchorTime: 0,
       baseHue: 0, // 0..360 starting hue when (re)anchored
       periodMs: 45000, // one full cycle every 45s
@@ -53,8 +52,10 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
       this.loadSettings();
       this.ensureClasses();
       this.applyAllCSS();
+      this.clearErrlFilters();
       // start master timeline
       this.master.anchorTime = Date.now();
+      this.pauseTimeline();
       this.tickMaster();
       this.triggerUpdate(this.currentTarget);
       return this;
@@ -101,10 +102,7 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
       const st = this.layers[layer];
       for (const sel of def.selectors as string[]) {
         document.querySelectorAll(sel).forEach((el) => {
-          let f = st.enabled ? this.layerFilterString(st) : '';
-          if (layer === 'errl' && (el as HTMLElement).classList && (el as HTMLElement).classList.contains('goo')) {
-            f = f ? `url(#errl-goo) ${f}` : 'url(#errl-goo)';
-          }
+          const f = st.enabled ? this.layerFilterString(st) : '';
           (el as HTMLElement).style.filter = f;
         });
       }
@@ -112,6 +110,16 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
 
     applyAllCSS() {
       for (const k of Object.keys(LAYERS)) this.applyLayerCSS(k);
+    },
+
+    clearErrlFilters() {
+      const selectors = ['#errlCenter', '#errlInlineSVG', '.errl-svg'];
+      selectors.forEach((sel) => {
+        document.querySelectorAll(sel).forEach((el) => {
+          (el as HTMLElement).style.removeProperty('filter');
+          (el as HTMLElement).style.removeProperty('webkitFilter');
+        });
+      });
     },
 
     // Global master timeline: fixed-speed hue sweep
@@ -254,7 +262,10 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
         if (raw) {
           const obj = JSON.parse(raw);
           for (const k of Object.keys(this.layers)) {
-            if (obj[k]) this.layers[k] = Object.assign({}, DEFAULT_LAYER_STATE, obj[k]);
+            if (obj[k]) {
+              this.layers[k] = Object.assign({}, DEFAULT_LAYER_STATE, obj[k]);
+              this.layers[k].enabled = false;
+            }
           }
         }
       } catch (e) {}

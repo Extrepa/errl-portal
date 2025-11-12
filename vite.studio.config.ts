@@ -4,7 +4,11 @@ export default defineConfig({
   root: 'src',
   resolve: {
     alias: {
-      '@': resolve(process.cwd(), 'src')
+      '@': resolve(process.cwd(), 'src'),
+      '@assets': resolve(process.cwd(), 'src/assets'),
+      '@portal': resolve(process.cwd(), 'src/portal'),
+      '@studio': resolve(process.cwd(), 'src/studio'),
+      '@legacy': resolve(process.cwd(), 'src/legacy')
     }
   },
   build: {

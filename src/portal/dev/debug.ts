@@ -74,7 +74,7 @@
   }
 
   function canvases() {
-    const list = [...document.querySelectorAll('canvas')].map(c => ({
+    const list = Array.from(document.querySelectorAll('canvas')).map(c => ({
       id: (c as HTMLCanvasElement).id,
       z: getComputedStyle(c).zIndex,
       pe: getComputedStyle(c).pointerEvents,

@@ -29,6 +29,7 @@ pnpm-debug.log*
 *.swp
 .idea/
 .vscode/
+.obsidian/
 
 # Misc
 *.tsbuildinfo
@@ -37,5 +38,13 @@ pnpm-debug.log*
 .playwright/
 playwright-report/
 
+
 # Build reports
 .reports/
+
+# Large archives and snapshots
+archive/snapshots/*.tar.gz
+archive/**/*.tar.gz
+
+# Ignore Smart Environment folder
+.smart-env

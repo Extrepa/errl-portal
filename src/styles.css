@@ -211,18 +211,18 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 /* 6. Orbiting / menu bubbles */
 .bubble {
   position: absolute;
-  width: clamp(48px, 7vw, 84px);
-  height: clamp(48px, 7vw, 84px);
+  width: clamp(42px, 6vw, 74px);
+  height: clamp(42px, 6vw, 74px);
   border-radius: 50%;
   box-shadow:
     0 0 20px rgba(180,120,255,0.6),
     0 0 40px rgba(0,200,255,0.4);
-  line-height: clamp(48px, 7vw, 84px);
+  line-height: clamp(42px, 6vw, 74px);
   text-align: center;
   font-weight: 600;
   letter-spacing: 0.06em;
   color: #f0f4ff;
-  background: radial-gradient(circle, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.65) 35%, rgba(255,255,255,0.1) 100%);
+  background: radial-gradient(circle, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.7) 32%, rgba(255,255,255,0.12) 100%);
   text-shadow: 0 2px 4px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.6);
   mix-blend-mode: screen;
   user-select: none;
@@ -231,6 +231,19 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   z-index: 5; /* Above scene layer (L3), below phone panel (L10) */
   animation: wobble 3s ease-in-out infinite;
   animation-duration: calc(3s * var(--motionMultiplier, 1));
+  font-family: 'Baloo 2', 'Fredoka', 'Poppins', 'Inter', sans-serif;
+}
+.bubble--behind {
+  z-index: 0;
+}
+.bubble--focus,
+.bubble:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 4px;
+  box-shadow:
+    0 0 30px rgba(255,255,255,0.95),
+    0 0 60px rgba(0,200,255,0.75);
+  animation: none !important;
 }
 .bubble .label,
 .bubble span {
@@ -243,13 +256,17 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   animation-duration: calc(6s * var(--motionMultiplier, 1));
   pointer-events: none;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.1em;
   z-index: 1; /* Label above bubble background */
+  font-family: 'Baloo 2', 'Fredoka', 'Poppins', 'Inter', sans-serif;
+  font-size: clamp(11px, 2.1vw, 15px);
+  font-weight: 600;
 }
 @keyframes labelFade { 0%,18%{ opacity:0; } 35%,65%{ opacity:1; } 82%,100%{ opacity:0; } }
 @keyframes textPulse { 0%,100%{ color: rgba(255,255,255,0.75); } 50%{ color: rgba(255,255,255,1); } }
 /* Stop label fade animation while hovering */
-.bubble:hover .label {
+.bubble:hover .label,
+.bubble--focus .label {
   opacity: 1 !important;
   animation: none !important;
 }
@@ -363,7 +380,7 @@ body.perf-safe *::after {
   position: absolute;
   inset: 0;
   width: 100%; height: 100%;
-  background-image: var(--minIcon, url('./portal/assets/ui/phone-tabs/hud_300.png'));
+  background-image: var(--minIcon, url('./assets/portal/ui/phone-tabs/hud_300.png'));
   background-size: cover; background-repeat:no-repeat; background-position:center;
   border-radius: inherit;
 }
@@ -450,14 +467,14 @@ body.perf-safe *::after {
   background-clip: padding-box;
 }
 /* per-tab textures */
-.panel-tabs .tab[data-tab="hud"]::after{ background-image:url('./portal/assets/ui/phone-tabs/hud_300.png'); }
-.panel-tabs .tab[data-tab="errl"]::after{ background-image:url('./portal/assets/ui/phone-tabs/errl_300.png'); }
-.panel-tabs .tab[data-tab="nav"]::after{ background-image:url('./portal/assets/ui/phone-tabs/nav_300.png'); }
-.panel-tabs .tab[data-tab="rb"]::after{ background-image:url('./portal/assets/ui/phone-tabs/rb_300.png'); }
-.panel-tabs .tab[data-tab="glb"]::after{ background-image:url('./portal/assets/ui/phone-tabs/glb_300.png'); }
-.panel-tabs .tab[data-tab="bg"]::after{ background-image:url('./portal/assets/ui/phone-tabs/bg_300.png'); }
-.panel-tabs .tab[data-tab="gl"]::after{ background-image:url('./portal/assets/ui/phone-tabs/gl_300.png'); }
-.panel-tabs .tab[data-tab="hue"]::after{ background-image:url('./portal/assets/ui/phone-tabs/hue_300.png'); }
+.panel-tabs .tab[data-tab="hud"]::after{ background-image:url('./assets/portal/ui/phone-tabs/hud_300.png'); }
+.panel-tabs .tab[data-tab="errl"]::after{ background-image:url('./assets/portal/ui/phone-tabs/errl_300.png'); }
+.panel-tabs .tab[data-tab="nav"]::after{ background-image:url('./assets/portal/ui/phone-tabs/nav_300.png'); }
+.panel-tabs .tab[data-tab="rb"]::after{ background-image:url('./assets/portal/ui/phone-tabs/rb_300.png'); }
+.panel-tabs .tab[data-tab="glb"]::after{ background-image:url('./assets/portal/ui/phone-tabs/glb_300.png'); }
+.panel-tabs .tab[data-tab="bg"]::after{ background-image:url('./assets/portal/ui/phone-tabs/bg_300.png'); }
+.panel-tabs .tab[data-tab="gl"]::after{ background-image:url('./assets/portal/ui/phone-tabs/gl_300.png'); }
+.panel-tabs .tab[data-tab="hue"]::after{ background-image:url('./assets/portal/ui/phone-tabs/hue_300.png'); }
 .panel-tabs .tab-icon{ width:40px; height:40px; border-radius:999px; }
 .panel-mode button {
   background: rgba(255,255,255,0.08);

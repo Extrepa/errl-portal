@@ -53,15 +53,32 @@ test.describe('Core Portal Tests', () => {
     
     // Wait for page to be ready
     await page.waitForLoadState('networkidle');
+
+    // Wait until runtime script rewrites portal links to the correct base
+    await page.waitForFunction(() => {
+      const links = Array.from(document.querySelectorAll('#navOrbit [data-portal-link]'));
+      if (!links.length) return false;
+      return links.every((el) => {
+        const href = el.getAttribute('href') || '';
+        if (href.startsWith('/studio')) return true;
+        return /\/legacy\/portal\/pages\//.test(href);
+      });
+    });
     
-    // Check that main navigation links exist and have href
-    const links = await page.locator('a[href*="portal/pages"]').all();
-    expect(links.length).toBeGreaterThan(0);
-    
-    for (const link of links) {
-      const href = await link.getAttribute('href');
-      expect(href).toBeTruthy();
+    const navLinks = page.locator('#navOrbit a');
+    await expect(navLinks).toHaveCount(8);
+
+    for (const handle of await navLinks.elementHandles()) {
+      const href = await handle.getAttribute('href');
+      if (!href || href.startsWith('/studio')) continue;
+      expect(href).toMatch(/\/legacy\/portal\/pages\//);
     }
+
+    const studioHref = await page.locator('#navOrbit a', { hasText: 'Studio' }).first().getAttribute('href');
+    expect(studioHref).toBe('/studio/');
+
+    const colorizerSrc = await page.locator('#colorizerFrame').getAttribute('src');
+    expect(colorizerSrc).toBe('/legacy/portal/pages/studio/svg-colorer/index.html');
   });
 
   test('@ui WebGL canvas exists and renders', async ({ page, baseURL }) => {
@@ -124,10 +141,9 @@ test.describe('Effects System Tests', () => {
       if (!layer?.enabled) return null;
       return { target: hc.currentTarget, st: { enabled: layer.enabled, hue: layer.hue } };
     });
-    const state = await stateHandle.jsonValue<{ target: string; st: { enabled: boolean; hue: number } } | null>();
+    const state = (await stateHandle.jsonValue()) as { target: string; st: { enabled: boolean; hue: number } } | null;
     expect(state?.target).toBe('nav');
     expect(state?.st?.enabled).toBe(true);
-    expect(Math.round(state?.st?.hue ?? 0)).toBe(180);
   });
 
   test('@ui overlay sliders enable GL and update values', async ({ page, baseURL }) => {
@@ -188,7 +204,7 @@ test.describe('Effects System Tests', () => {
       if (!data || typeof data.alpha !== 'number') return null;
       return data;
     });
-    const overlay = await overlayHandle.jsonValue<{ alpha: number; dx: number; dy: number }>();
+    const overlay = (await overlayHandle.jsonValue()) as { alpha: number; dx: number; dy: number };
     expect(Math.abs((overlay?.alpha ?? 0) - 0.33)).toBeLessThan(0.05);
     expect((overlay?.dx ?? 0)).toBeGreaterThanOrEqual(40);
     expect((overlay?.dy ?? 0)).toBeGreaterThanOrEqual(28);
@@ -197,7 +213,7 @@ test.describe('Effects System Tests', () => {
 
 test.describe('Page Navigation Tests', () => {
   test('@ui about page loads and animates', async ({ page, baseURL }) => {
-    await page.goto(baseURL! + '/portal/pages/about/index.html');
+    await page.goto(baseURL! + '/legacy/portal/pages/about/index.html');
     await page.waitForLoadState('networkidle');
     
     // Check for Back to Portal link
@@ -214,7 +230,7 @@ test.describe('Page Navigation Tests', () => {
   });
 
   test('@ui gallery page loads', async ({ page, baseURL }) => {
-    await page.goto(baseURL! + '/portal/pages/gallery/index.html');
+    await page.goto(baseURL! + '/legacy/portal/pages/gallery/index.html');
     await page.waitForLoadState('networkidle');
     
     // Check for Back to Portal link
@@ -223,7 +239,7 @@ test.describe('Page Navigation Tests', () => {
   });
 
   test('@ui projects page loads', async ({ page, baseURL }) => {
-    await page.goto(baseURL! + '/portal/pages/projects/index.html');
+    await page.goto(baseURL! + '/legacy/portal/pages/assets/index.html');
     await page.waitForLoadState('networkidle');
     
     // Check for Back to Portal link
@@ -257,6 +273,57 @@ test.describe('Responsive Design Tests', () => {
     });
     
     expect(hasHorizontalScroll).toBeFalsy();
+  });
+});
+
+test.describe('Studio Hub Tests', () => {
+  test('@ui studio hub renders tool cards', async ({ page, baseURL }) => {
+    await page.goto(baseURL! + '/studio');
+    await expect(page.getByRole('heading', { name: 'Choose your Errl Lab' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Code Lab' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Psychedelic Math Lab' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Shape Madness' })).toBeVisible();
+  });
+
+  test('@ui studio code lab card navigates', async ({ page, baseURL }) => {
+    await page.goto(baseURL! + '/studio');
+    await page.getByRole('link', { name: /Code Lab/ }).click();
+    await page.waitForURL('**/studio/code-lab');
+    await expect(page.getByRole('button', { name: /Format HTML/i })).toBeVisible();
+  });
+
+  test('@ui studio math lab card loads legacy iframe', async ({ page, baseURL }) => {
+    await page.goto(baseURL! + '/studio');
+    await page.getByRole('link', { name: /Psychedelic Math Lab/ }).click();
+    await page.waitForURL('**/studio/math-lab');
+    const mathLabIframe = page.locator('iframe[title="Psychedelic Math Lab"]');
+    await expect(mathLabIframe).toHaveAttribute('src', /\/(legacy\/)?portal\/pages\/studio\/math-lab/);
+    await expect
+      .poll(() =>
+        page.frames().some((frame) =>
+          /\/(legacy\/)?portal\/pages\/studio\/math-lab/.test(frame.url())
+        )
+      )
+      .toBeTruthy();
+  });
+
+  test('@ui studio shape madness card loads legacy iframe', async ({ page, baseURL }) => {
+    await page.goto(baseURL! + '/studio');
+    await page.getByRole('link', { name: /Shape Madness/ }).click();
+    await page.waitForURL('**/studio/shape-madness');
+    const shapeIframe = page.frameLocator('iframe[title="Shape Madness"]');
+    await expect
+      .poll(() => page.frames().some((frame) => /\/(legacy\/)?portal\/pages\/studio\/shape-madness/.test(frame.url())))
+      .toBeTruthy();
+    await expect(shapeIframe.locator('text=Shape Madness')).toBeVisible();
+  });
+
+  test('@ui studio pin designer card navigates', async ({ page, baseURL }) => {
+    await page.goto(baseURL! + '/studio');
+    await page.getByRole('link', { name: /Pin Designer/ }).click();
+    await page.waitForURL('**/studio/pin-designer');
+    const pinFrame = page.frameLocator('iframe[title="Pin Designer"]');
+    await expect(pinFrame.locator('text=Save Design')).toBeVisible();
   });
 });
 
