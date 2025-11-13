@@ -1,0 +1,22 @@
+{
+  "name": "Particle Shapes Module",
+  "slug": "particle-shapes-module",
+  "category": "module",
+  "status": "extracted",
+  "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/ParticleShapes_Module.html",
+  "convertedAt": "2025-11-13T06:53:46.828Z",
+  "tags": [
+    "module",
+    "canvas",
+    "framer-export",
+    "browser-extracted"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Code extracted via browser automation. Review for dependencies."
+  },
+  "controls": []
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Rainbow Drawing Tablet Module",
+  "slug": "rainbow-drawing-tablet-module",
+  "category": "module",
+  "status": "extracted",
+  "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/rainbow_drawing_tablet_Module.html",
+  "convertedAt": "2025-11-13T06:53:50.945Z",
+  "tags": [
+    "module",
+    "canvas",
+    "framer-export",
+    "browser-extracted"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Code extracted via browser automation. Review for dependencies."
+  },
+  "controls": []
+}

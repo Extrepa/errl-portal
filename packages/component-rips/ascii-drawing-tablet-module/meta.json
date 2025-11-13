@@ -1,0 +1,22 @@
+{
+  "name": "Ascii Drawing Tablet Module",
+  "slug": "ascii-drawing-tablet-module",
+  "category": "module",
+  "status": "extracted",
+  "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/AsciiDrawingTablet_Module.html",
+  "convertedAt": "2025-11-13T06:53:39.942Z",
+  "tags": [
+    "module",
+    "canvas",
+    "framer-export",
+    "browser-extracted"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Code extracted via browser automation. Review for dependencies."
+  },
+  "controls": []
+}
