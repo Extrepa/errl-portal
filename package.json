@@ -31,6 +31,7 @@
     "thumbnails:generate": "node tools/portal/generate-component-thumbnails.mjs",
     "thumbnails:force": "node tools/portal/generate-component-thumbnails.mjs --force",
     "inventory:scan": "node tools/portal/update-component-inventory.mjs",
+    "extract:framer": "node tools/portal/extract-framer-browser.mjs",
     "postinstall": "playwright install",
     "studio:dev": "VITE_CFG=vite.studio.config.ts bash tools/portal/start-studio.sh",
     "studio:stop": "bash tools/portal/stop-studio.sh",

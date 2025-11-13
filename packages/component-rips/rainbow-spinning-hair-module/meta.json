@@ -1,0 +1,20 @@
+{
+  "name": "Orbital Moiré Loom",
+  "slug": "rainbow-spinning-hair-module",
+  "category": "module",
+  "status": "normalized",
+  "description": "Animated moiré pattern created by weaving orbital lines. Press A to slow down rotation, D to speed up. Creates mesmerizing moiré interference patterns as the lines orbit and overlap.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/RainbowSpinningHair_Module.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": ["module", "canvas", "moire", "orbital", "interactive", "keyboard", "rainbow"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with keyboard controls. Respects prefers-reduced-motion."
+  },
+  "controls": [
+    { "id": "speed", "label": "Rotation Speed", "type": "keyboard", "keys": ["A (slow)", "D (fast)"] }
+  ]
+}
+

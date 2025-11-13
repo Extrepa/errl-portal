@@ -1,10 +1,24 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, Download, Eye, EyeOff, Trash2, Lock, Unlock, Files } from 'lucide-react';
+import { Copy, Download, Eye, EyeOff, Trash2, Lock, Unlock, Files, ChevronDown, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+
+// === Errl Anatomy 9-pack IDs (template-based mode B) ===
+const ANATOMY_IDS = [
+  'region-body',
+  'region-face',
+  'region-eyeL',
+  'region-eyeR',
+  'region-mouth',
+  'leftArm',
+  'leftLeg',
+  'rightArm',
+  'rightLeg',
+];
+const HOLE_IDS = ['region-eyeL', 'region-eyeR', 'region-mouth'];
 
 export type ExtractedPath = {
   id: string;
@@ -16,12 +30,12 @@ export type ExtractedPath = {
   opacity?: string;
   visible?: boolean;
   locked?: boolean;
-  // optional transform controls
-  tX?: number; // translate X
-  tY?: number; // translate Y
-  rot?: number; // degrees
-  scl?: number; // uniform scale
-  groupId?: string; // optional grouping key
+  tX?: number;
+  tY?: number;
+  rot?: number;
+  scl?: number;
+  groupId?: string;
+  parentChainIds?: string[]; // ancestor group ids for anatomy mapping
 };
 
 export function SVGTab() {
@@ -34,6 +48,40 @@ export function SVGTab() {
   const [selId, setSelId] = useState<string | null>(null);
   const [precision, setPrecision] = useState<number>(2);
   const [optStats, setOptStats] = useState<{ before: number; after: number } | null>(null);
+
+  // === Phase 1: State additions ===
+  // Snapshots for Reset to Upload
+  const initialPathsRef = useRef<ExtractedPath[] | null>(null);
+  const initialViewBoxRef = useRef<string | null>(null);
+  const initialFileNameRef = useRef<string | null>(null);
+
+  // Preview zoom and pan state
+  const [previewScale, setPreviewScale] = useState<number>(1);
+  const [previewOffsetX, setPreviewOffsetX] = useState<number>(0);
+  const [previewOffsetY, setPreviewOffsetY] = useState<number>(0);
+  const isPanningRef = useRef<boolean>(false);
+  const panStartRef = useRef<{ x: number; y: number; offsetX: number; offsetY: number } | null>(null);
+  const previewContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // === Phase 2: Path list enhancements state ===
+  const [listMode, setListMode] = useState<'layers' | 'colorGroups'>('layers');
+  const [groupByStroke, setGroupByStroke] = useState<boolean>(false);
+  const [expandedColorKeys, setExpandedColorKeys] = useState<Set<string>>(new Set());
+  const [expandedDetails, setExpandedDetails] = useState<Set<string>>(new Set());
+  const [hoveredGroupKey, setHoveredGroupKey] = useState<string | null>(null);
+  const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+
+  // === Phase 3: Export options state ===
+  const [exportIncludeHidden, setExportIncludeHidden] = useState<boolean>(false);
+  const [exportPrefix, setExportPrefix] = useState<string>('errl');
+  const [outlineStrokeWidth, setOutlineStrokeWidth] = useState<number>(2);
+  const [outlineStrokeColor, setOutlineStrokeColor] = useState<string>('inherit');
+
+  // === Phase 3: Export options state ===
+  const [exportIncludeHidden, setExportIncludeHidden] = useState<boolean>(false);
+  const [exportPrefix, setExportPrefix] = useState<string>('errl');
+  const [outlineStrokeWidth, setOutlineStrokeWidth] = useState<number>(2);
+  const [outlineStrokeColor, setOutlineStrokeColor] = useState<string>('inherit');
   const defaultAnim = {
     rotate: 0,
     pulse: 0,
@@ -234,6 +282,19 @@ export function SVGTab() {
     if (!svgEl) return;
     const vb = svgEl.getAttribute('viewBox') || `${svgEl.getAttribute('x')||0} ${svgEl.getAttribute('y')||0} ${svgEl.getAttribute('width')||512} ${svgEl.getAttribute('height')||512}`;
     setViewBox(vb);
+    
+    // Helper to collect parent group ids for anatomy mapping
+    function getParentChainIds(el: Element): string[] {
+      const chain: string[] = [];
+      let current = el.parentElement;
+      while (current && current !== svgEl) {
+        const id = current.getAttribute('id');
+        if (id) chain.push(id);
+        current = current.parentElement;
+      }
+      return chain;
+    }
+
     const list: ExtractedPath[] = [];
     const els = svgEl.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon');
     els.forEach((el, idx) => {
@@ -252,9 +313,18 @@ export function SVGTab() {
         opacity: el.getAttribute('opacity') || undefined,
         visible: true,
         locked: false,
+        parentChainIds: getParentChainIds(el),
       });
     });
     setPaths(list);
+
+    // Phase 1: Snapshot initial state for Reset
+    initialPathsRef.current = JSON.parse(JSON.stringify(list));
+    initialViewBoxRef.current = vb;
+    initialFileNameRef.current = fileName || 'untitled.svg';
+
+    // Compute initial fit-to-view
+    computeFitToView(list, vb);
   }
 
   function animStyle(_anim: typeof anim) {
@@ -398,6 +468,9 @@ export function SVGTab() {
     const withVars = (vars: Record<string, string>): React.CSSProperties =>
       vars as unknown as React.CSSProperties;
 
+    // Phase 1: Apply preview transform (scale and pan)
+    const transformStyle = `translate(${previewOffsetX}px, ${previewOffsetY}px) scale(${previewScale})`;
+
     if (anim.rotate > 0) {
       wrappers.push({ className: 'a-rot', style: withVars({ '--errl-rot-duration': `${rotDur || 4}s` }) });
     }
@@ -513,13 +586,53 @@ export function SVGTab() {
       baseContent,
     );
 
+    // Phase 2: Render hover overlay for color groups
+    const groupHoverOverlay = hoveredGroupKey && colorGroups[hoveredGroupKey] ? (
+      <g>
+        {colorGroups[hoveredGroupKey].filter((p) => p.visible !== false).map((p) => {
+          const tr: string[] = [];
+          if (typeof p.tX === 'number' || typeof p.tY === 'number') tr.push(`translate(${p.tX || 0} ${p.tY || 0})`);
+          if (typeof p.rot === 'number' && p.rot) tr.push(`rotate(${p.rot})`);
+          if (typeof p.scl === 'number' && p.scl && p.scl !== 1) tr.push(`scale(${p.scl})`);
+          return (
+            <path
+              key={`hover-${p.id}`}
+              d={p.d}
+              transform={tr.join(' ')}
+              fill="none"
+              stroke="#29f0ff"
+              strokeWidth="2"
+              opacity="0.6"
+              style={{ pointerEvents: 'none' }}
+            />
+          );
+        })}
+      </g>
+    ) : null;
+
     return (
       <svg viewBox={viewBox} width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
         <g dangerouslySetInnerHTML={{ __html: animStyle(anim) }} />
-        {animatedContent}
+        <g style={{ transform: transformStyle, transformOrigin: 'center center' }}>
+          {animatedContent}
+          {groupHoverOverlay}
+        </g>
+        {/* Phase 2: Hover tooltip */}
+        {hoverId && (
+          <text
+            x="10"
+            y="20"
+            fill="#29f0ff"
+            fontSize="12"
+            fontFamily="system-ui"
+            style={{ pointerEvents: 'none' }}
+          >
+            {paths.find((p) => p.id === hoverId)?.name || hoverId}
+          </text>
+        )}
       </svg>
     );
-  }, [paths, viewBox, hoverId, selId, anim]);
+  }, [paths, viewBox, hoverId, selId, anim, previewScale, previewOffsetX, previewOffsetY, hoveredGroupKey, colorGroups]);
 
   function exportHTML() {
     const blob = new Blob([recomputeSVGContent(paths, viewBox)], { type: 'text/html;charset=utf-8' });
@@ -667,8 +780,520 @@ export function SVGTab() {
     );
   }
   function copyD(d: string) { navigator.clipboard.writeText(d); }
+
+  // === Phase 2: Copy utilities with feedback ===
+  function copyText(text: string, label?: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopyFeedback(label || 'Copied!');
+      setTimeout(() => setCopyFeedback(null), 1500);
+    }).catch(() => {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopyFeedback(label || 'Copied!');
+      setTimeout(() => setCopyFeedback(null), 1500);
+    });
+  }
   function resetSelection() { setSelectedIds([]); setSelId(null); setHoverId(null); }
   function clearCompareB() { setBPaths(null); setBViewBox('0 0 512 512'); }
+
+  // === Phase 1: Reset and Clear flows ===
+  function resetToUpload() {
+    if (!initialPathsRef.current || !initialViewBoxRef.current) return;
+    setPaths(JSON.parse(JSON.stringify(initialPathsRef.current)));
+    setViewBox(initialViewBoxRef.current);
+    setFileName(initialFileNameRef.current || '');
+    setSelectedIds([]);
+    setSelId(null);
+    setHoverId(null);
+    computeFitToView(initialPathsRef.current, initialViewBoxRef.current);
+  }
+
+  function clearAll() {
+    setPaths([]);
+    setViewBox('0 0 512 512');
+    setFileName('');
+    setSelectedIds([]);
+    setSelId(null);
+    setHoverId(null);
+    initialPathsRef.current = null;
+    initialViewBoxRef.current = null;
+    initialFileNameRef.current = null;
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setPreviewScale(1);
+    setPreviewOffsetX(0);
+    setPreviewOffsetY(0);
+  }
+
+  // === Phase 1: Preview zoom and pan ===
+  function computeFitToView(pathList: ExtractedPath[], vb: string) {
+    const visiblePaths = pathList.filter((p) => p.visible !== false);
+    if (!visiblePaths.length) {
+      setPreviewScale(1);
+      setPreviewOffsetX(0);
+      setPreviewOffsetY(0);
+      return;
+    }
+
+    // Parse viewBox
+    const [vbX, vbY, vbW, vbH] = vb.split(/\s+/).map(Number);
+    if (!vbW || !vbH) {
+      setPreviewScale(1);
+      setPreviewOffsetX(0);
+      setPreviewOffsetY(0);
+      return;
+    }
+
+    // Simple fit: scale to 90% of container, center
+    const containerW = previewContainerRef.current?.clientWidth || 800;
+    const containerH = previewContainerRef.current?.clientHeight || 600;
+    const scaleX = (containerW * 0.9) / vbW;
+    const scaleY = (containerH * 0.9) / vbH;
+    const scale = Math.min(scaleX, scaleY, 4); // clamp to max 400%
+    setPreviewScale(Math.max(0.25, scale));
+    setPreviewOffsetX(0);
+    setPreviewOffsetY(0);
+  }
+
+  function fitToView() {
+    computeFitToView(paths, viewBox);
+  }
+
+  function zoomTo100() {
+    setPreviewScale(1);
+    setPreviewOffsetX(0);
+    setPreviewOffsetY(0);
+  }
+
+  function adjustZoom(delta: number) {
+    setPreviewScale((s) => Math.max(0.25, Math.min(4, s + delta)));
+  }
+
+  function handlePreviewPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.button !== 0) return;
+    isPanningRef.current = true;
+    panStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      offsetX: previewOffsetX,
+      offsetY: previewOffsetY,
+    };
+    e.currentTarget.style.cursor = 'grabbing';
+    e.preventDefault();
+  }
+
+  function handlePreviewPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!isPanningRef.current || !panStartRef.current) return;
+    const dx = e.clientX - panStartRef.current.x;
+    const dy = e.clientY - panStartRef.current.y;
+    setPreviewOffsetX(panStartRef.current.offsetX + dx);
+    setPreviewOffsetY(panStartRef.current.offsetY + dy);
+  }
+
+  function handlePreviewPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    isPanningRef.current = false;
+    panStartRef.current = null;
+    e.currentTarget.style.cursor = 'grab';
+  }
+
+  // === Phase 1: Keyboard shortcuts ===
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      // Only handle if not in an input
+      if ((e.target as HTMLElement).tagName === 'INPUT') return;
+      if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
+
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        fitToView();
+      } else if (e.key === '1') {
+        e.preventDefault();
+        zoomTo100();
+      } else if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        adjustZoom(0.1);
+      } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        adjustZoom(-0.1);
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [paths, viewBox, previewOffsetX, previewOffsetY]);
+
+  // === Phase 2: Stats computation and color grouping ===
+  const pathStats = useMemo(() => {
+    const visible = paths.filter((p) => p.visible !== false);
+    const totalDChars = visible.reduce((sum, p) => sum + (p.d?.length || 0), 0);
+    return {
+      total: paths.length,
+      visible: visible.length,
+      totalDChars,
+    };
+  }, [paths]);
+
+  function normalizeColor(c: string | undefined): string {
+    if (!c || c === 'none' || c === 'transparent') return 'none';
+    // Simple hex normalization (basic implementation)
+    const lc = c.toLowerCase().trim();
+    if (lc.startsWith('#')) return lc;
+    // Handle rgb/rgba (basic parse)
+    const rgbMatch = lc.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1], 10);
+      const g = parseInt(rgbMatch[2], 10);
+      const b = parseInt(rgbMatch[3], 10);
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    }
+    return lc;
+  }
+
+  const colorGroups = useMemo(() => {
+    const groups: Record<string, ExtractedPath[]> = {};
+    paths.forEach((p) => {
+      const key = normalizeColor(groupByStroke ? p.stroke : p.fill);
+      (groups[key] ||= []).push(p);
+    });
+    return groups;
+  }, [paths, groupByStroke]);
+
+  function toggleColorGroup(key: string) {
+    setExpandedColorKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  function toggleDetails(id: string) {
+    setExpandedDetails((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  // === Phase 3: Utility functions for exports ===
+  function safeFileName(s: string): string {
+    return s
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9-_]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 50) || 'unnamed';
+  }
+
+  function svgHeader(vb: string): string {
+    return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg">`;
+  }
+
+  function svgFooter(): string {
+    return '</svg>';
+  }
+
+  function buildPathElement(p: ExtractedPath): string {
+    const attrs: string[] = [`d="${p.d}"`];
+    if (p.fill) attrs.push(`fill="${p.fill}"`);
+    if (p.stroke) attrs.push(`stroke="${p.stroke}"`);
+    if (p.strokeWidth) attrs.push(`stroke-width="${p.strokeWidth}"`);
+    if (p.opacity) attrs.push(`opacity="${p.opacity}"`);
+    const tr: string[] = [];
+    if (typeof p.tX === 'number' || typeof p.tY === 'number') tr.push(`translate(${p.tX || 0} ${p.tY || 0})`);
+    if (typeof p.rot === 'number' && p.rot) tr.push(`rotate(${p.rot})`);
+    if (typeof p.scl === 'number' && p.scl && p.scl !== 1) tr.push(`scale(${p.scl})`);
+    if (tr.length) attrs.push(`transform="${tr.join(' ')}"`);
+    return `<path ${attrs.join(' ')} />`;
+  }
+
+  function buildSvg(pathsSubset: ExtractedPath[], vb: string): string {
+    const pathElements = pathsSubset.map(buildPathElement).join('\n  ');
+    return `${svgHeader(vb)}\n  ${pathElements}\n${svgFooter()}`;
+  }
+
+  async function ensureJSZip(): Promise<void> {
+    const g: any = window as any;
+    if (g.JSZip) return;
+    await new Promise<void>((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+      s.onload = () => resolve();
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function toZip(files: Array<{ path: string; content: string }>): Promise<Blob> {
+    await ensureJSZip();
+    const g: any = window as any;
+    const zip = new g.JSZip();
+    files.forEach((f) => zip.file(f.path, f.content));
+    return await zip.generateAsync({ type: 'blob' });
+  }
+
+  function downloadBlob(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // === Phase 3: Export functions ===
+  async function exportPerPath() {
+    const sourcePaths = exportIncludeHidden ? paths : paths.filter((p) => p.visible !== false);
+    if (sourcePaths.length === 0) {
+      alert('No paths to export');
+      return;
+    }
+
+    const files: Array<{ path: string; content: string }> = [];
+    const manifest: any[] = [];
+
+    sourcePaths.forEach((p, idx) => {
+      const safeName = safeFileName(p.name || p.id);
+      const filename = `${exportPrefix}_${String(idx + 1).padStart(3, '0')}_${safeName}.svg`;
+      const svg = buildSvg([p], viewBox);
+      files.push({ path: filename, content: svg });
+      manifest.push({
+        index: idx + 1,
+        id: p.id,
+        name: p.name,
+        dLength: p.d.length,
+        fill: p.fill || 'none',
+        stroke: p.stroke || 'none',
+      });
+    });
+
+    files.push({ path: 'manifest.json', content: JSON.stringify(manifest, null, 2) });
+
+    const blob = await toZip(files);
+    downloadBlob(blob, `${exportPrefix}_per_path.zip`);
+  }
+
+  async function exportPerColor() {
+    const sourcePaths = exportIncludeHidden ? paths : paths.filter((p) => p.visible !== false);
+    if (sourcePaths.length === 0) {
+      alert('No paths to export');
+      return;
+    }
+
+    const groups: Record<string, ExtractedPath[]> = {};
+    sourcePaths.forEach((p) => {
+      const key = normalizeColor(groupByStroke ? p.stroke : p.fill);
+      (groups[key] ||= []).push(p);
+    });
+
+    const files: Array<{ path: string; content: string }> = [];
+    const manifest: any[] = [];
+
+    Object.entries(groups).forEach(([colorKey, groupPaths]) => {
+      const safeColor = safeFileName(colorKey);
+      const prefix = groupByStroke ? 'stroke' : 'color';
+      const filename = `${exportPrefix}_${prefix}_${safeColor}.svg`;
+      const svg = buildSvg(groupPaths, viewBox);
+      files.push({ path: filename, content: svg });
+      manifest.push({
+        key: colorKey,
+        count: groupPaths.length,
+        ids: groupPaths.map((p) => p.id),
+      });
+    });
+
+    files.push({ path: 'manifest.json', content: JSON.stringify(manifest, null, 2) });
+
+    const blob = await toZip(files);
+    downloadBlob(blob, `${exportPrefix}_per_color.zip`);
+  }
+
+  function exportOutline() {
+    const sourcePaths = exportIncludeHidden ? paths : paths.filter((p) => p.visible !== false);
+    if (sourcePaths.length === 0) {
+      alert('No paths to export');
+      return;
+    }
+
+    // Convert fills to strokes
+    const outlinePaths = sourcePaths.map((p) => {
+      const strokeColor = outlineStrokeColor === 'inherit' ? (p.fill || '#000000') : outlineStrokeColor;
+      return {
+        ...p,
+        fill: undefined,
+        stroke: strokeColor,
+        strokeWidth: String(outlineStrokeWidth),
+      } as ExtractedPath;
+    });
+
+    const svg = buildSvg(outlinePaths, viewBox);
+    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    downloadBlob(blob, `${exportPrefix}_outline.svg`);
+  }
+
+  // === Phase 3: Utility functions for exports ===
+  function safeFileName(s: string): string {
+    return s
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9-_]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 50) || 'unnamed';
+  }
+
+  function svgHeader(vb: string): string {
+    return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg">`;
+  }
+
+  function svgFooter(): string {
+    return '</svg>';
+  }
+
+  function buildPathElement(p: ExtractedPath): string {
+    const attrs: string[] = [`d="${p.d}"`];
+    if (p.fill) attrs.push(`fill="${p.fill}"`);
+    if (p.stroke) attrs.push(`stroke="${p.stroke}"`);
+    if (p.strokeWidth) attrs.push(`stroke-width="${p.strokeWidth}"`);
+    if (p.opacity) attrs.push(`opacity="${p.opacity}"`);
+    const tr: string[] = [];
+    if (typeof p.tX === 'number' || typeof p.tY === 'number') tr.push(`translate(${p.tX || 0} ${p.tY || 0})`);
+    if (typeof p.rot === 'number' && p.rot) tr.push(`rotate(${p.rot})`);
+    if (typeof p.scl === 'number' && p.scl && p.scl !== 1) tr.push(`scale(${p.scl})`);
+    if (tr.length) attrs.push(`transform="${tr.join(' ')}"`);
+    return `<path ${attrs.join(' ')} />`;
+  }
+
+  function buildSvg(pathsSubset: ExtractedPath[], vb: string): string {
+    const pathElements = pathsSubset.map(buildPathElement).join('\n  ');
+    return `${svgHeader(vb)}\n  ${pathElements}\n${svgFooter()}`;
+  }
+
+  async function ensureJSZip(): Promise<void> {
+    const g: any = window as any;
+    if (g.JSZip) return;
+    await new Promise<void>((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+      s.onload = () => resolve();
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function toZip(files: Array<{ path: string; content: string }>): Promise<Blob> {
+    await ensureJSZip();
+    const g: any = window as any;
+    const zip = new g.JSZip();
+    files.forEach((f) => zip.file(f.path, f.content));
+    return await zip.generateAsync({ type: 'blob' });
+  }
+
+  function downloadBlob(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // === Phase 3: Export functions ===
+  async function exportPerPath() {
+    const sourcePaths = exportIncludeHidden ? paths : paths.filter((p) => p.visible !== false);
+    if (sourcePaths.length === 0) {
+      alert('No paths to export');
+      return;
+    }
+
+    const files: Array<{ path: string; content: string }> = [];
+    const manifest: any[] = [];
+
+    sourcePaths.forEach((p, idx) => {
+      const safeName = safeFileName(p.name || p.id);
+      const filename = `${exportPrefix}_${String(idx + 1).padStart(3, '0')}_${safeName}.svg`;
+      const svg = buildSvg([p], viewBox);
+      files.push({ path: filename, content: svg });
+      manifest.push({
+        index: idx + 1,
+        id: p.id,
+        name: p.name,
+        dLength: p.d.length,
+        fill: p.fill || 'none',
+        stroke: p.stroke || 'none',
+      });
+    });
+
+    files.push({ path: 'manifest.json', content: JSON.stringify(manifest, null, 2) });
+
+    const blob = await toZip(files);
+    downloadBlob(blob, `${exportPrefix}_per_path.zip`);
+  }
+
+  async function exportPerColor() {
+    const sourcePaths = exportIncludeHidden ? paths : paths.filter((p) => p.visible !== false);
+    if (sourcePaths.length === 0) {
+      alert('No paths to export');
+      return;
+    }
+
+    const groups: Record<string, ExtractedPath[]> = {};
+    sourcePaths.forEach((p) => {
+      const key = normalizeColor(groupByStroke ? p.stroke : p.fill);
+      (groups[key] ||= []).push(p);
+    });
+
+    const files: Array<{ path: string; content: string }> = [];
+    const manifest: any[] = [];
+
+    Object.entries(groups).forEach(([colorKey, groupPaths]) => {
+      const safeColor = safeFileName(colorKey);
+      const prefix = groupByStroke ? 'stroke' : 'color';
+      const filename = `${exportPrefix}_${prefix}_${safeColor}.svg`;
+      const svg = buildSvg(groupPaths, viewBox);
+      files.push({ path: filename, content: svg });
+      manifest.push({
+        key: colorKey,
+        count: groupPaths.length,
+        ids: groupPaths.map((p) => p.id),
+      });
+    });
+
+    files.push({ path: 'manifest.json', content: JSON.stringify(manifest, null, 2) });
+
+    const blob = await toZip(files);
+    downloadBlob(blob, `${exportPrefix}_per_color.zip`);
+  }
+
+  function exportOutline() {
+    const sourcePaths = exportIncludeHidden ? paths : paths.filter((p) => p.visible !== false);
+    if (sourcePaths.length === 0) {
+      alert('No paths to export');
+      return;
+    }
+
+    // Convert fills to strokes
+    const outlinePaths = sourcePaths.map((p) => {
+      const strokeColor = outlineStrokeColor === 'inherit' ? (p.fill || '#000000') : outlineStrokeColor;
+      return {
+        ...p,
+        fill: undefined,
+        stroke: strokeColor,
+        strokeWidth: String(outlineStrokeWidth),
+      };
+    });
+
+    const svg = buildSvg(outlinePaths, viewBox);
+    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    downloadBlob(blob, `${exportPrefix}_outline.svg`);
+  }
 
   return (
     <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
@@ -690,11 +1315,52 @@ export function SVGTab() {
         </Card>
 
         <div className="relative min-h-[520px] overflow-hidden rounded-2xl border border-white/10 bg-black/20 lg:min-h-[600px]" style={{ background: bg }}>
-          <div className="absolute left-3 top-3 flex items-center gap-2 rounded-md border border-white/20 bg-black/40 px-2 py-1 text-xs">
-            <label className="opacity-80">BG</label>
-            <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} />
+          {/* Phase 1: Preview zoom controls */}
+          <div className="absolute left-3 top-3 z-10 flex flex-col gap-2">
+            <div className="flex items-center gap-2 rounded-md border border-white/20 bg-black/40 px-2 py-1 text-xs">
+              <label className="opacity-80">BG</label>
+              <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} />
+            </div>
+            <div className="flex items-center gap-2 rounded-md border border-white/20 bg-black/40 px-2 py-1 text-xs">
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => adjustZoom(-0.1)} title="Zoom out (-)">
+                <ZoomOut className="h-3.5 w-3.5" />
+              </Button>
+              <input
+                type="range"
+                min="0.25"
+                max="4"
+                step="0.05"
+                value={previewScale}
+                onChange={(e) => setPreviewScale(Number(e.target.value))}
+                className="w-24"
+                title="Zoom"
+              />
+              <span className="w-12 text-center opacity-80">{Math.round(previewScale * 100)}%</span>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => adjustZoom(0.1)} title="Zoom in (+)">
+                <ZoomIn className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={fitToView} title="Fit to view (f)">
+                Fit
+              </Button>
+              <Button variant="outline" size="sm" onClick={zoomTo100} title="100% zoom (1)">
+                100%
+              </Button>
+            </div>
           </div>
-          <div className="h-full w-full">{previewInner}</div>
+
+          <div
+            ref={previewContainerRef}
+            className="h-full w-full"
+            style={{ cursor: isPanningRef.current ? 'grabbing' : 'grab' }}
+            onPointerDown={handlePreviewPointerDown}
+            onPointerMove={handlePreviewPointerMove}
+            onPointerUp={handlePreviewPointerUp}
+            onPointerLeave={handlePreviewPointerUp}
+          >
+            {previewInner}
+          </div>
         </div>
       </div>
 
@@ -720,8 +1386,36 @@ export function SVGTab() {
                     onChange={(e) => e.target.files && onUpload(e.target.files)}
                   />
                   <div className="text-xs text-zinc-400">
-                    Upload an SVG or start from one of Errl’s house assets. We’ll extract every vector path for you.
+                    Upload an SVG or start from one of Errl's house assets. We'll extract every vector path for you.
                   </div>
+                  {/* Phase 1: Reset and Clear buttons */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={resetToUpload}
+                      disabled={!initialPathsRef.current}
+                      title="Return to the initial state of the last upload"
+                    >
+                      Reset to Upload
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={clearAll}
+                      title="Clear all paths and start fresh"
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                  {fileName && (
+                    <div className="text-xs text-zinc-400">
+                      Current: <span className="text-zinc-200">{fileName}</span>
+                      {initialViewBoxRef.current && (
+                        <span className="ml-2 opacity-70">ViewBox: {viewBox}</span>
+                      )}
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <div className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Built-in assets</div>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -743,11 +1437,161 @@ export function SVGTab() {
 
               <Card className="border-white/10 bg-black/30">
                 <CardHeader className="py-2">
-                  <CardTitle className="text-sm">Paths ({paths.length})</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm">Paths ({paths.length})</CardTitle>
+                    {/* Phase 2: Copy feedback */}
+                    {copyFeedback && (
+                      <span className="text-xs text-green-400 animate-pulse">{copyFeedback}</span>
+                    )}
+                  </div>
                 </CardHeader>
+                <CardContent className="pt-2">
+            {/* Phase 2: Stats header */}
+            {paths.length > 0 && (
+              <div className="mb-3 rounded border border-white/10 bg-white/5 px-3 py-2 text-xs">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div>
+                    <span className="opacity-70">Total:</span> <span className="font-semibold">{pathStats.total}</span>
+                  </div>
+                  <div>
+                    <span className="opacity-70">Visible:</span> <span className="font-semibold">{pathStats.visible}</span>
+                  </div>
+                  <div>
+                    <span className="opacity-70">d chars:</span> <span className="font-semibold">{pathStats.totalDChars.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Phase 2: List mode selector */}
+            {paths.length > 0 && (
+              <div className="mb-2 flex items-center gap-2 text-xs">
+                <label className="opacity-70">View:</label>
+                <Button
+                  variant={listMode === 'layers' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setListMode('layers')}
+                >
+                  Layers
+                </Button>
+                <Button
+                  variant={listMode === 'colorGroups' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setListMode('colorGroups')}
+                >
+                  Group by Color
+                </Button>
+                {listMode === 'colorGroups' && (
+                  <label className="ml-2 flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={groupByStroke}
+                      onChange={(e) => setGroupByStroke(e.target.checked)}
+                      className="h-3.5 w-3.5"
+                    />
+                    <span className="opacity-70">By stroke</span>
+                  </label>
+                )}
+              </div>
+            )}
                 <CardContent className="pt-2">
             {paths.length === 0 ? (
               <div className="text-xs text-zinc-400">No paths yet.</div>
+            ) : listMode === 'colorGroups' ? (
+              <>
+                {/* Phase 2: Color groups view */}
+                <ScrollArea className="max-h-96 pr-1">
+                  <div className="space-y-2">
+                    {Object.entries(colorGroups).map(([colorKey, groupPaths]) => {
+                      const isExpanded = expandedColorKeys.has(colorKey);
+                      return (
+                        <div key={colorKey} className="rounded border border-white/10 bg-white/5">
+                          <div
+                            className="flex cursor-pointer items-center gap-2 px-2 py-2 text-xs hover:bg-white/10"
+                            onClick={() => toggleColorGroup(colorKey)}
+                            onMouseEnter={() => setHoveredGroupKey(colorKey)}
+                            onMouseLeave={() => setHoveredGroupKey(null)}
+                          >
+                            {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                            <div
+                              className="h-5 w-5 rounded border border-white/20"
+                              style={{ background: colorKey === 'none' ? 'transparent' : colorKey }}
+                              title={colorKey}
+                            />
+                            <span className="flex-1 font-mono">{colorKey}</span>
+                            <span className="opacity-70">{groupPaths.length} path{groupPaths.length !== 1 ? 's' : ''}</span>
+                          </div>
+                          {isExpanded && (
+                            <div className="space-y-1 border-t border-white/10 p-2">
+                              {groupPaths.map((p) => {
+                                const detailsOpen = expandedDetails.has(p.id);
+                                return (
+                                  <div key={p.id} className="rounded border border-white/10 bg-black/20 p-2">
+                                    <div
+                                      className="flex items-center gap-2"
+                                      onMouseEnter={() => setHoverId(p.id)}
+                                      onMouseLeave={() => setHoverId(null)}
+                                    >
+                                      <button
+                                        className="h-6 w-6 inline-flex items-center justify-center border border-white/20 rounded"
+                                        onClick={(e) => { e.stopPropagation(); toggleVisible(p.id); }}
+                                        title="Toggle visibility"
+                                      >
+                                        {p.visible === false ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                                      </button>
+                                      <span className="flex-1 truncate text-xs">{p.name}</span>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6"
+                                        onClick={() => toggleDetails(p.id)}
+                                        title="Toggle details"
+                                      >
+                                        {detailsOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                                      </Button>
+                                    </div>
+                                    {detailsOpen && (
+                                      <div className="mt-2 space-y-1 border-t border-white/10 pt-2 text-xs">
+                                        <div className="flex items-center gap-2">
+                                          <span className="opacity-70">ID:</span>
+                                          <code className="flex-1 rounded bg-black/30 px-1">{p.id}</code>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-5 w-5"
+                                            onClick={() => copyText(p.id, 'ID copied')}
+                                            title="Copy ID"
+                                          >
+                                            <Copy className="h-3 w-3" />
+                                          </Button>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="opacity-70">d:</span>
+                                          <code className="flex-1 overflow-x-auto rounded bg-black/30 px-1 text-[10px]">
+                                            {p.d.slice(0, 60)}…
+                                          </code>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-5 w-5"
+                                            onClick={() => copyText(p.d, 'd copied')}
+                                            title="Copy d"
+                                          >
+                                            <Copy className="h-3 w-3" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              </>
             ) : (
               <>
                 <div className="flex items-center gap-2 mb-2 text-xs">
@@ -773,8 +1617,11 @@ export function SVGTab() {
                 </div>
                 <ScrollArea className="max-h-72 pr-1">
                   <div className="space-y-1">
-                  {paths.map((p, idx) => (
-                    <div key={p.id}
+                  {paths.map((p, idx) => {
+                    const detailsOpen = expandedDetails.has(p.id);
+                    return (
+                    <div key={p.id} className="space-y-1">
+                      <div
                          draggable
                          onDragStart={() => { dragIndexRef.current = idx; }}
                          onDragOver={(e) => { e.preventDefault(); }}
@@ -792,7 +1639,7 @@ export function SVGTab() {
                          onMouseLeave={() => setHoverId(null)}
                          onClick={() => setSelId(p.id)}
                          className={"flex items-center gap-2 border rounded px-2 py-1 text-xs cursor-move " + (selId===p.id? 'border-cyan-400/50 bg-cyan-400/10' : 'border-white/10 bg-white/5')}
-                    >
+                      >
                       <input type="checkbox" className="h-4 w-4" checked={selectedIds.includes(p.id)} onChange={(e)=> {
                         setSelectedIds((prev) => e.target.checked ? [...new Set([...prev, p.id])] : prev.filter(id => id !== p.id));
                       }} title="Select"/>
@@ -836,8 +1683,62 @@ export function SVGTab() {
                       <Button variant="outline" size="icon" title="Duplicate layer" onClick={(e)=> { e.stopPropagation(); duplicatePath(p.id); }}><Files className="h-3.5 w-3.5" /></Button>
                       <Button variant="outline" size="icon" title="Copy d attribute" onClick={(e)=> { e.stopPropagation(); copyD(p.d); }}><Copy className="h-3.5 w-3.5" /></Button>
                       <Button variant="destructive" size="icon" title="Remove" disabled={p.locked} onClick={(e)=> { e.stopPropagation(); removePath(p.id); }}><Trash2 className="h-3.5 w-3.5"/></Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Show details"
+                        onClick={(e) => { e.stopPropagation(); toggleDetails(p.id); }}
+                      >
+                        {detailsOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                      </Button>
+                      </div>
+                      {/* Phase 2: Details panel */}
+                      {detailsOpen && (
+                        <div className="ml-8 space-y-2 rounded border border-white/10 bg-black/20 p-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="opacity-70">ID:</span>
+                            <code className="flex-1 rounded bg-black/30 px-1">{p.id}</code>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5"
+                              onClick={() => copyText(p.id, 'ID copied')}
+                              title="Copy ID"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          {p.name && p.name !== p.id && (
+                            <div className="flex items-center gap-2">
+                              <span className="opacity-70">Name:</span>
+                              <code className="flex-1 rounded bg-black/30 px-1">{p.name}</code>
+                            </div>
+                          )}
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="opacity-70">d:</span>
+                              <span className="opacity-60">({p.d.length} chars)</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="ml-auto h-5 w-5"
+                                onClick={() => copyText(p.d, 'd copied')}
+                                title="Copy d"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <ScrollArea className="h-16 rounded bg-black/30 p-1">
+                              <code className="block whitespace-pre-wrap break-all text-[10px] leading-tight">
+                                {p.d}
+                              </code>
+                            </ScrollArea>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  ))}
+                    );
+                  })}
                   </div>
                 </ScrollArea>
               </>
@@ -875,10 +1776,55 @@ export function SVGTab() {
                 <CardHeader className="py-2">
                   <CardTitle className="text-sm">Export</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 pt-2">
-                <div className="flex gap-2">
+                <CardContent className="space-y-3 pt-2 text-xs">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button variant="outline" size="sm" onClick={exportSVG}><Download className="h-4 w-4 mr-1"/>Export SVG</Button>
                   <Button variant="outline" size="sm" onClick={exportHTML}><Download className="h-4 w-4 mr-1"/>Export HTML</Button>
+                </div>
+
+                {/* Phase 3: Options */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" className="h-4 w-4" checked={exportIncludeHidden} onChange={(e)=> setExportIncludeHidden(e.target.checked)} />
+                    Include hidden
+                  </label>
+                  <label className="flex items-center gap-2">
+                    Prefix
+                    <Input value={exportPrefix} onChange={(e)=> setExportPrefix(e.target.value)} className="h-7 w-28 bg-black/20" />
+                  </label>
+                </div>
+
+                {/* Phase 3: Export groups */}
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="rounded border border-white/10 bg-white/5 p-2">
+                    <div className="mb-1 font-semibold">Per Path</div>
+                    <Button variant="outline" size="sm" onClick={exportPerPath}><Download className="mr-1 h-4 w-4"/>ZIP: one SVG per path</Button>
+                  </div>
+                  <div className="rounded border border-white/10 bg-white/5 p-2">
+                    <div className="mb-1 font-semibold">Per Color</div>
+                    <div className="mb-1 flex items-center gap-2">
+                      <label className="flex items-center gap-1">
+                        <input type="checkbox" className="h-4 w-4" checked={groupByStroke} onChange={(e)=> setGroupByStroke(e.target.checked)} /> By stroke
+                      </label>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={exportPerColor}><Download className="mr-1 h-4 w-4"/>ZIP: one SVG per color</Button>
+                  </div>
+                  <div className="rounded border border-white/10 bg-white/5 p-2 sm:col-span-2">
+                    <div className="mb-1 font-semibold">Outline-only</div>
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <label className="flex items-center gap-2">Stroke width <Input type="number" step="0.5" min="0.5" value={outlineStrokeWidth} onChange={(e)=> setOutlineStrokeWidth(Math.max(0.5, Number(e.target.value)))} className="h-7 w-20 bg-black/20" /></label>
+                      <label className="flex items-center gap-2">Stroke color
+                        <select className="h-7 rounded border border-white/10 bg-black/20 px-2" value={outlineStrokeColor} onChange={(e)=> setOutlineStrokeColor(e.target.value)}>
+                          <option value="inherit">inherit fill</option>
+                          <option value="#000000">#000000</option>
+                          <option value="#ffffff">#ffffff</option>
+                          <option value="#29f0ff">#29f0ff</option>
+                          <option value="#ff00aa">#ff00aa</option>
+                        </select>
+                      </label>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={exportOutline}><Download className="mr-1 h-4 w-4"/>Export outline-only</Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

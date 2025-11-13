@@ -1,0 +1,18 @@
+{
+  "name": "Errl's Event Horizon",
+  "slug": "blackhole-rainbow-ball-module",
+  "category": "module",
+  "status": "normalized",
+  "description": "Interactive black hole effect with time dilation. Drag to move the black hole around the screen. The gravitational lensing effect distorts the rainbow background, creating a realistic black hole visualization with accretion glow.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/BlackHoleRainbowBall_Module_Prop.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": ["module", "canvas", "black-hole", "gravity", "lensing", "interactive", "rainbow"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with gravitational lensing effects. No media playback. Respects prefers-reduced-motion."
+  },
+  "controls": []
+}
+

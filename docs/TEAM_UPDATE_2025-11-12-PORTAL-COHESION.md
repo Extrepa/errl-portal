@@ -53,19 +53,19 @@
 ### Safety & Controls
 - All components include explicit safety guards (no autoplay audio/video/camera).
 - MIDI and microphone access only requested after explicit button presses.
-- All animations respect `prefers-reduced-motion`.
+- All animations respect `prefers-reduced-motion` (verified and fixed in all components).
 - Interactive controls standardized across all components.
 
 ### Current Status
-- **40 normalized components** across 7 categories (backgrounds: 11, buttons: 2, cursors: 11, modules: 8, text: 3, props: 4, misc: 1).
+- **46 normalized components** across 7 categories (backgrounds: 15, buttons: 3, cursors: 11, modules: 9, text: 3, props: 4, misc: 1).
 - All components include metadata, safety notes, and control definitions in `meta.json`.
 - Catalog manifest auto-generates via `npm run catalog:component-rips`.
 - Backlog and audit log track all conversion progress.
-- Thumbnail generation system in place with 40 component thumbnails generated.
+- Thumbnail generation system in place with 46 component thumbnails generated.
 
 ### Unified Component Inventory (2025-11-13)
 - Created comprehensive component inventory registry (`docs/catalog/component-inventory.md`) tracking all ~205 components across 5 locations:
-  - 40 normalized component rips (`packages/component-rips/`)
+  - 46 normalized component rips (`packages/component-rips/`)
   - 55 raw component rips (`archive/component-rips-20251112/Component_Rips/`)
   - 100 Math Lab effects (embedded in single file)
   - 5 projects components (`public/apps/projects/`)
@@ -95,6 +95,15 @@
 - **Props (2 new)**: Afterimage Pulse (color inversion pulsing), Moire Melt (moire pattern with blend modes).
 - **Modules (3 new)**: Paint Splat Mix (interactive paint splats), Kaleido Spin Top String (kaleidoscope drawing tool), Spinning Rainbow Black Hole (prism refraction lens).
 - **Framer Export Extraction**: Successfully extracted and normalized 2 Framer export cursors by recreating functionality based on component names and patterns.
+
+### Normalization Wave 5 (2025-11-13) - 6 Additional Components Added
+- **Button (1 new)**: Purple Smile Hover Confetti Button (rainbow confetti particles on hover with continuous stream).
+- **Backgrounds (4 new)**: Rainbow Dot Suttle Gradient (hexagonal dot pattern with animated rainbow gradients), Side Scrolling BW Square Wall (infinite scrolling checkerboard), Rainbow Square Grid (animated rainbow grid pattern), Bubble Buster (floating rainbow bubbles with drift).
+- **Module (1 new)**: 3in1 Mix It Up (three-mode interactive module: Ripple water simulation, Kaleido pattern generator, Moiré rotating pattern).
+- **Accessibility Fixes**: Fixed `prefers-reduced-motion` handling in 3 components:
+  - `bubble-buster-bg`: Animation loop now stops when reduced motion is enabled.
+  - `fluffy-pixel-trail-cursor`: Particle spawning and animation loop respect reduced motion preference.
+  - `3in1-mix-it-up-module`: All three modes (Ripple, Kaleido, Moiré) properly stop animation loops when reduced motion is enabled.
 
 ## Next Steps
 1. Stress-test the shared asset store with large Pin Designer exports and Code Lab imports.

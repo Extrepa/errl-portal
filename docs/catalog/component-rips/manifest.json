@@ -1,6 +1,31 @@
 {
-  "generatedAt": "2025-11-13T06:32:44.729Z",
+  "generatedAt": "2025-11-13T06:55:31.463Z",
   "packages": [
+    {
+      "slug": "3d-effect-3d-object-prop",
+      "name": "3d Effect 3d Object Prop",
+      "category": "module",
+      "status": "extracted",
+      "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+      "source": "archive/component-rips-20251112/Component_Rips/Props/3DEffect_3DObject_Prop.html",
+      "convertedAt": "2025-11-13T06:54:00.320Z",
+      "tags": [
+        "module",
+        "canvas",
+        "framer-export",
+        "browser-extracted"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Code extracted via browser automation. Review for dependencies."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/3d-effect-3d-object-prop/index.html"
+      }
+    },
     {
       "slug": "3in1-mix-it-up-module",
       "name": "3in1 Mix It Up Module",
@@ -107,6 +132,31 @@
       "controls": [],
       "preview": {
         "index": "../../../packages/component-rips/anisotropic-velvet-bg/index.html"
+      }
+    },
+    {
+      "slug": "ascii-drawing-tablet-module",
+      "name": "Ascii Drawing Tablet Module",
+      "category": "module",
+      "status": "extracted",
+      "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/AsciiDrawingTablet_Module.html",
+      "convertedAt": "2025-11-13T06:53:39.942Z",
+      "tags": [
+        "module",
+        "canvas",
+        "framer-export",
+        "browser-extracted"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Code extracted via browser automation. Review for dependencies."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/ascii-drawing-tablet-module/index.html"
       }
     },
     {
@@ -264,6 +314,33 @@
       }
     },
     {
+      "slug": "chrono-rainbow-trip-slink-module",
+      "name": "Chrono-Quilt",
+      "category": "module",
+      "status": "normalized",
+      "description": "Temporal quilt effect showing different moments of the same animated scene. The canvas is divided into a grid where each tile displays a different frame from a time buffer, creating a mesmerizing quilt pattern of rainbow circles.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/ChronoRainbowTripSlink_Module_Prop.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "module",
+        "canvas",
+        "temporal",
+        "quilt",
+        "time-buffer",
+        "rainbow"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with temporal buffer effects. Respects prefers-reduced-motion."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/chrono-rainbow-trip-slink-module/index.html"
+      }
+    },
+    {
       "slug": "errl-tunnel",
       "name": "Errl Tunnel",
       "category": "prop",
@@ -304,6 +381,62 @@
       ],
       "preview": {
         "index": "../../../packages/component-rips/errl-tunnel/index.html"
+      }
+    },
+    {
+      "slug": "errls-spinning-rainbow-string-module",
+      "name": "Errl's Dream Compiler",
+      "category": "module",
+      "status": "normalized",
+      "description": "Interactive particle network that responds to keyboard input. Each keypress rewrites the geometry rules using a seeded random number generator, creating dynamic rainbow particle layers with connective filaments.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/ErrlsSpinningRainbowString_Module_Prop.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "module",
+        "canvas",
+        "particles",
+        "interactive",
+        "keyboard",
+        "rainbow",
+        "network"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with keyboard interaction. Respects prefers-reduced-motion."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/errls-spinning-rainbow-string-module/index.html"
+      }
+    },
+    {
+      "slug": "blackhole-rainbow-ball-module",
+      "name": "Errl's Event Horizon",
+      "category": "module",
+      "status": "normalized",
+      "description": "Interactive black hole effect with time dilation. Drag to move the black hole around the screen. The gravitational lensing effect distorts the rainbow background, creating a realistic black hole visualization with accretion glow.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/BlackHoleRainbowBall_Module_Prop.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "module",
+        "canvas",
+        "black-hole",
+        "gravity",
+        "lensing",
+        "interactive",
+        "rainbow"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with gravitational lensing effects. No media playback. Respects prefers-reduced-motion."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/blackhole-rainbow-ball-module/index.html"
       }
     },
     {
@@ -855,6 +988,44 @@
       }
     },
     {
+      "slug": "rainbow-spinning-hair-module",
+      "name": "Orbital Moiré Loom",
+      "category": "module",
+      "status": "normalized",
+      "description": "Animated moiré pattern created by weaving orbital lines. Press A to slow down rotation, D to speed up. Creates mesmerizing moiré interference patterns as the lines orbit and overlap.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/RainbowSpinningHair_Module.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "module",
+        "canvas",
+        "moire",
+        "orbital",
+        "interactive",
+        "keyboard",
+        "rainbow"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with keyboard controls. Respects prefers-reduced-motion."
+      },
+      "controls": [
+        {
+          "id": "speed",
+          "label": "Rotation Speed",
+          "type": "keyboard",
+          "keys": [
+            "A (slow)",
+            "D (fast)"
+          ]
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-spinning-hair-module/index.html"
+      }
+    },
+    {
       "slug": "parallax-shooting-stars-bg",
       "name": "Parallax Shooting Stars Background",
       "category": "background",
@@ -879,6 +1050,81 @@
       "controls": [],
       "preview": {
         "index": "../../../packages/component-rips/parallax-shooting-stars-bg/index.html"
+      }
+    },
+    {
+      "slug": "particle-face-parallax-push-module",
+      "name": "Particle Face Parallax Push Module",
+      "category": "module",
+      "status": "extracted",
+      "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/ParticleFaceParallaxPush_Module.html",
+      "convertedAt": "2025-11-13T06:53:55.970Z",
+      "tags": [
+        "module",
+        "canvas",
+        "framer-export",
+        "browser-extracted"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Code extracted via browser automation. Review for dependencies."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/particle-face-parallax-push-module/index.html"
+      }
+    },
+    {
+      "slug": "particle-shapes-module",
+      "name": "Particle Shapes Module",
+      "category": "module",
+      "status": "extracted",
+      "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/ParticleShapes_Module.html",
+      "convertedAt": "2025-11-13T06:53:46.828Z",
+      "tags": [
+        "module",
+        "canvas",
+        "framer-export",
+        "browser-extracted"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Code extracted via browser automation. Review for dependencies."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/particle-shapes-module/index.html"
+      }
+    },
+    {
+      "slug": "particle-shapes-module-extracted",
+      "name": "Particle Shapes Module Extracted",
+      "category": "module",
+      "status": "extracted",
+      "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/ParticleShapes_Module.html",
+      "convertedAt": "2025-11-13T06:51:35.967Z",
+      "tags": [
+        "module",
+        "canvas",
+        "framer-export",
+        "browser-extracted"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Code extracted via browser automation. Review for dependencies."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/particle-shapes-module-extracted/index.html"
       }
     },
     {
@@ -1042,6 +1288,31 @@
       "controls": [],
       "preview": {
         "index": "../../../packages/component-rips/rainbow-dot-suttle-gradient-bg/index.html"
+      }
+    },
+    {
+      "slug": "rainbow-drawing-tablet-module",
+      "name": "Rainbow Drawing Tablet Module",
+      "category": "module",
+      "status": "extracted",
+      "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/rainbow_drawing_tablet_Module.html",
+      "convertedAt": "2025-11-13T06:53:50.945Z",
+      "tags": [
+        "module",
+        "canvas",
+        "framer-export",
+        "browser-extracted"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Code extracted via browser automation. Review for dependencies."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-drawing-tablet-module/index.html"
       }
     },
     {
@@ -1991,10 +2262,20 @@
   ],
   "categories": {
     "module": [
+      "3d-effect-3d-object-prop",
       "3in1-mix-it-up-module",
+      "ascii-drawing-tablet-module",
+      "chrono-rainbow-trip-slink-module",
+      "errls-spinning-rainbow-string-module",
+      "blackhole-rainbow-ball-module",
       "live-gradient-mixer",
+      "rainbow-spinning-hair-module",
+      "particle-face-parallax-push-module",
+      "particle-shapes-module",
+      "particle-shapes-module-extracted",
       "kaleido-spin-top-string-module",
       "spinning-rainbow-blackhole-module",
+      "rainbow-drawing-tablet-module",
       "rainbow-neural-pathways",
       "paint-splat-mix-module",
       "ribbon-topology",
