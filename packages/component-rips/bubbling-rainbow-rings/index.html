@@ -7,31 +7,20 @@
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
-    <main class="stage">
-      <section class="panel">
-        <header>
-          <h1>Bubbling Rainbow Rings</h1>
-          <p>
-            Cursor trail effect that spawns iridescent rings with soft bloom. Works with mouse and touch. Toggle particle count
-            and tail duration below.
-          </p>
-        </header>
-        <div class="playground" id="playground">
-          <p class="hint">Move cursor or touch to paint rainbow rings.</p>
-        </div>
-        <footer>
-          <label>
-            Density
-            <input id="density" type="range" min="5" max="40" value="18" />
-          </label>
-          <label>
-            Trail Fade
-            <input id="fade" type="range" min="0.7" max="0.98" step="0.01" value="0.9" />
-          </label>
-        </footer>
-      </section>
-    </main>
+    <div class="controls-bar">
+      <label>
+        Density
+        <input id="density" type="range" min="5" max="40" value="18" />
+      </label>
+      <label>
+        Trail Fade
+        <input id="fade" type="range" min="0.7" max="0.98" step="0.01" value="0.9" />
+      </label>
+    </div>
     <canvas id="canvas"></canvas>
+    <div class="hint-overlay">
+      <p>Move cursor or touch to paint rainbow rings</p>
+    </div>
     <script src="../../_shared/preview-mode.js"></script>
     <script type="module" src="./script.js"></script>
   </body>

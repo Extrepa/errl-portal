@@ -8,7 +8,7 @@ let width = 0;
 let height = 0;
 let frame = 0;
 const particles = [];
-const MAX_PARTICLES = 360;
+const MAX_PARTICLES = 480;
 
 const state = {
   baseSpeed: parseFloat(speedSlider.value),
@@ -59,19 +59,30 @@ function update() {
 
 function draw() {
   ctx.globalCompositeOperation = "source-over";
-  ctx.fillStyle = `rgba(8, 12, 20, ${1 - state.trail})`;
+  ctx.fillStyle = `rgba(6, 10, 18, ${1 - state.trail})`;
   ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
   ctx.globalCompositeOperation = "lighter";
   particles.forEach((p, idx) => {
-    const size = 2 + Math.sin(frame * 0.03 + idx) * 1.8;
-    const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 40);
-    gradient.addColorStop(0, `${p.hue}`);
-    gradient.addColorStop(1, "rgba(8, 14, 24, 0)");
+    const size = 2.5 + Math.sin(frame * 0.04 + idx * 0.1) * 2.2;
+    const alpha = 0.9 + Math.sin(frame * 0.02 + idx * 0.05) * 0.1;
+    const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size * 18);
+    gradient.addColorStop(0, `${p.hue}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`);
+    gradient.addColorStop(0.5, `${p.hue}80`);
+    gradient.addColorStop(1, "rgba(6, 12, 22, 0)");
     ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, size * 12, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, size * 14, 0, Math.PI * 2);
     ctx.fill();
+    
+    // Add glow ring
+    ctx.globalAlpha = alpha * 0.3;
+    ctx.strokeStyle = p.hue;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, size * 16, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
   });
 }
 

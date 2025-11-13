@@ -25,14 +25,15 @@
         flex-direction: column;
       }
       header {
-        padding: 28px clamp(24px, 6vw, 64px) 12px;
+        padding: 24px clamp(24px, 6vw, 64px) 16px;
+        text-align: center;
       }
       header h1 {
         margin: 0 0 12px;
         font-size: clamp(28px, 5vw, 44px);
       }
       header p {
-        margin: 4px 0;
+        margin: 4px auto;
         color: var(--muted);
         max-width: 720px;
       }
@@ -45,20 +46,38 @@
       }
       .filter-bar {
         display: flex;
-        gap: 12px;
+        gap: 8px;
         flex-wrap: wrap;
         background: rgba(14, 20, 32, 0.7);
         border: 1px solid var(--border);
         border-radius: 16px;
-        padding: 16px 18px;
+        padding: 12px 16px;
       }
-      .filter-bar select {
+      .category-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .category-tab {
         background: rgba(8, 12, 22, 0.9);
         border: 1px solid rgba(90, 192, 255, 0.25);
         border-radius: 999px;
         color: var(--text);
-        padding: 8px 14px;
-        font-size: 14px;
+        padding: 6px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+      }
+      .category-tab:hover {
+        border-color: rgba(90, 192, 255, 0.4);
+        background: rgba(12, 18, 30, 0.95);
+      }
+      .category-tab.active {
+        background: linear-gradient(135deg, rgba(90, 192, 255, 0.35), rgba(106, 255, 205, 0.45));
+        border-color: rgba(90, 192, 255, 0.5);
+        color: #041022;
+        font-weight: 600;
       }
       .grid {
         display: grid;
@@ -69,9 +88,9 @@
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 18px;
-        padding: 22px;
+        padding: 20px;
         display: grid;
-        gap: 16px;
+        gap: 14px;
         box-shadow: 0 24px 56px -32px rgba(6, 12, 32, 0.75);
         position: relative;
         transition: border-color 0.2s ease, transform 0.2s ease;
@@ -91,30 +110,117 @@
         border-color: rgba(90, 192, 255, 0.45);
         transform: translateY(-2px);
       }
-      .card header .title {
+      .card header {
+        padding: 8px 12px 4px;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
+        align-items: flex-start;
+        gap: 16px;
       }
       .card header h2 {
         margin: 0;
+        padding: 0;
         font-size: 20px;
+        line-height: 1.25;
+        flex: 1 1 auto;
+        min-width: 0;
+        text-align: left;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      .card header .meta-col {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+        flex-shrink: 0;
+        min-width: 120px;
       }
       .card .category {
         margin: 0;
-        color: rgba(155, 174, 210, 0.85);
         text-transform: uppercase;
         letter-spacing: 0.12em;
         font-size: 11px;
+        font-weight: 600;
+      }
+      /* Category-specific colors matching card borders */
+      .card.category-cursor .category {
+        color: rgba(154, 255, 241, 0.9);
+      }
+      .card.category-prop .category {
+        color: rgba(255, 154, 241, 0.9);
+      }
+      .card.category-button .category {
+        color: rgba(255, 200, 100, 0.9);
+      }
+      .card.category-background .category {
+        color: rgba(106, 255, 205, 0.9);
+      }
+      .card.category-text .category {
+        color: rgba(170, 160, 255, 0.9);
+      }
+      .card.category-module .category {
+        color: rgba(90, 192, 255, 0.9);
+      }
+      .card.category-misc .category {
+        color: rgba(200, 200, 200, 0.9);
+      }
+      /* Category-based card colors */
+      .card.category-cursor {
+        border-color: rgba(154, 255, 241, 0.3);
+      }
+      .card.category-cursor:hover {
+        border-color: rgba(154, 255, 241, 0.5);
+      }
+      .card.category-prop {
+        border-color: rgba(255, 154, 241, 0.3);
+      }
+      .card.category-prop:hover {
+        border-color: rgba(255, 154, 241, 0.5);
+      }
+      .card.category-button {
+        border-color: rgba(255, 200, 100, 0.3);
+      }
+      .card.category-button:hover {
+        border-color: rgba(255, 200, 100, 0.5);
+      }
+      .card.category-background {
+        border-color: rgba(106, 255, 205, 0.3);
+      }
+      .card.category-background:hover {
+        border-color: rgba(106, 255, 205, 0.5);
+      }
+      .card.category-text {
+        border-color: rgba(170, 160, 255, 0.3);
+      }
+      .card.category-text:hover {
+        border-color: rgba(170, 160, 255, 0.5);
+      }
+      .card.category-module {
+        border-color: rgba(90, 192, 255, 0.3);
+      }
+      .card.category-module:hover {
+        border-color: rgba(90, 192, 255, 0.5);
+      }
+      .card.category-misc {
+        border-color: rgba(200, 200, 200, 0.3);
+      }
+      .card.category-misc:hover {
+        border-color: rgba(200, 200, 200, 0.5);
       }
       .status {
         padding: 4px 10px;
         border-radius: 999px;
         border: 1px solid rgba(90, 192, 255, 0.3);
         color: var(--accent);
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 600;
+        line-height: 1;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
       }
       .status-normalized {
         background: rgba(106, 255, 205, 0.15);
@@ -146,7 +252,7 @@
         color: #0f2618;
       }
       .description {
-        margin: 0;
+        margin: 0 0 6px 0;
         color: var(--muted);
         line-height: 1.5;
         font-size: 14px;
@@ -201,32 +307,41 @@
         font-size: 12px;
         color: rgba(200, 210, 240, 0.85);
       }
-      .actions {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        max-width: 100%;
-      }
-      .actions a,
-      .actions button {
-        border-radius: 999px;
-        padding: 8px 16px;
-        font-size: 13px;
+      .open-demo-btn {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 12px;
         font-weight: 600;
         text-decoration: none;
         cursor: pointer;
         border: 1px solid rgba(90, 192, 255, 0.25);
-        background: rgba(10, 16, 28, 0.8);
-        color: var(--text);
-        flex: 0 1 auto;
-        min-width: 0;
-      }
-      .actions a {
         background: linear-gradient(135deg, rgba(90, 192, 255, 0.35), rgba(106, 255, 205, 0.45));
         color: #041022;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: border-color 0.2s ease, transform 0.2s ease;
+        line-height: 1;
+        gap: 2px;
+        margin-left: auto;
       }
-      .actions button:hover {
+      .open-demo-btn:hover {
         border-color: rgba(90, 192, 255, 0.5);
+        transform: scale(1.05);
+      }
+      .open-demo-btn .arrow {
+        font-size: 16px;
+      }
+      .open-demo-btn .text {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
       .empty,
       .error {
@@ -259,13 +374,14 @@
         border-radius: 12px;
         overflow: hidden;
         border: 1px solid rgba(90, 192, 255, 0.15);
-        margin: 16px 0;
+        margin: 4px 0;
         cursor: pointer;
         transition: border-color 0.2s ease, transform 0.2s ease;
       }
       .preview-container:hover {
         border-color: rgba(90, 192, 255, 0.4);
         transform: translateY(-2px);
+        cursor: default;
       }
       
       .preview-thumbnail {
@@ -273,11 +389,8 @@
         height: 100%;
         object-fit: cover;
         display: block;
-        filter: blur(8px) brightness(0.7);
-        transition: filter 0.3s ease;
-      }
-      .preview-container:hover .preview-thumbnail {
-        filter: blur(0) brightness(1);
+        opacity: 1;
+        transition: opacity 0.3s ease;
       }
       
       .preview-iframe {
@@ -295,6 +408,7 @@
       }
       .preview-container:hover .preview-iframe {
         opacity: 1;
+        pointer-events: auto;
       }
       .preview-container:hover .preview-thumbnail {
         opacity: 0;
@@ -310,12 +424,44 @@
         overflow: hidden;
       }
       .meta code {
-        display: block;
+        display: inline;
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         word-break: break-all;
+      }
+      .source-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 13px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(90, 192, 255, 0.25);
+        background: rgba(10, 16, 28, 0.6);
+        transition: all 0.2s ease;
+      }
+      .source-link:hover {
+        background: rgba(90, 192, 255, 0.15);
+        border-color: rgba(90, 192, 255, 0.4);
+      }
+      button.source-link {
+        display: block;
+        width: 100%;
+        text-align: left;
+      }
+      button.source-link:hover {
+        background: rgba(90, 192, 255, 0.15);
+        border-color: rgba(90, 192, 255, 0.4);
+      }
+      .control-desc {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: normal;
+        font-style: italic;
       }
       .controls,
       .safety {
@@ -332,12 +478,31 @@
         max-width: 100%;
         word-wrap: break-word;
         overflow-wrap: break-word;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+      .safety li:first-child {
+        font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+      }
+      
+      .meta-row {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        margin-bottom: 12px;
+      }
+      
+      .meta-row > div {
+        flex: 1;
       }
       
       .preview-placeholder {
         position: absolute;
         inset: 0;
-        display: flex;
+        display: none;
         flex-direction: column;
         align-items: center;
         justify-content: center;
@@ -421,28 +586,44 @@
         const wrapper = document.createElement("div");
         wrapper.className = "filter-bar";
 
-        const categorySelect = document.createElement("select");
-        categorySelect.innerHTML = `<option value="">All Categories</option>`;
-        Object.keys(categories)
-          .sort()
-          .forEach((category) => {
-            const option = document.createElement("option");
-            option.value = category;
-            option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-            categorySelect.appendChild(option);
-          });
+        const tabsContainer = document.createElement("div");
+        tabsContainer.className = "category-tabs";
 
-        const statusSelect = document.createElement("select");
-        statusSelect.innerHTML = `<option value="">All Statuses</option>`;
-        statusPriority.forEach((status) => {
-          const option = document.createElement("option");
-          option.value = status;
-          option.textContent = statusLabels[status] ?? status;
-          statusSelect.appendChild(option);
+        // Create "All" tab first
+        const allTab = document.createElement("button");
+        allTab.className = "category-tab active";
+        allTab.textContent = "All";
+        allTab.dataset.category = "";
+        tabsContainer.appendChild(allTab);
+
+        // Create tabs for each category
+        const categoryKeys = Object.keys(categories).sort();
+        categoryKeys.forEach((category) => {
+          const tab = document.createElement("button");
+          tab.className = "category-tab";
+          tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+          tab.dataset.category = category;
+          tabsContainer.appendChild(tab);
         });
 
-        wrapper.append(categorySelect, statusSelect);
-        return { wrapper, categorySelect, statusSelect };
+        wrapper.appendChild(tabsContainer);
+        return { wrapper, tabsContainer };
+      }
+
+      // Escape HTML to prevent XSS
+      function escapeHtml(text) {
+        if (text == null) return '';
+        const div = document.createElement('div');
+        div.textContent = String(text);
+        return div.innerHTML;
+      }
+
+      // Escape for HTML attribute values (only quotes and ampersands, not URL characters)
+      function escapeAttr(text) {
+        if (text == null) return '';
+        return String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/"/g, '&quot;');
       }
 
       function renderCards(packages, filters) {
@@ -454,55 +635,107 @@
           if (filters.status && pkg.status !== filters.status) return;
 
           const card = document.createElement("article");
-          card.className = "card";
+          card.className = `card category-${pkg.category}`;
 
           const safety = pkg.safety ?? {};
-          const safetySummaries = [
-            `Audio: ${safety.audio ? "opt-in" : "none"}`,
-            `Video: ${safety.video ? "opt-in" : "none"}`,
-            `Camera: ${safety.camera ? "opt-in" : "none"}`,
-          ];
-          if (safety.notes) safetySummaries.push(safety.notes);
+          // Condense safety info into one line (safe - no user input)
+          const safetyLine = `Audio: ${safety.audio ? "opt-in" : "none"} | Video: ${safety.video ? "opt-in" : "none"} | Camera: ${safety.camera ? "opt-in" : "none"}`;
+          const safetySummaries = [safetyLine];
+          if (safety.notes) safetySummaries.push(escapeHtml(safety.notes));
+          
+          // Generate control descriptions
+          const getControlDescription = (control) => {
+            const label = escapeHtml(control.label || control.id);
+            const type = control.type || 'control';
+            const min = control.min !== undefined ? control.min : '';
+            const max = control.max !== undefined ? control.max : '';
+            const step = control.step !== undefined ? control.step : '';
+            
+            let desc = '';
+            if (type === 'range') {
+              desc = `Adjust ${label.toLowerCase()}`;
+              if (min !== '' && max !== '') {
+                desc += ` from ${min} to ${max}`;
+                if (step && step !== 1) desc += ` (step: ${step})`;
+              }
+            } else if (type === 'button') {
+              desc = `Click to ${label.toLowerCase().replace('enable ', '').replace('toggle ', '').replace('activate ', '')}`;
+            } else if (type === 'text' || type === 'input') {
+              desc = `Enter ${label.toLowerCase()}`;
+            } else {
+              desc = `${label} control`;
+            }
+            return desc;
+          };
 
           // Determine preview type based on category
           const previewType = ['cursor', 'background', 'prop'].includes(pkg.category) ? 'simple' :
                              ['module', 'text'].includes(pkg.category) ? 'medium' : 'complex';
           
-          // Thumbnail path
-          const thumbnailPath = `../../../packages/component-rips/_thumbnails/${pkg.slug}.png`;
+          // Escape all user-controlled data
+          const safeSlug = escapeHtml(pkg.slug);
+          const safeName = escapeHtml(pkg.name);
+          const safeDescription = escapeHtml(pkg.description);
+          const safeCategory = escapeHtml(pkg.category);
+          const safeStatus = escapeHtml(pkg.status);
+          const safeSource = escapeHtml(pkg.source);
+          // Don't HTML-escape URLs - they need to remain valid URLs
+          // Use the raw preview index or construct it from the slug
+          const rawPreviewIndex = pkg.preview?.index || `../../../packages/component-rips/${pkg.slug}/index.html`;
+          
+          // Thumbnail path (slug is already escaped for HTML content)
+          const thumbnailPath = `../../../packages/component-rips/_thumbnails/${safeSlug}.png`;
           // Add preview=1 param to hide controls in preview mode
-          const basePreviewUrl = pkg.preview?.index || `../../../packages/component-rips/${pkg.slug}/index.html`;
-          const previewUrl = basePreviewUrl + (basePreviewUrl.includes('?') ? '&' : '?') + 'preview=1';
+          // Check for ? in the raw URL before any escaping
+          const previewUrl = rawPreviewIndex + (rawPreviewIndex.includes('?') ? '&' : '?') + 'preview=1';
+          // Escape the URL only for use in HTML attributes (quotes and ampersands)
+          const safePreviewUrl = escapeAttr(previewUrl);
 
           card.innerHTML = `
             <header>
-              <div class="title">
-                <h2>${pkg.name}</h2>
-                <span class="status status-${pkg.status}">${statusLabels[pkg.status] ?? pkg.status}</span>
+              <h2>${safeName}</h2>
+              <div class="meta-col">
+                <p class="category">${safeCategory}</p>
+                <span class="status status-${safeStatus}">${escapeHtml(statusLabels[pkg.status] ?? safeStatus)}</span>
               </div>
-              <p class="category">${pkg.category}</p>
             </header>
-            <div class="preview-container" data-preview-type="${previewType}" data-preview-url="${previewUrl}">
-              <img class="preview-thumbnail" src="${thumbnailPath}" alt="${pkg.name} preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="preview-container" data-preview-type="${previewType}" data-preview-url="${safePreviewUrl}">
+              <img class="preview-thumbnail" src="${thumbnailPath}" alt="${safeName} preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
               <div class="preview-placeholder">
                 <span class="preview-hint">No thumbnail</span>
                 <span class="preview-hint">Hover to preview</span>
               </div>
               <iframe 
                 class="preview-iframe" 
-                data-src="${previewUrl}"
+                data-src="${safePreviewUrl}"
                 loading="lazy"
                 sandbox="allow-scripts allow-same-origin"
-                title="${pkg.name} preview"
+                title="${safeName} preview"
                 style="overflow: hidden;"
               ></iframe>
               <div class="preview-loading">Loading preview...</div>
             </div>
-            <p class="description">${pkg.description}</p>
+            <div style="display: flex; align-items: center; gap: 16px; padding: 0 4px;">
+              <p class="description" style="flex: 1; margin: 0;">${safeDescription}</p>
+              <a href="${escapeAttr(rawPreviewIndex)}" target="_blank" rel="noopener" class="open-demo-btn" title="Open Demo">
+                <span class="arrow">→</span>
+                <span class="text">demo</span>
+              </a>
+            </div>
             <div class="meta">
-              <div>
-                <span class="label">Source</span>
-                <code>${pkg.source}</code>
+              <div class="meta-row">
+                <div>
+                  <span class="label">Source</span>
+                  <a href="../../../${safeSource}" target="_blank" rel="noopener" class="source-link">
+                    Go to Source →
+                  </a>
+                </div>
+                <div>
+                  <span class="label">Import</span>
+                  <button data-copy="${safeSlug}" class="source-link">
+                    Copy Import Path →
+                  </button>
+                </div>
               </div>
               <div>
                 <span class="label">Controls</span>
@@ -510,8 +743,9 @@
                   ${
                     (pkg.controls ?? [])
                       .map((control) => {
-                        const options = Array.isArray(control.options) ? ` — ${control.options.join(", ")}` : "";
-                        return `<li><code>${control.label ?? control.id}</code>${control.type ? ` · ${control.type}` : ""}${options}</li>`;
+                        const safeLabel = escapeHtml(control.label ?? control.id);
+                        const desc = getControlDescription(control);
+                        return `<li><code>${safeLabel}</code> <span class="control-desc">— ${desc}</span></li>`;
                       })
                       .join("") || "<li>None</li>"
                   }
@@ -523,10 +757,6 @@
                   ${safetySummaries.map((line) => `<li>${line}</li>`).join("")}
                 </ul>
               </div>
-            </div>
-            <div class="actions">
-              <a href="${pkg.preview.index}" target="_blank" rel="noopener">Open Demo</a>
-              <button data-copy="${pkg.slug}">Copy Import Path</button>
             </div>
           `;
 
@@ -595,10 +825,29 @@
               clearTimeout(hoverTimeout);
               hoverTimeout = null;
             }
+            
+            // Reset preview state by reloading iframe
+            if (previewLoaded && previewIframe.src) {
+              const currentSrc = previewIframe.src;
+              previewIframe.src = '';
+              // Small delay to ensure clean reset
+              setTimeout(() => {
+                if (previewContainer.matches(':hover')) {
+                  // Mouse came back, don't reset
+                  return;
+                }
+                previewIframe.src = currentSrc;
+                previewLoaded = false;
+              }, 50);
+            }
           });
 
-          // Click preview to open full demo
+          // Click preview to open full demo (only if clicking on container/thumbnail, not iframe)
           previewContainer.addEventListener('click', (e) => {
+            // Don't open demo if clicking on the iframe itself (let it be interactive)
+            if (e.target === previewIframe || e.target.closest('.preview-iframe')) {
+              return;
+            }
             if (e.target === previewContainer || e.target.classList.contains('preview-thumbnail') || e.target.classList.contains('preview-placeholder')) {
               window.open(previewUrl, '_blank', 'noopener');
             }
@@ -657,18 +906,43 @@
           const manifest = await loadManifest(manifestUrl);
 
           catalogEl.textContent = "";
-          const { wrapper, categorySelect, statusSelect } = createFilterBar(manifest.categories);
+          const { wrapper, tabsContainer } = createFilterBar(manifest.categories);
           catalogEl.appendChild(wrapper);
+
+          let currentCategory = "";
+          const categoryKeys = Object.keys(manifest.categories).sort();
+          if (categoryKeys.length > 0) {
+            // Default to first category (not "All")
+            currentCategory = categoryKeys[0];
+            // Update active tab
+            tabsContainer.querySelectorAll('.category-tab').forEach(tab => {
+              if (tab.dataset.category === currentCategory) {
+                tab.classList.add('active');
+              } else {
+                tab.classList.remove('active');
+              }
+            });
+          }
 
           const render = () => {
             catalogEl.querySelectorAll(".grid, .empty").forEach((el) => el.remove());
-            const filters = { category: categorySelect.value, status: statusSelect.value };
+            const filters = { category: currentCategory, status: "" };
             const cards = renderCards(manifest.packages, filters);
             catalogEl.appendChild(cards);
           };
 
-          categorySelect.addEventListener("change", render);
-          statusSelect.addEventListener("change", render);
+          // Add click handlers to tabs
+          tabsContainer.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+              // Update active state
+              tabsContainer.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+              tab.classList.add('active');
+              // Update current category
+              currentCategory = tab.dataset.category || "";
+              render();
+            });
+          });
+
           render();
         } catch (error) {
           catalogEl.innerHTML = `<div class="error"><p>Failed to load manifest:</p><p>${error.message}</p></div>`;
@@ -679,4 +953,3 @@
     </script>
   </body>
 </html>
-

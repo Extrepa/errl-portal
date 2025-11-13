@@ -9,10 +9,26 @@
   <body>
     <main class="stage">
       <section class="panel">
-        <h1 data-wave>ERRL PORTAL</h1>
+        <div class="wave-container">
+          <svg class="wave-svg" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gradient Waves">
+            <defs>
+              <path id="wave-path" d="M0 156 L800 156"/>
+              <mask id="wave-mask">
+                <rect width="100%" height="100%" fill="black"/>
+                <text fill="white" font-family="system-ui, sans-serif" font-weight="700" font-size="56px" dominant-baseline="middle" text-rendering="geometricPrecision">
+                  <textPath href="#wave-path" id="wave-text-path">ERRL PORTAL</textPath>
+                </text>
+              </mask>
+            </defs>
+            <g mask="url(#wave-mask)">
+              <foreignObject x="0" y="0" width="100%" height="100%">
+                <div class="wave-gradient" xmlns="http://www.w3.org/1999/xhtml"></div>
+              </foreignObject>
+            </g>
+          </svg>
+        </div>
         <p>
-          Gradient-masked headline with sine-wave distortion driven by CSS variables. Adjust speed and amplitude or switch to
-          alternate copy.
+          Gradient-masked headline with animated wave distortion. Adjust speed and amplitude or switch to alternate copy.
         </p>
         <footer>
           <label>

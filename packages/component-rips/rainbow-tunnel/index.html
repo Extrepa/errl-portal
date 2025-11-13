@@ -7,24 +7,7 @@
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
-    <main class="stage">
-      <section class="panel">
-        <header>
-          <h1>Rainbow Tunnel</h1>
-          <p>
-            Dual-layer conic gradient rotating through Errl’s silhouette. Adjust spin speed, direction, and mask shape to
-            explore inside-out portal vibes without auto-animation surprises.
-          </p>
-        </header>
-        <div class="tunnel" aria-label="Animated rainbow tunnel preview">
-          <div class="layer bg" id="layer-outer"></div>
-          <div class="layer fg" id="layer-inner"></div>
-          <div class="mask">
-            <div class="hole" id="mask-hole" aria-hidden="true"></div>
-          </div>
-          <div class="tip" id="tip" role="note">Errl becomes a counter-rotating window.</div>
-        </div>
-        <footer>
+    <div class="controls-bar">
           <label>
             Outer Spin (s)
             <input id="outerSpeed" type="range" min="10" max="80" step="1" value="40" />
@@ -49,9 +32,15 @@
             <input id="tipToggle" type="checkbox" checked />
             Show tip
           </label>
-        </footer>
-      </section>
-    </main>
+    </div>
+    <div class="tunnel" aria-label="Animated rainbow tunnel preview">
+      <div class="layer bg" id="layer-outer"></div>
+      <div class="layer fg" id="layer-inner"></div>
+      <div class="mask">
+        <div class="hole" id="mask-hole" aria-hidden="true"></div>
+      </div>
+      <div class="tip" id="tip" role="note">Errl becomes a counter-rotating window.</div>
+    </div>
     <script src="../../_shared/preview-mode.js"></script>
     <script type="module" src="./script.js"></script>
   </body>

@@ -18,10 +18,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  display: grid;
-  place-items: center;
   overflow: hidden;
-  padding: clamp(16px, 5vw, 32px);
 }
 
 .stage {
@@ -64,6 +61,12 @@ header p {
   overflow: hidden;
 }
 
+.playground .hint {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
 .hint {
   margin: 0;
   font-size: 13px;
@@ -92,6 +95,56 @@ label {
 input[type="range"] {
   accent-color: var(--accent);
   width: 140px;
+}
+
+.controls-bar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+  background: rgba(5, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 154, 241, 0.24);
+  border-radius: 999px;
+  padding: 10px 16px;
+}
+
+.controls-bar label {
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.controls-bar input[type="range"] {
+  width: 100px;
+}
+
+.hint-overlay {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hint-overlay p {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(200, 210, 240, 0.5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(5, 8, 16, 0.6);
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 154, 241, 0.15);
 }
 
 #canvas {

@@ -38,11 +38,13 @@ root.addEventListener("pointermove", (e) => {
 });
 
 function step() {
-  ctx.fillStyle = "rgba(0,0,0,0.15)";
+  // Slightly more fade for calmer effect
+  ctx.fillStyle = "rgba(0,0,0,0.2)";
   ctx.fillRect(0, 0, w, h);
   let px = mx;
   let py = my;
-  const k = 0.12;
+  // Slightly slower spring for calmer effect
+  const k = 0.1;
   const drag = state.drag;
   for (let i = 0; i < beads.length; i++) {
     const b = beads[i];
@@ -55,7 +57,8 @@ function step() {
     const t = i / (beads.length - 1 || 1);
     const r = state.size * (1 - t * 0.6) * dpr;
     ctx.beginPath();
-    ctx.fillStyle = `hsl(${210 + t * 150} 80% ${55 + 10 * (1 - t)}% / 0.95)`;
+    // Toned down: lower saturation (60% vs 80%), lower opacity (0.7 vs 0.95)
+    ctx.fillStyle = `hsl(${210 + t * 150} 60% ${55 + 10 * (1 - t)}% / ${0.7 * (1 - t * 0.3)})`;
     ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
     ctx.fill();
     px = b.x;

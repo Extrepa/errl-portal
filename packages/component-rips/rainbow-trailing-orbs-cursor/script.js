@@ -3,6 +3,7 @@ const ctx = canvas.getContext("2d", { alpha: true });
 const countInput = document.getElementById("count");
 const dragInput = document.getElementById("drag");
 const sizeInput = document.getElementById("size");
+const speedInput = document.getElementById("speed");
 
 let w, h, dpr;
 
@@ -18,6 +19,7 @@ const state = {
   count: 24,
   drag: 0.92,
   size: 8,
+  speed: 0.5,
   hueBase: 210,
   hueRange: 160,
 };
@@ -37,9 +39,10 @@ function sync() {
   state.count = +countInput.value;
   state.drag = +dragInput.value;
   state.size = +sizeInput.value;
+  state.speed = +speedInput.value;
   resetBeads();
 }
-[countInput, dragInput, sizeInput].forEach((el) =>
+[countInput, dragInput, sizeInput, speedInput].forEach((el) =>
   el.addEventListener("input", sync)
 );
 sync();
@@ -60,7 +63,7 @@ function step() {
   // physics: each bead follows previous with spring
   let px = targetX;
   let py = targetY;
-  const k = 0.12; // spring
+  const k = 0.12 * state.speed; // spring * speed multiplier
   const dragC = state.drag;
   for (let i = 0; i < beads.length; i++) {
     const b = beads[i];

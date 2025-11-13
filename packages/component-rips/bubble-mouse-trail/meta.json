@@ -1,0 +1,51 @@
+{
+  "name": "Bubble Mouse Trail",
+  "slug": "bubble-mouse-trail",
+  "category": "cursor",
+  "status": "normalized",
+  "description": "Lightweight DOM bubbles spawn along the cursor path and fade out with keyframe animation. Adjustable bubble count, throttle rate, and size range. Respects prefers-reduced-motion.",
+  "source": "public/apps/projects/bubble-mouse-trail/index.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": ["cursor", "dom", "bubbles", "animation", "lightweight"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure DOM animation with CSS keyframes. No media playback or external dependencies. Safe for all contexts."
+  },
+  "controls": [
+    {
+      "id": "maxBubbles",
+      "label": "Max Bubbles",
+      "type": "range",
+      "min": 20,
+      "max": 150,
+      "step": 10
+    },
+    {
+      "id": "throttle",
+      "label": "Throttle (ms)",
+      "type": "range",
+      "min": 10,
+      "max": 100,
+      "step": 5
+    },
+    {
+      "id": "sizeMin",
+      "label": "Size Min",
+      "type": "range",
+      "min": 5,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "id": "sizeMax",
+      "label": "Size Max",
+      "type": "range",
+      "min": 20,
+      "max": 80,
+      "step": 5
+    }
+  ]
+}
+

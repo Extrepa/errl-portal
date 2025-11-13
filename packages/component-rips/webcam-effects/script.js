@@ -124,11 +124,177 @@ function applyMono() {
   context.globalCompositeOperation = "source-over";
 }
 
+function applyFisheye() {
+  const { clientWidth, clientHeight } = canvas;
+  const centerX = clientWidth / 2;
+  const centerY = clientHeight / 2;
+  const radius = Math.min(centerX, centerY);
+  const strength = 0.5;
+  
+  context.drawImage(video, 0, 0, clientWidth, clientHeight);
+  const source = context.getImageData(0, 0, clientWidth, clientHeight);
+  const output = context.createImageData(source);
+  
+  for (let y = 0; y < clientHeight; y++) {
+    for (let x = 0; x < clientWidth; x++) {
+      const dx = x - centerX;
+      const dy = y - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const r = dist / radius;
+      
+      if (r <= 1) {
+        const theta = Math.atan2(dy, dx);
+        const newR = r * (1 - strength * r * r);
+        const srcX = Math.floor(centerX + Math.cos(theta) * newR * radius);
+        const srcY = Math.floor(centerY + Math.sin(theta) * newR * radius);
+        
+        if (srcX >= 0 && srcX < clientWidth && srcY >= 0 && srcY < clientHeight) {
+          const srcIdx = (srcY * clientWidth + srcX) * 4;
+          const outIdx = (y * clientWidth + x) * 4;
+          output.data[outIdx] = source.data[srcIdx];
+          output.data[outIdx + 1] = source.data[srcIdx + 1];
+          output.data[outIdx + 2] = source.data[srcIdx + 2];
+          output.data[outIdx + 3] = source.data[srcIdx + 3];
+        }
+      }
+    }
+  }
+  context.putImageData(output, 0, 0);
+}
+
+function applyKaleidoscope() {
+  const { clientWidth, clientHeight } = canvas;
+  const segments = 8;
+  const angle = (Math.PI * 2) / segments;
+  
+  context.save();
+  context.translate(clientWidth / 2, clientHeight / 2);
+  
+  for (let i = 0; i < segments; i++) {
+    context.save();
+    context.rotate(angle * i);
+    context.scale(1, -1);
+    context.drawImage(video, -clientWidth / 2, -clientHeight / 2, clientWidth, clientHeight);
+    context.restore();
+  }
+  
+  context.restore();
+}
+
+function applyMirror() {
+  const { clientWidth, clientHeight } = canvas;
+  context.drawImage(video, 0, 0, clientWidth, clientHeight);
+  context.save();
+  context.scale(-1, 1);
+  context.drawImage(video, -clientWidth, 0, clientWidth, clientHeight);
+  context.restore();
+}
+
+function applyPinch() {
+  const { clientWidth, clientHeight } = canvas;
+  const centerX = clientWidth / 2;
+  const centerY = clientHeight / 2;
+  const strength = 0.3;
+  
+  context.drawImage(video, 0, 0, clientWidth, clientHeight);
+  const source = context.getImageData(0, 0, clientWidth, clientHeight);
+  const output = context.createImageData(source);
+  
+  for (let y = 0; y < clientHeight; y++) {
+    for (let x = 0; x < clientWidth; x++) {
+      const dx = (x - centerX) / centerX;
+      const dy = (y - centerY) / centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const pinch = 1 - Math.min(1, dist) * strength;
+      const srcX = Math.floor(centerX + (x - centerX) * pinch);
+      const srcY = Math.floor(centerY + (y - centerY) * pinch);
+      
+      if (srcX >= 0 && srcX < clientWidth && srcY >= 0 && srcY < clientHeight) {
+        const srcIdx = (srcY * clientWidth + srcX) * 4;
+        const outIdx = (y * clientWidth + x) * 4;
+        output.data[outIdx] = source.data[srcIdx];
+        output.data[outIdx + 1] = source.data[srcIdx + 1];
+        output.data[outIdx + 2] = source.data[srcIdx + 2];
+        output.data[outIdx + 3] = source.data[srcIdx + 3];
+      }
+    }
+  }
+  context.putImageData(output, 0, 0);
+}
+
+function applyTunnel() {
+  const { clientWidth, clientHeight } = canvas;
+  const centerX = clientWidth / 2;
+  const centerY = clientHeight / 2;
+  const t = Date.now() / 1000;
+  
+  context.drawImage(video, 0, 0, clientWidth, clientHeight);
+  const source = context.getImageData(0, 0, clientWidth, clientHeight);
+  const output = context.createImageData(source);
+  
+  for (let y = 0; y < clientHeight; y++) {
+    for (let x = 0; x < clientWidth; x++) {
+      const dx = x - centerX;
+      const dy = y - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
+      const angle = Math.atan2(dy, dx) + t * 0.5;
+      const newDist = dist * 0.7 + (maxDist - dist) * 0.3;
+      const srcX = Math.floor(centerX + Math.cos(angle) * newDist);
+      const srcY = Math.floor(centerY + Math.sin(angle) * newDist);
+      
+      if (srcX >= 0 && srcX < clientWidth && srcY >= 0 && srcY < clientHeight) {
+        const srcIdx = (srcY * clientWidth + srcX) * 4;
+        const outIdx = (y * clientWidth + x) * 4;
+        output.data[outIdx] = source.data[srcIdx];
+        output.data[outIdx + 1] = source.data[srcIdx + 1];
+        output.data[outIdx + 2] = source.data[srcIdx + 2];
+        output.data[outIdx + 3] = source.data[srcIdx + 3];
+      }
+    }
+  }
+  context.putImageData(output, 0, 0);
+}
+
+function applyWave() {
+  const { clientWidth, clientHeight } = canvas;
+  const t = Date.now() / 100;
+  const amplitude = 15;
+  const frequency = 0.02;
+  
+  context.drawImage(video, 0, 0, clientWidth, clientHeight);
+  const source = context.getImageData(0, 0, clientWidth, clientHeight);
+  const output = context.createImageData(source);
+  
+  for (let y = 0; y < clientHeight; y++) {
+    for (let x = 0; x < clientWidth; x++) {
+      const waveX = x + Math.sin(y * frequency + t) * amplitude;
+      const waveY = y + Math.cos(x * frequency + t) * amplitude * 0.5;
+      const srcX = Math.floor(Math.max(0, Math.min(clientWidth - 1, waveX)));
+      const srcY = Math.floor(Math.max(0, Math.min(clientHeight - 1, waveY)));
+      
+      const srcIdx = (srcY * clientWidth + srcX) * 4;
+      const outIdx = (y * clientWidth + x) * 4;
+      output.data[outIdx] = source.data[srcIdx];
+      output.data[outIdx + 1] = source.data[srcIdx + 1];
+      output.data[outIdx + 2] = source.data[srcIdx + 2];
+      output.data[outIdx + 3] = source.data[srcIdx + 3];
+    }
+  }
+  context.putImageData(output, 0, 0);
+}
+
 function renderEffect() {
   const mode = modeSelect.value;
   if (mode === "rgb") applyRgbSplit();
   else if (mode === "glitch") applyGlitch();
-  else applyMono();
+  else if (mode === "mono") applyMono();
+  else if (mode === "fisheye") applyFisheye();
+  else if (mode === "kaleidoscope") applyKaleidoscope();
+  else if (mode === "mirror") applyMirror();
+  else if (mode === "pinch") applyPinch();
+  else if (mode === "tunnel") applyTunnel();
+  else if (mode === "wave") applyWave();
 }
 
 function tick() {

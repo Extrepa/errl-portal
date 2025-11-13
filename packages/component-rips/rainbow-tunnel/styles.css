@@ -20,9 +20,6 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  display: grid;
-  place-items: center;
-  padding: clamp(16px, 5vw, 32px);
   overflow: hidden;
 }
 
@@ -54,19 +51,58 @@ header p {
   line-height: 1.6;
 }
 
+.controls-bar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  z-index: 10;
+  background: rgba(5, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(90, 192, 255, 0.24);
+  border-radius: 999px;
+  padding: 10px 16px;
+}
+
+.controls-bar label {
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.controls-bar input[type="range"] {
+  width: 100px;
+}
+
+.controls-bar select {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.controls-bar .checkbox {
+  padding-right: 12px;
+}
+
 .tunnel {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 22px;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
-  border: 1px solid rgba(90, 192, 255, 0.2);
   background: radial-gradient(circle at center, rgba(5, 8, 16, 0.8), rgba(2, 4, 8, 0.95));
 }
 
 .layer {
   position: absolute;
-  inset: -20vmin;
+  inset: -50vmin;
   animation: spin var(--outer-duration) linear infinite;
   filter: blur(0.6px);
 }
@@ -104,8 +140,8 @@ body.reduce-motion .layer {
 }
 
 .hole {
-  width: min(70vmin, 640px);
-  height: min(70vmin, 640px);
+  width: min(80vmin, 800px);
+  height: min(80vmin, 800px);
   -webkit-mask: url("./errl.png") center / contain no-repeat;
   mask: url("./errl.png") center / contain no-repeat;
   background: rgba(0, 0, 0, 0);

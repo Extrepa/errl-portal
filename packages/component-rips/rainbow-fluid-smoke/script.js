@@ -1,6 +1,5 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-const playground = document.getElementById("playground");
 const motionWarning = document.getElementById("motionWarning");
 
 const trailLengthInput = document.getElementById("trailLength");
@@ -76,22 +75,23 @@ function step() {
   for (let i = nodes.length - 1; i >= 0; i -= 1) {
     const node = nodes[i];
     const life = node.life;
-    const baseRadius = settings.glow * (0.6 + (i / settings.trailLength) * 0.9);
+    const baseRadius = settings.glow * (0.8 + (i / settings.trailLength) * 1.2);
     const gradient = ctx.createRadialGradient(
       node.x,
       node.y,
       0,
       node.x,
       node.y,
-      baseRadius * 4
+      baseRadius * 5
     );
 
-    gradient.addColorStop(0, `hsla(${node.hue}, 85%, 65%, ${0.85 * life})`);
-    gradient.addColorStop(1, `hsla(${(node.hue + 40) % 360}, 85%, 45%, 0)`);
+    gradient.addColorStop(0, `hsla(${node.hue}, 95%, 70%, ${1.0 * life})`);
+    gradient.addColorStop(0.4, `hsla(${(node.hue + 30) % 360}, 90%, 60%, ${0.6 * life})`);
+    gradient.addColorStop(1, `hsla(${(node.hue + 60) % 360}, 85%, 50%, 0)`);
 
     ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(node.x, node.y, baseRadius * 1.6, 0, Math.PI * 2);
+    ctx.arc(node.x, node.y, baseRadius * 2.2, 0, Math.PI * 2);
     ctx.fill();
 
     node.life *= settings.drag;
@@ -171,7 +171,7 @@ window.addEventListener("pointermove", handlePointer, { passive: true });
 window.addEventListener("pointerdown", handlePointer, { passive: true });
 window.addEventListener("resize", resize);
 
-playground.addEventListener(
+window.addEventListener(
   "touchstart",
   (event) => {
     if (event.touches.length) {
@@ -180,7 +180,7 @@ playground.addEventListener(
   },
   { passive: true }
 );
-playground.addEventListener(
+window.addEventListener(
   "touchmove",
   (event) => {
     if (event.touches.length) {

@@ -39,37 +39,39 @@ body {
   backdrop-filter: blur(16px);
 }
 
-h1 {
-  margin: 0;
-  font-size: clamp(42px, 9vw, 92px);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.wave-container {
+  width: 100%;
+  height: clamp(200px, 30vh, 300px);
+  margin: 0 auto;
   position: relative;
-  --wave-speed: 1;
-  --wave-amplitude: 18;
-  --gradient: linear-gradient(90deg, #7b5cff, #00f0ff, #ff9afd, #ffe066);
-  color: transparent;
-  background-image: var(--gradient);
-  background-size: 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  filter: drop-shadow(0 12px 24px rgba(127, 132, 255, 0.35));
-  animation: gradientShift 6s linear infinite;
 }
 
-h1::after {
-  content: attr(data-wave-copy);
-  position: absolute;
-  inset: 0;
-  color: transparent;
-  background-image: var(--gradient);
-  background-size: 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  mix-blend-mode: screen;
-  animation: waveDistort calc(4s / var(--wave-speed)) linear infinite;
-  filter: blur(0);
-  opacity: 0.8;
+.wave-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.wave-gradient {
+  width: 200%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgb(110, 231, 249) 0%,
+    rgb(124, 58, 237) 50%,
+    rgb(110, 231, 249) 100%
+  );
+  background-size: 1600px 100%;
+  background-repeat: repeat-x;
+  animation: waveFlow 21.05263157894737s linear infinite;
+}
+
+@keyframes waveFlow {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -1600px 0;
+  }
 }
 
 p {

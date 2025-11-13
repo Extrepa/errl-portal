@@ -68,11 +68,12 @@ async function generateThumbnail(browser, component, baseUrl, force = false) {
   try {
     // Construct URL - prefer http:// for better compatibility
     let url;
+    const previewSuffix = '?preview=1';
     if (baseUrl) {
-      url = `${baseUrl}/packages/component-rips/${slug}/index.html`;
+      url = `${baseUrl}/packages/component-rips/${slug}/index.html${previewSuffix}`;
     } else {
       // Try file:// but it may not work in all browsers
-      url = `file://${indexPath}`;
+      url = `file://${indexPath}${previewSuffix}`;
     }
 
     console.log(`📸 Generating thumbnail for ${slug}...`);
@@ -80,6 +81,22 @@ async function generateThumbnail(browser, component, baseUrl, force = false) {
     await page.goto(url, { 
       waitUntil: 'networkidle',
       timeout: 15000 
+    });
+
+    // Hide control overlays that can cover the main visual
+    await page.addStyleTag({
+      content: `
+        .controls,
+        #controls,
+        [class*="control-panel"],
+        [class*="controls-panel"],
+        [class*="control-overlay"],
+        .ui-controls,
+        .ui-panel {
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+      `
     });
 
     // Wait a bit for animations to start
@@ -137,19 +154,8 @@ async function main() {
   let failed = 0;
 
   for (const component of components) {
-    // Skip if thumbnail exists and not forcing
-    if (!force) {
-      try {
-        const thumbnailPath = join(THUMBNAILS_DIR, `${component.slug}.png`);
-        await access(thumbnailPath);
-        console.log(`⊘ ${component.slug} - skipping (exists)`);
-        success++;
-        continue;
-      } catch (e) {
-        // Thumbnail doesn't exist, generate it
-      }
-    }
-
+    // Always call generateThumbnail - it handles staleness checking internally
+    // The function will skip if thumbnail is up-to-date (unless --force is used)
     const result = await generateThumbnail(browser, component, baseUrl, force);
     if (result) {
       success++;
@@ -177,4 +183,3 @@ async function main() {
 }
 
 main().catch(console.error);
-

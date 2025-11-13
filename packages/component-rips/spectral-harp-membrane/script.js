@@ -1,6 +1,8 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const micButton = document.getElementById("mic");
+const triggerButton = document.getElementById("trigger");
+const resetButton = document.getElementById("reset");
 
 function fit() {
   canvas.width = window.innerWidth;
@@ -93,10 +95,46 @@ async function enableMic() {
   }
 }
 
+function triggerWave() {
+  // Create a wave from center or random point
+  const centerX = Math.floor(cols / 2);
+  const centerY = Math.floor(rows / 2);
+  const intensity = 15;
+  
+  // Create circular wave
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      const dx = i - centerX;
+      const dy = j - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
+      const wave = Math.sin(dist * 0.5) * intensity * (1 - dist / maxDist);
+      if (pts[j]?.[i]) {
+        pts[j][i].v += wave;
+      }
+    }
+  }
+}
+
+function resetGrid() {
+  // Reset all points to zero
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      if (pts[j]?.[i]) {
+        pts[j][i].z = 0;
+        pts[j][i].v = 0;
+      }
+    }
+  }
+}
+
 micButton.addEventListener("click", () => {
   micButton.disabled = true;
   enableMic();
 });
+
+triggerButton.addEventListener("click", triggerWave);
+resetButton.addEventListener("click", resetGrid);
 
 function step() {
   for (let j = 0; j < rows; j++) {

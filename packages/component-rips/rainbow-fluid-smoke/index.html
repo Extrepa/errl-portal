@@ -7,40 +7,29 @@
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
-    <main class="stage">
-      <section class="panel">
-        <header>
-          <h1>Rainbow Fluid Smoke</h1>
-          <p>
-            Floating ribbon of light that follows the pointer with easing. Tweak trail length, glow, and hue cycling to blend
-            into Errl’s ambient scenes. Motion pauses automatically when reduced-motion is requested.
-          </p>
-        </header>
-        <div class="playground" id="playground">
-          <p class="hint">Move your pointer or tap to paint smoke.</p>
-        </div>
-        <footer>
-          <label>
-            Trail Length
-            <input id="trailLength" type="range" min="20" max="220" step="5" value="120" />
-          </label>
-          <label>
-            Drag
-            <input id="trailDrag" type="range" min="0.70" max="0.97" step="0.01" value="0.88" />
-          </label>
-          <label>
-            Glow
-            <input id="glow" type="range" min="2" max="18" step="1" value="10" />
-          </label>
-          <label>
-            Color Cycle
-            <input id="colorCycle" type="range" min="40" max="360" step="10" value="220" />
-          </label>
-          <button id="clear">Clear</button>
-        </footer>
-      </section>
-    </main>
+    <div class="controls-bar">
+      <label>
+        Trail Length
+        <input id="trailLength" type="range" min="20" max="220" step="5" value="120" />
+      </label>
+      <label>
+        Drag
+        <input id="trailDrag" type="range" min="0.70" max="0.97" step="0.01" value="0.88" />
+      </label>
+      <label>
+        Glow
+        <input id="glow" type="range" min="2" max="18" step="1" value="10" />
+      </label>
+      <label>
+        Color Cycle
+        <input id="colorCycle" type="range" min="40" max="360" step="10" value="220" />
+      </label>
+      <button id="clear">Clear</button>
+    </div>
     <canvas id="canvas" aria-hidden="true"></canvas>
+    <div class="hint-overlay">
+      <p>Move your pointer or tap to paint smoke</p>
+    </div>
     <div class="motion-warning" id="motionWarning" role="alert">
       Reduced motion is enabled, so the smoke animation is paused.
     </div>

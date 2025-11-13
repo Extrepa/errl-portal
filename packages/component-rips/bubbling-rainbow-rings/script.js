@@ -2,7 +2,6 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const densitySlider = document.getElementById("density");
 const fadeSlider = document.getElementById("fade");
-const playground = document.getElementById("playground");
 
 const DPR = Math.min(window.devicePixelRatio || 1, 2);
 let width = 0;
@@ -23,6 +22,8 @@ function resize() {
   height = Math.round(window.innerHeight * DPR);
   canvas.width = width;
   canvas.height = height;
+  canvas.style.width = `${window.innerWidth}px`;
+  canvas.style.height = `${window.innerHeight}px`;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 }
 
@@ -64,7 +65,7 @@ function updateParticles() {
 function drawParticles() {
   ctx.globalCompositeOperation = "source-over";
   ctx.fillStyle = `rgba(8, 12, 18, ${1 - state.fade})`;
-  ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+  ctx.fillRect(0, 0, width / DPR, height / DPR);
 
   ctx.globalCompositeOperation = "lighter";
   particles.forEach((p) => {
@@ -93,45 +94,22 @@ function loop() {
 
 function handlePointer(event) {
   const point = event.touches ? event.touches[0] : event;
-  const x = point.clientX;
-  const y = point.clientY;
-  const rect = playground.getBoundingClientRect();
-  state.pointer.active = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-  if (!state.pointer.active) return;
-  state.pointer.x = x;
-  state.pointer.y = y;
-  spawnParticles(x, y);
+  state.pointer.x = point.clientX;
+  state.pointer.y = point.clientY;
+  spawnParticles(point.clientX, point.clientY);
 }
 
-playground.addEventListener("pointerdown", handlePointer);
-playground.addEventListener("pointermove", (event) => {
-  if (event.pressure > 0 || event.buttons > 0) handlePointer(event);
-});
+window.addEventListener("pointerdown", handlePointer, { passive: true });
+window.addEventListener("pointermove", handlePointer, { passive: true });
 window.addEventListener("pointerup", () => {
   state.pointer.active = false;
-});
+}, { passive: true });
 
-playground.addEventListener(
-  "touchstart",
-  (event) => {
-    handlePointer(event);
-  },
-  { passive: true }
-);
-playground.addEventListener(
-  "touchmove",
-  (event) => {
-    handlePointer(event);
-  },
-  { passive: true }
-);
-window.addEventListener(
-  "touchend",
-  () => {
-    state.pointer.active = false;
-  },
-  { passive: true }
-);
+window.addEventListener("touchstart", handlePointer, { passive: true });
+window.addEventListener("touchmove", handlePointer, { passive: true });
+window.addEventListener("touchend", () => {
+  state.pointer.active = false;
+}, { passive: true });
 
 densitySlider.addEventListener("input", (event) => {
   state.density = parseInt(event.target.value, 10);
