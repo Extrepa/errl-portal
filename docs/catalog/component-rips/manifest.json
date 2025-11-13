@@ -1,6 +1,61 @@
 {
-  "generatedAt": "2025-11-13T06:13:50.294Z",
+  "generatedAt": "2025-11-13T06:32:44.729Z",
   "packages": [
+    {
+      "slug": "3in1-mix-it-up-module",
+      "name": "3in1 Mix It Up Module",
+      "category": "module",
+      "status": "normalized",
+      "description": "Three-in-one interactive module featuring Ripple (height-field water simulation), Kaleido (kaleidoscope pattern generator), and Moiré (rotating pattern effect). Switch between modes with buttons or keyboard shortcuts (1/2/3). Press G for glow effect, R to reset.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/3in1MixItUp_Module.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "module",
+        "canvas",
+        "svg",
+        "ripple",
+        "kaleidoscope",
+        "moire",
+        "interactive",
+        "multi-mode"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas and SVG animations. No media playback. Safe for all contexts. Ripple effect responds to pointer interaction."
+      },
+      "controls": [
+        {
+          "id": "tab-ripple",
+          "label": "Ripple Mode",
+          "type": "button",
+          "description": "Switch to ripple water simulation mode"
+        },
+        {
+          "id": "tab-kaleido",
+          "label": "Kaleido Mode",
+          "type": "button",
+          "description": "Switch to kaleidoscope pattern mode"
+        },
+        {
+          "id": "tab-moire",
+          "label": "Moiré Mode",
+          "type": "button",
+          "description": "Switch to moiré pattern mode"
+        }
+      ],
+      "keyboard": {
+        "1": "Switch to Ripple mode",
+        "2": "Switch to Kaleido mode",
+        "3": "Switch to Moiré mode",
+        "G": "Toggle glow effect",
+        "R": "Reload page"
+      },
+      "preview": {
+        "index": "../../../packages/component-rips/3in1-mix-it-up-module/index.html"
+      }
+    },
     {
       "slug": "afterimage-pulse-prop",
       "name": "Afterimage Pulse Prop",
@@ -79,6 +134,33 @@
       "controls": [],
       "preview": {
         "index": "../../../packages/component-rips/basic-shadow-bubbles-bg/index.html"
+      }
+    },
+    {
+      "slug": "bubble-buster-bg",
+      "name": "Bubble Buster Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Animated bubble background with floating rainbow bubbles. Bubbles rise from bottom to top with gentle horizontal drift and color cycling.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/BubbleBuster_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "bubbles",
+        "rainbow",
+        "animated",
+        "particles"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/bubble-buster-bg/index.html"
       }
     },
     {
@@ -910,6 +992,59 @@
       }
     },
     {
+      "slug": "purple-smile-hover-confetti-button",
+      "name": "Purple Smile Hover Confetti Button",
+      "category": "button",
+      "status": "normalized",
+      "description": "Purple smile button that emits rainbow confetti particles on hover. Confetti particles spawn from button center with physics-based movement. Continuous confetti stream while hovering.",
+      "source": "archive/component-rips-20251112/Component_Rips/Buttons/PurpleSmileHoverConfetti_Button.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "button",
+        "canvas",
+        "confetti",
+        "hover",
+        "interactive",
+        "particles"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with confetti particles. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/purple-smile-hover-confetti-button/index.html"
+      }
+    },
+    {
+      "slug": "rainbow-dot-suttle-gradient-bg",
+      "name": "Rainbow Dot Suttle Gradient Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Animated background with hexagonal dot pattern overlay and subtle rainbow gradient layers. Multiple radial gradients create depth with gentle movement.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowDotSuttleGradient_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "gradient",
+        "dots",
+        "rainbow",
+        "animated"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure CSS background animation. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-dot-suttle-gradient-bg/index.html"
+      }
+    },
+    {
       "slug": "rainbow-fluid-smoke",
       "name": "Rainbow Fluid Smoke",
       "category": "cursor",
@@ -1160,6 +1295,32 @@
       }
     },
     {
+      "slug": "rainbow-square-grid-bg",
+      "name": "Rainbow Square Grid Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Animated rainbow-colored square grid pattern. Colors cycle through the spectrum based on position and time, creating a vibrant grid effect.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowSquareGrid_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "grid",
+        "rainbow",
+        "animated"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-square-grid-bg/index.html"
+      }
+    },
+    {
       "slug": "rainbow-string-particles",
       "name": "Rainbow String Particles",
       "category": "background",
@@ -1390,6 +1551,32 @@
       ],
       "preview": {
         "index": "../../../packages/component-rips/ribbon-topology/index.html"
+      }
+    },
+    {
+      "slug": "side-scrolling-bw-square-wall-bg",
+      "name": "Side Scrolling BW Square Wall Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Black and white checkerboard pattern that scrolls horizontally. Creates an infinite scrolling wall effect with alternating square pattern.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/SideScrollingBWSquareWall_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "checkerboard",
+        "scrolling",
+        "pattern"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/side-scrolling-bw-square-wall-bg/index.html"
       }
     },
     {
@@ -1803,6 +1990,17 @@
     }
   ],
   "categories": {
+    "module": [
+      "3in1-mix-it-up-module",
+      "live-gradient-mixer",
+      "kaleido-spin-top-string-module",
+      "spinning-rainbow-blackhole-module",
+      "rainbow-neural-pathways",
+      "paint-splat-mix-module",
+      "ribbon-topology",
+      "terrapin-whirl-module",
+      "webcam-effects"
+    ],
     "prop": [
       "afterimage-pulse-prop",
       "errl-tunnel",
@@ -1812,12 +2010,16 @@
     "background": [
       "anisotropic-velvet-bg",
       "basic-shadow-bubbles-bg",
+      "bubble-buster-bg",
       "wire-grid-bg",
       "trippy-broken-triangles-bg",
       "parallax-shooting-stars-bg",
+      "rainbow-dot-suttle-gradient-bg",
       "rainbow-spinning-bg",
+      "rainbow-square-grid-bg",
       "rainbow-string-particles",
       "rainbow-tunnel",
+      "side-scrolling-bw-square-wall-bg",
       "suttle-rainbow-wisps-bg",
       "terrapin-whirl",
       "band-w-squiggle-bg"
@@ -1837,22 +2039,13 @@
     ],
     "button": [
       "gradient-box-button",
+      "purple-smile-hover-confetti-button",
       "rainbow-spinning-button"
     ],
     "text": [
       "gradient-waves-text",
       "liquid-text",
       "taffy-typing"
-    ],
-    "module": [
-      "live-gradient-mixer",
-      "kaleido-spin-top-string-module",
-      "spinning-rainbow-blackhole-module",
-      "rainbow-neural-pathways",
-      "paint-splat-mix-module",
-      "ribbon-topology",
-      "terrapin-whirl-module",
-      "webcam-effects"
     ],
     "misc": [
       "spectral-harp-membrane"
