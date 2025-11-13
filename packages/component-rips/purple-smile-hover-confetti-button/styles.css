@@ -1,0 +1,102 @@
+:root {
+  --bg: #0b0f14;
+  --text: #e9eef7;
+  --muted: #a6b4c8;
+  --border: #1f2a3a;
+  --surface: #0f1521;
+  --button-bg: rgb(255, 255, 232);
+  --button-hover: rgb(240, 240, 220);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px system-ui, -apple-system, sans-serif;
+}
+
+.stage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(1200px 600px at 50% 120%, #0a0f1a, #000);
+  padding: clamp(16px, 5vw, 32px);
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  overflow: visible;
+}
+
+.playground {
+  position: relative;
+  width: min(92vw, 960px);
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 40px;
+  overflow: visible;
+}
+
+.smile-button {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  background-color: var(--button-bg);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  z-index: 2;
+  overflow: visible;
+}
+
+.smile-button:hover {
+  background-color: var(--button-hover);
+  transform: scale(1.05);
+}
+
+.smile-button:active {
+  transform: scale(0.98);
+}
+
+.smile-icon {
+  width: 100px;
+  height: 100px;
+  color: #7b2be2;
+  pointer-events: none;
+}
+
+#confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .smile-button {
+    transition: none;
+  }
+  .smile-button:hover {
+    transform: none;
+  }
+}
+

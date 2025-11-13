@@ -1,0 +1,46 @@
+{
+  "name": "Weird Motion Trace Cursor",
+  "slug": "weird-motion-trace-cursor",
+  "category": "cursor",
+  "status": "normalized",
+  "description": "Distorted motion trace cursor with weird sine/cosine distortion effects. Trail follows cursor path with time-based distortion creating wavy, organic motion. Features adjustable trail length, distortion intensity, and speed.",
+  "source": "archive/component-rips-20251112/Component_Rips/Cursors/WeirdMotionTrace_Cursor.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": ["cursor", "canvas", "trace", "distortion", "motion", "weird"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with distorted trail effects. No media playback. Safe for all contexts."
+  },
+  "controls": [
+    {
+      "id": "trailLength",
+      "label": "Trail Length",
+      "type": "range",
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "default": 50
+    },
+    {
+      "id": "distortion",
+      "label": "Distortion",
+      "type": "range",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "type": "range",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.1,
+      "default": 1
+    }
+  ]
+}
+

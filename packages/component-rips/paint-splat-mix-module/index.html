@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rainbow Projector Fluid Module</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <canvas id="back"></canvas>
+    <div class="controls" id="controls">
+      <label>
+        <span>Glow:</span>
+        <input id="glw" type="range" min="0" max="1" step="0.01" value="0.65" />
+      </label>
+      <label>
+        <span>Dye:</span>
+        <input id="dye" type="range" min="0" max="1" step="0.01" value="0.7" />
+      </label>
+    </div>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
+

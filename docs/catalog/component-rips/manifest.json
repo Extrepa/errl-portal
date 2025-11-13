@@ -1,6 +1,145 @@
 {
-  "generatedAt": "2025-11-13T01:47:46.620Z",
+  "generatedAt": "2025-11-13T06:13:50.294Z",
   "packages": [
+    {
+      "slug": "afterimage-pulse-prop",
+      "name": "Afterimage Pulse Prop",
+      "category": "prop",
+      "status": "normalized",
+      "description": "Pulsing afterimage effect using color inversion. Image alternates between normal and inverted colors with opacity pulsing, creating a visual afterimage effect.",
+      "source": "archive/component-rips-20251112/Component_Rips/Props/AfterimagePulse_Prop.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "prop",
+        "image",
+        "afterimage",
+        "pulse",
+        "inversion"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure CSS animation with image filter effects. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/afterimage-pulse-prop/index.html"
+      }
+    },
+    {
+      "slug": "anisotropic-velvet-bg",
+      "name": "Anisotropic Velvet Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Interactive velvet texture background with anisotropic lighting. Drag pointer to comb the velvet and change the lighting direction. Uses oriented noise sampling to create a realistic velvet texture effect.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/AnisotropicVelvet_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "texture",
+        "interactive",
+        "velvet",
+        "anisotropic"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with procedural texture generation. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/anisotropic-velvet-bg/index.html"
+      }
+    },
+    {
+      "slug": "basic-shadow-bubbles-bg",
+      "name": "Basic Shadow Bubbles Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Caustic sparkles dance under frosted glass. Interactive bubble particles that respond to pointer movement, creating a swirling effect. Drag pointer to influence particle movement.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/BasicShadowBubbles_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "particles",
+        "interactive",
+        "bubbles",
+        "caustic"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with particle physics. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/basic-shadow-bubbles-bg/index.html"
+      }
+    },
+    {
+      "slug": "bubble-mouse-trail",
+      "name": "Bubble Mouse Trail",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Lightweight DOM bubbles spawn along the cursor path and fade out with keyframe animation. Adjustable bubble count, throttle rate, and size range. Respects prefers-reduced-motion.",
+      "source": "public/apps/projects/bubble-mouse-trail/index.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "cursor",
+        "dom",
+        "bubbles",
+        "animation",
+        "lightweight"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure DOM animation with CSS keyframes. No media playback or external dependencies. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "maxBubbles",
+          "label": "Max Bubbles",
+          "type": "range",
+          "min": 20,
+          "max": 150,
+          "step": 10
+        },
+        {
+          "id": "throttle",
+          "label": "Throttle (ms)",
+          "type": "range",
+          "min": 10,
+          "max": 100,
+          "step": 5
+        },
+        {
+          "id": "sizeMin",
+          "label": "Size Min",
+          "type": "range",
+          "min": 5,
+          "max": 30,
+          "step": 1
+        },
+        {
+          "id": "sizeMax",
+          "label": "Size Max",
+          "type": "range",
+          "min": 20,
+          "max": 80,
+          "step": 5
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/bubble-mouse-trail/index.html"
+      }
+    },
     {
       "slug": "bubbling-rainbow-rings",
       "name": "Bubbling Rainbow Rings",
@@ -115,6 +254,60 @@
       ],
       "preview": {
         "index": "../../../packages/component-rips/fast-rainbow-rings-cursor/index.html"
+      }
+    },
+    {
+      "slug": "fluffy-pixel-trail-cursor",
+      "name": "Fluffy Pixel Trail Cursor",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Pixelated cursor trail effect with fluffy particle bursts. Particles spawn at cursor position with random velocities and fade out over time. Features adjustable spawn rate, decay speed, and pixel size.",
+      "source": "archive/component-rips-20251112/Component_Rips/Cursors/FluffyPixelTrail_Cursor.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "cursor",
+        "canvas",
+        "pixel",
+        "particles",
+        "trail"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with particle physics. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "rate",
+          "label": "Rate",
+          "type": "range",
+          "min": 1,
+          "max": 40,
+          "step": 1,
+          "default": 18
+        },
+        {
+          "id": "decay",
+          "label": "Decay",
+          "type": "range",
+          "min": 0,
+          "max": 0.2,
+          "step": 0.005,
+          "default": 0.06
+        },
+        {
+          "id": "px",
+          "label": "Pixel Size",
+          "type": "range",
+          "min": 2,
+          "max": 16,
+          "step": 1,
+          "default": 6
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/fluffy-pixel-trail-cursor/index.html"
       }
     },
     {
@@ -262,6 +455,147 @@
       }
     },
     {
+      "slug": "holographic-cursor-trail",
+      "name": "Holographic Cursor Trail",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Gradient dots follow the cursor and fade out using opacity transitions. Adjustable dot count, throttle rate, fade delay, and lifetime. Respects prefers-reduced-motion.",
+      "source": "public/apps/projects/holographic-cursor-trail/index.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "cursor",
+        "dom",
+        "gradient",
+        "trail",
+        "holographic"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure DOM animation with CSS transitions. No media playback or external dependencies. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "maxDots",
+          "label": "Max Dots",
+          "type": "range",
+          "min": 20,
+          "max": 150,
+          "step": 10
+        },
+        {
+          "id": "throttle",
+          "label": "Throttle (ms)",
+          "type": "range",
+          "min": 10,
+          "max": 100,
+          "step": 5
+        },
+        {
+          "id": "fadeDelay",
+          "label": "Fade Delay (ms)",
+          "type": "range",
+          "min": 50,
+          "max": 200,
+          "step": 10
+        },
+        {
+          "id": "lifetime",
+          "label": "Lifetime (ms)",
+          "type": "range",
+          "min": 300,
+          "max": 1000,
+          "step": 50
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/holographic-cursor-trail/index.html"
+      }
+    },
+    {
+      "slug": "wire-grid-bg",
+      "name": "Interactive Wire Grid Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Interactive wire grid that warps around pointer movement. Grid lines bend and distort based on proximity to cursor, creating a dynamic 3D-like effect. Adjustable columns, rows, and warp intensity.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/WireGrid_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "grid",
+        "interactive",
+        "warp",
+        "3d"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with interactive grid warping. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "cols",
+          "label": "Cols",
+          "type": "range",
+          "min": 8,
+          "max": 64,
+          "step": 1,
+          "default": 28
+        },
+        {
+          "id": "rows",
+          "label": "Rows",
+          "type": "range",
+          "min": 6,
+          "max": 48,
+          "step": 1,
+          "default": 18
+        },
+        {
+          "id": "warp",
+          "label": "Warp",
+          "type": "range",
+          "min": 0,
+          "max": 1.2,
+          "step": 0.01,
+          "default": 0.45
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/wire-grid-bg/index.html"
+      }
+    },
+    {
+      "slug": "trippy-broken-triangles-bg",
+      "name": "IsoBubble Voronoi Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Interactive Voronoi diagram with pulsing bubble cells. Cells are colored based on proximity to animated points. Press P to add new points. Cells pulse and animate creating a dynamic cellular pattern.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/TrippyBrokenTriangles_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "voronoi",
+        "interactive",
+        "cells",
+        "pulse"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with Voronoi diagram generation. Keyboard interaction (P key) to add points. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/trippy-broken-triangles-bg/index.html"
+      }
+    },
+    {
       "slug": "liquid-text",
       "name": "Liquid Text",
       "category": "text",
@@ -385,6 +719,197 @@
       }
     },
     {
+      "slug": "moire-melt-prop",
+      "name": "Moire Melt Prop",
+      "category": "prop",
+      "status": "normalized",
+      "description": "Moire pattern effect using two overlapping images with difference blend mode. Adjustable offset, rotation, and pulse intensity create dynamic moire interference patterns.",
+      "source": "archive/component-rips-20251112/Component_Rips/Props/MoireMeltProp_Meh.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "prop",
+        "image",
+        "moire",
+        "blend-mode",
+        "interference"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure CSS animation with blend modes and transforms. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "off",
+          "label": "Offset",
+          "type": "range",
+          "min": -40,
+          "max": 40,
+          "step": 1,
+          "default": 12
+        },
+        {
+          "id": "rot",
+          "label": "Rotate",
+          "type": "range",
+          "min": -10,
+          "max": 10,
+          "step": 1,
+          "default": 3
+        },
+        {
+          "id": "pul",
+          "label": "Pulse",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.6
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/moire-melt-prop/index.html"
+      }
+    },
+    {
+      "slug": "parallax-shooting-stars-bg",
+      "name": "Parallax Shooting Stars Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Parallax starfield with depth-based warping. Stars move in circular patterns and respond to pointer movement with parallax effect based on depth. Features chroma trails and rainbow color cycling.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/ParallaxShootingStars_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "stars",
+        "parallax",
+        "interactive",
+        "particles"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with particle physics and parallax effects. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/parallax-shooting-stars-bg/index.html"
+      }
+    },
+    {
+      "slug": "pixel-square-rainbow-cursor",
+      "name": "Pixel Square Rainbow Cursor",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Pixelated square cursor trail with rainbow color cycling. Squares spawn at cursor position and fade out while cycling through rainbow hues. Features adjustable count, size, and decay rate.",
+      "source": "archive/component-rips-20251112/Component_Rips/Cursors/PixelSquareRainbow_Cursor.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "cursor",
+        "canvas",
+        "pixel",
+        "squares",
+        "rainbow",
+        "trail"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with pixelated squares. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "count",
+          "label": "Count",
+          "type": "range",
+          "min": 8,
+          "max": 40,
+          "step": 1,
+          "default": 20
+        },
+        {
+          "id": "size",
+          "label": "Size",
+          "type": "range",
+          "min": 4,
+          "max": 20,
+          "step": 1,
+          "default": 8
+        },
+        {
+          "id": "decay",
+          "label": "Decay",
+          "type": "range",
+          "min": 0.85,
+          "max": 0.99,
+          "step": 0.005,
+          "default": 0.92
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/pixel-square-rainbow-cursor/index.html"
+      }
+    },
+    {
+      "slug": "kaleido-spin-top-string-module",
+      "name": "Polar Kaleido Drip Module",
+      "category": "module",
+      "status": "normalized",
+      "description": "Interactive kaleidoscope drawing tool with radial symmetry. Draw with pointer to create symmetric patterns. Press Q/W to adjust symmetry count (2-24). Features ambient auto-drip animation.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/KaleidoSpinTopString_Module.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "module",
+        "canvas",
+        "kaleidoscope",
+        "interactive",
+        "drawing",
+        "symmetry"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with interactive drawing. Keyboard interaction (Q/W keys) to adjust symmetry. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/kaleido-spin-top-string-module/index.html"
+      }
+    },
+    {
+      "slug": "spinning-rainbow-blackhole-module",
+      "name": "Prism Refraction Map Module",
+      "category": "module",
+      "status": "normalized",
+      "description": "Interactive prism lens effect with rainbow background. Drag to move the prism lens, scroll to adjust refraction strength. Creates realistic lens distortion effect on animated rainbow circles.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/SpinningRainbowBlackHole_Module.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "module",
+        "canvas",
+        "prism",
+        "refraction",
+        "lens",
+        "interactive",
+        "rainbow"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with lens refraction effects. Scroll wheel interaction to adjust strength. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/spinning-rainbow-blackhole-module/index.html"
+      }
+    },
+    {
       "slug": "rainbow-fluid-smoke",
       "name": "Rainbow Fluid Smoke",
       "category": "cursor",
@@ -490,6 +1015,53 @@
       ],
       "preview": {
         "index": "../../../packages/component-rips/rainbow-neural-pathways/index.html"
+      }
+    },
+    {
+      "slug": "paint-splat-mix-module",
+      "name": "Rainbow Projector Fluid Module",
+      "category": "module",
+      "status": "normalized",
+      "description": "Interactive paint splat effect with rainbow colors. Click and drag to create paint splats that blend and fade over time. Features adjustable glow intensity and auto-dye rate for automatic splat generation.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/PaintSplatMix_Module.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "module",
+        "canvas",
+        "paint",
+        "splat",
+        "rainbow",
+        "interactive",
+        "fluid"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with paint splat effects. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "glw",
+          "label": "Glow",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.65
+        },
+        {
+          "id": "dye",
+          "label": "Dye",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.7
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/paint-splat-mix-module/index.html"
       }
     },
     {
@@ -935,6 +1507,33 @@
       }
     },
     {
+      "slug": "suttle-rainbow-wisps-bg",
+      "name": "Subliminal Script Veins Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Glowing script-veins that rewrite themselves. Animated lines move in organic patterns creating a hypnotic effect. Lines continuously regenerate creating an ever-changing pattern.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/SuttleRainbowWisps_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "lines",
+        "organic",
+        "glowing",
+        "script"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with line drawing. No media playback. Safe for all contexts."
+      },
+      "controls": [],
+      "preview": {
+        "index": "../../../packages/component-rips/suttle-rainbow-wisps-bg/index.html"
+      }
+    },
+    {
       "slug": "taffy-typing",
       "name": "Taffy Typing",
       "category": "text",
@@ -1057,6 +1656,52 @@
       }
     },
     {
+      "slug": "band-w-squiggle-bg",
+      "name": "Time-Crystal Trails Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "Time-crystal particle trails with difference blending mode. Particles move in circular patterns creating glowing trails that fade over time. Adjustable decay and speed controls.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/BandWSquiggle_BG.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "background",
+        "canvas",
+        "particles",
+        "trails",
+        "difference",
+        "crystal"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with particle physics and blend modes. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "dec",
+          "label": "Decay",
+          "type": "range",
+          "min": 0.8,
+          "max": 0.99,
+          "step": 0.005,
+          "default": 0.9
+        },
+        {
+          "id": "spd",
+          "label": "Speed",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "default": 0.6
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/band-w-squiggle-bg/index.html"
+      }
+    },
+    {
       "slug": "webcam-effects",
       "name": "WebCam Effects",
       "category": "module",
@@ -1100,20 +1745,95 @@
       "preview": {
         "index": "../../../packages/component-rips/webcam-effects/index.html"
       }
+    },
+    {
+      "slug": "weird-motion-trace-cursor",
+      "name": "Weird Motion Trace Cursor",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Distorted motion trace cursor with weird sine/cosine distortion effects. Trail follows cursor path with time-based distortion creating wavy, organic motion. Features adjustable trail length, distortion intensity, and speed.",
+      "source": "archive/component-rips-20251112/Component_Rips/Cursors/WeirdMotionTrace_Cursor.html",
+      "convertedAt": "2025-11-13T00:00:00.000Z",
+      "tags": [
+        "cursor",
+        "canvas",
+        "trace",
+        "distortion",
+        "motion",
+        "weird"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with distorted trail effects. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "trailLength",
+          "label": "Trail Length",
+          "type": "range",
+          "min": 20,
+          "max": 100,
+          "step": 1,
+          "default": 50
+        },
+        {
+          "id": "distortion",
+          "label": "Distortion",
+          "type": "range",
+          "min": 0,
+          "max": 2,
+          "step": 0.1,
+          "default": 0.8
+        },
+        {
+          "id": "speed",
+          "label": "Speed",
+          "type": "range",
+          "min": 0.1,
+          "max": 2,
+          "step": 0.1,
+          "default": 1
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/weird-motion-trace-cursor/index.html"
+      }
     }
   ],
   "categories": {
+    "prop": [
+      "afterimage-pulse-prop",
+      "errl-tunnel",
+      "moire-melt-prop",
+      "silhouette-inversion"
+    ],
+    "background": [
+      "anisotropic-velvet-bg",
+      "basic-shadow-bubbles-bg",
+      "wire-grid-bg",
+      "trippy-broken-triangles-bg",
+      "parallax-shooting-stars-bg",
+      "rainbow-spinning-bg",
+      "rainbow-string-particles",
+      "rainbow-tunnel",
+      "suttle-rainbow-wisps-bg",
+      "terrapin-whirl",
+      "band-w-squiggle-bg"
+    ],
     "cursor": [
+      "bubble-mouse-trail",
       "bubbling-rainbow-rings",
       "fast-rainbow-rings-cursor",
+      "fluffy-pixel-trail-cursor",
       "holographic-cube-cursor",
+      "holographic-cursor-trail",
+      "pixel-square-rainbow-cursor",
       "rainbow-fluid-smoke",
       "rainbow-trailing-orbs-cursor",
-      "simple-blue-bubble-trail-cursor"
-    ],
-    "prop": [
-      "errl-tunnel",
-      "silhouette-inversion"
+      "simple-blue-bubble-trail-cursor",
+      "weird-motion-trace-cursor"
     ],
     "button": [
       "gradient-box-button",
@@ -1126,16 +1846,13 @@
     ],
     "module": [
       "live-gradient-mixer",
+      "kaleido-spin-top-string-module",
+      "spinning-rainbow-blackhole-module",
       "rainbow-neural-pathways",
+      "paint-splat-mix-module",
       "ribbon-topology",
       "terrapin-whirl-module",
       "webcam-effects"
-    ],
-    "background": [
-      "rainbow-spinning-bg",
-      "rainbow-string-particles",
-      "rainbow-tunnel",
-      "terrapin-whirl"
     ],
     "misc": [
       "spectral-harp-membrane"

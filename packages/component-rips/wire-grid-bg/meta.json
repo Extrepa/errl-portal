@@ -1,0 +1,46 @@
+{
+  "name": "Interactive Wire Grid Background",
+  "slug": "wire-grid-bg",
+  "category": "background",
+  "status": "normalized",
+  "description": "Interactive wire grid that warps around pointer movement. Grid lines bend and distort based on proximity to cursor, creating a dynamic 3D-like effect. Adjustable columns, rows, and warp intensity.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/WireGrid_BG.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": ["background", "canvas", "grid", "interactive", "warp", "3d"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with interactive grid warping. No media playback. Safe for all contexts."
+  },
+  "controls": [
+    {
+      "id": "cols",
+      "label": "Cols",
+      "type": "range",
+      "min": 8,
+      "max": 64,
+      "step": 1,
+      "default": 28
+    },
+    {
+      "id": "rows",
+      "label": "Rows",
+      "type": "range",
+      "min": 6,
+      "max": 48,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "id": "warp",
+      "label": "Warp",
+      "type": "range",
+      "min": 0,
+      "max": 1.2,
+      "step": 0.01,
+      "default": 0.45
+    }
+  ]
+}
+

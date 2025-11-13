@@ -1,0 +1,57 @@
+:root {
+  --bg: #04101a;
+  --text: #eaffff;
+  --ui-bg: rgba(4, 22, 30, 0.35);
+  --ui-border: rgba(255, 255, 255, 0.12);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  display: block;
+}
+
+.controls {
+  position: fixed;
+  inset: auto 2rem 2rem;
+  left: 2rem;
+  right: 2rem;
+  height: auto;
+  min-height: 80px;
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
+  border-radius: 20px;
+  backdrop-filter: blur(18px) saturate(120%);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  padding: 1rem;
+  z-index: 10;
+}
+
+.controls .hint {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  canvas {
+    animation: none;
+  }
+}
+

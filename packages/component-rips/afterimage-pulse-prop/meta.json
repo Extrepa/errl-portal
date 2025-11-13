@@ -1,0 +1,18 @@
+{
+  "name": "Afterimage Pulse Prop",
+  "slug": "afterimage-pulse-prop",
+  "category": "prop",
+  "status": "normalized",
+  "description": "Pulsing afterimage effect using color inversion. Image alternates between normal and inverted colors with opacity pulsing, creating a visual afterimage effect.",
+  "source": "archive/component-rips-20251112/Component_Rips/Props/AfterimagePulse_Prop.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": ["prop", "image", "afterimage", "pulse", "inversion"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure CSS animation with image filter effects. No media playback. Safe for all contexts."
+  },
+  "controls": []
+}
+

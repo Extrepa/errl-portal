@@ -1,0 +1,18 @@
+{
+  "name": "Side Scrolling BW Square Wall Background",
+  "slug": "side-scrolling-bw-square-wall-bg",
+  "category": "background",
+  "status": "normalized",
+  "description": "Black and white checkerboard pattern that scrolls horizontally. Creates an infinite scrolling wall effect with alternating square pattern.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/SideScrollingBWSquareWall_BG.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": ["background", "canvas", "checkerboard", "scrolling", "pattern"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation. No media playback. Safe for all contexts."
+  },
+  "controls": []
+}
+

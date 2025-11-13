@@ -57,20 +57,44 @@
 - Interactive controls standardized across all components.
 
 ### Current Status
-- **23 normalized components** across 7 categories (backgrounds: 4, buttons: 2, cursors: 6, modules: 5, text: 3, props: 2, misc: 1).
+- **40 normalized components** across 7 categories (backgrounds: 11, buttons: 2, cursors: 11, modules: 8, text: 3, props: 4, misc: 1).
 - All components include metadata, safety notes, and control definitions in `meta.json`.
 - Catalog manifest auto-generates via `npm run catalog:component-rips`.
 - Backlog and audit log track all conversion progress.
+- Thumbnail generation system in place with 40 component thumbnails generated.
 
 ### Unified Component Inventory (2025-11-13)
-- Created comprehensive component inventory registry (`docs/catalog/component-inventory.md`) tracking all ~188 components across 5 locations:
-  - 23 normalized component rips (`packages/component-rips/`)
+- Created comprehensive component inventory registry (`docs/catalog/component-inventory.md`) tracking all ~205 components across 5 locations:
+  - 40 normalized component rips (`packages/component-rips/`)
   - 55 raw component rips (`archive/component-rips-20251112/Component_Rips/`)
   - 100 Math Lab effects (embedded in single file)
   - 5 projects components (`public/apps/projects/`)
   - 5 component library items (`src/components/component-library/`)
 - Added inventory scanning script (`tools/portal/update-component-inventory.mjs`) with `npm run inventory:scan` command.
 - Inventory provides unified view of all components for consolidation planning and broken component identification.
+
+### Component Catalog Enhancements (2025-11-13)
+- **Thumbnail Generation System**: Added automated thumbnail generation tool (`tools/portal/generate-component-thumbnails.mjs`) with `npm run thumbnails:generate` command. Thumbnails stored in `packages/component-rips/_thumbnails/` for catalog previews.
+- **Preview Mode**: Implemented shared preview mode script (`packages/component-rips/_shared/preview-mode.js`) that automatically hides controls when components are loaded with `?preview=1` parameter, enabling clean catalog previews.
+- **Component Fixes & Improvements**:
+  - Added speed control to Rainbow Trailing Orbs Cursor
+  - Enhanced Spectral Harp Membrane with "Trigger Wave" and "Reset Grid" buttons
+  - Improved Terrapin Whirl visual effects (glow rings, enhanced gradients)
+  - Fixed Gradient Waves Text to use SVG-based wave animation
+  - Updated Rainbow Fluid Smoke with enhanced visual effects
+  - Improved Liquid Text layout and styling
+  - Enhanced Rainbow Spinning Button with proper panel structure
+  - Added new components: Bubble Mouse Trail and Holographic Cursor Trail
+  - Fixed display modes for full-window components (Rainbow Tunnel, Rainbow Fluid Smoke, Bubbling Rainbow Rings)
+- **Component Fixes Plan**: Created `docs/catalog/component-rips/COMPONENT_FIXES_PLAN.md` documenting display mode system, preview popup feature, and component-specific fixes.
+- **Catalog UI Updates**: Enhanced catalog with improved component display, better filtering, and preview integration.
+
+### Normalization Wave 4 (2025-11-13) - 15 Components Added
+- **Cursors (3 new)**: Fluffy Pixel Trail (pixelated particle bursts), Pixel Square Rainbow (pixelated squares with rainbow cycling), Weird Motion Trace (distorted trail with sine/cosine effects).
+- **Backgrounds (7 new)**: Anisotropic Velvet (interactive velvet texture), Basic Shadow Bubbles (caustic sparkles), Band W Squiggle (time-crystal trails), Wire Grid (interactive warping grid), Parallax Shooting Stars (depth-based starfield), Suttle Rainbow Wisps (glowing script-veins), Trippy Broken Triangles (interactive Voronoi).
+- **Props (2 new)**: Afterimage Pulse (color inversion pulsing), Moire Melt (moire pattern with blend modes).
+- **Modules (3 new)**: Paint Splat Mix (interactive paint splats), Kaleido Spin Top String (kaleidoscope drawing tool), Spinning Rainbow Black Hole (prism refraction lens).
+- **Framer Export Extraction**: Successfully extracted and normalized 2 Framer export cursors by recreating functionality based on component names and patterns.
 
 ## Next Steps
 1. Stress-test the shared asset store with large Pin Designer exports and Code Lab imports.
@@ -88,6 +112,7 @@
 - `plans/component-rips-integration.md`
 - `docs/catalog/component-rips/backlog.md`
 - `docs/catalog/component-rips/audit-log.md`
+- `docs/catalog/component-rips/COMPONENT_FIXES_PLAN.md` — Component fixes and display mode system
 - `docs/catalog/component-inventory.md` — Unified component inventory registry
 - `docs/team/WARP.md` — Warp.dev guidance for Studio development
 
