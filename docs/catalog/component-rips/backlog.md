@@ -20,6 +20,9 @@ Status legend:
 | Rainbow Fluid Smoke | cursor | `Cursors/RainbowFluidSmoke_Cursor.html` | normalized | Cursor smoke trail with trail/glow controls and reduced-motion pause. |
 | Fast Rainbow Rings | cursor | `Cursors/FastRainbowRings_Cursor.html` | normalized | Temporal echo pool cursor trail with expanding rainbow rings. Space key or button toggles forward/reverse time direction. |
 | Holographic Cube | cursor | `Cursors/HolographicCube_Cursor.html` | normalized | 3D holographic cube cursor trail with rotating cubes following pointer. Features rainbow gradient faces, adjustable size, rotation speed, and trail length. |
+| Rainbow Trailing Orbs | cursor | `Cursors/RainbowTrailingOrbs_Cursor.html` | normalized | Cursor trail with rainbow-colored beads using spring physics. Each bead follows the previous one creating a smooth trailing effect with adjustable count, drag, and size. |
+| Simple Blue Bubble Trail | cursor | `Cursors/SimpleBlueBubbleTrail_Cursor.html` | normalized | Simple blue-to-cyan bubble trail cursor effect with spring physics. Rebuilt from Framer export as standalone canvas implementation. |
+| Rainbow Spinning | background | `BG/RainbowSpinning_BG.html` | normalized | MIDI-reactive chromafog background with spinning conic gradient. Features adjustable hue rotation and bloom opacity. Optional MIDI support gated behind explicit button. |
 | Terrapin Whirl Module | module | `Modules/TerrapinWhirl_Module.html` | normalized | Module variant of Terrapin Whirl with compact container; canvas-based particle swirl with pointer interaction and speed/trail controls. |
 | Rainbow Neural Pathways | module | `Modules/RainbowNeuralPathways_Module.html` | normalized | Interactive particle network with gravity + frequency controls. |
 | WebCam Effects | module | `Modules/WebCam_Effects_Module.html` | normalized | Permission-gated webcam module with RGB/Glitch/Mono modes; still requires security review before integration. |

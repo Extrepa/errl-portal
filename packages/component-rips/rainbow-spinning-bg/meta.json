@@ -1,0 +1,38 @@
+{
+  "name": "Rainbow Spinning Background",
+  "slug": "rainbow-spinning-bg",
+  "category": "background",
+  "status": "normalized",
+  "description": "MIDI-reactive chromafog background with spinning conic gradient. Features adjustable hue rotation and bloom opacity. Optional MIDI support for real-time control via CC messages. Keyboard shortcuts: H for hue, B for bloom.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowSpinning_BG.html",
+  "convertedAt": "2025-11-13T01:27:20.608Z",
+  "tags": ["background", "midi", "gradient", "chromafog", "spinning"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "MIDI access only requested after explicit button press. Pure CSS animation with conic gradient. Respects prefers-reduced-motion. Can be used without MIDI via sliders or keyboard."
+  },
+  "controls": [
+    {
+      "id": "midi",
+      "label": "Enable/Disable MIDI",
+      "type": "button"
+    },
+    {
+      "id": "hue",
+      "label": "Hue",
+      "type": "range",
+      "min": 0,
+      "max": 360
+    },
+    {
+      "id": "bloom",
+      "label": "Bloom",
+      "type": "range",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    }
+  ]
+}

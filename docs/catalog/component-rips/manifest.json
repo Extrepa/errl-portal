@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2025-11-13T00:36:25.187Z",
+  "generatedAt": "2025-11-13T01:47:46.620Z",
   "packages": [
     {
       "slug": "bubbling-rainbow-rings",
@@ -493,6 +493,53 @@
       }
     },
     {
+      "slug": "rainbow-spinning-bg",
+      "name": "Rainbow Spinning Background",
+      "category": "background",
+      "status": "normalized",
+      "description": "MIDI-reactive chromafog background with spinning conic gradient. Features adjustable hue rotation and bloom opacity. Optional MIDI support for real-time control via CC messages. Keyboard shortcuts: H for hue, B for bloom.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowSpinning_BG.html",
+      "convertedAt": "2025-11-13T01:27:20.608Z",
+      "tags": [
+        "background",
+        "midi",
+        "gradient",
+        "chromafog",
+        "spinning"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "MIDI access only requested after explicit button press. Pure CSS animation with conic gradient. Respects prefers-reduced-motion. Can be used without MIDI via sliders or keyboard."
+      },
+      "controls": [
+        {
+          "id": "midi",
+          "label": "Enable/Disable MIDI",
+          "type": "button"
+        },
+        {
+          "id": "hue",
+          "label": "Hue",
+          "type": "range",
+          "min": 0,
+          "max": 360
+        },
+        {
+          "id": "bloom",
+          "label": "Bloom",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-spinning-bg/index.html"
+      }
+    },
+    {
       "slug": "rainbow-spinning-button",
       "name": "Rainbow Spinning Button",
       "category": "button",
@@ -589,6 +636,57 @@
       ],
       "preview": {
         "index": "../../../packages/component-rips/rainbow-string-particles/index.html"
+      }
+    },
+    {
+      "slug": "rainbow-trailing-orbs-cursor",
+      "name": "Rainbow Trailing Orbs Cursor",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Cursor trail with rainbow-colored beads that follow each other using spring physics. Each bead follows the previous one creating a smooth trailing effect with adjustable count, drag, and size.",
+      "source": "archive/component-rips-20251112/Component_Rips/Cursors/RainbowTrailingOrbs_Cursor.html",
+      "convertedAt": "2025-11-13T01:27:18.661Z",
+      "tags": [
+        "cursor",
+        "canvas",
+        "physics",
+        "spring",
+        "rainbow"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with spring physics. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "count",
+          "label": "Beads",
+          "type": "range",
+          "min": 6,
+          "max": 64,
+          "step": 1
+        },
+        {
+          "id": "drag",
+          "label": "Drag",
+          "type": "range",
+          "min": 0.75,
+          "max": 0.995,
+          "step": 0.001
+        },
+        {
+          "id": "size",
+          "label": "Size",
+          "type": "range",
+          "min": 2,
+          "max": 20,
+          "step": 1
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-trailing-orbs-cursor/index.html"
       }
     },
     {
@@ -751,6 +849,57 @@
       ],
       "preview": {
         "index": "../../../packages/component-rips/silhouette-inversion/index.html"
+      }
+    },
+    {
+      "slug": "simple-blue-bubble-trail-cursor",
+      "name": "Simple Blue Bubble Trail Cursor",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Simple blue-to-cyan bubble trail cursor effect with spring physics. Beads follow pointer movement with adjustable count, drag, and size. Rebuilt from Framer export as standalone canvas implementation.",
+      "source": "archive/component-rips-20251112/Component_Rips/Cursors/SimpleBlueBubbleTrail_Cursor.html",
+      "convertedAt": "2025-11-13T01:27:19.532Z",
+      "tags": [
+        "cursor",
+        "canvas",
+        "physics",
+        "spring",
+        "blue"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation with spring physics. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "count",
+          "label": "Beads",
+          "type": "range",
+          "min": 12,
+          "max": 48,
+          "step": 2
+        },
+        {
+          "id": "drag",
+          "label": "Drag",
+          "type": "range",
+          "min": 0.75,
+          "max": 0.995,
+          "step": 0.001
+        },
+        {
+          "id": "size",
+          "label": "Size",
+          "type": "range",
+          "min": 3,
+          "max": 12,
+          "step": 1
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/simple-blue-bubble-trail-cursor/index.html"
       }
     },
     {
@@ -958,7 +1107,9 @@
       "bubbling-rainbow-rings",
       "fast-rainbow-rings-cursor",
       "holographic-cube-cursor",
-      "rainbow-fluid-smoke"
+      "rainbow-fluid-smoke",
+      "rainbow-trailing-orbs-cursor",
+      "simple-blue-bubble-trail-cursor"
     ],
     "prop": [
       "errl-tunnel",
@@ -981,6 +1132,7 @@
       "webcam-effects"
     ],
     "background": [
+      "rainbow-spinning-bg",
       "rainbow-string-particles",
       "rainbow-tunnel",
       "terrapin-whirl"

@@ -65,3 +65,10 @@ Use this log to capture each review session. Keep entries chronological (latest 
 - Converted Holographic Cube cursor: 3D holographic cube cursor trail with rotating cubes following pointer movement. Features rainbow gradient faces, adjustable size, rotation speed, and trail length. Rebuilt from Framer export as standalone canvas 3D implementation with perspective projection.
 - Updated backlog and regenerated manifest (total: 20 normalized components across backgrounds, cursors, modules, text, buttons, props, and misc).
 
+### 2025-11-13 — AI (Late Night Session)
+- Fixed catalog CORS handling: updated manifest loading to support both http/https and file:// protocols with XMLHttpRequest fallback. Added helpful error messages suggesting local server usage.
+- Normalized Rainbow Trailing Orbs cursor: cursor trail with rainbow-colored beads using spring physics. Each bead follows the previous one creating a smooth trailing effect with adjustable count, drag, and size.
+- Converted Simple Blue Bubble Trail cursor: simple blue-to-cyan bubble trail cursor effect with spring physics. Rebuilt from Framer export as standalone canvas implementation.
+- Normalized Rainbow Spinning background: MIDI-reactive chromafog background with spinning conic gradient. Features adjustable hue rotation and bloom opacity. Optional MIDI support gated behind explicit button press. Keyboard shortcuts (H/B) for manual control. Respects prefers-reduced-motion.
+- Updated backlog and regenerated manifest (total: 23 normalized components across backgrounds, cursors, modules, text, buttons, props, and misc).
+

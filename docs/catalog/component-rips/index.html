@@ -399,12 +399,44 @@
         return container;
       }
 
+      function loadManifest(url) {
+        return new Promise((resolve, reject) => {
+          // Try fetch first (works with http/https)
+          if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+            fetch(url, { cache: "no-store" })
+              .then((response) => {
+                if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+                return response.json();
+              })
+              .then(resolve)
+              .catch(reject);
+          } else {
+            // Fallback to XMLHttpRequest for file:// protocol
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onload = () => {
+              if (xhr.status === 0 || xhr.status === 200) {
+                try {
+                  resolve(JSON.parse(xhr.responseText));
+                } catch (e) {
+                  reject(new Error(`Failed to parse manifest: ${e.message}`));
+                }
+              } else {
+                reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+              }
+            };
+            xhr.onerror = () => {
+              reject(new Error(`Cannot load manifest from file:// protocol. Please use a local server:<br><br><code>cd docs/catalog/component-rips && python3 -m http.server 8000</code><br><br>Then open <code>http://localhost:8000</code> in your browser.`));
+            };
+            xhr.send();
+          }
+        });
+      }
+
       async function bootstrap() {
         catalogEl.textContent = "Loading manifest…";
         try {
-          const response = await fetch(manifestUrl, { cache: "no-store" });
-          if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-          const manifest = await response.json();
+          const manifest = await loadManifest(manifestUrl);
 
           catalogEl.textContent = "";
           const { wrapper, categorySelect, statusSelect } = createFilterBar(manifest.categories);
@@ -421,7 +453,7 @@
           statusSelect.addEventListener("change", render);
           render();
         } catch (error) {
-          catalogEl.innerHTML = `<p class="error">Failed to load manifest: ${error.message}</p>`;
+          catalogEl.innerHTML = `<div class="error"><p>Failed to load manifest:</p><p>${error.message}</p></div>`;
         }
       }
 

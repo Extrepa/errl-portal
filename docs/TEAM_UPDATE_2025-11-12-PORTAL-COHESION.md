@@ -39,12 +39,36 @@
 - `npm test`
 - Manual nav checks across `/` and `/studio/**` (React hub + legacy bridges)
 
+## Component Rips Progress (2025-11-13)
+
+### Catalog Improvements
+- Fixed catalog CORS handling: updated manifest loading to support both http/https and file:// protocols with XMLHttpRequest fallback. Added helpful error messages suggesting local server usage (`python3 -m http.server 8000`).
+- Catalog now auto-discovers all normalized components via manifest-driven UI with category/status filtering.
+
+### Normalization Wave 3 (23 Total Components)
+- **Cursors (7 total)**: Added Fast Rainbow Rings (temporal echo pool with forward/reverse toggle), Holographic Cube (3D rotating cubes with perspective projection), Rainbow Trailing Orbs (spring physics beads), Simple Blue Bubble Trail (blue-to-cyan spring trail).
+- **Backgrounds (4 total)**: Added Rainbow Spinning (MIDI-reactive chromafog with optional MIDI support gated behind explicit button, keyboard shortcuts H/B).
+- **Misc (1 total)**: Added Spectral Harp Membrane (interactive membrane with spring physics, optional microphone input gated).
+
+### Safety & Controls
+- All components include explicit safety guards (no autoplay audio/video/camera).
+- MIDI and microphone access only requested after explicit button presses.
+- All animations respect `prefers-reduced-motion`.
+- Interactive controls standardized across all components.
+
+### Current Status
+- **23 normalized components** across 7 categories (backgrounds: 4, buttons: 2, cursors: 7, modules: 5, text: 3, props: 3, misc: 1).
+- All components include metadata, safety notes, and control definitions in `meta.json`.
+- Catalog manifest auto-generates via `npm run catalog:component-rips`.
+- Backlog and audit log track all conversion progress.
+
 ## Next Steps
 1. Stress-test the shared asset store with large Pin Designer exports and Code Lab imports.
 2. Add nightly Playwright coverage for the legacy studio page to catch link regressions automatically.
-3. Normalize the remaining queue (e.g. `RainbowStringParticles_BG`, `RainbowPoofBalls_Module_LAG`, `ParticleFaceParallaxPush_Module`, `TaffyTyping_Text`) and extend manifest categories.
+3. Continue normalizing remaining queue (e.g. `RainbowPoofBalls_Module_LAG`, `ParticleFaceParallaxPush_Module`, additional backgrounds/cursors).
 4. Wire Playwright smoke test that opens catalog manifest entries without triggering audio/video/grant requirements.
 5. Implement the preview QA automation scripts (`stage-preview-qa.sh`, `run-preview-verifications.sh`, `draft-preview-announcement.sh`) outlined in `plans/2025-11-11-preview-qa-automation.md`.
+6. Test catalog with local server to verify full functionality.
 
 ## Timeline References
 - `docs/journal/TEAM_UPDATE_2025-11-12-LINKS.md`
@@ -54,4 +78,5 @@
 - `plans/component-rips-integration.md`
 - `docs/catalog/component-rips/backlog.md`
 - `docs/catalog/component-rips/audit-log.md`
+- `docs/team/WARP.md` — Warp.dev guidance for Studio development
 
