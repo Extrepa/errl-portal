@@ -8,6 +8,7 @@
 - Legacy `src/legacy/portal/pages/studio/index.html` mirrors the new React `/studio` hub, keeping copy, cards, and roadmap content consistent no matter how the page is loaded.
 - Pin Designer, Shape Madness, and Math Lab all run inside the React Studio hub via `useLegacyAssetBridge`, sharing the IndexedDB asset store with Code Lab without breaking legacy exports.
 - Playwright coverage expanded to assert portal link targets, Studio hub navigation, and iframe bridge wiring; `npm test` and `npm run portal:build` both green.
+- Brought the new Component Rips library into `archive/component-rips-20251112/Component_Rips`, catalogued its background/prop/button/cursor modules, and mapped the conversion plan for reuse.
 
 ## Highlights
 ### Navigation & Link Rewrites
@@ -23,6 +24,16 @@
 - Shared `useLegacyAssetBridge` hook exposes the IndexedDB asset store to the legacy iframes.
 - Updated documentation (`README.md`, `docs/dev/preview-qa-complete.md`) to reflect the shared routing model.
 
+### Component Rips Intake
+- Imported today's `Component_Rips` drop into `archive/component-rips-20251112/Component_Rips` (BG, Buttons, Cursors, Modules, Props, Text, and portable Framer bundles).
+- Tagged high-value groups for triage: `BG/*` (shader-like canvases for landing scenes), `Modules/*` (interactive toys such as `WebCam_Effects_Module` and `ParticleFaceParallaxPush_Module`), `Props/*` (SVG overlays), `Cursors/*` (trail FX), and `Text/*` (heading treatments).
+- Plan: normalize each component into `index.html` + `styles.css` + `script.js`, feed them into a `tools/portal/convert-component-rip.mjs` helper, and surface previews inside a new `docs/catalog/component-rips/index.html` playground.
+- Drafted catalog/control scaffolding: conversion script scaffold (`tools/portal/convert-component-rip.mjs`), catalog landing (`docs/catalog/component-rips/index.html`), backlog tracker, and audit log to keep reviews and safety notes persistent.
+- Extracted first five targets into fully normalized bundles (`packages/component-rips/{terrapin-whirl,rainbow-neural-pathways,webcam-effects,bubbling-rainbow-rings,gradient-waves-text}`) with safety gates (no auto audio/video), controls, and metadata.
+- Completed the second conversion wave: `rainbow-tunnel`, `rainbow-fluid-smoke`, `live-gradient-mixer`, `liquid-text`, and `ribbon-topology` bundles now ship with controls, reduced-motion handling, and catalog manifest entries.
+- Added manifest generator (`tools/portal/generate-component-rips-manifest.mjs` + `npm run catalog:component-rips`) feeding auto-discovery UI; catalog now filters by category/status, surfaces safety notes, and links to live previews.
+- Target integrations: treat backgrounds and cursor trails as selectable themes for the portal landing, wrap webcam/particle modules as Studio tiles, and expose props as overlay toggles in the dev panel.
+
 ## Verification
 - `npm run portal:build`
 - `npm test`
@@ -31,10 +42,16 @@
 ## Next Steps
 1. Stress-test the shared asset store with large Pin Designer exports and Code Lab imports.
 2. Add nightly Playwright coverage for the legacy studio page to catch link regressions automatically.
-3. Implement the preview QA automation scripts (`stage-preview-qa.sh`, `run-preview-verifications.sh`, `draft-preview-announcement.sh`) outlined in `plans/2025-11-11-preview-qa-automation.md`.
+3. Normalize the remaining queue (e.g. `RainbowStringParticles_BG`, `RainbowPoofBalls_Module_LAG`, `ParticleFaceParallaxPush_Module`, `TaffyTyping_Text`) and extend manifest categories.
+4. Wire Playwright smoke test that opens catalog manifest entries without triggering audio/video/grant requirements.
+5. Implement the preview QA automation scripts (`stage-preview-qa.sh`, `run-preview-verifications.sh`, `draft-preview-announcement.sh`) outlined in `plans/2025-11-11-preview-qa-automation.md`.
 
 ## Timeline References
 - `docs/journal/TEAM_UPDATE_2025-11-12-LINKS.md`
 - `docs/journal/TEAM_UPDATE_2025-11-12-STUDIO-ALIGN.md`
 - `docs/TEAM_UPDATE_2025-11-09-LAYER-CLEANUP.md`
+- `docs/TEAM_UPDATE_Component_Rips_2025-11-12_18-16.md`
+- `plans/component-rips-integration.md`
+- `docs/catalog/component-rips/backlog.md`
+- `docs/catalog/component-rips/audit-log.md`
 

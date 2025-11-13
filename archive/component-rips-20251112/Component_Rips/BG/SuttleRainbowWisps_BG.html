@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Subliminal Script Veins</title>
+<style>
+ html,body{height:100%;margin:0;background:#03030a;color:#fff;font-family:ui-sans-serif}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.4rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="ui">Stare and watch the glowing script-veins rewrite themselves.</div>
+<script>
+const c=document.getElementById('c'), g=c.getContext('2d'); function fit(){c.width=innerWidth; c.height=innerHeight} fit(); addEventListener('resize',fit);
+const roots = Array.from({length:60}, ()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,a:Math.random()*6.28, life: 200+Math.random()*400}));
+function step(t){
+  g.fillStyle='rgba(3,3,10,0.2)'; g.fillRect(0,0,c.width,c.height);
+  g.globalCompositeOperation='lighter';
+  for(const r of roots){
+    const hue=(t/30 + r.x*0.04 + r.y*0.03)%360;
+    g.strokeStyle=`hsla(${hue},100%,60%,0.6)`;
+    g.lineWidth=1.6;
+    g.beginPath();
+    g.moveTo(r.x,r.y);
+    r.a += Math.sin(t*0.001 + r.x*0.01)*0.2;
+    r.x += Math.cos(r.a)*2; r.y += Math.sin(r.a)*2;
+    g.lineTo(r.x,r.y);
+    g.stroke();
+    r.life--;
+    if(r.life<=0 || r.x<0||r.x>innerWidth||r.y<0||r.y>innerHeight){
+      r.x=Math.random()*innerWidth; r.y=Math.random()*innerHeight; r.a=Math.random()*6.28; r.life=200+Math.random()*400;
+    }
+  }
+  g.globalCompositeOperation='source-over';
+  requestAnimationFrame(step);
+}
+requestAnimationFrame(step);
+</script></body></html>

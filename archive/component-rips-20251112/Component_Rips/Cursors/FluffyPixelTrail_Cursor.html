@@ -1,0 +1,66 @@
+<!doctype html><meta charset="utf-8"><title>Pixel Trail FX</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;color:white;font:14px system-ui}
+  canvas{width:100vw;height:100vh;display:block;image-rendering: pixelated;}
+  .ui{position:fixed;left:12px;top:12px;background:rgba(20,24,32,.6);backdrop-filter:blur(8px);
+      border:1px solid #253048;color:#dbe7ff;padding:8px 10px;border-radius:12px;display:flex;gap:10px;align-items:center}
+  .ui input[type=range]{width:120px}
+</style>
+<canvas id="c"></canvas>
+<div class="ui">
+  <label>Rate <input id="rate" type="range" min="1" max="40" step="1" value="18"></label>
+  <label>Decay <input id="decay" type="range" min="0" max="0.2" step="0.005" value="0.06"></label>
+  <label>Pixel <input id="px" type="range" min="2" max="16" step="1" value="6"></label>
+</div>
+<script>
+(() => {
+  const cvs = document.getElementById('c');
+  const ctx = cvs.getContext('2d', { alpha:true });
+  let w,h,dpr;
+  function resize(){
+    dpr = devicePixelRatio||1;
+    w = cvs.width = Math.floor(innerWidth * dpr);
+    h = cvs.height = Math.floor(innerHeight * dpr);
+  }
+  addEventListener('resize', resize); resize();
+
+  const cfg = { rate: 18, decay: 0.06, px: 6, hue: 260 };
+  document.getElementById('rate').oninput = e => cfg.rate = +e.target.value;
+  document.getElementById('decay').oninput = e => cfg.decay = +e.target.value;
+  document.getElementById('px').oninput = e => cfg.px = +e.target.value;
+
+  let mx = w/2, my = h/2;
+  addEventListener('pointermove', e=>{ const r=cvs.getBoundingClientRect(); mx=(e.clientX-r.left)*dpr; my=(e.clientY-r.top)*dpr; });
+
+  const parts = [];
+  function spawn(x,y){
+    for(let i=0;i<cfg.rate;i++){
+      const a = Math.random() * Math.PI*2;
+      const sp = 0.5 + Math.random()*2.0;
+      parts.push({x,y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life:1, hue:(cfg.hue + Math.random()*80)%360});
+    }
+  }
+
+  function tick(){
+    ctx.fillStyle = `rgba(0,0,0,${cfg.decay})`;
+    ctx.fillRect(0,0,w,h);
+
+    spawn(mx,my);
+
+    for(let i=parts.length-1;i>=0;i--){
+      const p = parts[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.99; p.vy *= 0.99;
+      p.life -= 0.016;
+      if(p.life <= 0 || p.x<0||p.y<0||p.x>w||p.y>h){ parts.splice(i,1); continue; }
+
+      ctx.fillStyle = `hsl(${p.hue} 90% 60% / ${p.life})`;
+      const s = cfg.px * dpr;
+      ctx.fillRect( (p.x|0), (p.y|0), s, s );
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>

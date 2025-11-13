@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ribbon Topology — Module</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="stage">
+      <section class="panel">
+        <header>
+          <h1>Ribbon Topology</h1>
+          <p>
+            Layered bezier ribbons orbit around a focal point to fake depth. Adjust density, width, color drift, and decay to
+            match Errl’s cinematic overlays.
+          </p>
+        </header>
+        <div class="viewport" id="viewport">
+          <canvas id="canvas" aria-hidden="true"></canvas>
+          <div class="overlay" id="overlay">Interweaving ribbons with faux depth.</div>
+        </div>
+        <div class="controls">
+          <label>
+            Ribbons
+            <input id="ribbonCount" type="range" min="6" max="80" step="2" value="24" />
+          </label>
+          <label>
+            Width
+            <input id="strokeWidth" type="range" min="4" max="28" step="1" value="14" />
+          </label>
+          <label>
+            Fade
+            <input id="fade" type="range" min="0.6" max="0.99" step="0.01" value="0.88" />
+          </label>
+          <label>
+            Speed
+            <input id="speed" type="range" min="0.2" max="2.4" step="0.1" value="1.0" />
+          </label>
+          <label>
+            Color Drift
+            <input id="colorShift" type="range" min="10" max="120" step="1" value="36" />
+          </label>
+          <button id="shuffle" type="button">Shuffle Colors</button>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

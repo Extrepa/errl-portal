@@ -1,0 +1,23 @@
+{
+  "name": "Fast Rainbow Rings Cursor",
+  "slug": "fast-rainbow-rings-cursor",
+  "category": "cursor",
+  "status": "normalized",
+  "description": "Temporal echo pool cursor trail with expanding rainbow rings. Tracks pointer movement and creates expanding circular waves. Space key or button toggles forward/reverse time direction.",
+  "source": "archive/component-rips-20251112/Component_Rips/Cursors/FastRainbowRings_Cursor.html",
+  "convertedAt": "2025-11-13T00:35:07.965Z",
+  "tags": ["cursor", "canvas", "temporal", "rings", "rainbow"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation. No media playback. Safe for all contexts."
+  },
+  "controls": [
+    {
+      "id": "toggleReverse",
+      "label": "Toggle Reverse",
+      "type": "button"
+    }
+  ]
+}

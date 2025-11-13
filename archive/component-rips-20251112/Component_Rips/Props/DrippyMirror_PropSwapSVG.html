@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><title>Drippy Mirror</title>
+<style>html,body{margin:0;height:100%;background:#05050a;overflow:hidden}.wrap{position:fixed;inset:0;display:grid;place-items:center}
+img,canvas{position:absolute}.wrap img{width:min(70vmin,720px)}</style>
+<div class=wrap><img id=base src=errl.png><canvas id=fx></canvas></div>
+<script>
+const b=document.getElementById('base'),cv=document.getElementById('fx'),cx=cv.getContext('2d');function fit(){cv.width=b.naturalWidth||1024;cv.height=b.naturalHeight||1024;cv.style.width=b.clientWidth+'px';cv.style.height=b.clientHeight+'px'}b.onload=fit;
+(function loop(t){requestAnimationFrame(loop);if(!b.naturalWidth)return;cx.clearRect(0,0,cv.width,cv.height);for(let y=0;y<cv.height;y+=2){const sh=Math.sin(t/600+y*.03)*4;cx.drawImage(b,0,y,cv.width,2,sh,y,cv.width,2)}cx.globalCompositeOperation='screen';cx.globalAlpha=.35;cx.drawImage(b,0,0);cx.globalAlpha=1;cx.globalCompositeOperation='source-over'})()
+</script>

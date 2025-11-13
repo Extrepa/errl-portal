@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Conic-Goo Portal</title>
+<style>
+  :root{
+    --bg: conic-gradient(from 0deg, #ff0066, #ffa400, #ffee00, #46ff6a, #00e5ff, #7b5cff, #ff00c8, #ff0066);
+  }
+  html,body{height:100%;margin:0;background: #070710;color:#fff;font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif}
+  .stage{position:relative; height:100%; overflow:hidden; display:grid; place-items:center;}
+  .ink{position:absolute; inset: -20vmax; background: var(--bg); animation: spin 16s linear infinite;}
+  @keyframes spin {to{transform:rotate(360deg)}}
+  /* SVG mask via pointer events none so we can see gradient through its holes */
+  svg.mask{position:absolute; inset:0; pointer-events:none; filter:url(#goo); mix-blend-mode:normal}
+  .ui{position:fixed; bottom:1rem; left:50%; transform:translateX(-50%);
+      background:rgba(0,0,0,.35); backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:.6rem 1rem}
+  .ui label{margin:0 .6rem; font-size:.9rem; opacity:.85}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="ink" id="ink"></div>
+  <svg class="mask" viewBox="0 0 600 600" aria-hidden="true">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10"/>
+      </filter>
+    </defs>
+    <g id="drips" fill="#000">
+      <circle cx="300" cy="300" r="220"></circle>
+      <circle id="d1" cx="300" cy="460" r="40"></circle>
+      <circle id="d2" cx="380" cy="430" r="28"></circle>
+      <circle id="d3" cx="220" cy="430" r="32"></circle>
+    </g>
+  </svg>
+</div>
+<div class="ui">
+  <label>Parallax <input id="par" type="range" min="0" max="1" step="0.01" value="0.5"></label>
+  <label>Spin <input id="spd" type="range" min="0" max="1" step="0.01" value="0.6"></label>
+</div>
+<script>
+const d1=document.getElementById('d1'), d2=document.getElementById('d2'), d3=document.getElementById('d3');
+const ink=document.getElementById('ink');
+let par=parseFloat(par.value), spd=parseFloat(spd.value);
+par.oninput=e=> par=parseFloat(e.target.value);
+spd.oninput=e=> {spd=parseFloat(e.target.value); ink.style.animationDuration = (2 + (1-spd)*24)+'s'};
+ink.style.animationDuration = (2 + (1-spd)*24)+'s';
+
+window.addEventListener('pointermove', (e)=>{
+  const nx = (e.clientX / innerWidth - .5)*2;
+  const ny = (e.clientY / innerHeight - .5)*2;
+  const t = performance.now()/1000;
+  d1.setAttribute('cy', 460 + ny*30*par + Math.sin(t*1.6)*10);
+  d1.setAttribute('cx', 300 + nx*20*par);
+  d2.setAttribute('cy', 430 + ny*25*par + Math.cos(t*1.8)*9);
+  d2.setAttribute('cx', 380 + nx*30*par);
+  d3.setAttribute('cy', 430 + ny*25*par + Math.sin(t*1.4)*7);
+  d3.setAttribute('cx', 220 + nx*30*par);
+});
+</script>
+</body>
+</html>

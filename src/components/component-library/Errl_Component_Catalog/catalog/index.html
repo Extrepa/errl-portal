@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Errl Component Catalog</title>
+<link rel="stylesheet" href="../shared/theme.css">
+</head>
+<body>
+<div class="header"><strong>Errl Component Catalog</strong><span class="small">— Browse, preview, export</span><div style="margin-left:auto" class="row"><button class="btn" id="glowAll">Glow</button><button class="btn" id="reload">Reload</button></div></div>
+<div class="main">
+  <aside class="sidebar">
+    <div class="card">
+      <div class="small">Components</div>
+      <select id="picker" class="select" size="10">
+        <option value="../components/ripple/index.html">Ripple (Height-Field)</option><option value="../components/kaleido-bg/index.html">Kaleido Background</option><option value="../components/optical-grid/index.html">Optical Grid (Moiré)</option><option value="../components/ascii-orb/index.html">ASCII Orb (Audio-Optional)</option><option value="../components/control-dock/index.html">Phone-Style Control Dock</option>
+      </select>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="openBtn">Open</button>
+        <a class="btn" id="openNew" target="_blank">Open in new</a>
+      </div>
+    </div>
+    <div class="card small">
+      Keyboard: <span class="kbd">G</span> glow • <span class="kbd">R</span> reset (forwarded to preview)
+    </div>
+  </aside>
+  <section class="preview">
+    <iframe id="frame" src="../components/ripple/index.html"></iframe>
+  </section>
+</div>
+<div class="footer small">file:// friendly — No external libs — Standardized UI hooks</div>
+<script src="../shared/util.js"></script>
+<script>
+(()=>{
+  const picker = document.getElementById('picker');
+  const frame = document.getElementById('frame');
+  const openBtn = document.getElementById('openBtn');
+  const openNew = document.getElementById('openNew');
+  const glowAll = document.getElementById('glowAll');
+  const reload = document.getElementById('reload');
+  function load(val){ frame.src = val; openNew.href = val; }
+  openBtn.onclick = ()=> load(picker.value);
+  picker.onchange = ()=> { openNew.href = picker.value; };
+  glowAll.onclick = ()=> document.documentElement.classList.toggle('glow');
+  reload.onclick = ()=> frame.contentWindow.location.reload();
+  // init
+  openNew.href = picker.value;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Anisotropic Velvet</title>
+<style>
+ html,body{height:100%;margin:0;background:#0a0a0e;color:#fff;font-family:ui-sans-serif}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.5rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="ui">Drag to comb the velvet.</div>
+<script>
+const c=document.getElementById('c'), g=c.getContext('2d'); function fit(){c.width=innerWidth; c.height=innerHeight} fit(); addEventListener('resize',fit);
+let dir=0; addEventListener('pointermove', e=>{dir = Math.atan2(e.movementY, e.movementX)});
+function hash(x,y){return (Math.sin(x*127.1 + y*311.7)*43758.5453)%1;}
+function velvet(x,y,ang){
+  // oriented noise by sampling along angle
+  let s=0, n=7;
+  for(let i=0;i<n;i++){
+    const t = (i/n-0.5)*8;
+    s += hash(Math.floor((x+Math.cos(ang)*t)/8), Math.floor((y+Math.sin(ang)*t)/8));
+  }
+  return s/n;
+}
+(function loop(t){
+  requestAnimationFrame(loop);
+  const img = g.createImageData(c.width, c.height);
+  const ang = dir + Math.sin(t/1200)*0.3;
+  let i=0;
+  for(let y=0;y<c.height;y+=2){
+    for(let x=0;x<c.width;x+=2){
+      const v = velvet(x,y,ang);
+      const h = (200 + v*160 + (y/c.height)*40)%360;
+      const l = 25 + v*35;
+      // convert HSL to RGB (approx quick hack)
+      const a=h/60, C=(1-Math.abs(2*l/100-1))*0.9, X=C*(1-Math.abs(a%2-1)), m=l/100-C/2;
+      let r=0,gc=0,b=0;
+      if(0<=a&&a<1){r=C;gc=X}else if(1<=a&&a<2){r=X;gc=C}else if(2<=a&&a<3){gc=C;b=X}
+      else if(3<=a&&a<4){gc=X;b=C}else if(4<=a&&a<5){r=X;b=C}else{r=C;b=X}
+      r=(r+m)*255; gc=(gc+m)*255; b=(b+m)*255;
+      for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++){
+        const idx = ((y+dy)*c.width + (x+dx))*4;
+        img.data[idx]=r; img.data[idx+1]=gc; img.data[idx+2]=b; img.data[idx+3]=255;
+      }
+    }
+  }
+  g.putImageData(img,0,0);
+})(0);
+</script></body></html>

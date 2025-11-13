@@ -1,0 +1,23 @@
+{
+  "name": "Rainbow Tunnel",
+  "slug": "rainbow-tunnel",
+  "category": "background",
+  "status": "normalized",
+  "description": "Two-layer conic gradient that rotates through Errl's silhouette with adjustable speeds, direction, and mask shape.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowTunnel_BG.html",
+  "convertedAt": "2025-11-12T19:50:25.226Z",
+  "tags": ["background", "gradient", "animation"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Canvas-free CSS animation. Respects prefers-reduced-motion (animations pause when requested)."
+  },
+  "controls": [
+    { "id": "outerSpeed", "label": "Outer Spin", "type": "range", "min": 10, "max": 80, "step": 1 },
+    { "id": "innerSpeed", "label": "Inner Spin", "type": "range", "min": 6, "max": 40, "step": 1 },
+    { "id": "innerCounter", "label": "Counter-rotate Inner Layer", "type": "checkbox" },
+    { "id": "maskSelect", "label": "Mask", "type": "select", "options": ["Errl Silhouette", "Circle", "Full Gradient"] },
+    { "id": "tipToggle", "label": "Show Tip", "type": "checkbox" }
+  ]
+}

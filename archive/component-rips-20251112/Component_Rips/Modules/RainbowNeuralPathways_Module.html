@@ -1,0 +1,32 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Holographic Thought Mesh</title>
+<style>
+ html,body{height:100%;margin:0;background:#04040a;color:#fff;font-family:ui-sans-serif; overflow:hidden}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.4rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="ui">Move around. The mesh remembers your path and glows where attention lingers.</div>
+<script>
+const c=document.getElementById('c'), g=c.getContext('2d'); function fit(){c.width=innerWidth; c.height=innerHeight} fit(); addEventListener('resize',fit);
+const nodes = []; let mx=innerWidth/2,my=innerHeight/2;
+addEventListener('pointermove', e=>{mx=e.clientX; my=e.clientY; nodes.push({x:mx,y:my,w:1}); if(nodes.length>1200) nodes.shift(); });
+(function loop(t){
+  requestAnimationFrame(loop);
+  g.fillStyle='rgba(4,4,10,0.2)'; g.fillRect(0,0,c.width,c.height);
+  // fade nodes and connect nearby
+  for(const n of nodes){ n.w = Math.min(3.5, n.w*1.01 + 0.02); }
+  for(let i=0;i<nodes.length;i+=3){
+    const a=nodes[i], b=nodes[i+1], c1=nodes[i+2]; if(!(a&&b&&c1)) continue;
+    const hue=(t/30 + i*0.2)%360;
+    g.strokeStyle=`hsla(${hue},100%,65%,0.35)`; g.lineWidth=1.2;
+    g.beginPath(); g.moveTo(a.x,a.y); g.lineTo(b.x,b.y); g.lineTo(c1.x,c1.y); g.stroke();
+  }
+  // draw nodes as glow
+  for(const n of nodes){
+    g.fillStyle='rgba(200,230,255,0.7)';
+    g.beginPath(); g.arc(n.x,n.y,n.w,0,6.283); g.fill();
+  }
+})();
+</script></body></html>

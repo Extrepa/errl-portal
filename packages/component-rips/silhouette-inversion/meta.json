@@ -1,0 +1,23 @@
+{
+  "name": "Silhouette Inversion",
+  "slug": "silhouette-inversion",
+  "category": "prop",
+  "status": "normalized",
+  "description": "Visual illusion effect that inverts image colors and hue. Stare at the inverted image for ~10 seconds, then toggle to see the afterimage effect. Toggle via Space key or button click.",
+  "source": "archive/component-rips-20251112/Component_Rips/Props/SilouetteInversion_PropSwapSVG.html",
+  "convertedAt": "2025-11-13T00:27:01.333Z",
+  "tags": ["prop", "filter", "illusion", "visual-effect"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure CSS filter effect. No media playback. Safe for all contexts."
+  },
+  "controls": [
+    {
+      "id": "toggle",
+      "label": "Toggle Inversion",
+      "type": "button"
+    }
+  ]
+}

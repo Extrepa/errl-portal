@@ -1,0 +1,32 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Parallax Parsec</title>
+<style>
+ html,body{height:100%;margin:0;background:#020209;color:#fff;font-family:ui-sans-serif}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; top:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.5rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="ui">Move your pointer. Stars warp by depth.</div>
+<script>
+const c = document.getElementById('c'), g=c.getContext('2d');
+function fit(){c.width=innerWidth; c.height=innerHeight} fit(); addEventListener('resize',fit);
+const stars = Array.from({length:900}, ()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,z:Math.random(), p:Math.random()*6.28}));
+let mx=innerWidth/2,my=innerHeight/2;
+addEventListener('pointermove', e=>{mx=e.clientX; my=e.clientY;});
+(function loop(t){
+  requestAnimationFrame(loop);
+  g.fillStyle='rgba(2,2,9,0.35)'; g.fillRect(0,0,c.width,c.height);
+  for(const s of stars){
+    s.p += 0.002 + s.z*0.01;
+    const dx=(mx - s.x)*0.0006*(1-s.z), dy=(my - s.y)*0.0006*(1-s.z);
+    s.x += Math.cos(s.p)*0.4 + dx; s.y += Math.sin(s.p)*0.4 + dy;
+    if(s.x<0) s.x+=innerWidth; if(s.x>innerWidth) s.x-=innerWidth;
+    if(s.y<0) s.y+=innerHeight; if(s.y>innerHeight) s.y-=innerHeight;
+    const hue = (t/80 + s.z*360)%360; const r = 0.6 + s.z*2.2;
+    g.fillStyle=`hsla(${hue},100%,60%,0.8)`; g.beginPath(); g.arc(s.x,s.y,r,0,6.283); g.fill();
+    // chroma trail
+    g.globalAlpha=0.15; g.strokeStyle=`hsla(${(hue+180)%360},100%,70%,0.6)`; g.beginPath(); g.moveTo(s.x,s.y); g.lineTo(s.x - Math.cos(s.p)*8*(1+s.z*2), s.y - Math.sin(s.p)*8*(1+s.z*2)); g.stroke(); g.globalAlpha=1;
+  }
+})(0);
+</script></body></html>

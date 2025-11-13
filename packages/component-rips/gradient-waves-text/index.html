@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gradient Waves Text — FX</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="stage">
+      <section class="panel">
+        <h1 data-wave>ERRL PORTAL</h1>
+        <p>
+          Gradient-masked headline with sine-wave distortion driven by CSS variables. Adjust speed and amplitude or switch to
+          alternate copy.
+        </p>
+        <footer>
+          <label>
+            Speed
+            <input id="speed" type="range" min="0.3" max="2" step="0.05" value="1" />
+          </label>
+          <label>
+            Amplitude
+            <input id="amplitude" type="range" min="0" max="40" step="1" value="18" />
+          </label>
+          <button id="toggleText">Toggle Copy</button>
+        </footer>
+      </section>
+    </main>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

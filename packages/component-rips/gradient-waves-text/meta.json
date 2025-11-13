@@ -1,0 +1,21 @@
+{
+  "name": "Gradient Waves Text",
+  "slug": "gradient-waves-text",
+  "category": "text",
+  "status": "normalized",
+  "description": "Gradient-masked headline with CSS wave distortion and adjustable speed/amplitude.",
+  "source": "archive/component-rips-20251112/Component_Rips/Text/GradientWaves_Text.html",
+  "convertedAt": "2025-11-12T18:46:08.439Z",
+  "tags": ["text", "css", "animation"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure CSS + JS text animation."
+  },
+  "controls": [
+    { "id": "speed", "label": "Speed", "type": "range", "min": 0.3, "max": 2, "step": 0.05 },
+    { "id": "amplitude", "label": "Amplitude", "type": "range", "min": 0, "max": 40, "step": 1 },
+    { "id": "toggleText", "label": "Toggle Copy", "type": "button" }
+  ]
+}

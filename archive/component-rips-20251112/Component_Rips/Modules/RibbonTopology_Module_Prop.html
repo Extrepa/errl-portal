@@ -1,0 +1,38 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ribbon Topology</title>
+<style>
+ html,body{height:100%;margin:0;background:#06060c;color:#fff;font-family:ui-sans-serif}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; top:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.4rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="ui">Interweaving bezier ribbons with fake depth.</div>
+<script>
+const c=document.getElementById('c'), g=c.getContext('2d'); function fit(){c.width=innerWidth; c.height=innerHeight} fit(); addEventListener('resize',fit);
+const ribs = Array.from({length:20}, (_,i)=>({t:Math.random()*6.28, hue: i*18%360}));
+function path(t, o){
+  const cx=innerWidth/2, cy=innerHeight/2, R=Math.min(cx,cy)*0.7, s=Math.sin, c=Math.cos;
+  const x = cx + c(t*0.6+o)*R*0.7, y = cy + s(t*0.9+o)*R*0.5;
+  const x2 = cx + c(t*0.6+o+1.1)*R*0.7, y2 = cy + s(t*0.9+o+1.1)*R*0.5;
+  const x3 = cx + c(t*0.6+o+2.2)*R*0.7, y3 = cy + s(t*0.9+o+2.2)*R*0.5;
+  return [x,y,x2,y2,x3,y3];
+}
+(function loop(t){
+  requestAnimationFrame(loop);
+  g.fillStyle='rgba(6,6,12,0.25)'; g.fillRect(0,0,c.width,c.height);
+  // compute depths by y to fake over/under
+  const segs=[];
+  for(const r of ribs){
+    const [x1,y1, cx1,cy1, x2,y2] = path(t/400, r.t);
+    segs.push({y:(y1+y2)*0.5, r, p:[x1,y1,cx1,cy1,x2,y2]});
+  }
+  segs.sort((a,b)=>a.y-b.y);
+  for(const s of segs){
+    const [x1,y1,cx1,cy1,x2,y2]=s.p;
+    g.strokeStyle=`hsla(${(s.r.hue + t/20)%360},100%,65%,0.9)`;
+    g.lineWidth=14; g.beginPath(); g.moveTo(x1,y1); g.quadraticCurveTo(cx1,cy1,x2,y2); g.stroke();
+    g.lineWidth=6; g.strokeStyle='rgba(255,255,255,0.25)'; g.stroke();
+  }
+})();
+</script></body></html>

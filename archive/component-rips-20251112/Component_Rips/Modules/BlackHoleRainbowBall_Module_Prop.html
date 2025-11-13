@@ -1,0 +1,58 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Errl’s Event Horizon</title>
+<style>
+ html,body{height:100%;margin:0;background:#020208;color:#fff;font-family:ui-sans-serif}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; top:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.4rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head><body>
+<canvas id="bg"></canvas><canvas id="fx"></canvas>
+<div class="ui">Drag the black hole. Time slows near the core.</div>
+<script>
+const b=document.getElementById('bg'), f=document.getElementById('fx'); const gb=b.getContext('2d'), gf=f.getContext('2d');
+function fit(){[b,f].forEach(x=>{x.width=innerWidth; x.height=innerHeight});} fit(); addEventListener('resize',fit);
+let mx=innerWidth/2,my=innerHeight/2, down=false;
+addEventListener('pointerdown', e=>{down=true; mx=e.clientX; my=e.clientY;});
+addEventListener('pointermove', e=>{ if(down){mx=e.clientX; my=e.clientY;} });
+addEventListener('pointerup', ()=>down=false);
+
+function drawBG(t){
+  gb.clearRect(0,0,b.width,b.height);
+  const cx=b.width/2, cy=b.height/2;
+  for(let i=0;i<200;i++){
+    const r= 20 + i*3, a= t/1200 + i*0.05;
+    gb.strokeStyle=`hsla(${(i*2+t/20)%360},100%,60%,0.6)`;
+    gb.beginPath(); gb.arc(cx + Math.cos(a)*30, cy + Math.sin(a)*30, r*0.36, 0, 6.283); gb.stroke();
+  }
+}
+function distort(){
+  const w=f.width, h=f.height;
+  const src = gb.getImageData(0,0,w,h);
+  const out = gf.createImageData(w,h);
+  const R=140;
+  for(let y=-R;y<=R;y++){
+    for(let x=-R;x<=R;x++){
+      const d = Math.hypot(x,y);
+      if(d>R) continue;
+      const tslow = 1 - (d/R);
+      const bend = 1 + tslow*2.5;
+      const sx = Math.max(0, Math.min(w-1, Math.round(mx + x*bend)));
+      const sy = Math.max(0, Math.min(h-1, Math.round(my + y*bend)));
+      const si=(sy*w+sx)*4;
+      const di=((my+y)|0)*w*4 + ((mx+x)|0)*4;
+      if(di>=0 && di<out.data.length){
+        out.data[di]=src.data[si]; out.data[di+1]=src.data[si+1]; out.data[di+2]=src.data[si+2]; out.data[di+3]=255;
+      }
+    }
+  }
+  gf.putImageData(src,0,0);
+  gf.putImageData(out,0,0);
+  // accretion glow
+  gf.strokeStyle='rgba(255,255,255,0.5)'; gf.beginPath(); gf.arc(mx,my,R,0,6.283); gf.stroke();
+}
+(function loop(t){
+  requestAnimationFrame(loop);
+  drawBG(t);
+  distort();
+})();
+</script></body></html>

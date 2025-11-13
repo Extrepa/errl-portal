@@ -1,0 +1,39 @@
+{
+  "name": "Gradient Box Button",
+  "slug": "gradient-box-button",
+  "category": "button",
+  "status": "normalized",
+  "description": "Animated rainbow gradient button with customizable text, angle, and border radius. Includes hover lift effect and gradient shift animation.",
+  "source": "archive/component-rips-20251112/Component_Rips/Buttons/Gradient_Box_Button.html",
+  "convertedAt": "2025-11-12T22:01:10.492Z",
+  "tags": ["button", "gradient", "css", "animation"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure CSS button with no media dependencies."
+  },
+  "controls": [
+    {
+      "id": "textInput",
+      "label": "Text",
+      "type": "text"
+    },
+    {
+      "id": "angle",
+      "label": "Gradient Angle",
+      "type": "range",
+      "min": 0,
+      "max": 360,
+      "step": 1
+    },
+    {
+      "id": "radius",
+      "label": "Border Radius",
+      "type": "range",
+      "min": 0,
+      "max": 50,
+      "step": 1
+    }
+  ]
+}

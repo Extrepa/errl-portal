@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Bubbling Cursor Effect</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    min-height: 100vh;
+    cursor: none;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, sans-serif;
+    color: white;
+  }
+  
+  #bubbling-cursor-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  
+  /* Different bubble color variants */
+  .bubble.variant-1 { border-color: rgba(123, 92, 255, 0.7); }
+  .bubble.variant-2 { border-color: rgba(0, 212, 255, 0.7); }
+  .bubble.variant-3 { border-color: rgba(255, 0, 110, 0.7); }
+  .bubble.variant-4 { border-color: rgba(255, 200, 0, 0.7); }
+  
+  @keyframes bubble-animation {
+    0% {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1.5);
+      opacity: 0;
+    }
+  }
+  
+  .content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+    pointer-events: none;
+  }
+  
+  h1 {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #7b5cff, #00d4ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+  
+  p {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 600px;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  
+  .info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 2rem;
+  }
+  
+  .info-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(123, 92, 255, 0.3);
+    border-color: rgba(123, 92, 255, 0.5);
+  }
+  
+  .info-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #00d4ff;
+  }
+  
+  .info-card p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+  }
+  
+  .controls {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    pointer-events: all;
+    z-index: 10000;
+  }
+  
+  .controls label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .controls input[type="range"] {
+    width: 150px;
+    accent-color: #7b5cff;
+  }
+  
+  .cursor-dot {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10001;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease-out;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .bubble {
+      animation-duration: 0.01ms !important;
+    }
+    
+    .cursor-dot {
+      transition: none !important;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    body {
+      cursor: auto;
+    }
+    
+    .cursor-dot {
+      display: none;
+    }
+    
+    .controls {
+      bottom: 1rem;
+      right: 1rem;
+      left: 1rem;
+    }
+    
+    .info-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="bubbling-cursor-container"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<div class="content">
+  <h1>Bubbling Cursor</h1>
+  <p>Move your mouse around to create mesmerizing bubble trails. Each bubble has dynamic sizing and color variations.</p>
+  
+  <div class="info-cards">
+    <div class="info-card">
+      <h3>⚡ Optimized</h3>
+      <p>Throttled events ensure smooth 60fps performance even with hundreds of bubbles</p>
+    </div>
+    <div class="info-card">
+      <h3>🎨 Dynamic</h3>
+      <p>Random sizes and colors create organic, natural-feeling animations</p>
+    </div>
+    <div class="info-card">
+      <h3>♿ Accessible</h3>
+      <p>Respects reduced-motion preferences for better accessibility</p>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <label>
+    Bubble Size:
+    <input type="range" id="sizeRange" min="10" max="80" value="40" step="5"/>
+  </label>
+  <label style="margin-top: 0.5rem;">
+    Animation Speed:
+    <input type="range" id="speedRange" min="300" max="1500" value="750" step="50"/>
+  </label>
+</div>
+
+<script>
+(function() {
+  const container = document.getElementById('bubbling-cursor-container');
+  const cursorDot = document.getElementById('cursorDot');
+  const sizeRange = document.getElementById('sizeRange');
+  const speedRange = document.getElementById('speedRange');
+  
+  if (!container) return;
+  
+  let lastMoveTime = 0;
+  const throttleInterval = 25; // ms
+  let bubbleBaseSize = 40;
+  let animationDuration = 750;
+  const variants = ['variant-1', 'variant-2', 'variant-3', 'variant-4'];
+  
+  // Update settings
+  sizeRange.addEventListener('input', (e) => {
+    bubbleBaseSize = parseInt(e.target.value);
+  });
+  
+  speedRange.addEventListener('input', (e) => {
+    animationDuration = parseInt(e.target.value);
+  });
+  
+  // Mouse move handler
+  window.addEventListener('mousemove', (e) => {
+    const currentTime = Date.now();
+    
+    // Update cursor dot
+    cursorDot.style.left = e.clientX + 'px';
+    cursorDot.style.top = e.clientY + 'px';
+    
+    // Throttle bubble creation
+    if (currentTime - lastMoveTime < throttleInterval) {
+      return;
+    }
+    lastMoveTime = currentTime;
+    
+    // Create bubble
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + variants[Math.floor(Math.random() * variants.length)];
+    
+    // Random size variation
+    const sizeVariation = (Math.random() - 0.5) * 20;
+    const size = bubbleBaseSize + sizeVariation;
+    bubble.style.width = size + 'px';
+    bubble.style.height = size + 'px';
+    
+    // Position
+    bubble.style.left = e.clientX + 'px';
+    bubble.style.top = e.clientY + 'px';
+    
+    // Animate with Web Animations API
+    const animation = bubble.animate([
+      { 
+        transform: 'translate(-50%, -50%) scale(0)', 
+        opacity: 1 
+      },
+      { 
+        transform: 'translate(-50%, -50%) scale(1.5)', 
+        opacity: 0 
+      }
+    ], {
+      duration: animationDuration,
+      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      fill: 'forwards'
+    });
+    
+    container.appendChild(bubble);
+    
+    // Remove after animation
+    animation.onfinish = () => {
+      bubble.remove();
+    };
+  });
+  
+  // Click handler for extra effect
+  window.addEventListener('click', (e) => {
+    // Create burst of bubbles on click
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => {
+        const angle = (Math.PI * 2 * i) / 8;
+        const distance = 30;
+        const offsetX = Math.cos(angle) * distance;
+        const offsetY = Math.sin(angle) * distance;
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble ' + variants[i % variants.length];
+        
+        const size = bubbleBaseSize * 0.8;
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        bubble.style.left = (e.clientX + offsetX) + 'px';
+        bubble.style.top = (e.clientY + offsetY) + 'px';
+        
+        const animation = bubble.animate([
+          { 
+            transform: 'translate(-50%, -50%) scale(0)', 
+            opacity: 1 
+          },
+          { 
+            transform: 'translate(-50%, -50%) scale(2)', 
+            opacity: 0 
+          }
+        ], {
+          duration: animationDuration * 1.2,
+          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          fill: 'forwards'
+        });
+        
+        container.appendChild(bubble);
+        
+        animation.onfinish = () => {
+          bubble.remove();
+        };
+      }, i * 30);
+    }
+  });
+  
+  // Performance monitoring (optional)
+  let bubbleCount = 0;
+  setInterval(() => {
+    bubbleCount = container.children.length;
+    if (bubbleCount > 100) {
+      console.warn('High bubble count:', bubbleCount);
+    }
+  }, 1000);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASCII Orb (Audio-Optional)</title>
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>pre{margin:0;white-space:pre;line-height:1;letter-spacing:1px;font:11px/11px ui-monospace,Menlo,Consolas,monospace;color:#d7d7ff;background:#070711;height:100vh;display:block;padding:8px}</style>
+</head>
+<body>
+<div class="header"><strong>ASCII Orb (Audio-Optional)</strong><span class="small">— ASCII-rendered orb from sine fields; looks good even muted.</span><span class="small" style="margin-left:auto">Shortcuts: <span class="kbd">G</span> glow • <span class="kbd">R</span> reset</span></div>
+<pre id="a"></pre>
+<script src="../../shared/util.js"></script>
+<script>
+
+const pre=document.getElementById('a'); const W=120,H=48; let t0=0; const chars=' .,:;ox%#@';
+function render(t){let s=''; const tt=t*0.001; for(let y=0;y<H;y++){ const ny=(y/H-0.5)*2; for(let x=0;x<W;x++){ const nx=(x/W-0.5)*2; let v= Math.sin(nx*5+tt*2)+ Math.cos(ny*4-tt*1.7) + Math.sin((nx*nx+ny*ny)*6-tt*3); v=(v+3)/6; const idx=Math.max(0,Math.min(chars.length-1, Math.floor(v*chars.length))); s+=chars[idx]; } s+='\n'; } pre.textContent=s; requestAnimationFrame(render);} requestAnimationFrame(render);
+        
+</script>
+</body>
+</html>

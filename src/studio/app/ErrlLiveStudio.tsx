@@ -608,7 +608,7 @@ export default function ErrlLiveStudio() {
                   />
                 </div>
                 <div>
-                  <Button asChild variant="secondary" size="sm">
+<Button variant="secondary" size="sm">
                     <Link to="/assets">Open Asset Library</Link>
                   </Button>
                 </div>

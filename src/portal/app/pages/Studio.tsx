@@ -16,6 +16,13 @@ const PIN_DESIGNER_URL = resolvePortalPageUrl('pages/pin-designer/index.html');
 
 const tools: ToolLink[] = [
   {
+    id: 'projects',
+    title: 'Projects',
+    description: 'Standalone visual effects (HTML/CSS/JS) wrapped for Studio: Gravity, Ripple, Sparkle, Trails.',
+    badge: 'available',
+    to: 'projects',
+  },
+  {
     id: 'code-lab',
     title: 'Code Lab',
     description: 'Full Errl Live Studio editor with HTML/CSS/JS preview, Monaco, asset manager, and SVG tooling.',

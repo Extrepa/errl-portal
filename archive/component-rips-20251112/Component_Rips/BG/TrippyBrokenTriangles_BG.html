@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>IsoBubble Voronoi</title>
+<style>
+ html,body{height:100%;margin:0;background:#070711;color:#fff;font-family:ui-sans-serif}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.4rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="ui">P to add point. Bubbly Voronoi cells pulse.</div>
+<script>
+const c=document.getElementById('c'), g=c.getContext('2d'); function fit(){c.width=innerWidth; c.height=innerHeight} fit(); addEventListener('resize',fit);
+const pts = Array.from({length:18}, ()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight, p:Math.random()*6.28}));
+addEventListener('keydown', e=>{if(e.key==='p') pts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,p:Math.random()*6.28})});
+function loop(t){
+  requestAnimationFrame(loop);
+  g.clearRect(0,0,c.width,c.height);
+  // animate points
+  for(const s of pts){ s.p += 0.01; s.x += Math.cos(s.p)*0.6; s.y += Math.sin(s.p*1.2)*0.6; }
+  // draw cells by sampling grid (coarse for speed) and blobby smoothing
+  const step=4;
+  for(let y=0;y<c.height;y+=step){
+    for(let x=0;x<c.width;x+=step){
+      let best=0, bestD=1e9;
+      for(let i=0;i<pts.length;i++){
+        const dx=x-pts[i].x, dy=y-pts[i].y; const d=dx*dx+dy*dy;
+        if(d<bestD){best=i; bestD=d;}
+      }
+      const hue=(best*37 + t/40)%360;
+      const l = 45 + 25*Math.sin((Math.sqrt(bestD)%120)/120*6.28 + t/900);
+      g.fillStyle=`hsl(${hue},100%,${l}%)`;
+      g.fillRect(x,y,step,step);
+    }
+  }
+}
+loop(0);
+</script></body></html>

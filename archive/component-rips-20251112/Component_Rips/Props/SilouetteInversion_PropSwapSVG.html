@@ -1,0 +1,5 @@
+<!doctype html><meta charset="utf-8"><title>Color Inversion Mirage</title>
+<style>html,body{margin:0;height:100%;background:#000}.stage{position:fixed;inset:0;display:grid;place-items:center}
+img{width:min(70vmin,720px)}.invert{filter:invert(1) hue-rotate(180deg)}.note{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);color:#fff8;font:14px system-ui}</style>
+<div class=stage><img id=img class=invert src=errl.png></div><div class=note>Stare ~10s, then press space.</div>
+<script>let n=false;addEventListener('keydown',e=>{if(e.code==='Space'){n=!n;img.className=n?'':'invert'}})</script>

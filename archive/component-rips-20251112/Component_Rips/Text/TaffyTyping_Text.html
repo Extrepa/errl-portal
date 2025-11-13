@@ -1,0 +1,46 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Taffy Typograph</title>
+<style>
+ html,body{height:100%;margin:0;background:#0b0b10;color:#fff;font-family: ui-sans-serif}
+ .wrap{height:100%;display:grid;place-items:center}
+ svg{width:min(90vw,900px); height:auto}
+ .handle{cursor:grab}
+ .ui{position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.4rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head><body>
+<div class="wrap">
+<svg viewBox="0 0 800 300">
+  <defs>
+    <filter id="goo"><feGaussianBlur stdDeviation="8" in="SourceGraphic" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10"/></filter>
+  </defs>
+  <path id="curve" d="M 60 150 C 240 120, 560 180, 740 150" stroke="#7bf" stroke-width="6" fill="none"/>
+  <text font-size="110" font-weight="800" fill="url(#grad)" filter="url(#goo)">
+    <textPath href="#curve" startOffset="5%">ERRL PORTAL</textPath>
+  </text>
+  <defs>
+    <linearGradient id="grad" x1="0" x2="1">
+      <stop offset="0%" stop-color="#ff7ad1"/><stop offset="50%" stop-color="#7b9dff"/><stop offset="100%" stop-color="#69ffd2"/>
+    </linearGradient>
+  </defs>
+  <circle class="handle" id="h1" cx="240" cy="120" r="12" fill="#fff8"/>
+  <circle class="handle" id="h2" cx="560" cy="180" r="12" fill="#fff8"/>
+</svg>
+</div>
+<div class="ui">Drag the control handles to taffy-stretch the text.</div>
+<script>
+let drag=null, offX=0, offY=0;
+for(const h of document.querySelectorAll('.handle')){
+  h.addEventListener('pointerdown', e=>{drag=h; offX=e.clientX - parseFloat(h.getAttribute('cx')); offY=e.clientY - parseFloat(h.getAttribute('cy')); h.setPointerCapture(e.pointerId);});
+  h.addEventListener('pointerup', ()=> drag=null);
+  h.addEventListener('pointermove', e=>{
+    if(!drag) return;
+    const x = e.clientX - offX, y = e.clientY - offY;
+    drag.setAttribute('cx', x); drag.setAttribute('cy', y);
+    const x1 = parseFloat(document.getElementById('h1').getAttribute('cx'));
+    const y1 = parseFloat(document.getElementById('h1').getAttribute('cy'));
+    const x2 = parseFloat(document.getElementById('h2').getAttribute('cx'));
+    const y2 = parseFloat(document.getElementById('h2').getAttribute('cy'));
+    document.getElementById('curve').setAttribute('d', `M 60 150 C ${x1} ${y1}, ${x2} ${y2}, 740 150`);
+  });
+}
+</script></body></html>

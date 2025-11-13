@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Silhouette Inversion</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div id="component-root" class="stage">
+      <img id="img" class="invert" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='150' fill='%23fff'/%3E%3C/svg%3E" alt="Silhouette inversion demo" />
+    </div>
+    <div class="controls" id="controls">
+      <label>
+        <span>Toggle Inversion:</span>
+        <button id="toggle" type="button">Press Space or Click</button>
+      </label>
+      <p class="note">Stare at the image for ~10 seconds, then toggle to see the inversion effect.</p>
+    </div>
+    <script src="./script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Rainbow Projector Fluid</title>
+<style>
+  html,body{height:100%;margin:0;background:#050509;color:#fff;font-family:ui-sans-serif}
+  canvas{position:fixed; inset:0}
+  .ui{position:fixed; left:50%; bottom:1rem; transform:translateX(-50%);
+      background:#0006; padding:.4rem .8rem; border-radius:10px; border:1px solid #fff2}
+  label{margin:0 .6rem; font-size:.9rem; opacity:.9}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<canvas id="back"></canvas>
+<div class="ui">
+  <label>Glow <input id="glw" type="range" min="0" max="1" step="0.01" value="0.65"></label>
+  <label>Dye <input id="dye" type="range" min="0" max="1" step="0.01" value="0.7"></label>
+</div>
+<script>
+const a = document.getElementById('c'), b = document.getElementById('back');
+const ga=a.getContext('2d'), gb=b.getContext('2d');
+function fit(){[a,b].forEach(x=>{x.width=innerWidth; x.height=innerHeight});}
+fit(); addEventListener('resize', fit);
+let mx=innerWidth/2, my=innerHeight/2, down=false;
+addEventListener('pointerdown', e=>{down=true; mx=e.clientX; my=e.clientY;});
+addEventListener('pointerup', ()=> down=false);
+addEventListener('pointermove', e=>{mx=e.clientX; my=e.clientY; if(down) splat(mx,my)});
+
+function splat(x,y){
+  const g=ga;
+  const r= 12 + Math.random()*18;
+  const h = (performance.now()/30)%360;
+  g.globalCompositeOperation='lighter';
+  const grad = g.createRadialGradient(x,y,0,x,y,r*3);
+  grad.addColorStop(0, `hsla(${h},100%,60%,0.8)`);
+  grad.addColorStop(1, `hsla(${(h+90)%360},100%,50%,0)`);
+  g.fillStyle = grad;
+  g.beginPath(); g.arc(x,y,r*3,0,6.283); g.fill();
+}
+
+(function loop(){
+  requestAnimationFrame(loop);
+  const glow = parseFloat(glw.value);
+  const dyeV = parseFloat(dye.value);
+  // fade back buffer slightly
+  gb.globalAlpha = 0.9;
+  gb.globalCompositeOperation='source-over';
+  gb.drawImage(b,0,0);
+  // blur-ish by drawing scaled
+  gb.globalAlpha = 0.3 + glow*0.4;
+  gb.drawImage(a,0,0);
+  // clear front
+  ga.clearRect(0,0,a.width,a.height);
+  // show back buffer to screen
+  ga.globalCompositeOperation='source-over';
+  ga.globalAlpha = 1.0;
+  ga.drawImage(b,0,0);
+  // auto splats
+  if(Math.random()<0.06*dyeV){
+    splat(Math.random()*innerWidth, Math.random()*innerHeight);
+  }
+})();
+</script>
+</body></html>

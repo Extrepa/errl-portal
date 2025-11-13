@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaleido Background</title>
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>canvas{display:block;width:100%;height:100%;background:#070711}</style>
+</head>
+<body>
+<div class="header"><strong>Kaleido Background</strong><span class="small">— Procedural neon kaleidoscope; hypnotic background loops.</span><span class="small" style="margin-left:auto">Shortcuts: <span class="kbd">G</span> glow • <span class="kbd">R</span> reset</span></div>
+<canvas id="bg"></canvas>
+<script src="../../shared/util.js"></script>
+<script>
+
+const cv=document.getElementById('bg'), cx=cv.getContext('2d',{alpha:false});
+function fit(){cv.width=innerWidth;cv.height=innerHeight} fit(); addEventListener('resize',fit);
+function loop(t){const W=cv.width,H=cv.height; cx.fillStyle='#070711'; cx.fillRect(0,0,W,H);
+const cx0=W/2,cy0=H/2; for(let i=0;i<180;i++){const a=i/180*Math.PI*2 + t/2000; const r=160+120*Math.sin(i/9+t/900); const x=cx0+Math.cos(a)*r*1.4; const y=cy0+Math.sin(a)*r*0.9; const h=(i*2+t/40)%360; cx.strokeStyle=`hsl(${h},90%,60%)`; cx.beginPath(); cx.arc(x,y, 8+5*Math.sin(a*3+t/500), 0, 7); cx.stroke();} requestAnimationFrame(loop)} requestAnimationFrame(loop);
+        
+</script>
+</body>
+</html>

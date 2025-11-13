@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Live Gradient Mixer — Module</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="stage">
+      <section class="panel">
+        <header>
+          <h1>Live Gradient Mixer</h1>
+          <p>
+            Breed gradients by selecting any two swatches. Each new mix mutates the hue genome to uncover colorways for Errl’s
+            themes, buttons, or shader overlays.
+          </p>
+        </header>
+        <div class="control-bar">
+          <label>
+            Swatches
+            <input id="gridCount" type="range" min="6" max="30" step="1" value="12" />
+          </label>
+          <label>
+            Mutation
+            <input id="mutation" type="range" min="0" max="60" step="2" value="24" />
+          </label>
+          <label>
+            Transparency
+            <input id="alpha" type="range" min="40" max="100" step="5" value="80" />
+          </label>
+          <button id="reseed" type="button">Reseed</button>
+          <button id="copy" type="button">Copy Latest CSS</button>
+        </div>
+        <div class="grid" id="grid" role="list"></div>
+        <div class="info" id="info" role="status" aria-live="polite">
+          Click two gradients to breed a new one.
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+body { margin:0; background:#0d0d0d; min-height:100vh; overflow:hidden; }
+#holographic-cursor-container { position:fixed; inset:0; pointer-events:none; z-index:9999; cursor:none; }
+.trail-dot { position:absolute; width:40px; height:40px; border-radius:50%;
+  background: radial-gradient(circle, rgba(0,255,255,0.5) 0%, rgba(0,255,255,0) 70%);
+  filter: blur(10px); transform: translate(-50%, -50%); transition: opacity .5s ease-out; opacity:1; will-change: opacity; }
+@media (prefers-reduced-motion: reduce) { .trail-dot { width:28px; height:28px; filter: blur(8px); transition-duration: .35s; } }

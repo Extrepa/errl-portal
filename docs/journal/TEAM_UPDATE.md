@@ -155,6 +155,18 @@ Hue controller (`src/fx/hue-controller.ts`) spans the entire stack: applies CSS 
 - Playwright suite expanded with Studio hub checks (card visibility, navigation, iframe bridge assertions); `npm test`, `npm run portal:build` both green as of 2025-11-12 19:30 PT.
 - Updated README + team docs to reference the new route structure and daily build status; Warp instructions now highlight the middleware behaviour and shared asset bridge.
 
+## Update — 2025-11-13 Projects Page and Effects Integration
+
+- Added five standalone visual effects with no external libs (Gravity Sticker Field, Ripple Face w/ updated Errl face SVG, Sparkle Worklet Pin with CSS Paint Worklet + fallback, Bubble Mouse Trail, Holographic Cursor Trail).
+- Each effect ships as:
+  - Standalone HTML (file:// ready) in `public/apps/projects/_single-file/`
+  - Portal variant under `public/apps/projects/<slug>/`
+  - Optional React wrapper under `src/apps/projects/<slug>/`
+- New Studio route: `/studio/projects` with an embedded page listing and rendering the five effects.
+- Accessibility: all effects respect `prefers-reduced-motion`; performance guards added (DPR-aware canvas, visibility cleanup, spawn caps).
+- Docs: READMEs per effect + `docs/dev/projects-effects-overview.md`, `docs/dev/projects-test-matrix.md`, `docs/dev/projects-pr-plan.md`.
+- Tests/Build: `npm run typecheck`, `npm test`, and `npm run portal:build` completed successfully locally.
+
 ## Update — 2025-11-11 Complete Studio Hub Commit (7d2124e)
 
 **Branch**: `main` (ahead 1 commit from origin)

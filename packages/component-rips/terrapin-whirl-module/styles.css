@@ -1,0 +1,70 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b0f14;
+  --fg: #e9eef7;
+  --muted: #a6b4c8;
+  --border: #1f2a3a;
+  --surface: #0f1521;
+  --accent: #6dd6ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.component {
+  position: relative;
+  width: min(92vw, 960px);
+  min-height: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+#background {
+  width: 100%;
+  height: 360px;
+  display: block;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 50%, rgba(20, 30, 50, 0.4), rgba(4, 8, 14, 0.95));
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+.controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(8, 12, 20, 0.7);
+  border-radius: 999px;
+  border: 1px solid rgba(109, 214, 255, 0.12);
+}
+
+.controls span {
+  min-width: 50px;
+  color: var(--muted);
+}
+
+input[type="range"] {
+  accent-color: var(--accent);
+  width: 120px;
+}

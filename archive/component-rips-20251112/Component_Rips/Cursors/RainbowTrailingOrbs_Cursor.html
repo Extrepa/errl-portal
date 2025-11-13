@@ -1,0 +1,99 @@
+<!doctype html><meta charset="utf-8"><title>Cursor Bead Trail</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;color:white;font:14px system-ui}
+  canvas{width:100vw;height:100vh;display:block}
+  .ui{position:fixed;left:12px;top:12px;background:rgba(20,24,32,.6);backdrop-filter:blur(8px);
+      border:1px solid #253048;color:#dbe7ff;padding:8px 10px;border-radius:12px;display:flex;gap:10px;align-items:center}
+  .ui label{display:flex;gap:6px;align-items:center}
+  .ui input[type=range]{width:120px}
+</style>
+<canvas id="c"></canvas>
+<div class="ui">
+  <label>Beads <input id="count" type="range" min="6" max="64" step="1" value="24"></label>
+  <label>Drag <input id="drag" type="range" min="0.75" max="0.995" step="0.001" value="0.92"></label>
+  <label>Size <input id="size" type="range" min="2" max="20" step="1" value="8"></label>
+</div>
+<script>
+(() => {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  let w, h, dpr;
+  function resize(){
+    dpr = window.devicePixelRatio || 1;
+    w = canvas.width = Math.floor(innerWidth * dpr);
+    h = canvas.height = Math.floor(innerHeight * dpr);
+  }
+  addEventListener('resize', resize, { passive:true });
+  resize();
+
+  const state = {
+    count: 24,
+    drag: 0.92,
+    size: 8,
+    hueBase: 210,
+    hueRange: 160
+  };
+
+  const beads = [];
+  function resetBeads(){
+    beads.length = 0;
+    for (let i=0;i<state.count;i++){
+      beads.push({ x:w/2, y:h/2, vx:0, vy:0 });
+    }
+  }
+  resetBeads();
+
+  // UI
+  const count = document.getElementById('count');
+  const drag = document.getElementById('drag');
+  const size = document.getElementById('size');
+  const sync = () => {
+    state.count = +count.value;
+    state.drag  = +drag.value;
+    state.size  = +size.value;
+    resetBeads();
+  };
+  [count, drag, size].forEach(el=>el.addEventListener('input', sync));
+  sync();
+
+  // Pointer target
+  let targetX = w/2, targetY = h/2;
+  addEventListener('pointermove', e => {
+    const rect = canvas.getBoundingClientRect();
+    targetX = (e.clientX - rect.left) * dpr;
+    targetY = (e.clientY - rect.top) * dpr;
+  });
+
+  function step(){
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.fillRect(0,0,w,h);
+
+    // physics: each bead follows previous with spring
+    let px = targetX, py = targetY;
+    const k = 0.12; // spring
+    const dragC = state.drag;
+    for (let i=0;i<beads.length;i++){
+      const b = beads[i];
+      const dx = px - b.x;
+      const dy = py - b.y;
+      b.vx = (b.vx + dx * k) * dragC;
+      b.vy = (b.vy + dy * k) * dragC;
+      b.x += b.vx;
+      b.y += b.vy;
+
+      const t = i / (beads.length-1 || 1);
+      const hue = (state.hueBase + t * state.hueRange) % 360;
+      const r = state.size * (1.0 - t*0.6) * dpr;
+
+      ctx.beginPath();
+      ctx.fillStyle = `hsl(${hue} 80% ${50 + 20*(1-t)}% / 0.95)`;
+      ctx.arc(b.x, b.y, r, 0, Math.PI*2);
+      ctx.fill();
+
+      px = b.x; py = b.y;
+    }
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+})();
+</script>

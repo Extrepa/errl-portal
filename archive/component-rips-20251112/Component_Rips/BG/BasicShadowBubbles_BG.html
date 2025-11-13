@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Prisma Slime Glass</title>
+<style>
+  html,body{height:100%;margin:0;background:#04101a;color:#eaffff;font-family:ui-sans-serif}
+  #fx{position:fixed; inset:0}
+  .pane{position:fixed; inset:auto 2rem 2rem; left:2rem; right:2rem; height:220px;
+        background:rgba(4,22,30,.35); border:1px solid rgba(255,255,255,.12);
+        border-radius:20px; backdrop-filter: blur(18px) saturate(120%);
+        box-shadow:0 10px 40px rgba(0,0,0,.35);}
+  .pane h1{margin:1rem; font-size:1.2rem; letter-spacing:.06em; opacity:.9}
+  .pane p{margin:0 1rem 1rem; opacity:.85}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="pane">
+  <h1>Errl Prisma Panel</h1>
+  <p>Caustic sparkles dance under frosted glass. Drag pointer to swirl.</p>
+</div>
+<script>
+const c = document.getElementById('fx'), g = c.getContext('2d');
+function fit(){c.width=innerWidth*devicePixelRatio; c.height=innerHeight*devicePixelRatio; g.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+fit(); addEventListener('resize', fit);
+let mx=innerWidth/2, my=innerHeight/2;
+addEventListener('pointermove', e=>{mx=e.clientX; my=e.clientY;});
+const pts = Array.from({length:180}, (_,i)=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:8+Math.random()*10,a:Math.random()*6.28, s:0.4+Math.random()*0.9}));
+(function draw(t){
+  requestAnimationFrame(draw);
+  g.clearRect(0,0,innerWidth,innerHeight);
+  for(const p of pts){
+    p.a += 0.002 + p.s*0.001;
+    p.x += Math.cos(p.a) * 0.5 + (mx - p.x)*0.0006;
+    p.y += Math.sin(p.a) * 0.5 + (my - p.y)*0.0006;
+    g.fillStyle='rgba(235, 250, 255, 0.06)';
+    g.beginPath(); g.arc(p.x,p.y,p.r,0,6.283); g.fill();
+  }
+})();
+</script>
+</body></html>

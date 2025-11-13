@@ -1,0 +1,992 @@
+{
+  "generatedAt": "2025-11-13T00:36:25.187Z",
+  "packages": [
+    {
+      "slug": "bubbling-rainbow-rings",
+      "name": "Bubbling Rainbow Rings",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Pointer trail effect that spawns expanding rainbow rings with adjustable density and fade.",
+      "source": "archive/component-rips-20251112/Component_Rips/Cursors/BubblingRainbowRings_Cursor.html",
+      "convertedAt": "2025-11-12T18:46:04.992Z",
+      "tags": [
+        "cursor",
+        "particles",
+        "rainbow"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pointer/touch only. Particle counts configurable to mitigate performance."
+      },
+      "controls": [
+        {
+          "id": "density",
+          "label": "Density",
+          "type": "range",
+          "min": 5,
+          "max": 40,
+          "step": 1
+        },
+        {
+          "id": "fade",
+          "label": "Trail Fade",
+          "type": "range",
+          "min": 0.7,
+          "max": 0.98,
+          "step": 0.01
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/bubbling-rainbow-rings/index.html"
+      }
+    },
+    {
+      "slug": "errl-tunnel",
+      "name": "Errl Tunnel",
+      "category": "prop",
+      "status": "normalized",
+      "description": "Tunnel effect overlay with multiple concentric rings that zoom inward, creating a depth illusion. Useful for hero transitions and portal effects.",
+      "source": "archive/component-rips-20251112/Component_Rips/Props/Errl_Tunnel_PropSwapSVG.html",
+      "convertedAt": "2025-11-13T00:29:34.098Z",
+      "tags": [
+        "prop",
+        "svg",
+        "tunnel",
+        "overlay",
+        "transition"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure CSS animation with SVG rings. Respects prefers-reduced-motion."
+      },
+      "controls": [
+        {
+          "id": "speed",
+          "label": "Speed",
+          "type": "range",
+          "min": 2,
+          "max": 16,
+          "step": 0.5
+        },
+        {
+          "id": "ringCount",
+          "label": "Ring Count",
+          "type": "range",
+          "min": 3,
+          "max": 8,
+          "step": 1
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/errl-tunnel/index.html"
+      }
+    },
+    {
+      "slug": "fast-rainbow-rings-cursor",
+      "name": "Fast Rainbow Rings Cursor",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Temporal echo pool cursor trail with expanding rainbow rings. Tracks pointer movement and creates expanding circular waves. Space key or button toggles forward/reverse time direction.",
+      "source": "archive/component-rips-20251112/Component_Rips/Cursors/FastRainbowRings_Cursor.html",
+      "convertedAt": "2025-11-13T00:35:07.965Z",
+      "tags": [
+        "cursor",
+        "canvas",
+        "temporal",
+        "rings",
+        "rainbow"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "toggleReverse",
+          "label": "Toggle Reverse",
+          "type": "button"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/fast-rainbow-rings-cursor/index.html"
+      }
+    },
+    {
+      "slug": "gradient-box-button",
+      "name": "Gradient Box Button",
+      "category": "button",
+      "status": "normalized",
+      "description": "Animated rainbow gradient button with customizable text, angle, and border radius. Includes hover lift effect and gradient shift animation.",
+      "source": "archive/component-rips-20251112/Component_Rips/Buttons/Gradient_Box_Button.html",
+      "convertedAt": "2025-11-12T22:01:10.492Z",
+      "tags": [
+        "button",
+        "gradient",
+        "css",
+        "animation"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure CSS button with no media dependencies."
+      },
+      "controls": [
+        {
+          "id": "textInput",
+          "label": "Text",
+          "type": "text"
+        },
+        {
+          "id": "angle",
+          "label": "Gradient Angle",
+          "type": "range",
+          "min": 0,
+          "max": 360,
+          "step": 1
+        },
+        {
+          "id": "radius",
+          "label": "Border Radius",
+          "type": "range",
+          "min": 0,
+          "max": 50,
+          "step": 1
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/gradient-box-button/index.html"
+      }
+    },
+    {
+      "slug": "gradient-waves-text",
+      "name": "Gradient Waves Text",
+      "category": "text",
+      "status": "normalized",
+      "description": "Gradient-masked headline with CSS wave distortion and adjustable speed/amplitude.",
+      "source": "archive/component-rips-20251112/Component_Rips/Text/GradientWaves_Text.html",
+      "convertedAt": "2025-11-12T18:46:08.439Z",
+      "tags": [
+        "text",
+        "css",
+        "animation"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure CSS + JS text animation."
+      },
+      "controls": [
+        {
+          "id": "speed",
+          "label": "Speed",
+          "type": "range",
+          "min": 0.3,
+          "max": 2,
+          "step": 0.05
+        },
+        {
+          "id": "amplitude",
+          "label": "Amplitude",
+          "type": "range",
+          "min": 0,
+          "max": 40,
+          "step": 1
+        },
+        {
+          "id": "toggleText",
+          "label": "Toggle Copy",
+          "type": "button"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/gradient-waves-text/index.html"
+      }
+    },
+    {
+      "slug": "holographic-cube-cursor",
+      "name": "Holographic Cube Cursor",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "3D holographic cube cursor trail with rotating cubes following pointer movement. Features rainbow gradient faces, adjustable size, rotation speed, and trail length. Rebuilt from Framer export as standalone canvas implementation.",
+      "source": "archive/component-rips-20251112/Component_Rips/Cursors/HolographicCube_Cursor.html",
+      "convertedAt": "2025-11-13T00:35:08.666Z",
+      "tags": [
+        "cursor",
+        "canvas",
+        "3d",
+        "holographic",
+        "cube"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas 3D animation. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "size",
+          "label": "Size",
+          "type": "range",
+          "min": 10,
+          "max": 50,
+          "step": 2
+        },
+        {
+          "id": "rotationSpeed",
+          "label": "Rotation Speed",
+          "type": "range",
+          "min": 0,
+          "max": 5,
+          "step": 0.1
+        },
+        {
+          "id": "trailLength",
+          "label": "Trail Length",
+          "type": "range",
+          "min": 5,
+          "max": 30,
+          "step": 1
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/holographic-cube-cursor/index.html"
+      }
+    },
+    {
+      "slug": "liquid-text",
+      "name": "Liquid Text",
+      "category": "text",
+      "status": "normalized",
+      "description": "Liquid headline animation with adjustable amplitude, velocity, drift, and color for hero typography experiments.",
+      "source": "archive/component-rips-20251112/Component_Rips/Text/LiquidText_Text.html",
+      "convertedAt": "2025-11-12T19:50:51.708Z",
+      "tags": [
+        "text",
+        "animation",
+        "hero"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "CSS + JS animation only. Respects prefers-reduced-motion (animation pauses when enabled)."
+      },
+      "controls": [
+        {
+          "id": "textInput",
+          "label": "Text",
+          "type": "text"
+        },
+        {
+          "id": "amplitude",
+          "label": "Amplitude",
+          "type": "range",
+          "min": 0,
+          "max": 60,
+          "step": 1
+        },
+        {
+          "id": "velocity",
+          "label": "Velocity",
+          "type": "range",
+          "min": 0.4,
+          "max": 3,
+          "step": 0.1
+        },
+        {
+          "id": "drift",
+          "label": "Drift",
+          "type": "range",
+          "min": 0,
+          "max": 18,
+          "step": 1
+        },
+        {
+          "id": "color",
+          "label": "Color",
+          "type": "color"
+        },
+        {
+          "id": "randomize",
+          "label": "Randomize",
+          "type": "button"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/liquid-text/index.html"
+      }
+    },
+    {
+      "slug": "live-gradient-mixer",
+      "name": "Live Gradient Mixer",
+      "category": "module",
+      "status": "normalized",
+      "description": "Interactive gradient breeding lab—mix two swatches to spawn a new linear gradient with configurable mutation and transparency.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/LiveGradientMixer_Module.html",
+      "convertedAt": "2025-11-12T19:50:47.795Z",
+      "tags": [
+        "gradient",
+        "module",
+        "ui"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "DOM-only; no audio/video. Clipboard access is optional and falls back gracefully."
+      },
+      "controls": [
+        {
+          "id": "gridCount",
+          "label": "Swatches",
+          "type": "range",
+          "min": 6,
+          "max": 30,
+          "step": 1
+        },
+        {
+          "id": "mutation",
+          "label": "Mutation",
+          "type": "range",
+          "min": 0,
+          "max": 60,
+          "step": 2
+        },
+        {
+          "id": "alpha",
+          "label": "Transparency",
+          "type": "range",
+          "min": 40,
+          "max": 100,
+          "step": 5
+        },
+        {
+          "id": "reseed",
+          "label": "Reseed",
+          "type": "button"
+        },
+        {
+          "id": "copy",
+          "label": "Copy Latest CSS",
+          "type": "button"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/live-gradient-mixer/index.html"
+      }
+    },
+    {
+      "slug": "rainbow-fluid-smoke",
+      "name": "Rainbow Fluid Smoke",
+      "category": "cursor",
+      "status": "normalized",
+      "description": "Pointer-driven rainbow smoke trail with adjustable length, drag, glow, and color cycling.",
+      "source": "archive/component-rips-20251112/Component_Rips/Cursors/RainbowFluidSmoke_Cursor.html",
+      "convertedAt": "2025-11-12T19:50:43.901Z",
+      "tags": [
+        "cursor",
+        "particles",
+        "smoke"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation. Respects prefers-reduced-motion (animation pauses when enabled)."
+      },
+      "controls": [
+        {
+          "id": "trailLength",
+          "label": "Trail Length",
+          "type": "range",
+          "min": 20,
+          "max": 220,
+          "step": 5
+        },
+        {
+          "id": "trailDrag",
+          "label": "Drag",
+          "type": "range",
+          "min": 0.7,
+          "max": 0.97,
+          "step": 0.01
+        },
+        {
+          "id": "glow",
+          "label": "Glow",
+          "type": "range",
+          "min": 2,
+          "max": 18,
+          "step": 1
+        },
+        {
+          "id": "colorCycle",
+          "label": "Color Cycle",
+          "type": "range",
+          "min": 40,
+          "max": 360,
+          "step": 10
+        },
+        {
+          "id": "clear",
+          "label": "Clear",
+          "type": "button"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-fluid-smoke/index.html"
+      }
+    },
+    {
+      "slug": "rainbow-neural-pathways",
+      "name": "Rainbow Neural Pathways",
+      "category": "module",
+      "status": "normalized",
+      "description": "Interactive particle network with rainbow gradients, pointer attraction, gravity drift, and controllable edge density.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/RainbowNeuralPathways_Module.html",
+      "convertedAt": "2025-11-12T18:45:57.897Z",
+      "tags": [
+        "particles",
+        "interactive",
+        "module"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Canvas animation only. Pointer/touch interactions gated by standard pointer events."
+      },
+      "controls": [
+        {
+          "id": "frequency",
+          "label": "Spark Frequency",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        },
+        {
+          "id": "radius",
+          "label": "Connection Range",
+          "type": "range",
+          "min": 80,
+          "max": 220,
+          "step": 5
+        },
+        {
+          "id": "gravity",
+          "label": "Enable Gravity Drift",
+          "type": "checkbox"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-neural-pathways/index.html"
+      }
+    },
+    {
+      "slug": "rainbow-spinning-button",
+      "name": "Rainbow Spinning Button",
+      "category": "button",
+      "status": "normalized",
+      "description": "Circular button with spinning conic gradient background and goo-filtered SVG mask. Includes parallax pointer tracking and adjustable spin speed.",
+      "source": "archive/component-rips-20251112/Component_Rips/Buttons/RainbowSpinningBlackMiddle_Button_Box.html",
+      "convertedAt": "2025-11-13T00:25:05.404Z",
+      "tags": [
+        "button",
+        "svg",
+        "goo",
+        "parallax",
+        "animation"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure CSS/SVG animation with pointer tracking. Respects prefers-reduced-motion."
+      },
+      "controls": [
+        {
+          "id": "textInput",
+          "label": "Text",
+          "type": "text"
+        },
+        {
+          "id": "par",
+          "label": "Parallax",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        },
+        {
+          "id": "spd",
+          "label": "Spin Speed",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-spinning-button/index.html"
+      }
+    },
+    {
+      "slug": "rainbow-string-particles",
+      "name": "Rainbow String Particles",
+      "category": "background",
+      "status": "normalized",
+      "description": "Canvas-based particle system with rainbow-colored particles connected by strings when within proximity. Adjustable particle count, connection distance, and speed. Could replace hero orbit background.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowStringParticles_BG.html",
+      "convertedAt": "2025-11-13T00:32:33.927Z",
+      "tags": [
+        "canvas",
+        "background",
+        "particles",
+        "network",
+        "rainbow"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure canvas animation. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "particleCount",
+          "label": "Particle Count",
+          "type": "range",
+          "min": 20,
+          "max": 100,
+          "step": 5
+        },
+        {
+          "id": "connectionDistance",
+          "label": "Connection Distance",
+          "type": "range",
+          "min": 50,
+          "max": 200,
+          "step": 10
+        },
+        {
+          "id": "speed",
+          "label": "Speed",
+          "type": "range",
+          "min": 0.1,
+          "max": 2,
+          "step": 0.1
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-string-particles/index.html"
+      }
+    },
+    {
+      "slug": "rainbow-tunnel",
+      "name": "Rainbow Tunnel",
+      "category": "background",
+      "status": "normalized",
+      "description": "Two-layer conic gradient that rotates through Errl's silhouette with adjustable speeds, direction, and mask shape.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowTunnel_BG.html",
+      "convertedAt": "2025-11-12T19:50:25.226Z",
+      "tags": [
+        "background",
+        "gradient",
+        "animation"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Canvas-free CSS animation. Respects prefers-reduced-motion (animations pause when requested)."
+      },
+      "controls": [
+        {
+          "id": "outerSpeed",
+          "label": "Outer Spin",
+          "type": "range",
+          "min": 10,
+          "max": 80,
+          "step": 1
+        },
+        {
+          "id": "innerSpeed",
+          "label": "Inner Spin",
+          "type": "range",
+          "min": 6,
+          "max": 40,
+          "step": 1
+        },
+        {
+          "id": "innerCounter",
+          "label": "Counter-rotate Inner Layer",
+          "type": "checkbox"
+        },
+        {
+          "id": "maskSelect",
+          "label": "Mask",
+          "type": "select",
+          "options": [
+            "Errl Silhouette",
+            "Circle",
+            "Full Gradient"
+          ]
+        },
+        {
+          "id": "tipToggle",
+          "label": "Show Tip",
+          "type": "checkbox"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/rainbow-tunnel/index.html"
+      }
+    },
+    {
+      "slug": "ribbon-topology",
+      "name": "Ribbon Topology",
+      "category": "module",
+      "status": "normalized",
+      "description": "Bezier ribbon renderer with faux depth sorting and adjustable density, fade, and color drift.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/RibbonTopology_Module_Prop.html",
+      "convertedAt": "2025-11-12T19:50:57.534Z",
+      "tags": [
+        "module",
+        "canvas",
+        "ribbons"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Canvas animation only. Honors prefers-reduced-motion and pauses drawing when enabled."
+      },
+      "controls": [
+        {
+          "id": "ribbonCount",
+          "label": "Ribbons",
+          "type": "range",
+          "min": 6,
+          "max": 80,
+          "step": 2
+        },
+        {
+          "id": "strokeWidth",
+          "label": "Width",
+          "type": "range",
+          "min": 4,
+          "max": 28,
+          "step": 1
+        },
+        {
+          "id": "fade",
+          "label": "Fade",
+          "type": "range",
+          "min": 0.6,
+          "max": 0.99,
+          "step": 0.01
+        },
+        {
+          "id": "speed",
+          "label": "Speed",
+          "type": "range",
+          "min": 0.2,
+          "max": 2.4,
+          "step": 0.1
+        },
+        {
+          "id": "colorShift",
+          "label": "Color Drift",
+          "type": "range",
+          "min": 10,
+          "max": 120,
+          "step": 1
+        },
+        {
+          "id": "shuffle",
+          "label": "Shuffle Colors",
+          "type": "button"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/ribbon-topology/index.html"
+      }
+    },
+    {
+      "slug": "silhouette-inversion",
+      "name": "Silhouette Inversion",
+      "category": "prop",
+      "status": "normalized",
+      "description": "Visual illusion effect that inverts image colors and hue. Stare at the inverted image for ~10 seconds, then toggle to see the afterimage effect. Toggle via Space key or button click.",
+      "source": "archive/component-rips-20251112/Component_Rips/Props/SilouetteInversion_PropSwapSVG.html",
+      "convertedAt": "2025-11-13T00:27:01.333Z",
+      "tags": [
+        "prop",
+        "filter",
+        "illusion",
+        "visual-effect"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure CSS filter effect. No media playback. Safe for all contexts."
+      },
+      "controls": [
+        {
+          "id": "toggle",
+          "label": "Toggle Inversion",
+          "type": "button"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/silhouette-inversion/index.html"
+      }
+    },
+    {
+      "slug": "spectral-harp-membrane",
+      "name": "Spectral Harp Membrane",
+      "category": "misc",
+      "status": "normalized",
+      "description": "Interactive membrane visualization that responds to pointer movement and optional microphone input. Spring-based physics creates ripple effects across a grid. Useful as an intro vignette or ambient background.",
+      "source": "archive/component-rips-20251112/Component_Rips/SpectralHarpMembrane_Opening.html",
+      "convertedAt": "2025-11-13T00:32:34.595Z",
+      "tags": [
+        "canvas",
+        "membrane",
+        "audio",
+        "interactive",
+        "physics"
+      ],
+      "safety": {
+        "audio": true,
+        "video": false,
+        "camera": false,
+        "notes": "Microphone access only requested after explicit button press. Audio analysis drives membrane displacement. Can be used without microphone via pointer interaction."
+      },
+      "controls": [
+        {
+          "id": "mic",
+          "label": "Enable/Disable Microphone",
+          "type": "button"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/spectral-harp-membrane/index.html"
+      }
+    },
+    {
+      "slug": "taffy-typing",
+      "name": "Taffy Typing",
+      "category": "text",
+      "status": "normalized",
+      "description": "SVG text path with draggable control handles for taffy-stretching effects. Includes goo filter and gradient fill.",
+      "source": "archive/component-rips-20251112/Component_Rips/Text/TaffyTyping_Text.html",
+      "convertedAt": "2025-11-12T22:01:07.421Z",
+      "tags": [
+        "text",
+        "svg",
+        "interactive",
+        "goo"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Pure SVG manipulation. No media or external dependencies."
+      },
+      "controls": [
+        {
+          "id": "textInput",
+          "label": "Text",
+          "type": "text"
+        },
+        {
+          "id": "fontSize",
+          "label": "Font Size",
+          "type": "range",
+          "min": 60,
+          "max": 150,
+          "step": 1
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/taffy-typing/index.html"
+      }
+    },
+    {
+      "slug": "terrapin-whirl",
+      "name": "Terrapin Whirl",
+      "category": "background",
+      "status": "normalized",
+      "description": "Layered vector-field swirl rendered on canvas with pointer-influenced velocity and adjustable trail.",
+      "source": "archive/component-rips-20251112/Component_Rips/BG/TerrapinWhirl_BG.html",
+      "convertedAt": "2025-11-12T18:45:54.005Z",
+      "tags": [
+        "canvas",
+        "background",
+        "interactive"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Canvas animation only. Controls adjust speed and trail persistence."
+      },
+      "controls": [
+        {
+          "id": "speed",
+          "label": "Speed",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        },
+        {
+          "id": "trail",
+          "label": "Trail",
+          "type": "range",
+          "min": 0.5,
+          "max": 0.98,
+          "step": 0.01
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/terrapin-whirl/index.html"
+      }
+    },
+    {
+      "slug": "terrapin-whirl-module",
+      "name": "Terrapin Whirl Module",
+      "category": "module",
+      "status": "normalized",
+      "description": "Module variant of Terrapin Whirl: layered vector-field swirl rendered on canvas with pointer-influenced velocity and adjustable trail. Compact container suitable for embedding.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/TerrapinWhirl_Module.html",
+      "convertedAt": "2025-11-13T00:29:34.843Z",
+      "tags": [
+        "canvas",
+        "module",
+        "interactive",
+        "particles"
+      ],
+      "safety": {
+        "audio": false,
+        "video": false,
+        "camera": false,
+        "notes": "Canvas animation only. Controls adjust speed and trail persistence. Pointer interaction modulates swirl velocity."
+      },
+      "controls": [
+        {
+          "id": "speed",
+          "label": "Speed",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        },
+        {
+          "id": "trail",
+          "label": "Trail",
+          "type": "range",
+          "min": 0.5,
+          "max": 0.98,
+          "step": 0.01
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/terrapin-whirl-module/index.html"
+      }
+    },
+    {
+      "slug": "webcam-effects",
+      "name": "WebCam Effects",
+      "category": "module",
+      "status": "normalized",
+      "description": "Permission-gated webcam playground with RGB split, glitch trails, and monochrome bloom effects. Includes capture gallery.",
+      "source": "archive/component-rips-20251112/Component_Rips/Modules/WebCam_Effects_Module.html",
+      "convertedAt": "2025-11-12T18:46:01.273Z",
+      "tags": [
+        "webcam",
+        "effects",
+        "module"
+      ],
+      "safety": {
+        "audio": false,
+        "video": true,
+        "camera": true,
+        "notes": "Camera access only requested after explicit button press. Video remains muted."
+      },
+      "controls": [
+        {
+          "id": "toggle",
+          "label": "Enable Webcam",
+          "type": "button"
+        },
+        {
+          "id": "mode",
+          "label": "Effect Mode",
+          "type": "select",
+          "options": [
+            "RGB Split",
+            "Glitch Trails",
+            "Monochrome Bloom"
+          ]
+        },
+        {
+          "id": "snapshot",
+          "label": "Capture Frame",
+          "type": "button"
+        }
+      ],
+      "preview": {
+        "index": "../../../packages/component-rips/webcam-effects/index.html"
+      }
+    }
+  ],
+  "categories": {
+    "cursor": [
+      "bubbling-rainbow-rings",
+      "fast-rainbow-rings-cursor",
+      "holographic-cube-cursor",
+      "rainbow-fluid-smoke"
+    ],
+    "prop": [
+      "errl-tunnel",
+      "silhouette-inversion"
+    ],
+    "button": [
+      "gradient-box-button",
+      "rainbow-spinning-button"
+    ],
+    "text": [
+      "gradient-waves-text",
+      "liquid-text",
+      "taffy-typing"
+    ],
+    "module": [
+      "live-gradient-mixer",
+      "rainbow-neural-pathways",
+      "ribbon-topology",
+      "terrapin-whirl-module",
+      "webcam-effects"
+    ],
+    "background": [
+      "rainbow-string-particles",
+      "rainbow-tunnel",
+      "terrapin-whirl"
+    ],
+    "misc": [
+      "spectral-harp-membrane"
+    ]
+  }
+}

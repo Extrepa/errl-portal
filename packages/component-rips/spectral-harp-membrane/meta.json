@@ -1,0 +1,23 @@
+{
+  "name": "Spectral Harp Membrane",
+  "slug": "spectral-harp-membrane",
+  "category": "misc",
+  "status": "normalized",
+  "description": "Interactive membrane visualization that responds to pointer movement and optional microphone input. Spring-based physics creates ripple effects across a grid. Useful as an intro vignette or ambient background.",
+  "source": "archive/component-rips-20251112/Component_Rips/SpectralHarpMembrane_Opening.html",
+  "convertedAt": "2025-11-13T00:32:34.595Z",
+  "tags": ["canvas", "membrane", "audio", "interactive", "physics"],
+  "safety": {
+    "audio": true,
+    "video": false,
+    "camera": false,
+    "notes": "Microphone access only requested after explicit button press. Audio analysis drives membrane displacement. Can be used without microphone via pointer interaction."
+  },
+  "controls": [
+    {
+      "id": "mic",
+      "label": "Enable/Disable Microphone",
+      "type": "button"
+    }
+  ]
+}

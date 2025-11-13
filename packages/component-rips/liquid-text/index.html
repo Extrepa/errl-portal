@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Liquid Text — FX</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="stage">
+      <section class="panel">
+        <header>
+          <h1>Liquid Text</h1>
+          <p>
+            Animated headline with gooey wobble. Tune the amplitude, velocity, and drift to match portal hero moments, and update
+            the copy or color in real time.
+          </p>
+        </header>
+        <div class="display">
+          <h2 id="liquidHeading" aria-live="polite">ERRL<span>&nbsp;</span>PORTAL</h2>
+          <p class="subtitle">Experimental typography playground</p>
+        </div>
+        <div class="controls">
+          <label>
+            Text
+            <input id="textInput" type="text" maxlength="32" value="ERRL PORTAL" autocomplete="off" />
+          </label>
+          <label>
+            Amplitude
+            <input id="amplitude" type="range" min="0" max="60" step="1" value="24" />
+          </label>
+          <label>
+            Velocity
+            <input id="velocity" type="range" min="0.4" max="3" step="0.1" value="1.2" />
+          </label>
+          <label>
+            Drift
+            <input id="drift" type="range" min="0" max="18" step="1" value="6" />
+          </label>
+          <label class="field">
+            Color
+            <input id="color" type="color" value="#1ea2ff" />
+          </label>
+          <button id="randomize" type="button">Randomize</button>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

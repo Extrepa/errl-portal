@@ -1,0 +1,14 @@
+<!doctype html><meta charset="utf-8"><title>Moire Melt</title>
+<style>html,body{margin:0;height:100%;background:#0a0a14;color:#fff;font:14px system-ui;overflow:hidden}
+.layer{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+img{width:min(70vmin,720px);opacity:.9}
+.ui{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:#0008;border:1px solid #fff3;border-radius:12px;padding:.4rem .7rem}
+input{width:150px}</style>
+<div class="layer"><img id="A" src="errl.png"></div>
+<div class="layer"><img id="B" src="errl.png" style="mix-blend-mode:difference"></div>
+<div class="ui">Offset <input id=off type=range min=-40 max=40 value=12> Rotate <input id=rot type=range min=-10 max=10 value=3> Pulse <input id=pul type=range min=0 max=1 step=.01 value=.6></div>
+<script>
+const A=document.getElementById('A'),B=document.getElementById('B'),off=document.getElementById('off'),rot=document.getElementById('rot'),pul=document.getElementById('pul');
+function apply(){const o=+off.value,r=+rot.value;A.style.transform=`translate(${-o/2}px,${o/2}px) rotate(${r}deg)`;B.style.transform=`translate(${o}px,${-o}px) rotate(${-r}deg)`}oninput=apply;apply();
+(function loop(t){B.style.opacity=.4+.6*Math.abs(Math.sin(t/800))*+pul.value;requestAnimationFrame(loop)})(0);
+</script>

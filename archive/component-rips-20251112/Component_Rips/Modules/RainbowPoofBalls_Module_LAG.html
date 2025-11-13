@@ -1,0 +1,55 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Quantum Lace Garden</title>
+<style>
+ html,body{height:100%;margin:0;background:#05050a;color:#fff;font-family:ui-sans-serif;overflow:hidden}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; top:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.4rem .8rem; border:1px solid #fff2; border-radius:10px}
+ button{all:unset; cursor:pointer; padding:.3rem .6rem; background:#fff1; border-radius:8px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="ui"><button id="regrow">Collapse &amp; Regrow</button> &nbsp; <span>Click anywhere to plant a lace-bloom.</span></div>
+<script>
+const c=document.getElementById('c'), g=c.getContext('2d');
+function fit(){c.width=innerWidth; c.height=innerHeight} fit(); addEventListener('resize',fit);
+
+let blooms=[];
+function seed(x=innerWidth/2,y=innerHeight/2){
+  const s = {x,y, t:0, genes:[Math.random()*6.28, Math.random()*6.28, Math.random()*6.28], hue: (Math.random()*360)|0};
+  blooms.push(s);
+}
+seed();
+
+addEventListener('pointerdown', e=> seed(e.clientX, e.clientY));
+regrow.onclick = ()=>{ blooms.forEach(b=>b.t=0); };
+
+function filament(ctx, x,y, ang, depth, gene){
+  const len = 16 + depth*2, wid = Math.max(1, 4 - depth*0.3);
+  const nx = x + Math.cos(ang)*len, ny = y + Math.sin(ang)*len;
+  ctx.lineWidth=wid;
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(nx,ny); ctx.stroke();
+  if(depth<=0) return;
+  const da = 0.7 + Math.sin(gene+depth*0.5)*0.5;
+  filament(ctx, nx,ny, ang+da, depth-1, gene+0.9);
+  filament(ctx, nx,ny, ang-da, depth-1, gene-0.9);
+  // tiny curl
+  filament(ctx, nx,ny, ang+0.2*Math.sin(gene), depth-2, gene+1.7);
+}
+
+(function loop(t){
+  requestAnimationFrame(loop);
+  g.fillStyle='rgba(5,5,10,0.2)'; g.fillRect(0,0,c.width,c.height);
+  for(const b of blooms){
+    b.t += 0.02;
+    const depth = Math.floor(10 + 6*Math.sin(b.t*0.7));
+    g.save();
+    g.translate(b.x,b.y);
+    for(let i=0;i<12;i++){
+      const a = i*(Math.PI*2/12) + b.genes[0] + Math.sin(b.t*0.6+i)*0.2;
+      g.strokeStyle=`hsla(${(b.hue + i*12 + t/40)%360},100%,70%,0.7)`;
+      filament(g,0,0,a, depth, b.genes[1]+i);
+    }
+    g.restore();
+  }
+})();
+</script></body></html>

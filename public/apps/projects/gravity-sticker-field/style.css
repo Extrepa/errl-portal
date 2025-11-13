@@ -1,0 +1,31 @@
+:root {
+  --reduced-motion: 0;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #0a0a10;
+  color: #fff;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  overflow: hidden;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+}
+
+.ui {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0006;
+  padding: .5rem .9rem;
+  border-radius: 10px;
+  border: 1px solid #fff2;
+  pointer-events: none;
+  user-select: none;
+}

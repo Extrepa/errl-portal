@@ -1,0 +1,23 @@
+{
+  "name": "Live Gradient Mixer",
+  "slug": "live-gradient-mixer",
+  "category": "module",
+  "status": "normalized",
+  "description": "Interactive gradient breeding lab—mix two swatches to spawn a new linear gradient with configurable mutation and transparency.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/LiveGradientMixer_Module.html",
+  "convertedAt": "2025-11-12T19:50:47.795Z",
+  "tags": ["gradient", "module", "ui"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "DOM-only; no audio/video. Clipboard access is optional and falls back gracefully."
+  },
+  "controls": [
+    { "id": "gridCount", "label": "Swatches", "type": "range", "min": 6, "max": 30, "step": 1 },
+    { "id": "mutation", "label": "Mutation", "type": "range", "min": 0, "max": 60, "step": 2 },
+    { "id": "alpha", "label": "Transparency", "type": "range", "min": 40, "max": 100, "step": 5 },
+    { "id": "reseed", "label": "Reseed", "type": "button" },
+    { "id": "copy", "label": "Copy Latest CSS", "type": "button" }
+  ]
+}

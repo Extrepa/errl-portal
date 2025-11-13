@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Chrono-Quilt</title>
+<style>
+ html,body{height:100%;margin:0;background:#05050b;color:#fff;font-family:ui-sans-serif}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.4rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="ui">Each tile is a different moment of the same scene.</div>
+<script>
+const c=document.getElementById('c'), g=c.getContext('2d'); function fit(){c.width=innerWidth; c.height=innerHeight} fit(); addEventListener('resize',fit);
+const W=10, H=6; const buffers = Array.from({length:W*H}, ()=>document.createElement('canvas'));
+for(const b of buffers){b.width=innerWidth; b.height=innerHeight;}
+function drawScene(ctx,t){
+  const cx=innerWidth/2, cy=innerHeight/2;
+  ctx.clearRect(0,0,innerWidth,innerHeight);
+  for(let i=0;i<180;i++){
+    const r = 60 + i*4, a = t/900 + i*0.07;
+    ctx.strokeStyle = `hsla(${(i*2+t/20)%360},100%,65%,0.6)`;
+    ctx.beginPath(); ctx.arc(cx + Math.cos(a)*40, cy + Math.sin(a*1.2)*30, r*0.2+10*Math.sin(a*2), 0, 6.283); ctx.stroke();
+  }
+}
+(function loop(t){
+  requestAnimationFrame(loop);
+  // render source to ring buffer
+  const idx = Math.floor((t/80)) % buffers.length;
+  drawScene(buffers[idx].getContext('2d'), t);
+  // quilt
+  const tw = Math.ceil(innerWidth/W), th=Math.ceil(innerHeight/H);
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const i = (idx + x + y*W) % buffers.length;
+    const sx = x*tw, sy=y*th;
+    g.drawImage(buffers[i], sx, sy, tw, th, sx, sy, tw, th);
+  }
+})();
+</script></body></html>

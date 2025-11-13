@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ripple (Height-Field)</title>
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>canvas{display:block;width:100%;height:100%;background:#070711}</style>
+</head>
+<body>
+<div class="header"><strong>Ripple (Height-Field)</strong><span class="small">— Canvas water ripple with pointer interaction; file:// safe.</span><span class="small" style="margin-left:auto">Shortcuts: <span class="kbd">G</span> glow • <span class="kbd">R</span> reset</span></div>
+<canvas id="c"></canvas>
+<script src="../../shared/util.js"></script>
+<script>
+
+const c=document.getElementById('c'),x=c.getContext('2d',{alpha:false});let w,h;function fit(){w=c.width=innerWidth;h=c.height=innerHeight;A=new Float32Array(w*h);B=new Float32Array(w*h)};let A,B;fit();addEventListener('resize',fit);
+function disturb(X,Y,r,s){X|=0;Y|=0;for(let j=-r;j<=r;j++)for(let i=-r;i<=r;i++){if(i*i+j*j<=r*r){const idx=(Y+j)*w+(X+i); if(idx>=0 && idx<A.length)A[idx]+=s;}}}
+function step(){for(let y=1;y<h-1;y++)for(let x0=1;x0<w-1;x0++){const id=y*w+x0;B[id]=((A[id-1]+A[id+1]+A[id-w]+A[id+w])*0.5)-B[id];B[id]*=0.992}[A,B]=[B,A]}
+function draw(){const img=x.getImageData(0,0,w,h),d=img.data;for(let y=1;y<h-1;y++)for(let x0=1;x0<w-1;x0++){const id=y*w+x0,di=id*4;const nx=A[id]-A[id-1],ny=A[id]-A[id-w];const shade=nx+ny;d[di]=25+shade*200;d[di+1]=50+shade*140;d[di+2]=120+shade*220;d[di+3]=255}x.putImageData(img,0,0)}
+c.addEventListener('pointerdown',e=>disturb(e.clientX,e.clientY,16,900));c.addEventListener('pointermove',e=>{if(e.buttons&1)disturb(e.clientX,e.clientY,10,250)});
+setTimeout(()=>{disturb(w*0.3|0,h*0.4|0,24,1200);disturb(w*0.65|0,h*0.55|0,18,900)},350);
+(function loop(){step();draw();requestAnimationFrame(loop)})();        
+        
+</script>
+</body>
+</html>

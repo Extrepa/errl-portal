@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Holographic Cursor Trail | Errl</title>
+<style>
+  body { margin:0; background:#0d0d0d; min-height:100vh; overflow:hidden; }
+  #holographic-cursor-container { position:fixed; inset:0; pointer-events:none; z-index:9999; cursor:none; }
+  .trail-dot { position:absolute; width:40px; height:40px; border-radius:50%;
+    background: radial-gradient(circle, rgba(0,255,255,0.5) 0%, rgba(0,255,255,0) 70%);
+    filter: blur(10px); transform: translate(-50%, -50%); transition: opacity .5s ease-out; opacity:1; will-change: opacity; }
+  @media (prefers-reduced-motion: reduce) { .trail-dot { width:28px; height:28px; filter: blur(8px); transition-duration: .35s; } }
+</style>
+</head>
+<body>
+<div id="holographic-cursor-container"></div>
+<script>
+(function(){
+  const container = document.getElementById('holographic-cursor-container'); if(!container) return;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const MAX = reduce.matches ? 40 : 80; let last=0; const interval = reduce.matches ? 40 : 20;
+  function addDot(x,y){
+    if (container.childElementCount > MAX) container.firstChild.remove();
+    const dot = document.createElement('div'); dot.className = 'trail-dot'; dot.style.left = x+'px'; dot.style.top=y+'px';
+    container.appendChild(dot);
+    setTimeout(()=>{ dot.style.opacity='0'; }, 80);
+    dot.addEventListener('transitionend', ()=> dot.remove());
+    setTimeout(()=>{ if (dot.isConnected) dot.remove(); }, reduce.matches ? 450 : 650);
+  }
+  window.addEventListener('mousemove', (e)=>{
+    const now = Date.now(); if (now - last < interval) return; last = now; addDot(e.clientX, e.clientY);
+  });
+})();
+</script>
+</body>
+</html>

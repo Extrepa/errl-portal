@@ -52,7 +52,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
 
   const highlightKey: NavItemKey | undefined = (() => {
     if (activeKey === 'code-lab') return 'studio';
-    if (activeKey && activeKey !== 'code-lab') return activeKey;
+    if (activeKey) return activeKey as NavItemKey;
     return derivedKeyFromLocation();
   })();
 

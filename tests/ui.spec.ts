@@ -285,6 +285,15 @@ test.describe('Studio Hub Tests', () => {
     await expect(page.getByRole('heading', { name: 'Shape Madness' })).toBeVisible();
   });
 
+  test('@ui studio projects card navigates', async ({ page, baseURL }) => {
+    await page.goto(baseURL! + '/studio');
+    await page.getByRole('link', { name: /Projects/ }).click();
+    await page.waitForURL('**/studio/projects');
+    await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible();
+    // basic sanity: ripple canvas exists inside page
+    await expect(page.locator('canvas#fx').first()).toBeVisible();
+  });
+
   test('@ui studio code lab card navigates', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/studio');
     await page.getByRole('link', { name: /Code Lab/ }).click();

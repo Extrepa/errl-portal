@@ -1,0 +1,40 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Polar Kaleido Drip</title>
+<style>
+ html,body{height:100%;margin:0;background:#07070c;color:#fff;font-family:ui-sans-serif}
+ canvas{position:fixed; inset:0}
+ .ui{position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); background:#0006; padding:.5rem .8rem; border:1px solid #fff2; border-radius:10px}
+</style></head>
+<body>
+<canvas id="c"></canvas>
+<div class="ui">Pointer paints; symmetry count with Q/W. Current: <span id="k">8</span></div>
+<script>
+const c = document.getElementById('c'), g=c.getContext('2d'); let K=8;
+function fit(){c.width=innerWidth; c.height=innerHeight} fit(); addEventListener('resize',fit);
+let down=false, px=0, py=0;
+addEventListener('pointerdown', e=>{down=true; px=e.clientX; py=e.clientY;});
+addEventListener('pointerup', ()=>down=false);
+addEventListener('pointermove', e=>{ if(!down) return; draw(e.clientX,e.clientY); });
+addEventListener('keydown', e=>{ if(e.key==='q'){K=Math.max(2,K-1)} if(e.key==='w'){K=Math.min(24,K+1)} k.textContent=K; });
+
+function draw(x,y){
+  const cx=innerWidth/2, cy=innerHeight/2;
+  const dx=x-cx, dy=y-cy; const a=Math.atan2(dy,dx), r=Math.hypot(dx,dy);
+  for(let i=0;i<K;i++){
+    const ang=a + i*(Math.PI*2/K);
+    const nx=cx + Math.cos(ang)*r, ny=cy + Math.sin(ang)*r;
+    const hue=(performance.now()/30 + i*20)%360;
+    g.strokeStyle=`hsla(${hue},100%,60%,0.8)`; g.lineWidth = 6 - 4*(i/K);
+    g.beginPath(); g.moveTo(px,py); g.lineTo(nx,ny); g.stroke();
+  }
+  px=x; py=y;
+}
+// ambient drip
+(function loop(t){
+  requestAnimationFrame(loop);
+  g.fillStyle='rgba(0,0,0,0.04)'; g.fillRect(0,0,c.width,c.height);
+  const cx=innerWidth/2 + Math.sin(t/1400)*120, cy=innerHeight/2 + Math.cos(t/1600)*90;
+  draw(cx + Math.sin(t/500)*60, cy + Math.cos(t/600)*60);
+})(0);
+</script></body></html>

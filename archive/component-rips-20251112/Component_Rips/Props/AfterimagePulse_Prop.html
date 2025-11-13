@@ -1,0 +1,4 @@
+<!doctype html><meta charset="utf-8"><title>Afterimage Pulse</title>
+<style>html,body{margin:0;height:100%;background:#000}.stage{position:fixed;inset:0;display:grid;place-items:center}img{width:min(70vmin,720px)}.neg{filter:invert(1) hue-rotate(180deg)}</style>
+<div class=stage><img id=pic src=errl.png></div>
+<script>(function loop(t){requestAnimationFrame(loop);const s=Math.sin(t/500);pic.className=s>0?'neg':'';pic.style.opacity=.8+.2*Math.abs(s)})();</script>

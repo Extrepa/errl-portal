@@ -1,0 +1,76 @@
+<!doctype html><meta charset="utf-8"><title>Interactive Wire Grid</title>
+<style>
+  html,body{margin:0;height:100%;background:radial-gradient(1200px 600px at 50% 120%, #0a0f1a, #000);color:white;font:14px system-ui}
+  canvas{width:100vw;height:100vh;display:block}
+  .ui{position:fixed;left:12px;top:12px;background:rgba(20,24,32,.55);backdrop-filter:blur(8px);
+      border:1px solid #253048;color:#dbe7ff;padding:8px 10px;border-radius:12px;display:flex;gap:10px;align-items:center}
+  .ui input[type=range]{width:120px}
+</style>
+<canvas id="c"></canvas>
+<div class="ui">
+  <label>Cols <input id="cols" type="range" min="8" max="64" step="1" value="28"></label>
+  <label>Rows <input id="rows" type="range" min="6" max="48" step="1" value="18"></label>
+  <label>Warp <input id="warp" type="range" min="0" max="1.2" step="0.01" value="0.45"></label>
+</div>
+<script>
+(() => {
+  const cvs = document.getElementById('c');
+  const ctx = cvs.getContext('2d');
+  let w,h,dpr;
+  function resize(){ dpr=devicePixelRatio||1; w=cvs.width=Math.floor(innerWidth*dpr); h=cvs.height=Math.floor(innerHeight*dpr); }
+  addEventListener('resize', resize); resize();
+
+  const cfg = { cols: 28, rows: 18, warp: 0.45, hue: 200 };
+  for(const id of ['cols','rows','warp']) document.getElementById(id).oninput = e => cfg[id] = +e.target.value;
+
+  let mx = w/2, my = h/2;
+  addEventListener('pointermove', e=>{ const r=cvs.getBoundingClientRect(); mx=(e.clientX-r.left)*dpr; my=(e.clientY-r.top)*dpr; });
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    ctx.lineWidth = 1 * dpr;
+    const pad = 60 * dpr;
+    const cw = (w - pad*2) / (cfg.cols-1);
+    const rh = (h - pad*2) / (cfg.rows-1);
+
+    // grid points with warp around pointer
+    const pts = [];
+    for(let j=0;j<cfg.rows;j++){
+      for(let i=0;i<cfg.cols;i++){
+        const x = pad + i*cw;
+        const y = pad + j*rh;
+        const dx = x - mx;
+        const dy = y - my;
+        const dist = Math.hypot(dx,dy);
+        const force = Math.exp(-dist / (180*dpr)) * cfg.warp;
+        pts.push([ x + dx*force, y + dy*force ]);
+      }
+    }
+
+    // draw
+    ctx.strokeStyle = `hsl(${cfg.hue} 80% 60% / 0.8)`;
+    // horizontal lines
+    for(let j=0;j<cfg.rows;j++){
+      ctx.beginPath();
+      for(let i=0;i<cfg.cols;i++){
+        const p = pts[j*cfg.cols + i];
+        if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]);
+      }
+      ctx.stroke();
+    }
+    // vertical lines
+    ctx.strokeStyle = `hsl(${(cfg.hue+40)%360} 80% 60% / 0.55)`;
+    for(let i=0;i<cfg.cols;i++){
+      ctx.beginPath();
+      for(let j=0;j<cfg.rows;j++){
+        const p = pts[j*cfg.cols + i];
+        if(j===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]);
+      }
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>

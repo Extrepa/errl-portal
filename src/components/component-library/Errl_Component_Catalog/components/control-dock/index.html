@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone-Style Control Dock</title>
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+.bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, #101030 0%, #070711 60%)}
+#dock{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:flex;gap:10px;padding:10px;background:#0e0e1b88;border:1px solid #1a1a2a;border-radius:20px;backdrop-filter:blur(8px)}
+button{background:#151528;border:1px solid #25254a;color:#eaeaff;border-radius:12px;padding:10px 12px;cursor:pointer}
+button:active{transform:translateY(1px)}
+#out{position:fixed;right:12px;bottom:12px;color:#aab;font:12px ui-monospace,Menlo,Consolas,monospace}
+        </style>
+</head>
+<body>
+<div class="header"><strong>Phone-Style Control Dock</strong><span class="small">— Floating translucent dock with buttons and keyboard hooks.</span><span class="small" style="margin-left:auto">Shortcuts: <span class="kbd">G</span> glow • <span class="kbd">R</span> reset</span></div>
+<div class="bg"></div><div id="dock"><button data-act="glow">Glow</button><button data-act="pulse">Pulse</button><button data-act="reset">Reset</button></div><div id="out">Ready.</div>
+<script src="../../shared/util.js"></script>
+<script>
+
+const dock=document.getElementById('dock');
+const out=document.getElementById('out');
+dock.addEventListener('click', e=>{
+  const btn=e.target.closest('button'); if(!btn) return;
+  const act=btn.dataset.act;
+  if(act==='glow'){ document.documentElement.classList.toggle('glow'); out.textContent='Glow toggled'; }
+  if(act==='reset'){ location.reload(); }
+  if(act==='pulse'){ btn.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:380}); out.textContent='Pulse!'; }
+});
+addEventListener('keydown', e=>{
+  if(e.key.toLowerCase()==='g'){ document.documentElement.classList.toggle('glow'); out.textContent='Glow toggled (G)'; }
+  if(e.key.toLowerCase()==='r'){ location.reload(); }
+});
+        
+</script>
+</body>
+</html>
