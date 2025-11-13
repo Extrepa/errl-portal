@@ -63,7 +63,7 @@
       .grid {
         display: grid;
         gap: 24px;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
       }
       .card {
         background: var(--panel);
@@ -75,6 +75,7 @@
         box-shadow: 0 24px 56px -32px rgba(6, 12, 32, 0.75);
         position: relative;
         transition: border-color 0.2s ease, transform 0.2s ease;
+        overflow: hidden;
       }
       .card.copied::after {
         content: "Copied!";
@@ -204,6 +205,7 @@
         display: flex;
         gap: 12px;
         flex-wrap: wrap;
+        max-width: 100%;
       }
       .actions a,
       .actions button {
@@ -216,6 +218,8 @@
         border: 1px solid rgba(90, 192, 255, 0.25);
         background: rgba(10, 16, 28, 0.8);
         color: var(--text);
+        flex: 0 1 auto;
+        min-width: 0;
       }
       .actions a {
         background: linear-gradient(135deg, rgba(90, 192, 255, 0.35), rgba(106, 255, 205, 0.45));
@@ -245,8 +249,139 @@
         font-size: 11px;
         color: rgba(154, 176, 210, 0.6);
       }
+      
+      /* Preview Container */
+      .preview-container {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16/9;
+        background: linear-gradient(135deg, #0f141d, #0a0c12);
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(90, 192, 255, 0.15);
+        margin: 16px 0;
+        cursor: pointer;
+        transition: border-color 0.2s ease, transform 0.2s ease;
+      }
+      .preview-container:hover {
+        border-color: rgba(90, 192, 255, 0.4);
+        transform: translateY(-2px);
+      }
+      
+      .preview-thumbnail {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        filter: blur(8px) brightness(0.7);
+        transition: filter 0.3s ease;
+      }
+      .preview-container:hover .preview-thumbnail {
+        filter: blur(0) brightness(1);
+      }
+      
+      .preview-iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 200%;
+        height: 200%;
+        border: none;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        transform: scale(0.5);
+        transform-origin: top left;
+      }
+      .preview-container:hover .preview-iframe {
+        opacity: 1;
+      }
+      .preview-container:hover .preview-thumbnail {
+        opacity: 0;
+      }
+      
+      /* Meta and controls sections - prevent overflow */
+      .meta {
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .meta > div {
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .meta code {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        word-break: break-all;
+      }
+      .controls,
+      .safety {
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      .controls li {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .safety li {
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      
+      .preview-placeholder {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0f141d, #0a0c12);
+        color: rgba(154, 176, 210, 0.6);
+        font-size: 12px;
+        gap: 8px;
+      }
+      .preview-placeholder::before {
+        content: "📸";
+        font-size: 32px;
+        opacity: 0.5;
+      }
+      .preview-hint {
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 11px;
+        margin-top: 8px;
+      }
+      .preview-container:hover .preview-placeholder {
+        opacity: 0;
+      }
+      
+      .preview-loading {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(10, 12, 18, 0.9);
+        color: var(--accent);
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      .preview-loading.active {
+        opacity: 1;
+      }
+      
       @media (max-width: 720px) {
         main {
+          grid-template-columns: 1fr;
+        }
+        .grid {
           grid-template-columns: 1fr;
         }
       }
@@ -258,6 +393,8 @@
       <p>
         Live manifest of assets sourced from <code>archive/component-rips-20251112/Component_Rips</code>. Entries update when
         `packages/component-rips/*/meta.json` changes. Use filters to focus by category or status.
+        <br>
+        <small style="opacity: 0.7;">Hover over thumbnails to see live previews. Generate thumbnails with <code>npm run thumbnails:generate</code></small>
       </p>
     </header>
     <main id="catalog" aria-live="polite"></main>
@@ -327,6 +464,16 @@
           ];
           if (safety.notes) safetySummaries.push(safety.notes);
 
+          // Determine preview type based on category
+          const previewType = ['cursor', 'background', 'prop'].includes(pkg.category) ? 'simple' :
+                             ['module', 'text'].includes(pkg.category) ? 'medium' : 'complex';
+          
+          // Thumbnail path
+          const thumbnailPath = `../../../packages/component-rips/_thumbnails/${pkg.slug}.png`;
+          // Add preview=1 param to hide controls in preview mode
+          const basePreviewUrl = pkg.preview?.index || `../../../packages/component-rips/${pkg.slug}/index.html`;
+          const previewUrl = basePreviewUrl + (basePreviewUrl.includes('?') ? '&' : '?') + 'preview=1';
+
           card.innerHTML = `
             <header>
               <div class="title">
@@ -335,6 +482,22 @@
               </div>
               <p class="category">${pkg.category}</p>
             </header>
+            <div class="preview-container" data-preview-type="${previewType}" data-preview-url="${previewUrl}">
+              <img class="preview-thumbnail" src="${thumbnailPath}" alt="${pkg.name} preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="preview-placeholder">
+                <span class="preview-hint">No thumbnail</span>
+                <span class="preview-hint">Hover to preview</span>
+              </div>
+              <iframe 
+                class="preview-iframe" 
+                data-src="${previewUrl}"
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin"
+                title="${pkg.name} preview"
+                style="overflow: hidden;"
+              ></iframe>
+              <div class="preview-loading">Loading preview...</div>
+            </div>
             <p class="description">${pkg.description}</p>
             <div class="meta">
               <div>
@@ -384,6 +547,61 @@
             }
             card.classList.add("copied");
             setTimeout(() => card.classList.remove("copied"), 900);
+          });
+
+          // Setup preview hover loading
+          const previewContainer = card.querySelector('.preview-container');
+          const previewIframe = card.querySelector('.preview-iframe');
+          const previewLoading = card.querySelector('.preview-loading');
+          let previewLoaded = false;
+          let hoverTimeout = null;
+
+          previewContainer.addEventListener('mouseenter', () => {
+            if (previewLoaded || previewType === 'complex') return;
+            
+            hoverTimeout = setTimeout(() => {
+              if (!previewIframe.src) {
+                previewLoading.classList.add('active');
+                previewIframe.src = previewIframe.dataset.src;
+                previewIframe.onload = () => {
+                  previewLoading.classList.remove('active');
+                  previewLoaded = true;
+                  
+                  // Hide controls in preview iframe
+                  try {
+                    const iframeDoc = previewIframe.contentDocument || previewIframe.contentWindow.document;
+                    const style = iframeDoc.createElement('style');
+                    style.textContent = `
+                      .controls,
+                      #controls {
+                        display: none !important;
+                      }
+                    `;
+                    iframeDoc.head.appendChild(style);
+                  } catch (e) {
+                    // Cross-origin or other error - controls may still show, that's okay
+                  }
+                };
+                previewIframe.onerror = () => {
+                  previewLoading.classList.remove('active');
+                  previewContainer.querySelector('.preview-placeholder').style.display = 'flex';
+                };
+              }
+            }, previewType === 'simple' ? 100 : 300);
+          });
+
+          previewContainer.addEventListener('mouseleave', () => {
+            if (hoverTimeout) {
+              clearTimeout(hoverTimeout);
+              hoverTimeout = null;
+            }
+          });
+
+          // Click preview to open full demo
+          previewContainer.addEventListener('click', (e) => {
+            if (e.target === previewContainer || e.target.classList.contains('preview-thumbnail') || e.target.classList.contains('preview-placeholder')) {
+              window.open(previewUrl, '_blank', 'noopener');
+            }
           });
 
           container.appendChild(card);

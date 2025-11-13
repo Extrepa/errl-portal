@@ -57,10 +57,20 @@
 - Interactive controls standardized across all components.
 
 ### Current Status
-- **23 normalized components** across 7 categories (backgrounds: 4, buttons: 2, cursors: 7, modules: 5, text: 3, props: 3, misc: 1).
+- **23 normalized components** across 7 categories (backgrounds: 4, buttons: 2, cursors: 6, modules: 5, text: 3, props: 2, misc: 1).
 - All components include metadata, safety notes, and control definitions in `meta.json`.
 - Catalog manifest auto-generates via `npm run catalog:component-rips`.
 - Backlog and audit log track all conversion progress.
+
+### Unified Component Inventory (2025-11-13)
+- Created comprehensive component inventory registry (`docs/catalog/component-inventory.md`) tracking all ~188 components across 5 locations:
+  - 23 normalized component rips (`packages/component-rips/`)
+  - 55 raw component rips (`archive/component-rips-20251112/Component_Rips/`)
+  - 100 Math Lab effects (embedded in single file)
+  - 5 projects components (`public/apps/projects/`)
+  - 5 component library items (`src/components/component-library/`)
+- Added inventory scanning script (`tools/portal/update-component-inventory.mjs`) with `npm run inventory:scan` command.
+- Inventory provides unified view of all components for consolidation planning and broken component identification.
 
 ## Next Steps
 1. Stress-test the shared asset store with large Pin Designer exports and Code Lab imports.
@@ -78,5 +88,6 @@
 - `plans/component-rips-integration.md`
 - `docs/catalog/component-rips/backlog.md`
 - `docs/catalog/component-rips/audit-log.md`
+- `docs/catalog/component-inventory.md` — Unified component inventory registry
 - `docs/team/WARP.md` — Warp.dev guidance for Studio development
 

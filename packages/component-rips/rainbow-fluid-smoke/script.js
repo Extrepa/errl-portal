@@ -193,4 +193,3 @@ playground.addEventListener(
 resize();
 applyMotionPreference();
 startLoop();
-console.warn("[component-rip] rainbow-fluid-smoke: script extraction pending");
