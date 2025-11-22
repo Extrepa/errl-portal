@@ -5,9 +5,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(process.cwd(), 'src'),
-      '@assets': resolve(process.cwd(), 'src/assets'),
-      '@portal': resolve(process.cwd(), 'src/portal'),
-      '@studio': resolve(process.cwd(), 'src/studio'),
+      '@assets': resolve(process.cwd(), 'src/shared/assets'),
+      '@shared': resolve(process.cwd(), 'src/shared'),
+      '@studio': resolve(process.cwd(), 'src/apps/studio'),
       '@legacy': resolve(process.cwd(), 'src/legacy')
     }
   },
@@ -16,7 +16,7 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        studio: resolve(process.cwd(), 'src/studio.html'),
+        studio: resolve(process.cwd(), 'src/apps/studio/index.html'),
       }
     }
   }

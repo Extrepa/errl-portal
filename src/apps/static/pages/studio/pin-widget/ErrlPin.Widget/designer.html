@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Errl Widget — v2.2 (parser‑safe, clickable, flexible import)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#e5eaf1;
+  --line:#ffffff22;
+  --rainbow: conic-gradient(from 0deg,#ff004c,#ffa300,#ffee00,#53f900,#00e5ff,#7b5cff,#ff00b1,#ff004c);
+}
+*{box-sizing:border-box}
+html,body{height:100%;width:100%;margin:0}
+body{background:transparent;overflow:hidden;color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+.card{width:100%;height:100%;position:relative;max-width:none;max-height:none}
+.stage{position:absolute;inset:0 0 52px 0; z-index:0}
+svg{width:100%;height:100%;display:block;touch-action:none}
+
+/* Buttons */
+#randomBtn{position:absolute; right:10px; top:10px; height:28px; padding:0 10px; border-radius:10px; border:1px solid var(--line); cursor:pointer; overflow:hidden; z-index:1000; background:rgba(15,22,32,.35); backdrop-filter:saturate(110%) blur(2px); display:grid; place-items:center}
+#randomBtn .spinFill{position:absolute; inset:2px; border-radius:8px; background:var(--rainbow); animation:spin 3.2s linear infinite; opacity:.6; filter:brightness(.95) contrast(.95); pointer-events:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+#loadBtn{position:absolute; left:6px; top:6px; height:28px; padding:0 10px; border-radius:10px; border:1px solid var(--line); background:rgba(15,22,32,.35); color:#dbe2ea; cursor:pointer; z-index:1000}
+#autoLoadBtn{position:absolute; left:70px; top:6px; height:28px; padding:0 10px; border-radius:10px; border:1px solid var(--line); background:rgba(15,22,32,.35); color:#dbe2ea; cursor:pointer; z-index:1000}
+#fileInput{display:none}
+
+/* Context panel */
+.ctx{position:absolute; min-width:180px; padding:10px; border-radius:10px; border:1px solid var(--line); background:rgba(15,22,32,.95); color:#dbe2ea; z-index:50; box-shadow:0 8px 24px rgba(0,0,0,.35); display:none}
+.ctx label{display:block; font-size:11px; opacity:.9; margin:.25rem 0 .15rem}
+.ctx input[type="range"]{width:170px}
+.ctx .row{display:flex; gap:8px; align-items:center}
+.ctx .row > *{flex:1}
+.ctx .btns{display:flex; gap:8px; margin-top:8px}
+.ctx button{height:28px; padding:0 10px; border-radius:8px; border:1px solid var(--line); background:rgba(255,255,255,.06); color:#e7ecf5; cursor:pointer}
+.ctx .danger{border-color:#ff4d4d44; background:rgba(255,77,77,.08)}
+/* glitter chips */
+.chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:4px}
+.chip{padding:.2rem .4rem; border:1px solid var(--line); background:rgba(255,255,255,.06); border-radius:999px; font-size:11px; cursor:pointer; color:#e7ecf5}
+.chip:hover{background:rgba(255,255,255,.12)}
+</style>
+</head>
+<body>
+  <a id="backLink" href="/studio.html" style="position:fixed; left:10px; top:10px; z-index:2000; padding:6px 10px; border-radius:999px; border:1px solid #ffffff22; background:rgba(15,22,32,.7); color:#dbe2ea; text-decoration:none; font-weight:600; backdrop-filter:saturate(110%) blur(2px);">← Back to Studio</a>
+  <div class="card">
+    <button id="loadBtn" type="button" title="Load custom SVG">Load</button>
+    <button id="autoLoadBtn" type="button" title="Auto-load ERRL SVG">Auto ERRL</button>
+    <input id="fileInput" type="file" accept="image/svg+xml,.svg"/>
+
+    <div class="stage" data-stage="1">
+      <!-- Parser‑safe default silhouette embedded directly to avoid DOMParser parse errors at boot -->
+      <svg id="pinSVG" viewBox="0 0 600 820" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="gitd" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="10" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glitterSparkle" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence id="glitNoise" type="fractalNoise" baseFrequency="0.95" numOctaves="2" seed="3" result="noise"/>
+            <feColorMatrix id="glitMatrix" in="noise" type="matrix" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0   0 0 0 6 -3" result="spark"/>
+            <feComponentTransfer in="spark" result="dense"><feFuncA id="glitterSlopeA" type="linear" slope="0.6"/></feComponentTransfer>
+            <feComposite in="dense" in2="SourceAlpha" operator="in" result="clipped"/>
+            <feBlend in="SourceGraphic" in2="clipped" mode="screen"/>
+            <animate attributeName="opacity" values="1;0.7;1" dur="1.2s" repeatCount="indefinite"/>
+          </filter>
+          <!-- Overlay glitter + gradients -->
+          <filter id="glitterOverlay">
+            <feTurbulence type="turbulence" baseFrequency="0.8" numOctaves="2" seed="7" result="noise"/>
+            <feColorMatrix in="noise" type="matrix"
+              values="0 0 0 0 1
+                      0 0 0 0 1
+                      0 0 0 0 1
+                      0 0 0 0.6 0" result="sparkle"/>
+            <feComposite in="sparkle" in2="SourceAlpha" operator="in" result="clipped"/>
+            <feBlend in="SourceGraphic" in2="clipped" mode="screen"/>
+          </filter>
+          <linearGradient id="glitterGoldPink" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFD700" />
+            <stop offset="100%" stop-color="#FF69B4" />
+          </linearGradient>
+          <linearGradient id="glitterSilver" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#cccccc" />
+            <stop offset="100%" stop-color="#ffffff" />
+          </linearGradient>
+          <linearGradient id="glitterRainbow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff0000" />
+            <stop offset="25%" stop-color="#ff9900" />
+            <stop offset="50%" stop-color="#33cc33" />
+            <stop offset="75%" stop-color="#3399ff" />
+            <stop offset="100%" stop-color="#9900cc" />
+          </linearGradient>
+          <!-- Animated rainbow gradient for trippy fill -->
+          <linearGradient id="rbGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff0040"/>
+            <stop offset="16%" stop-color="#ffa600"/>
+            <stop offset="33%" stop-color="#ffee00"/>
+            <stop offset="50%" stop-color="#00f11d"/>
+            <stop offset="66%" stop-color="#00a2ff"/>
+            <stop offset="83%" stop-color="#6f4dff"/>
+            <stop offset="100%" stop-color="#ff00b1"/>
+            <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="8s" repeatCount="indefinite"/>
+          </linearGradient>
+        </defs>
+        <g id="g-body">
+          <path data-region="body" d="M65,410 C65,190 240,40 360,60 C510,85 555,210 555,325 C555,510 460,615 345,695 C285,740 210,775 155,740 C110,711 65,630 65,410 Z"/>
+        </g>
+        <g id="g-face">
+          <ellipse data-region="face" cx="320" cy="290" rx="110" ry="95"/>
+        </g>
+        <g id="g-eyeL"><ellipse data-region="eyeL" cx="285" cy="270" rx="16" ry="28"/></g>
+        <g id="g-eyeR"><ellipse data-region="eyeR" cx="355" cy="270" rx="16" ry="28"/></g>
+        <g id="g-mouth"><ellipse data-region="mouth" cx="320" cy="330" rx="42" ry="18"/></g>
+        <g id="glitter-layer" pointer-events="none"></g>
+        <path id="outline" d="M65,410 C65,190 240,40 360,60 C510,85 555,210 555,325 C555,510 460,615 345,695 C285,740 210,775 155,740 C110,711 65,630 65,410 Z" fill="none" stroke="#0a0a0c" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- Context panel -->
+    <div id="ctx" class="ctx">
+      <div style="font-size:12px;opacity:.8" id="ctxTitle">Region</div>
+      <label>Enamel color</label>
+      <div class="row"><input id="ctxColor" type="color" value="#00e5ff"/></div>
+      <label>Finish</label>
+      <div class="row"><select id="ctxFinish">
+        <option value="solid">Solid</option>
+        <option value="glitter">Glitter</option>
+        <option value="glow">Glow</option>
+        <option value="none">None</option>
+      </select></div>
+      <label>Wire thickness</label>
+      <input id="ctxWire" type="range" min="0.5" max="6" step="0.5" value="2"/>
+      <label>Glitter Style</label>
+      <div id="glitterRow" class="chips" style="display:none">
+        <button class="chip" type="button" onclick="setGlitterStyle('glitterGoldPink')">Gold + Pink</button>
+        <button class="chip" type="button" onclick="setGlitterStyle('glitterSilver')">Silver</button>
+        <button class="chip" type="button" onclick="setGlitterStyle('glitterRainbow')">Rainbow</button>
+      </div>
+      <label>Outline thickness</label>
+      <input id="ctxOutline" type="range" min="1" max="8" step="0.5" value="3"/>
+      <div class="btns">
+        <button id="ctxApply" type="button">Apply</button>
+        <button id="ctxCancel" type="button" class="danger">Close</button>
+      </div>
+    </div>
+
+    <button id="randomBtn" type="button" aria-label="Randomize"><span class="spinFill" aria-hidden="true"></span></button>
+  </div>
+
+<script>
+'use strict';
+(function(){
+  // ===== tiny helpers =====
+  var $=function(s){return document.querySelector(s)};
+  var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+  function parseSVGText(txt){return(new DOMParser()).parseFromString(txt,'image/svg+xml');}
+
+  // ===== elements (late-bound) =====
+  var svg,gB,gF,gL,gR,gM,outline,loadBtn,fileInput,ctx,ctxColor,ctxFinish,ctxWire,ctxOutline,randomBtn;
+// importer compatibility vars
+var regionGs = {}, regionElems = {}; 
+
+  // ===== ctx helpers =====
+  function openCtx(region, clientX, clientY){
+    if(!region) return;
+    var rect=document.body.getBoundingClientRect();
+    var panel=ctx; panel.style.display='block';
+    // populate
+    var f=state.fill[region]||{finish:'none',color:'#ffffff'};
+    // Show a usable color for glow (color input can't display gradients)
+    if(f.finish==='glow') { ctxColor.value = '#ffffff'; } else { ctxColor.value = f.color && /^#/.test(f.color) ? f.color : '#00e5ff'; }
+    ctxFinish.value=f.finish||'none';
+    ctxWire.value=(state.wireW[region]||2);
+    ctxOutline.value=state.outlineW;
+    document.getElementById('ctxTitle').textContent=region.toUpperCase();
+    panel.dataset.region=region;
+    // place and clamp
+    var x=(clientX-rect.left+4), y=(clientY-rect.top+4);
+    var pw=panel.offsetWidth||200, ph=panel.offsetHeight||140;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    x=Math.max(8, Math.min(vw-pw-8, x));
+    y=Math.max(8, Math.min(vh-ph-8, y));
+    panel.style.left=x+'px'; panel.style.top=y+'px';
+    // glitter chips visibility
+    try{ var row=document.getElementById('glitterRow'); if(row) row.style.display = (ctxFinish.value==='glitter') ? 'flex' : 'none'; }catch(err){}
+  }
+  function closeCtx(){ ctx.style.display='none'; delete ctx.dataset.region; }
+
+  // ===== state =====
+  var regions=['body','face','eyeL','eyeR','mouth'];
+  var idToRegion={'#g-body':'body','#g-face':'face','#g-eyeL':'eyeL','#g-eyeR':'eyeR','#g-mouth':'mouth'};
+  var state={
+    plating:'#0a0a0c',
+    outlineW:3,
+    wireW:{body:2,face:2,eyeL:2,eyeR:2,mouth:2},
+    fill:{
+      body:{finish:'solid',color:'#00e5ff'},
+      face:{finish:'none', color:'#ffffff'},
+      eyeL:{finish:'solid',color:'#0a0a0a'},
+      eyeR:{finish:'solid',color:'#0a0a0a'},
+      mouth:{finish:'solid',color:'#0a0a0a'}
+    }
+  };
+  // curated bright palette
+  var palette=['#ffffff','#00e5ff','#22d3ee','#3b82f6','#60a5fa','#a78bfa','#8b5cf6','#f472b6','#ec4899','#fb7185','#f87171','#ef4444','#f97316','#f59e0b','#fbbf24','#fde047','#c3ff00','#53f900','#34d399','#4ade80','#86efac','#bbf7d0','#fef9c3','#fde68a','#facc15','#fda4af','#fbcfe8','#e0e7ff','#c7d2fe'];
+  var metals=['#0a0a0c','#4b5563','#cbd5e1','#d6b356','#d07c6c','#6e43ff'];
+  var finishes=['solid','glitter','glow']; // list; randomization will exclude 'glitter' and 'none'
+
+  // ===== geometry + paint =====
+  function fitToOutline(){ try{ var b=outline.getBBox(); if(!b||!isFinite(b.width)||b.width===0) return; var pad=Math.max(b.width,b.height)*0.08; svg.setAttribute('viewBox',[b.x-pad,b.y-pad,b.width+2*pad,b.height+2*pad].join(' ')); }catch(e){}}
+  function regionNodes(r){ var map={body:'#g-body *',face:'#g-face *',eyeL:'#g-eyeL *',eyeR:'#g-eyeR *',mouth:'#g-mouth *'}; return svg?Array.prototype.slice.call(svg.querySelectorAll(map[r])):[]; }
+  function applyPlating(){ if(!outline) return; outline.setAttribute('stroke',state.plating); ['#g-face *','#g-eyeL *','#g-eyeR *','#g-mouth *'].forEach(function(sel){ $$(sel).forEach(function(n){ n.setAttribute('stroke',state.plating); }); }); }
+  function applyRegion(r){ var nodes=regionNodes(r); if(nodes.length===0) return; var f=state.fill[r]; nodes.forEach(function(n){ n.setAttribute('stroke-width', state.wireW[r]||2); n.setAttribute('stroke',state.plating); n.setAttribute('pointer-events','all'); if(f.finish==='none'){ n.setAttribute('fill','none'); n.removeAttribute('filter'); } else if(f.finish==='solid'){ n.setAttribute('fill',f.color); n.removeAttribute('filter'); } else if(f.finish==='glow'){ n.setAttribute('fill', f.color || 'url(#rbGrad)'); n.setAttribute('filter','url(#gitd)'); } else if(f.finish==='glitter'){ n.setAttribute('fill',f.color); n.setAttribute('filter','url(#glitterSparkle)'); try{ if(window.applyGlitter){ window.applyGlitter('g-'+r, 'glitterRainbow', 'glitterOverlay'); } }catch(e){} } }); }
+  function applyAll(){ ['body','face','eyeL','eyeR','mouth'].forEach(applyRegion); }
+
+  // ===== randomizers =====
+  function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+  function randColor(){return rand(palette)}
+  function randomizeAll(){
+    state.plating=rand(metals); applyPlating();
+    // Eyes: always same color, solid, never hidden
+    var eyeColor=randColor();
+    ['eyeL','eyeR'].forEach(function(r){ state.fill[r].finish='solid'; state.fill[r].color=eyeColor; });
+    // Face/body/mouth: random color swap, no glitter, optional rainbow glow
+    ['body','face','mouth'].forEach(function(r){
+      var allowGlow = (r!== 'mouth');
+      var finish = allowGlow && Math.random()<0.6 ? 'glow' : 'solid';
+      state.fill[r].finish = finish;
+      state.fill[r].color = (finish==='glow') ? 'url(#rbGrad)' : randColor();
+    });
+    ['body','face','eyeL','eyeR','mouth'].forEach(applyRegion);
+  }
+  function randomizeRegion(r){
+    if(['body','face','eyeL','eyeR','mouth'].indexOf(r)===-1) return;
+    if(r==='eyeL' || r==='eyeR'){
+      var c = randColor();
+      state.fill.eyeL.finish='solid'; state.fill.eyeR.finish='solid';
+      state.fill.eyeL.color=c; state.fill.eyeR.color=c;
+      applyRegion('eyeL'); applyRegion('eyeR');
+      return;
+    }
+    var allowGlow = (r !== 'mouth');
+    var finish = allowGlow && Math.random()<0.6 ? 'glow' : 'solid';
+    state.fill[r].finish = finish;
+    state.fill[r].color = (finish==='glow') ? 'url(#rbGrad)' : randColor();
+    applyRegion(r);
+  }
+
+  // ===== Importer (user-specified signature) =====
+// shims for the user's snippet
+var regionGs = {};            // filled in bind()
+var regionElems = {};         // stores target elements per region
+function fitView(){ fitToOutline(); } // alias to our viewbox fitter
+
+// importer
+function importFromDoc(doc){
+  const q = sel => doc.querySelector(sel);
+  const outlinePath = q('[data-region="outline"], #outline, #outline-plating, svg>path');
+  if(outlinePath && outlinePath.getAttribute('d')) outline.setAttribute('d', outlinePath.getAttribute('d'));
+  const map = {
+    body:  q('[data-region="body"], #body, #fill-body, path#body-fill'),
+    face:  q('[data-region="face"], #face, #fill-face, path#face-fill'),
+    eyeL:  q('[data-region="eyeL"], #eyeL, #left-eye, #fill-eyeL, path#eyeL-fill'),
+    eyeR:  q('[data-region="eyeR"], #eyeR, #right-eye, #fill-eyeR, path#eyeR-fill'),
+    mouth: q('[data-region="mouth"], #mouth, #fill-mouth, path#mouth-fill')
+  };
+  Object.keys(map).forEach(k=>{
+    const g=regionGs[k]; if(!g) return; g.innerHTML='';
+    const src=map[k]; if(!src){ regionElems[k]=null; return; }
+    const clone=src.cloneNode(true); clone.removeAttribute('id'); g.appendChild(clone);
+    const target=clone.querySelector('path,ellipse,circle,polygon,rect')||clone;
+    regionElems[k]=target;
+    (clone.querySelectorAll('*').length?clone.querySelectorAll('*'):[clone]).forEach(el=>{
+      el.setAttribute('stroke', state.plating);
+      // map user's state.wires to our state.wireW
+      el.setAttribute('stroke-width', (state.wireW && state.wireW[k]) ? state.wireW[k] : 6);
+      el.setAttribute('stroke-linejoin','round');
+      el.setAttribute('stroke-linecap','round');
+    });
+  });
+  applyAll(); fitView();
+}
+
+  // ===== bind after DOM ready =====
+  function bind(){
+    // cache
+    svg=$('#pinSVG'); gB=$('#g-body'); gF=$('#g-face'); gL=$('#g-eyeL'); gR=$('#g-eyeR'); gM=$('#g-mouth'); outline=$('#outline');
+    loadBtn=$('#loadBtn'); fileInput=$('#fileInput'); randomBtn=$('#randomBtn');
+    ctx=$('#ctx'); ctxColor=$('#ctxColor'); ctxFinish=$('#ctxFinish'); ctxWire=$('#ctxWire'); ctxOutline=$('#ctxOutline');
+    if(!svg||!outline||!loadBtn||!fileInput||!randomBtn){ console.error('Init failed: missing nodes'); return; }
+
+    // fill importer maps
+    regionGs = { body:gB, face:gF, eyeL:gL, eyeR:gR, mouth:gM };
+    // user snippet expects state.wires; alias to our wireW
+    state.wires = state.wireW;
+
+    // init paint
+    applyPlating(); applyAll(); fitToOutline();
+
+    // buttons
+    loadBtn.addEventListener('click', function(){ fileInput.click(); });
+    fileInput.addEventListener('change', function(e){ var f=e.target.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(){ try{ var doc=parseSVGText(rd.result); importFromDoc(doc); }catch(err){ console.error('SVG load error',err); } }; rd.readAsText(f); });
+    // Hide back link when embedded inside another page (iframe)
+    try { var bl=document.getElementById('backLink'); if (bl && window.top !== window.self) { bl.style.display='none'; } } catch(_) {}
+    // Auto-load built-in ERRL SVGs (tries local errl_fixed.svg first)
+    (function(){ var btn=document.getElementById('autoLoadBtn'); if(!btn) return; btn.addEventListener('click', async function(){
+      try{
+        btn.disabled=true; var urls=['errl_fixed.svg','errl-painted-2.svg','errl-painted.svg']; var ok=false;
+        for(var i=0;i<urls.length && !ok;i++){
+          try{
+            var res = await fetch(urls[i], { cache:'no-cache' });
+            if(res && res.ok){ var txt = await res.text(); var doc = parseSVGText(txt); importFromDoc(doc); ok=true; }
+          }catch(e){ /* try next */ }
+        }
+        btn.textContent = ok ? 'Loaded' : 'Not found';
+        setTimeout(function(){ btn.textContent='Auto ERRL'; btn.disabled=false; }, 1400);
+      }catch(e){ console.warn('Auto-load failed', e); btn.disabled=false; }
+    });
+    // auto-run once to populate with the bundled SVG
+    setTimeout(function(){ try{ btn.click(); }catch(_){} }, 0);
+    })();
+    randomBtn.addEventListener('click', function(){ randomizeAll(); this.style.transform='scale(0.96)'; setTimeout(()=>this.style.transform='',120); });
+
+    // per‑region interactions
+    svg.addEventListener('dblclick', function(e){ var el=e.target.closest('#g-body, #g-face, #g-eyeL, #g-eyeR, #g-mouth'); if(!el) return; var reg=idToRegion['#'+el.id]; randomizeRegion(reg); });
+    svg.addEventListener('contextmenu', function(e){ var el=e.target.closest('#g-body, #g-face, #g-eyeL, #g-eyeR, #g-mouth'); if(!el) return; e.preventDefault(); var region=idToRegion['#'+el.id]; openCtx(region, e.clientX, e.clientY); });
+    $('#ctxApply').addEventListener('click', function(){ var r=ctx.dataset.region; if(!r) return; var finish=ctxFinish.value; state.fill[r].finish=finish; state.fill[r].color = (finish==='glow') ? 'url(#rbGrad)' : ctxColor.value; state.wireW[r]=parseFloat(ctxWire.value); state.outlineW=parseFloat(ctxOutline.value); outline.setAttribute('stroke-width', state.outlineW); applyRegion(r); closeCtx(); });
+    // toggle glitter chips visibility when finish changes
+    ctxFinish.addEventListener('change', function(){ try{ var row=document.getElementById('glitterRow'); if(row) row.style.display = (ctxFinish.value==='glitter') ? 'flex' : 'none'; }catch(e){} });
+    $('#ctxCancel').addEventListener('click', function(){ closeCtx(); });
+    document.addEventListener('click', function(e){ if(!ctx.contains(e.target) && e.target!==ctx) { closeCtx(); } });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeCtx(); });
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+
+  // ===== basic self‑tests (console) =====
+  (function tests(){ try{ randomizeAll(); var ok1=['body','face','eyeL','eyeR','mouth'].every(r=>state.fill[r].finish!=='none'); if(!ok1) console.warn('Test fail: finish none after randomizeAll'); randomizeRegion('face'); if(state.fill.face.finish==='none') console.warn('Test fail: face none after randomizeRegion'); }catch(e){ console.warn('Self-tests error',e); } })();
+// lightweight glitter overlay helper (SVG <use> overlay)
+function applyGlitter(regionGroupId, gradientId, filterId){
+  gradientId = gradientId || 'glitterGoldPink';
+  filterId = filterId || 'glitterOverlay';
+  try {
+    var svg = document.getElementById('pinSVG');
+    var layer = document.getElementById('glitter-layer');
+    var target = document.getElementById(regionGroupId);
+    if(!svg || !layer || !target) return;
+    var useId = 'glitter-'+regionGroupId;
+    var existing = document.getElementById(useId);
+    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+    var use = document.createElementNS('http://www.w3.org/2000/svg','use');
+    use.setAttribute('id', useId);
+    use.setAttribute('href', '#'+regionGroupId);
+    use.setAttribute('fill', 'url(#'+gradientId+')');
+    use.setAttribute('filter', 'url(#'+filterId+')');
+    use.setAttribute('opacity', '1');
+    layer.appendChild(use);
+  } catch(e) { /* ignore */ }
+}
+window.applyGlitter = applyGlitter;
+function setGlitterStyle(grad){
+  try{
+    var r = (document.getElementById('ctx') && document.getElementById('ctx').dataset.region) || 'body';
+    state.fill[r].finish = 'glitter';
+    applyRegion(r);
+    applyGlitter('g-'+r, grad, 'glitterOverlay');
+  }catch(e){}
+}
+})();
+</script>
+</body>
+</html>

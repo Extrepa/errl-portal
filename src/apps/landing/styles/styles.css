@@ -1,0 +1,586 @@
+/* Reset / base */
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; }
+body {
+  background: #000;
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  /* Prevent accidental text selection/long-press highlight boxes */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+:root {
+  --motionMultiplier: 1.35;
+}
+body.reduced-motion { --motionMultiplier: 4; }
+/* allow text selection where appropriate */
+input, textarea, select, button { -webkit-user-select: auto; user-select: auto; }
+/* also remove selection color if it somehow applies */
+::selection { background: transparent; }
+
+/* force dark base even if external CSS sets transparent */
+body.errl-dark { background:#000 !important; }
+
+a { color: inherit; text-decoration: none; }
+
+/* 1. Ambient background (replaced by ErrlBG) */
+.space-bg { display: none; }
+
+/* Vignette frame for "rounded monitor in dark room" look */
+ .vignette-frame {
+  position: fixed;
+  inset: 20px;
+  border-radius: 12px;
+  box-shadow:
+    0 40px 120px rgba(0,0,0,1) inset,
+    0 0 80px rgba(0,0,0,0.8) inset;
+  pointer-events: none;
+  z-index: 4; /* L4: above scene */
+}
+
+/* 2. Canvas layer (actual canvas element will sit under scene) */
+#bgParticles {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  z-index: 0; /* L0: stars */
+  background: transparent;
+  pointer-events: none;
+}
+#riseBubbles{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  z-index: 2; /* L2: rising background bubbles */
+  pointer-events:none;
+  background: transparent;
+}
+
+/* WebGL layer */
+.errl-webgl-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  z-index: 1; /* L1: behind rising canvas and scene */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: transparent;
+}
+
+body[data-errlMode="errl"] .errl-webgl-layer { opacity: 1; }
+body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease; display:none; }
+
+/* 3. Scene layer holding Errl + nav orbs */
+.scene-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  z-index: 3; /* L3: above rising canvas */
+  pointer-events: none; /* bubbles will override this individually */
+  isolation: isolate; /* Create new stacking context */
+}
+.nav-orbit { 
+  position: fixed; 
+  inset: 0; 
+  pointer-events: none;
+  z-index: 0; /* Base layer for nav orbit */
+}
+
+/* 4. Goo aura behind Errl (CSS version) */
+.errl-goo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(520px, 44vmin, 940px);
+  height: clamp(560px, 48vmin, 1080px);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(220,130,255,0.35) 0%, rgba(60,0,120,0.18) 38%, rgba(0,0,0,0) 72%);
+  transform: translate(-50%, -40%) scale(1,1.1);
+  filter: blur(48px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0; /* Goo aura behind Errl */
+  border-radius: 45% 55% 60% 40% / 40% 50% 55% 45%;
+  animation: gooPulse 4s ease-in-out infinite;
+  animation-duration: calc(4s * var(--motionMultiplier, 1));
+}
+
+@keyframes gooPulse {
+  0% {
+    border-radius: 45% 55% 60% 40% / 40% 50% 55% 45%;
+    transform: translate(-50%, -42%) scale(1,1.05);
+  }
+  50% {
+    border-radius: 60% 40% 50% 50% / 50% 40% 60% 45%;
+    transform: translate(-50%, -38%) scale(1.07,1.15);
+  }
+  100% {
+    border-radius: 45% 55% 60% 40% / 40% 50% 55% 45%;
+    transform: translate(-50%, -42%) scale(1,1.05);
+  }
+}
+
+/* 5. Errl container */
+.errl-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(320px, 34vmin, 780px);
+  height: clamp(320px, 34vmin, 780px);
+  --errlScale: 1;
+  transform: translate(-50%, -50%) scale(var(--errlScale, 1));
+  z-index: 1; /* Errl above goo aura, below bubbles */
+  animation: floaty 4s ease-in-out infinite;
+  animation-duration: calc(4s * var(--motionMultiplier, 1));
+  filter:
+    drop-shadow(0 0 4px rgba(255,255,255,0.9))
+    drop-shadow(0 0 20px rgba(255,100,255,0.6))
+    drop-shadow(0 0 60px rgba(80,200,255,0.4));
+  pointer-events: none;
+}
+@keyframes floaty {
+  0%   { transform: translate(-50%, calc(-50% - 8px)) scale(var(--errlScale, 1)); }
+  50%  { transform: translate(-50%, calc(-50% + 8px)) scale(var(--errlScale, 1)); }
+  100% { transform: translate(-50%, calc(-50% - 8px)) scale(var(--errlScale, 1)); }
+}
+.errl-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Fallback wobble if SVG filter is unsupported */
+.errl-wobble {
+  animation: errlWobble 3.6s ease-in-out infinite;
+  animation-duration: calc(3.6s * var(--motionMultiplier, 1));
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.8)) drop-shadow(0 0 18px rgba(180,120,255,0.5));
+}
+@keyframes errlWobble {
+  0% { transform: translateY(-2px) scale(1.00) rotate(0.0deg); }
+  25% { transform: translateY(2px) scale(1.02, 0.99) rotate(-0.3deg); }
+  50% { transform: translateY(-1px) scale(0.99, 1.02) rotate(0.3deg); }
+  75% { transform: translateY(2px) scale(1.01) rotate(-0.15deg); }
+  100% { transform: translateY(-2px) scale(1.00) rotate(0.0deg); }
+}
+
+/* Show DOM Errl; GL overlays can coexist */
+body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s ease; }
+/* Apply classic goo via class, matching Pixi/GL variant semantics */
+#errlCenter.goo,
+.errl-aura-mask.goo { -webkit-filter: url(#classicGoo); filter: url(#classicGoo); }
+
+/* Masked aura that follows Errl shape */
+.errl-aura-mask{
+  position:absolute; inset:0; margin:auto; pointer-events:none;
+  background: radial-gradient(circle at 50% 35%, rgba(210,120,255,0.28) 0%, rgba(90,40,150,0.16) 36%, rgba(0,0,0,0) 68%);
+  filter: blur(36px);
+  opacity: .62;
+  z-index: -1; /* Behind Errl image */
+  -webkit-mask-image: url('/portal/pages/studio/pin-widget/ErrlPin.Widget/errl-painted-2.svg');
+  -webkit-mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; -webkit-mask-position: center;
+  mask-image: url('/portal/pages/studio/pin-widget/ErrlPin.Widget/errl-painted-2.svg');
+  mask-repeat: no-repeat; mask-size: 100% 100%; mask-position: center;
+}
+
+.errl-pool{
+  position:absolute; left:50%; top:78%; width: 56%; height: 10%; transform: translateX(-50%);
+  background:
+    radial-gradient(ellipse at center, rgba(140,90,200,0.24) 0%, rgba(30,0,60,0.18) 36%, rgba(0,0,0,0) 72%);
+  opacity: .68;
+  border-radius: 50% / 60%;
+  z-index: 0; /* Behind Errl image */
+}
+
+/* 6. Orbiting / menu bubbles */
+.bubble {
+  position: absolute;
+  width: clamp(42px, 6vw, 74px);
+  height: clamp(42px, 6vw, 74px);
+  border-radius: 50%;
+  box-shadow:
+    0 0 20px rgba(180,120,255,0.6),
+    0 0 40px rgba(0,200,255,0.4);
+  line-height: clamp(42px, 6vw, 74px);
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #f0f4ff;
+  background: radial-gradient(circle, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.7) 32%, rgba(255,255,255,0.12) 100%);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.6);
+  mix-blend-mode: screen;
+  user-select: none;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 5; /* Above scene layer (L3), below phone panel (L10) */
+  animation: wobble 3s ease-in-out infinite;
+  animation-duration: calc(3s * var(--motionMultiplier, 1));
+  font-family: 'Baloo 2', 'Fredoka', 'Poppins', 'Inter', sans-serif;
+}
+.bubble--behind {
+  z-index: 0;
+}
+.bubble--focus,
+.bubble:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 4px;
+  box-shadow:
+    0 0 30px rgba(255,255,255,0.95),
+    0 0 60px rgba(0,200,255,0.75);
+  animation: none !important;
+}
+.bubble .label,
+.bubble span {
+  position: relative;
+  display: inline-block;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.6);
+  opacity: 0;
+  animation: labelFade 6s ease-in-out infinite;
+  animation-duration: calc(6s * var(--motionMultiplier, 1));
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  z-index: 1; /* Label above bubble background */
+  font-family: 'Baloo 2', 'Fredoka', 'Poppins', 'Inter', sans-serif;
+  font-size: clamp(11px, 2.1vw, 15px);
+  font-weight: 600;
+}
+@keyframes labelFade { 0%,18%{ opacity:0; } 35%,65%{ opacity:1; } 82%,100%{ opacity:0; } }
+@keyframes textPulse { 0%,100%{ color: rgba(255,255,255,0.75); } 50%{ color: rgba(255,255,255,1); } }
+/* Stop label fade animation while hovering */
+.bubble:hover .label,
+.bubble--focus .label {
+  opacity: 1 !important;
+  animation: none !important;
+}
+.bubble:hover{ color:#fff; animation: wobble 3s ease-in-out infinite; animation-duration: calc(3s * var(--motionMultiplier, 1)); }
+.bubble.hidden-bubble { display: none !important; }
+.nav-orbit { filter: none; }
+.nav-orbit.goo-on { filter: url(#uiGoo); }
+
+/* Iridescent / oil-slick color cycling */
+.menuOrb {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 60%),
+    conic-gradient(from var(--orbHue, 0deg),
+      #ff00ff 0%,
+      #00e5ff 30%,
+      #ffd700 60%,
+      #ff00ff 100%);
+  animation: orbShift 4s linear infinite, wobble 3s ease-in-out infinite;
+  animation-duration: calc(4s * var(--motionMultiplier, 1)), calc(3s * var(--motionMultiplier, 1));
+}
+@keyframes orbShift {
+  0%   { --orbHue: 0deg; }
+  100% { --orbHue: 360deg; }
+}
+
+@keyframes wobble {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  50%  { transform: translate(-50%, -52%) scale(1.07); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.bubble:hover {
+  filter: brightness(1.2);
+  /* Glow will be set dynamically via JS to match background color */
+  box-shadow:
+    0 0 30px rgba(255,255,255,0.9),
+    0 0 60px rgba(0,200,255,0.7);
+}
+
+@media (max-width: 768px) {
+  .errl-wrapper {
+    width: clamp(260px, 56vw, 520px);
+    height: clamp(260px, 56vw, 520px);
+  }
+}
+
+@media (max-width: 480px) {
+  .errl-wrapper {
+    width: clamp(220px, 64vw, 420px);
+    height: clamp(220px, 64vw, 420px);
+  }
+  .bubble {
+    font-size: clamp(10px, 3.4vw, 13px);
+  }
+}
+
+/* Accessibility helpers */
+body.high-contrast { filter: contrast(1.5) saturate(1.3) brightness(1.1); }
+/* Invert all colors (accessibility option) */
+body.invert-colors { filter: invert(1) hue-rotate(180deg); }
+
+/* Perf Safe mode: disable animations/transitions to reduce paint/composite cost */
+body.perf-safe *,
+body.perf-safe *::before,
+body.perf-safe *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* 7. Control Panel (“Errl Phone”) */
+.errl-panel {
+  position: fixed;
+  top: 40px;
+  right: 40px;
+  /* Slimmer phone; content scrolls inside */
+  width: min(260px, calc(100vw - 80px));
+  height: min(340px, calc(100vh - 80px));
+  overflow-x: hidden; /* prevent horizontal scroll */
+  overflow-y: auto;  /* vertical scroll for long tabs */
+  background: linear-gradient(180deg, rgba(12,12,22,0.9), rgba(12,12,22,0.78));
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(255,255,255,0.4) transparent;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.8),
+    0 0 30px rgba(120,80,255,0.5),
+    0 0 80px rgba(0,200,255,0.3);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+  font-family: inherit;
+  z-index: 10;
+}
+/* Minimize to a small floating icon */
+.errl-panel.minimized {
+  width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  display: block !important;
+  cursor: pointer !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+}
+.errl-panel.minimized::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  background-image: var(--minIcon, url('./assets/portal/ui/phone-tabs/hud_300.png'));
+  background-size: cover; background-repeat:no-repeat; background-position:center;
+  border-radius: inherit;
+}
+.errl-panel.minimized .panel-header,
+.errl-panel.minimized .panel-tabs,
+.errl-panel.minimized .panel-section { display:none; }
+.errl-panel.minimized .panel-mode button, .errl-panel.minimized .panel-title { display:none; }
+.errl-panel.dragging { cursor:grabbing; }
+.hud-icons{ display:flex; gap:10px; margin:10px 0 6px; }
+.hud-icon{ width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; position:relative; outline:none; background:
+  radial-gradient(circle at 28% 28%, rgba(255,255,255,0.85), rgba(255,255,255,0) 60%),
+  conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff);
+  box-shadow: 0 0 10px rgba(0,0,0,0.4), 0 0 16px rgba(0,200,255,0.35);
+  animation: iconShift 3.2s linear infinite;
+  animation-duration: calc(3.2s * var(--motionMultiplier, 1));
+}
+.hud-icon::after{ content:""; position:absolute; inset:-3px; border-radius:inherit; box-shadow: inset 0 0 10px rgba(255,255,255,0.22); pointer-events:none; }
+@keyframes iconShift{ 0%{ --h: 0deg; } 100%{ --h: 360deg; } }
+
+/* Compact slider for per-control animation speed */
+.mini-slider{ width: 90px; min-width: 90px; }
+/* Compact number box for animation speed */
+.mini-number{ width:60px; min-width:60px; padding:1px 3px; font-size:10px; }
+/* wider for speed boxes */
+.speed-number{ width:70px; min-width:70px; }
+/* remove native number spinners */
+.mini-number::-webkit-inner-spin-button, .mini-number::-webkit-outer-spin-button{ -webkit-appearance: none; margin:0; }
+.mini-number{ -moz-appearance: textfield; }
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  cursor: grab;
+}
+.panel-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.panel-tabs{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin:6px 0 12px; }
+.panel-tabs .tab{ background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)); color:#eaf6ff; border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:0; font-size:0; cursor:pointer; width:40px; height:40px; position:relative; display:inline-flex; align-items:center; justify-content:center; margin:0 auto; overflow:hidden; }
+.panel-tabs .tab.active{ border-color:transparent; }
+/* keep active ring effect */
+.panel-tabs .tab.active::before{ content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px; background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: iconShift 10s linear infinite; animation-duration: calc(10s * var(--motionMultiplier, 1)); }
+/* icon texture layer */
+.panel-tabs .tab::after{ content:""; position:absolute; inset:0; background-position:center; background-size:cover; background-repeat:no-repeat; display:block; border-radius:inherit; }
+
+/* Animate buttons: snaking rainbow outline when active */
+.btn-animate{ position:relative; overflow:hidden; border-radius:6px; }
+.btn-animate.animating::before{
+  content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px;
+  background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: iconShift 10s linear infinite;
+  animation-duration: calc(10s * var(--motionMultiplier, 1));
+  pointer-events:none; z-index:0;
+}
+/* little circle indicator when animating */
+.btn-animate.animating::after{
+  content:""; position:absolute; right:-6px; top:-6px; width:10px; height:10px; border-radius:50%;
+  background: radial-gradient(circle, #fff, rgba(255,255,255,0.2)); box-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 18px rgba(0,229,255,0.6);
+  pointer-events:none;
+}
+.btn-animate > *{ position:relative; z-index:1; }
+
+/* Bump buttons */
+.mini-bump{ width:18px; height:18px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.06); color:#fff; border-radius:4px; line-height:16px; text-align:center; cursor:pointer; font-size:11px; }
+.mini-bump:hover{ background:rgba(255,255,255,0.12); }
+
+/* Fancy rainbow scrollbar for the phone */
+.errl-panel::-webkit-scrollbar{ width: 8px; }
+.errl-panel::-webkit-scrollbar-track{ background: transparent; }
+.errl-panel::-webkit-scrollbar-thumb{
+  border-radius: 8px;
+  background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff);
+  border: 2px solid rgba(0,0,0,0); /* hollow center */
+  background-clip: padding-box;
+}
+/* per-tab textures */
+.panel-tabs .tab[data-tab="hud"]::after{ background-image:url('./assets/portal/ui/phone-tabs/hud_300.png'); }
+.panel-tabs .tab[data-tab="errl"]::after{ background-image:url('./assets/portal/ui/phone-tabs/errl_300.png'); }
+.panel-tabs .tab[data-tab="nav"]::after{ background-image:url('./assets/portal/ui/phone-tabs/nav_300.png'); }
+.panel-tabs .tab[data-tab="rb"]::after{ background-image:url('./assets/portal/ui/phone-tabs/rb_300.png'); }
+.panel-tabs .tab[data-tab="glb"]::after{ background-image:url('./assets/portal/ui/phone-tabs/glb_300.png'); }
+.panel-tabs .tab[data-tab="bg"]::after{ background-image:url('./assets/portal/ui/phone-tabs/bg_300.png'); }
+.panel-tabs .tab[data-tab="gl"]::after{ background-image:url('./assets/portal/ui/phone-tabs/gl_300.png'); }
+.panel-tabs .tab[data-tab="hue"]::after{ background-image:url('./assets/portal/ui/phone-tabs/hue_300.png'); }
+.panel-tabs .tab-icon{ width:40px; height:40px; border-radius:999px; }
+.panel-mode button {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  font-size: 10px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+#phoneMinToggle { font-weight:800; width:24px; height:22px; padding:0; }
+.panel-section {
+  display: none;
+  margin-bottom: 12px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 10px;
+}
+.sectionLabel {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+  margin-bottom: 8px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Thin divider used to separate control groups */
+.sectionDivider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.25), rgba(255,255,255,0.08));
+  border: 0;
+  margin: 8px 0;
+}
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 8px;
+  font-size: 10px;
+  flex-wrap: wrap; /* allow wrapping in narrow phone */
+}
+/* helpers for compact layout */
+.sliderRow > * { min-width: 0; }
+.sliderRow strong { flex: 0 0 100%; margin-bottom: 2px; }
+.sliderRow select { flex: 1 1 120px; max-width: 100%; }
+.sliderRow input[type="range"] { flex: 1 1 140px; }
+.mini-select{ width:140px; max-width:140px; }
+.sliderRow input[type="number"] { width: 44px; flex: 0 0 44px; }
+.sliderRow button { flex: 0 0 auto; }
+.sliderRow label {
+  width: 45px;
+  flex-shrink: 0;
+  opacity: 0.75;
+  text-align: right;
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sliderRow input[type="range"] {
+  flex: 1;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,#ff00ff,#00e5ff,#ffd700);
+  outline: none;
+}
+.sliderRow input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 10px rgba(255,255,255,1),
+    0 0 30px rgba(120,80,255,0.8),
+    0 0 60px rgba(0,200,255,0.6);
+  border: 0;
+}
+.panel-section button {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 6px;
+  font-size: 10px;
+  padding: 4px 8px;
+  color: #fff;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+}
+/* Wider labels in Errl tab so text fits */
+.panel-section[data-tab="errl"] .sliderRow label { width: 80px; }
+/* Make HUD buttons show disabled state */
+.panel-section[data-tab="hud"] .moodBtn2[disabled]{ opacity:0.5; cursor:not-allowed; }
+.panel-section[data-tab="hud"] .moodBtn2{
+  flex: 1 1 calc(25% - 6px);
+  min-width: calc(25% - 6px);
+  max-width: calc(25% - 6px);
+  text-align:center;
+  padding:4px 0;
+  font-size:9px;
+}

@@ -12,12 +12,12 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@assets/*": ["src/assets/*"],
-      "@portal/*": ["src/portal/*"],
-      "@studio/*": ["src/studio/*"],
+      "@assets/*": ["src/shared/assets/*"],
+      "@shared/*": ["src/shared/*"],
+      "@studio/*": ["src/apps/studio/*"],
       "@legacy/*": ["src/legacy/*"]
     }
   },
   "include": ["src"],
-  "exclude": ["src/fx/**/*", "archive/**/*"]
+  "exclude": ["src/apps/landing/fx/**/*", "archive/**/*"]
 }

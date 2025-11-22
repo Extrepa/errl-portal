@@ -1,5 +1,6 @@
 # Changelog (dev-facing)
 
+- 2025-11-22 — Refactored project structure: reorganized codebase into `src/apps/landing/`, `src/apps/static/`, `src/apps/studio/`, and `src/shared/` directories; updated Vite, TypeScript, and Tailwind configs for new structure.
 - 2025-11-22 — Moved all pages from `src/legacy/portal/pages/` to `src/portal/pages/`; updated Vite build config to use new structure.
 - 2025-11-22 — Updated all navigation links to point to `/portal/pages/...` instead of `/legacy/portal/pages/...`.
 - 2025-11-22 — Fixed all "Back to Portal" buttons to point to `/` (landing page).
