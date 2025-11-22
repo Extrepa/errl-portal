@@ -1,0 +1,289 @@
+/* Extracted from html_css_sheets.html on 2025-11-11T17:26:42.430Z */
+:root{
+      --bg:#0f1220;
+      --card:#151a2e;
+      --ink:#e6e7ef;
+      --muted:#a7acc9;
+      --accent:#7cf0ff;
+      --accent2:#ffd36a;
+      --code-bg:#0d0f1a;
+      --border:#232845;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
+      color:var(--ink);
+      background:linear-gradient(180deg,#0b1020 0%, #111633 100%);
+    }
+    header{
+      padding:24px 20px 8px;
+      text-align:center;
+    }
+    header h1{margin:0;font-size:clamp(22px,2.8vw,36px)}
+    header p{margin:6px 0 0;color:var(--muted)}
+    .sheet{
+      width:100%;
+      max-width:1050px;
+      margin:18px auto 28px;
+      padding:10px;
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+      page-break-inside: avoid;
+      background:transparent;
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
+      display:grid;
+      grid-template-rows:auto auto 1fr;
+    }
+    .card header{
+      text-align:left;
+      padding:12px 14px 8px;
+      border-bottom:1px solid var(--border);
+    }
+    .card header h2{
+      font-size:16px;
+      margin:0;
+    }
+    .card header small{
+      color:var(--muted);
+    }
+    .preview{
+      padding:14px;
+      background:radial-gradient(1200px 300px at 20% 0%, rgba(124,240,255,.12), transparent 55%);
+      border-bottom:1px dashed var(--border);
+      min-height:120px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .code{
+      background:var(--code-bg);
+      padding:10px 12px;
+      overflow:auto;
+      border-top:1px solid #0003;
+      font:12px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      position:relative;
+    }
+    .tips{
+      padding:10px 12px 14px;
+      color:var(--muted);
+      border-top:1px dashed var(--border);
+      background:linear-gradient(0deg, rgba(255,255,255,0.02), rgba(255,255,255,0.0));
+      font-size:12.5px;
+    }
+    code, pre{color:#e9f1ff}
+    pre{margin:0; white-space:pre; tab-size:2}
+    /* Utilities used inside previews */
+    .u-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center}
+    .u-col{display:grid; gap:8px}
+    .u-center{text-align:center}
+    /* Example-specific styles are namespaced by .example-XX within each preview to avoid leaking */
+    /* Print styles */
+    @media print{
+      body{background:white;color:black}
+      .sheet{page-break-after:always; background:transparent;}
+      .card{border-color:#ddd; box-shadow:none}
+      .code{background:#f7f7f7;color:#222}
+      .tips{color:#333}
+      header, .app-note{display:none}
+    }
+    .app-note{ text-align:center; color:var(--muted); margin-bottom:10px;}
+    .label{display:inline-block; padding:2px 6px; border:1px solid var(--border); border-radius:999px; font-size:11px; color:var(--muted)}
+    /* Reduce motion for accessibility and to prevent flashing */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    /* Slow down animations in previews to reduce visual overload */
+    .preview {
+      --anim-slowdown: 2;
+    }
+
+.example-13 .open{padding:8px 12px; border:1px solid #2a335f; border-radius:10px; background:#182048; cursor:pointer}
+  .example-13 .overlay{position:fixed; inset:0; background:rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:.2s}
+  .example-13 .modal{position:fixed; left:50%; top:50%; transform:translate(-50%,-52%) scale(.96); width:min(92vw,420px); background:#0e1330; border:1px solid #2a335f; border-radius:14px; padding:14px; opacity:0; pointer-events:none; transition:.2s}
+  .example-13 #m1:checked ~ .overlay, .example-13 #m1:checked ~ .modal{opacity:1; pointer-events:auto}
+  .example-13 #m1:checked ~ .modal{transform:translate(-50%,-52%) scale(1)}
+  .example-13 .close{display:inline-block; margin-top:8px; padding:6px 10px; border:1px solid #2a335f; border-radius:10px; cursor:pointer}
+
+  .example-14 .tabs{width:260px}
+  .example-14 .tabs input{display:none}
+  .example-14 .tablabels{display:flex; gap:6px}
+  .example-14 .tablabels label{padding:6px 10px; border:1px solid #2a335f; border-radius:8px; cursor:pointer}
+  .example-14 .panels > div{display:none; padding:8px; border:1px dashed #2a335f; border-radius:8px; margin-top:8px}
+  .example-14 #t1:checked ~ .panels > div:nth-child(1),
+  .example-14 #t2:checked ~ .panels > div:nth-child(2),
+  .example-14 #t3:checked ~ .panels > div:nth-child(3){display:block}
+
+  .example-15 .pill{padding:4px 10px; border-radius:999px; border:1px solid #2a335f; background:#161b39}
+  .example-15 .pill.ok{ border-color:#2f6; color:#9f9 }
+  .example-15 .pill.warn{ border-color:#fd6; color:#fd6 }
+  .example-15 .pill.off{ border-color:#a7acc9; color:#a7acc9; opacity:.8 }
+
+  .example-16 .skeleton{width:260px}
+  .example-16 .s-row{height:12px; border-radius:8px; margin:8px 0; background:linear-gradient(90deg,#1a2144 25%,#2a335f 50%,#1a2144 75%); background-size:200% 100%; animation:sk 1.2s linear infinite}
+  .example-16 .s-row.w60{width:60%}.example-16 .s-row.w75{width:75%}.example-16 .s-row.w90{width:90%}
+  @keyframes sk{to{background-position:100% 0}}
+
+  .example-17 .stars{display:inline-flex; flex-direction:row-reverse; gap:4px}
+  .example-17 .stars input{display:none}
+  .example-17 .stars label{font-size:22px; cursor:pointer; filter:grayscale(1) brightness(.7)}
+  .example-17 .stars label:hover, .example-17 .stars input:checked ~ label{filter:none}
+
+  .example-18 .marquee{width:260px; overflow:hidden; border:1px solid #2a335f; border-radius:10px}
+  .example-18 .marquee .track{display:inline-block; padding:6px 10px; white-space:nowrap; animation:mar 8s linear infinite}
+  @keyframes mar{to{transform:translateX(-50%)}}
+
+  .example-19 .toggle{display:inline-grid; place-items:center}
+  .example-19 .toggle input{display:none}
+  .example-19 .toggle span{width:56px; height:30px; border-radius:999px; position:relative; background:#2a335f; display:inline-block; transition:.2s}
+  .example-19 .toggle span::after{content:""; position:absolute; left:3px; top:3px; width:24px; height:24px; border-radius:50%; background:#eaf7ff; transition:.2s}
+  .example-19 .toggle input:checked + span{background:#2f6}
+  .example-19 .toggle input:checked + span::after{transform:translateX(26px)}
+
+  .example-20 .showtoast{padding:8px 12px; border:1px solid #2a335f; border-radius:10px; background:#182048}
+  .example-20 .toast{position:relative; top:8px; opacity:0; transform:translateY(-6px); background:#101636; border:1px solid #2a335f; border-radius:10px; padding:6px 10px; width:max-content; transition:.25s}
+  .example-20 .toast.on{opacity:1; transform:none}
+
+  .example-21 .crumbs{display:flex; gap:6px; align-items:center; border:1px solid #2a335f; padding:6px 10px; border-radius:10px}
+  .example-21 .crumbs a{padding:2px 6px; border-radius:6px}
+  .example-21 .crumbs a:hover{background:#1a2044}
+
+  .example-22 .fakecontent{height:120px; overflow:auto; border:1px solid #2a335f; border-radius:10px; padding:8px; margin-bottom:8px}
+  .example-22 .fakecontent::after{content:"\\A" "Lorem ipsum ".repeat(30); white-space:pre}
+  .example-22 .stickybar{position:sticky; bottom:0; padding:6px 10px; border:1px solid #2a335f; border-radius:10px; background:#121736}
+
+  .example-23 .spinner{width:36px; height:36px; border-radius:50%; border:3px solid #2a335f; border-top-color:#7cf0ff; animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .example-24 .hex{width:120px; aspect-ratio:1/1; clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%); background: url('https://picsum.photos/300') center/cover no-repeat; border:3px solid #2a335f; border-radius:10px}
+
+/* Sheet 5 preview styles */
+  .example-25 .goo{filter:url(#goo); width:260px; height:120px; position:relative}
+  .example-25 .goo span{position:absolute; inset:auto; width:38px; height:38px; border-radius:50%;
+    background: radial-gradient(circle at 30% 30%, #7cf0ff, #45a6ff 40%, #142046 70%);
+    animation: drift 6s ease-in-out infinite}
+  .example-25 .goo span:nth-child(2){width:50px; height:50px; left:60px; animation-duration:7s}
+  .example-25 .goo span:nth-child(3){left:130px; top:10px; background: radial-gradient(circle at 30% 30%, #ffd36a, #ff9b3b 45%, #3d2b11 70%); animation-duration:5.5s}
+  .example-25 .goo span:nth-child(4){left:200px; top:40px; width:30px; height:30px}
+  .example-25 .goo span:nth-child(5){left:20px; top:70px; width:28px; height:28px}
+  @keyframes drift{0%,100%{transform:translate(0,0)}25%{transform:translate(10px,-8px)}50%{transform:translate(-6px,12px)}75%{transform:translate(8px,6px)}}
+
+  .example-26 .oil{width:260px; height:120px; border-radius:12px; position:relative; overflow:hidden; background:#0d1228}
+  .example-26 .oil::before{
+    content:""; position:absolute; inset:-50% -20%;
+    background: conic-gradient(from 0deg, #8ff 0 15%, #fda 25%, #8f8 40%, #9cf 55%, #f9f 70%, #8ff 85%, #fda 100%);
+    mix-blend-mode:screen; animation:swirl 9s linear infinite;
+    -webkit-mask: radial-gradient(120px 40px at 20% 30%, #000 30%, transparent 60%), radial-gradient(160px 60px at 80% 70%, #000 25%, transparent 60%);
+            mask: radial-gradient(120px 40px at 20% 30%, #000 30%, transparent 60%), radial-gradient(160px 60px at 80% 70%, #000 25%, transparent 60%);
+  }
+  @keyframes swirl{to{transform:rotate(1turn)}}
+
+  .example-27 .holo{width:240px; height:120px; border-radius:16px; background:#0f1433; position:relative; overflow:hidden; border:1px solid #2a335f; transform:perspective(600px) rotateX(8deg); box-shadow:0 12px 30px rgba(0,0,0,.4)}
+  .example-27 .holo .foil{position:absolute; inset:-20%; background:
+    conic-gradient(from 0deg, transparent 0 15%, rgba(255,255,255,.14) 16% 25%, transparent 26% 100%),
+    repeating-conic-gradient(from 0deg, rgba(255,255,255,.08) 0 6deg, transparent 6deg 12deg),
+    linear-gradient(120deg, #7cf0ff33, #ffd36a33);
+    mix-blend-mode:color-dodge; animation:foilspin 10s linear infinite; background-size:100% 100%; opacity:.9}
+  .example-27 .holo .label{position:absolute; bottom:8px; right:12px; font-weight:600; letter-spacing:.08em; color:#eaf7ff}
+  @keyframes foilspin{to{transform:rotate(1turn)}}
+
+  .example-28 .poster{width:240px; height:120px; position:relative; perspective:700px}
+  .example-28 .poster .layer{position:absolute; inset:0; border-radius:14px; transform-style:preserve-3d; transition:transform .4s}
+  .example-28 .poster:hover .l1{transform:translateZ(40px) translate(-6px, -4px)}
+  .example-28 .poster:hover .l2{transform:translateZ(20px) translate(4px, 2px)}
+  .example-28 .poster:hover .l3{transform:translateZ(10px) translate(-2px, 1px)}
+  .example-28 .l1{background:radial-gradient(120px 40px at 25% 40%, #7cf0ff66, transparent 60%)}
+  .example-28 .l2{background:radial-gradient(100px 60px at 70% 60%, #ffd36a66, transparent 60%)}
+  .example-28 .l3{background:conic-gradient(from 210deg, #7cf0ff22, #ffd36a22, #7cf0ff22)}
+  .example-28 .frame{border:1px solid #2a335f}
+
+  .example-29 .dots-text{font-weight:800; font-size:28px; letter-spacing:.06em; line-height:1; color:transparent; -webkit-background-clip:text; background-clip:text;
+    background: radial-gradient(circle at 0 0, #eaf7ff 2px, transparent 3px) 0 0/12px 12px, radial-gradient(circle at 6px 6px, #7cf0ff 2px, transparent 3px) 0 0/12px 12px;
+    animation:wave 3.5s ease-in-out infinite; filter:drop-shadow(0 2px 0 rgba(0,0,0,.25))}
+  @keyframes wave{50%{background-position:-30px 0, 30px 0}}
+
+  .example-30 .caustics{width:260px; height:120px; border-radius:12px; position:relative; overflow:hidden; background: radial-gradient(220px 90px at 70% 10%, #142046, #0a0f2a 60%)}
+  .example-30 .caustics::before, .example-30 .caustics::after{content:""; position:absolute; inset:-40%;
+    background: radial-gradient(12px 6px at 30% 30%, rgba(255,255,255,.25), transparent 60%), radial-gradient(10px 5px at 60% 70%, rgba(255,255,255,.18), transparent 60%), radial-gradient(8px 4px at 80% 40%, rgba(255,255,255,.18), transparent 60%);
+    mix-blend-mode:screen; opacity:.9; animation:flow 12s linear infinite}
+  .example-30 .caustics::after{animation-duration:17s; transform:rotate(30deg)}
+  @keyframes flow{to{transform:rotate(1turn) translate(0,0)}}
+
+.example-31 .spiro-path{ fill:none; stroke:#7cf0ff; stroke-width:1.5; stroke-dasharray:1400; stroke-dashoffset:1400; animation:trace 6s linear infinite }
+  @keyframes trace{ to{ stroke-dashoffset:0 } }
+
+  .example-32 .kaleido{width:240px; height:120px; border-radius:12px; position:relative; overflow:hidden}
+  .example-32 .kaleido::before{content:""; position:absolute; inset:-20%;
+    background: radial-gradient(40% 60% at 20% 30%, #7cf0ff, transparent 60%), radial-gradient(35% 50% at 80% 70%, #ffd36a, transparent 60%);
+    filter:saturate(140%); animation:spin 16s linear infinite;
+    -webkit-mask: repeating-conic-gradient(from 0deg, #000 0 15deg, transparent 15deg 30deg);
+            mask: repeating-conic-gradient(from 0deg, #000 0 15deg, transparent 15deg 30deg);}
+  @keyframes spin{to{transform:rotate(1turn)}}
+
+  .example-33 .phy{display:block}
+  .example-34 .lis-path{ fill:none; stroke:#ffd36a; stroke-width:1.5; opacity:.9; stroke-dasharray:1200; stroke-dashoffset:1200; animation:listrace 5s ease-in-out infinite alternate }
+  @keyframes listrace{ to{ stroke-dashoffset:0 } }
+
+  .example-35 .quasi{width:240px; height:120px; border-radius:12px; overflow:hidden; position:relative}
+  .example-35 .quasi::before, .example-35 .quasi::after{content:""; position:absolute; inset:-10%; background: repeating-conic-gradient(from 0deg, #8cf2 0 8deg, transparent 8deg 16deg); mix-blend-mode:screen; opacity:.9; animation:rotA 20s linear infinite}
+  .example-35 .quasi::after{ background: repeating-conic-gradient(from 15deg, #fd62 0 8deg, transparent 8deg 16deg); animation:rotB 23s linear infinite reverse}
+  @keyframes rotA{to{transform:rotate(1turn)}} @keyframes rotB{to{transform:rotate(1turn)}}
+
+  .example-36 .sier{width:240px; height:120px; border-radius:12px; position:relative; background: conic-gradient(from -90deg at 50% 90%, #182048 0 120deg, transparent 0 360deg);
+    -webkit-mask: radial-gradient(100% 100% at 50% 0%, #000 60%, transparent 61%) top/50% 50% repeat, radial-gradient(100% 100% at 0% 100%, #000 60%, transparent 61%) left/50% 50% repeat, radial-gradient(100% 100% at 100% 100%, #000 60%, transparent 61%) right/50% 50% repeat;
+            mask: radial-gradient(100% 100% at 50% 0%, #000 60%, transparent 61%) top/50% 50% repeat, radial-gradient(100% 100% at 0% 100%, #000 60%, transparent 61%) left/50% 50% repeat, radial-gradient(100% 100% at 100% 100%, #000 60%, transparent 61%) right/50% 50% repeat; background-blend-mode:screen}
+
+  .example-37 .invert{width:240px; height:120px; border-radius:12px; position:relative; overflow:hidden; background:#0d1228}
+  .example-37 .invert::before, .example-37 .invert::after{content:""; position:absolute; inset:-30%; background: radial-gradient(80px 80px at 30% 50%, #7cf0ff22 20%, transparent 22% 30%, #7cf0ff22 32% 36%, transparent 38%), radial-gradient(120px 120px at 70% 50%, #ffd36a22 18%, transparent 20% 28%, #ffd36a22 30% 34%, transparent 36%); mix-blend-mode:screen; animation:slowspin 26s linear infinite}
+  .example-37 .invert::after{ transform:rotate(30deg); animation-duration:31s}
+  @keyframes slowspin{to{transform:rotate(1turn)}}
+
+  .example-38 .super-path{ fill:none; stroke:#8ef; stroke-width:2 }
+  .example-39 .girih{display:block; filter:saturate(120%) contrast(110%)}
+  .example-40 .harm-path{ fill:none; stroke:#fdd36a; stroke-width:1.4; opacity:.9 }
+  .example-41 .rose{display:block}
+  .example-42 .fib{display:block}
+
+.example-44 .k6{width:240px;height:120px;border-radius:12px;overflow:hidden;position:relative;perspective:600px}
+  .example-44 .k6 .tile{position:absolute;inset:-30%;background:
+    radial-gradient(60% 40% at 25% 30%, #7cf0ff, transparent 60%),
+    radial-gradient(50% 40% at 70% 70%, #ffd36a, transparent 60%), #10152f;
+    -webkit-mask: repeating-conic-gradient(#000 0 30deg, transparent 30deg 60deg);
+            mask: repeating-conic-gradient(#000 0 30deg, transparent 30deg 60deg);
+    transform-origin:50% 50%; transition:transform .15s}
+  .example-45 .voro, .example-43 .attractor, .example-48 .diff{display:block; border-radius:12px; border:1px solid #2a335f; background:#0e1330}
+  .example-46 .primes{display:block}
+  .example-47 .gear-trace{stroke:#ffd36a}
+
+.example-50 .soap{width:260px;height:120px;border-radius:12px;position:relative;overflow:hidden;background:#0d1228}
+  .example-50 .soap::before,.example-50 .soap::after{content:"";position:absolute;inset:-40%;
+    background: conic-gradient(from 0turn, #f0f 0 8%, #0ff 16%, #ff0 24%, #0f0 32%, #0ff 40%, #f0f 48%, #ff0 56%, #0ff 64%, #f0f 72%, #0ff 80%, #ff0 88%, #f0f 100%);
+    mix-blend-mode:screen; opacity:.7; animation:soapspin 20s linear infinite}
+  .example-50 .soap::after{animation-direction:reverse; filter:contrast(120%) saturate(140%) hue-rotate(20deg)}
+  @keyframes soapspin{to{transform:rotate(1turn)}}
+
+  .example-52 .iso{width:240px;height:120px;border-radius:12px;position:relative;overflow:hidden;
+    background: repeating-linear-gradient(60deg , #223 0 12px, #0000 12px 24px), repeating-linear-gradient(-60deg, #334 0 12px, #0000 12px 24px), repeating-linear-gradient(0deg  , #445 0 12px, #0000 12px 24px); background-blend-mode:screen; filter:saturate(140%)}
+
+  .example-56 .tri{width:240px;height:120px;position:relative;border-radius:12px;overflow:hidden;background:#0e1330}
+  .example-56 .tri::before,.example-56 .tri::after{content:"";position:absolute;inset:20px 50px; background: linear-gradient(120deg,#7cf0ff,#213), linear-gradient(-60deg,#ffd36a,#321); -webkit-mask: polygon(50% 0, 100% 86%, 0 86%); mask: polygon(50% 0, 100% 86%, 0 86%); mix-blend-mode:screen}
+  .example-56 .tri::after{inset:26px 56px; filter:brightness(.9) contrast(1.1)}
+
+  .example-58 .chromatext{font-weight:900;font-size:26px;letter-spacing:.08em;color:transparent; -webkit-background-clip:text; background-clip:text; background:conic-gradient(#7cf0ff,#ffd36a,#7cf0ff); display:inline-block; will-change:transform,background}
+
+  .example-59 .tunnel{width:240px;height:120px;border-radius:12px;position:relative;overflow:hidden;background:#0d1228}
+  .example-59 .tunnel::before{content:"";position:absolute;inset:-20%; background: conic-gradient(from 0deg, #7cf0ff22, #ffd36a22, #7cf0ff22); -webkit-mask: radial-gradient(closest-side,#000 60%,transparent 61%) center/60% 60%, radial-gradient(closest-side,#000 60%,transparent 61%) center/30% 30%, radial-gradient(closest-side,#000 60%,transparent 61%) center/15% 15%; mask: radial-gradient(closest-side,#000 60%,transparent 61%) center/60% 60%, radial-gradient(closest-side,#000 60%,transparent 61%) center/30% 30%, radial-gradient(closest-side,#000 60%,transparent 61%) center/15% 15%; mask-composite: exclude; -webkit-mask-composite: xor; animation:spin 18s linear infinite}
+  @keyframes spin{to{transform:rotate(1turn)}}

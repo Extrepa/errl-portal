@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Poincare Disk Arcs - Errl Shape Madness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: radial-gradient(circle at 20% 20%, rgba(122, 255, 255, 0.18), transparent 45%),
+            radial-gradient(circle at 80% 10%, rgba(255, 166, 247, 0.2), transparent 50%),
+            #05060c;
+      --panel: rgba(9, 12, 22, 0.86);
+      --ink: #e5f0ff;
+      --muted: #95a8c5;
+      --accent: #8efff1;
+      --accent2: #ff9cff;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Space Grotesk', ui-sans-serif, system-ui;
+    }
+    .wrap {
+      width: min(1100px, 92vw);
+      margin: 0 auto;
+      padding: clamp(1rem, 4vw, 3rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.2;
+      background: linear-gradient(120deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p { margin: 0; color: var(--muted); max-width: 640px; }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) 1fr;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    @media (max-width: 860px) {
+      .lab { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(142, 255, 241, 0.18);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 20px 60px rgba(5, 6, 12, 0.65);
+      backdrop-filter: blur(12px);
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+    label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    label span { color: var(--accent); font-weight: 600; }
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(120deg, var(--accent), var(--accent2));
+      border: 2px solid #05060b;
+      box-shadow: 0 0 10px rgba(142,255,241,0.5);
+      cursor: pointer;
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .disk-wrap {
+      background: rgba(3, 6, 14, 0.75);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px;
+      padding: 1rem;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 30px 80px rgba(3, 6, 14, 0.65);
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      max-width: 640px;
+      aspect-ratio: 1;
+      display: block;
+      margin: 0 auto;
+    }
+    #arcs path {
+      fill: none;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.35));
+    }
+    .note { font-size: 0.78rem; color: var(--muted); line-height: 1.4; margin-top: 0.3rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div>
+      <h1>Poincare Disk Arcs</h1>
+      <p>Pick evenly spaced boundary points, offset their neighbors, and draw the circle that's orthogonal to the unit disk. Result: calm hyperbolic weaves with neon ink.</p>
+    </div>
+    <div class="lab">
+      <div class="panel">
+        <div class="control-group">
+          <label>Arc Count <span data-label="count">48</span></label>
+          <input type="range" min="10" max="90" value="48" step="1" data-param="count">
+        </div>
+        <div class="control-group">
+          <label>Neighbor Offset <span data-label="offset">5</span></label>
+          <input type="range" min="1" max="18" value="5" step="1" data-param="offset">
+        </div>
+        <div class="control-group">
+          <label>Stroke Width <span data-label="stroke">1.5px</span></label>
+          <input type="range" min="6" max="26" value="15" step="1" data-param="stroke">
+        </div>
+        <div class="control-group">
+          <label>Glow <span data-label="glow">0.45</span></label>
+          <input type="range" min="0" max="100" value="45" step="1" data-param="glow">
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="animateToggle" checked>
+          Animate disk rotation
+        </label>
+        <p class="note">Glow multiplies a CSS drop-shadow so the arcs bloom softly. Offset jumps which boundary points connect (hyperbolic chords!).</p>
+      </div>
+      <div class="disk-wrap">
+        <svg id="disk" viewBox="-1.1 -1.1 2.2 2.2" role="img" aria-label="Hyperbolic arcs inside the unit disk">
+          <defs>
+            <radialGradient id="bg-ring" cx="0" cy="0" r="1">
+              <stop offset="0%" stop-color="#04070e" />
+              <stop offset="65%" stop-color="#060b16" />
+              <stop offset="100%" stop-color="#0f1a2c" />
+            </radialGradient>
+          </defs>
+          <circle cx="0" cy="0" r="1" fill="url(#bg-ring)" stroke="rgba(255,255,255,0.15)" stroke-width="0.015" />
+          <g id="grid"></g>
+          <g id="arcs"></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <script>
+    const params = {
+      count: 48,
+      offset: 5,
+      stroke: 15,
+      glow: 45,
+      animate: true
+    };
+    ['count','offset','stroke','glow'].forEach(updateLabel);
+
+    document.getElementById('animateToggle').addEventListener('change', (e) => {
+      params.animate = e.target.checked;
+      if (!params.animate) rebuild();
+    });
+
+    document.querySelectorAll('[data-param]').forEach((input) => {
+      const key = input.dataset.param;
+      input.addEventListener('input', () => {
+        params[key] = parseFloat(input.value);
+        updateLabel(key);
+        rebuild();
+      });
+    });
+
+    function updateLabel(key) {
+      const label = document.querySelector(`[data-label="${key}"]`);
+      if (!label) return;
+      if (key === 'stroke') {
+        label.textContent = (params.stroke / 10).toFixed(1) + 'px';
+      } else if (key === 'glow') {
+        label.textContent = (params.glow / 100).toFixed(2);
+      } else {
+        label.textContent = Math.round(params[key]);
+      }
+    }
+
+    const gridLayer = document.getElementById('grid');
+    for (let r = 0.2; r < 1; r += 0.2) {
+      const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      ring.setAttribute('cx', '0');
+      ring.setAttribute('cy', '0');
+      ring.setAttribute('r', r.toString());
+      ring.setAttribute('fill', 'none');
+      ring.setAttribute('stroke', 'rgba(255,255,255,0.05)');
+      ring.setAttribute('stroke-width', '0.003');
+      gridLayer.appendChild(ring);
+    }
+
+    const arcsLayer = document.getElementById('arcs');
+    let time = 0;
+
+    function rebuild() {
+      arcsLayer.innerHTML = '';
+      const total = Math.max(6, Math.round(params.count));
+      const offset = Math.max(1, Math.round(params.offset));
+      for (let i = 0; i < total; i++) {
+        const angleBase = (i / total) * Math.PI * 2 + time * 0.08;
+        const jitter = Math.sin((i * 2.3) + time * 0.3) * 0.02;
+        const p1 = pointOnCircle(angleBase + jitter);
+        const p2 = pointOnCircle(angleBase + ((offset / total) * Math.PI * 2));
+        const pathData = buildGeodesic(p1, p2);
+        if (!pathData) continue;
+        const hue = (i / total) * 280 + 120;
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', pathData);
+        path.setAttribute('stroke', `hsla(${hue % 360}, 80%, 70%, 0.95)`);
+        path.setAttribute('stroke-width', (params.stroke / 1000).toString());
+        path.style.filter = `drop-shadow(0 0 10px rgba(255,255,255,${params.glow / 160}))`;
+        arcsLayer.appendChild(path);
+      }
+    }
+
+    function pointOnCircle(angle) {
+      return {
+        x: Math.cos(angle),
+        y: Math.sin(angle)
+      };
+    }
+
+    function buildGeodesic(p1, p2) {
+      const d = { x: p2.x - p1.x, y: p2.y - p1.y };
+      const len = Math.hypot(d.x, d.y);
+      if (len < 1e-5) return null;
+      const mid = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+      const perp = { x: -d.y / len, y: d.x / len };
+      const midDotPerp = mid.x * perp.x + mid.y * perp.y;
+      const numerator = (len * len) / 4 + 1 - (mid.x * mid.x + mid.y * mid.y);
+      const denom = 2 * midDotPerp;
+
+      if (Math.abs(denom) < 1e-6) {
+        return `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
+      }
+
+      const t = numerator / denom;
+      const center = { x: mid.x + perp.x * t, y: mid.y + perp.y * t };
+      const radius = Math.hypot(p1.x - center.x, p1.y - center.y);
+      if (!isFinite(radius) || radius < 1e-4) return null;
+
+      const v1 = { x: p1.x - center.x, y: p1.y - center.y };
+      const v2 = { x: p2.x - center.x, y: p2.y - center.y };
+      const cross = v1.x * v2.y - v1.y * v2.x;
+      const sweepFlag = cross > 0 ? 1 : 0;
+      return `M ${p1.x} ${p1.y} A ${radius} ${radius} 0 0 ${sweepFlag} ${p2.x} ${p2.y}`;
+    }
+
+    function animate() {
+      if (params.animate) {
+        time += 0.01;
+        rebuild();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    rebuild();
+    animate();
+  </script>
+</body>
+</html>

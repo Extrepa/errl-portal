@@ -155,7 +155,7 @@ This registry tracks all components across the Errl Portal project, including no
 
 ## 4. Projects Components (5)
 
-**Location:** `public/apps/projects/`  
+**Location:** `archive/legacy/standalone-pages/apps/projects/`  
 **Status:** Standalone project components with React wrappers  
 **React Wrappers:** `src/apps/projects/`
 

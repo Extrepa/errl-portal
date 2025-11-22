@@ -30,7 +30,7 @@ These changes prevent most legacy "tools" URLs from 404ing and align with the na
 ## Spot Examples (from grep)
 
 - UI routes handled in SPA: `src/portal/app/router.tsx`
-- Old pages with links: `src/legacy/portal/pages/studio/**`, `public/apps/**`
+- Old pages with links: `src/legacy/portal/pages/studio/**`, `archive/legacy/standalone-pages/apps/**`
 - `file://` references appear mainly in archived docs and examples.
 
 ## Validation Checklist

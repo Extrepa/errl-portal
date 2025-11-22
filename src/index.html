@@ -52,14 +52,14 @@
 
     <!-- Orbiting nav bubbles (7 visible + 1 hidden) -->
     <div id="navOrbit" class="nav-orbit">
-      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="/legacy/portal/pages/about/index.html" data-portal-link="pages/about/index.html"><span class="label">About</span></a>
-      <a class="bubble menuOrb" data-angle="260" data-dist="175" href="/legacy/portal/pages/gallery/index.html" data-portal-link="pages/gallery/index.html"><span class="label">Gallery</span></a>
-      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="/legacy/portal/pages/assets/index.html" data-portal-link="pages/assets/index.html"><span class="label">Assets</span></a>
+      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="/portal/pages/about/index.html" data-portal-link="pages/about/index.html"><span class="label">About</span></a>
+      <a class="bubble menuOrb" data-angle="260" data-dist="175" href="/portal/pages/gallery/index.html" data-portal-link="pages/gallery/index.html"><span class="label">Gallery</span></a>
+      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="/portal/pages/assets/index.html" data-portal-link="pages/assets/index.html"><span class="label">Assets</span></a>
       <a class="bubble menuOrb" data-angle="20"  data-dist="200" href="/studio/"><span class="label">Studio</span></a>
       <a class="bubble menuOrb" data-angle="75"  data-dist="150" href="/studio/pin-designer"><span class="label">Design</span></a>
-      <a class="bubble menuOrb" data-angle="120" data-dist="165" href="/legacy/portal/pages/events/index.html" id="eventsBubble" data-portal-link="pages/events/index.html"><span class="label">Events</span></a>
-      <a class="bubble menuOrb" data-angle="160" data-dist="185" href="/legacy/portal/pages/merch/index.html" id="merchBubble" data-portal-link="pages/merch/index.html"><span class="label">Merch</span></a>
-      <a class="bubble menuOrb hidden-bubble" data-angle="180" data-dist="190" href="/legacy/portal/pages/games/index.html" id="gamesBubble" style="display:none;" data-portal-link="pages/games/index.html"><span class="label">Games</span></a>
+      <a class="bubble menuOrb" data-angle="120" data-dist="165" href="/portal/pages/events/index.html" id="eventsBubble" data-portal-link="pages/events/index.html"><span class="label">Events</span></a>
+      <a class="bubble menuOrb" data-angle="160" data-dist="185" href="/portal/pages/merch/index.html" id="merchBubble" data-portal-link="pages/merch/index.html"><span class="label">Merch</span></a>
+      <a class="bubble menuOrb hidden-bubble" data-angle="180" data-dist="190" href="/portal/pages/games/index.html" id="gamesBubble" style="display:none;" data-portal-link="pages/games/index.html"><span class="label">Games</span></a>
     </div>
   </div>
 
@@ -373,7 +373,7 @@
       <div class="panel-mode"><button id="colorizerClose" title="Close">×</button></div>
     </div>
     <div style="flex:1; background:#0b0f18; border-top:1px solid rgba(255,255,255,.08);">
-      <iframe id="colorizerFrame" src="/legacy/portal/pages/studio/svg-colorer/index.html" data-portal-frame="pages/studio/svg-colorer/index.html" style="width:100%; height:100%; border:0; background:#0b0e14;"></iframe>
+      <iframe id="colorizerFrame" src="/portal/pages/studio/svg-colorer/index.html" data-portal-frame="pages/studio/svg-colorer/index.html" style="width:100%; height:100%; border:0; background:#0b0e14;"></iframe>
     </div>
   </div>
 
@@ -412,7 +412,7 @@
     const env = (typeof import.meta !== 'undefined' && 'env' in import.meta) ? import.meta.env : {};
     const baseUrl = typeof env.BASE_URL === 'string' ? env.BASE_URL : '/';
     const trimmed = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-    const portalBase = `${trimmed || ''}/legacy/portal`.replace(/^\/\//, '/');
+    const portalBase = `${trimmed || ''}/portal`.replace(/^\/\//, '/');
     document.querySelectorAll('[data-portal-link]').forEach((el) => {
       const target = el.getAttribute('data-portal-link');
       if (target) el.setAttribute('href', `${portalBase}/${target}`);

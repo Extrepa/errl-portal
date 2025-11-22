@@ -1,5 +1,12 @@
 # Changelog (dev-facing)
 
+- 2025-11-22 — Moved all pages from `src/legacy/portal/pages/` to `src/portal/pages/`; updated Vite build config to use new structure.
+- 2025-11-22 — Updated all navigation links to point to `/portal/pages/...` instead of `/legacy/portal/pages/...`.
+- 2025-11-22 — Fixed all "Back to Portal" buttons to point to `/` (landing page).
+- 2025-11-22 — Restructured pin-designer page: created wrapper `index.html` with card/iframe structure; designer loads in iframe from `pin-designer.html`.
+- 2025-11-22 — Updated `portalPaths.ts` utility to use `/portal` prefix instead of `/legacy/portal`.
+- 2025-11-22 — Updated runtime URL rewriting scripts across all pages to use `/portal` base path.
+- 2025-11-22 — Updated shape-madness content copy plugin to reference new portal pages location.
 - 2025-10-31 — Replaced docs/ site with project documentation structure; archived old docs site to archive/docs-site-20251031/.
 - 2025-10-31 — Removed sync:docs script; docs no longer mirrors src/.
 - 2025-10-31 — Removed redundant .github/workflows/static.yml; using Vite build workflow only.

@@ -22,7 +22,7 @@
 feat(projects): add 5 standalone effects + Studio wrappers, reduced-motion, worklet fallbacks
 
 - Gravity Sticker Field, Ripple Face, Sparkle Worklet Pin, Bubble Mouse Trail, Holographic Cursor Trail
-- Standalone HTML pages and portal variants under public/apps/projects
+- Standalone HTML pages and portal variants under archive/legacy/standalone-pages/apps/projects
 - Studio React wrappers and /studio/projects route
 - Reduced-motion across all, DPR-aware canvases, visibility guards
 - CSS Paint Worklet fallback for non-Chromium/file://

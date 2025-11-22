@@ -11,9 +11,9 @@ This document summarizes the five standalone effects and their Studio integratio
 
 ## Locations
 - Standalone HTML (open via file://):
-  public/apps/projects/_single-file/{gravity-sticker-field.html,ripple-face.html,sparkle-worklet-pin.html,bubble-mouse-trail.html,holographic-cursor-trail.html}
+  archive/legacy/standalone-pages/apps/projects/_single-file/{gravity-sticker-field.html,ripple-face.html,sparkle-worklet-pin.html,bubble-mouse-trail.html,holographic-cursor-trail.html}
 - Portal variants (served via Vite):
-  public/apps/projects/<slug>/{index.html,style.css,script.js,...}
+  archive/legacy/standalone-pages/apps/projects/<slug>/{index.html,style.css,script.js,...}
 - Studio React wrappers:
   src/apps/projects/<slug>/<Component>.tsx
 - Studio Projects Page:

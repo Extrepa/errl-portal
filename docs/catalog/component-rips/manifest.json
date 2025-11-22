@@ -219,7 +219,7 @@
       "category": "cursor",
       "status": "normalized",
       "description": "Lightweight DOM bubbles spawn along the cursor path and fade out with keyframe animation. Adjustable bubble count, throttle rate, and size range. Respects prefers-reduced-motion.",
-      "source": "public/apps/projects/bubble-mouse-trail/index.html",
+      "source": "archive/legacy/standalone-pages/apps/projects/bubble-mouse-trail/index.html",
       "convertedAt": "2025-11-13T00:00:00.000Z",
       "tags": [
         "cursor",
@@ -675,7 +675,7 @@
       "category": "cursor",
       "status": "normalized",
       "description": "Gradient dots follow the cursor and fade out using opacity transitions. Adjustable dot count, throttle rate, fade delay, and lifetime. Respects prefers-reduced-motion.",
-      "source": "public/apps/projects/holographic-cursor-trail/index.html",
+      "source": "archive/legacy/standalone-pages/apps/projects/holographic-cursor-trail/index.html",
       "convertedAt": "2025-11-13T00:00:00.000Z",
       "tags": [
         "cursor",

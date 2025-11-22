@@ -52,7 +52,7 @@ This document captures a top-down audit of the current repository layout after r
 - Exclude large static archives (`archive/`, `Errl_Portal_Cursor_NextMove_Kit/`, docs) from deployment pipeline (e.g., use `.npmignore` or specific upload scripts).
 
 #### `public/`
-- Contains older static HTML demos (`public/apps/...`). If the React app no longer references them, consider moving to `docs/examples/` or `archive/`.
+- Contains older static HTML demos (`archive/legacy/standalone-pages/apps/...`). Archived and not part of main build.
 - `public/styles.css`, `public/webgl.js`, `public/app.js` may overlap with `src` versions; verify they’re still required. Everything under `public/` gets copied to the build root, so remove unused files to keep deploys slim.
 
 #### `tools/portal/`
@@ -82,7 +82,7 @@ This document captures a top-down audit of the current repository layout after r
 #### Other Directories
 - `notes/` — informal logs; keep under docs or `docs/journal/` for consistency.
 - `tools/browser-control/` — used by `npm run agent:browser`. Optional for portal but helpful for automation. Document usage in README when reorganizing.
-- `tests/`, `public/apps/`, and `src/apps/` share overlapping demos; confirm deduplication to avoid confusion.
+- `tests/`, `archive/legacy/standalone-pages/apps/`, and `src/apps/` share overlapping demos; archived standalone pages are not part of main build.
 
 ### Recommendations for Future Restructuring
 1. **Branch before moving files** — use the saved snapshot (`archive/snapshots/2025-11-11-working-state.tar.gz`) as a fallback.

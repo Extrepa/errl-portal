@@ -7,9 +7,11 @@ This master file centralizes the current state, key documents, and active work a
 - design-tool — Standalone Canvas-based design tool (no bundler required)
 
 ## Current Status (2025-11-13)
-- UI compaction complete in design-tool; drawers added for Components/Assets/Comments
-- Portal link hardening added: redirects `/tools/*` and `/studio/*` → Studio root
-- Dev docs: how to serve design-tool locally over HTTP to avoid CORS
+- Project structure cleanup complete: all TEAM_UPDATE files moved to `docs/journal/`, guides to `docs/team/`
+- Component Rips: 52+ normalized components with catalog system operational
+- Portal cohesion: React Studio hub integrated with legacy apps via iframe bridges
+- Motion graphics guide and rendering stack documentation added
+- See `docs/STATUS.md` for detailed current state and next steps
 
 ## Key Documents
 - errl-portal/docs/link-audit.md — link audit and redirects

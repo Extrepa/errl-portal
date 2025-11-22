@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Shape Madness — All Effects | Errl</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0c12;
+      --ink: #eaf2ff;
+      --mut: #8fa3bf;
+      --accent: #56c2ff;
+      --accent2: #b8ff3b;
+      --card: #0f141d;
+      --tab: #111826;
+      --btn: #152033;
+      --stage: #0b0f16;
+      --section-height: clamp(300px, 28vw, 400px);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 500 14px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
+    }
+    /* Main content */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .intro {
+      text-align: center;
+      padding: 3rem 1rem;
+      margin-bottom: 2rem;
+    }
+    .intro h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      margin: 0 0 1rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .intro p {
+      color: var(--mut);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Flexible grid that adapts to window size - 2-3 columns */
+    #sections-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+      grid-auto-rows: minmax(var(--section-height), auto);
+    }
+    
+    /* Ensure 2-3 columns based on available space */
+    @media (min-width: 600px) {
+      #sections-container {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+    }
+    
+    @media (min-width: 900px) {
+      #sections-container {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        max-width: 100%;
+      }
+    }
+    
+    /* Section container - shape will be determined dynamically */
+    .section {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      contain: layout style paint;
+      --section-aspect: auto;
+      min-height: var(--section-height);
+      height: 100%;
+    }
+    .section[class*="shape-"] {
+      aspect-ratio: auto !important;
+    }
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .filter-bar label {
+      font-size: 0.85rem;
+      color: var(--mut);
+    }
+    .filter-bar select {
+      background: var(--tab);
+      color: var(--ink);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.9rem;
+    }
+    
+    /* Shape variants */
+    .section.shape-square {
+      aspect-ratio: 1;
+      border-radius: 12px;
+    }
+    
+    .section.shape-circle {
+      aspect-ratio: 1;
+      border-radius: 50%;
+    }
+    
+    .section.shape-landscape {
+      aspect-ratio: 16/10;
+      border-radius: 12px;
+    }
+    
+    .section.shape-portrait {
+      aspect-ratio: 10/16;
+      border-radius: 12px;
+    }
+    
+    .section.shape-wide {
+      aspect-ratio: 21/9;
+      border-radius: 12px;
+    }
+    
+    .section.shape-tall {
+      aspect-ratio: 9/16;
+      border-radius: 12px;
+    }
+    .section.shape-dynamic {
+      aspect-ratio: var(--section-aspect);
+    }
+    .section.section-tall-lab {
+      grid-row: span 2;
+      min-height: calc(var(--section-height) * 2);
+      height: 100%;
+    }
+    .section.section-tall-lab .section-content,
+    .section.section-tall-lab .section-content__inner {
+      height: 100%;
+    }
+    .section-header {
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .section-header h2 {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 600;
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      min-width: 0;
+    }
+    .section-description {
+      margin: 0;
+      padding: 0.5rem 0.75rem 0.25rem;
+      font-size: 0.8rem;
+      color: var(--mut);
+      min-height: 2.4rem;
+    }
+    .section-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      padding: 0 0.75rem 0.75rem;
+    }
+    .section-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.15rem 0.5rem;
+      color: var(--mut);
+    }
+    .section-actions {
+      display: flex;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+    .section-btn {
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--mut);
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .section-btn:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .section-header p {
+      display: none; /* Hide counter to save space */
+    }
+    
+    /* Expand Modal */
+    .expand-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      backdrop-filter: blur(8px);
+    }
+    .expand-modal.active {
+      display: flex;
+    }
+    .expand-modal-content {
+      position: relative;
+      width: 100%;
+      max-width: min(1400px, 95vw);
+      max-height: 92vh;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .expand-modal-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+    .expand-modal-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: var(--accent);
+    }
+    .expand-modal-close {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--mut);
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+    .expand-modal-close:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .expand-modal-body {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+      gap: 0;
+      background: #05070f;
+    }
+    @media (max-width: 900px) {
+      .expand-modal-body {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }
+    }
+    .expand-modal-preview {
+      position: relative;
+      min-height: 0;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: clamp(320px, 55vh, 720px);
+    }
+    .expand-modal-preview iframe {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #05070f;
+    }
+    .expand-modal-editor {
+      border-left: 1px solid rgba(255,255,255,0.06);
+      background: #070a14;
+      padding: 1.25rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-width: 280px;
+      max-width: 360px;
+    }
+    @media (max-width: 900px) {
+      .expand-modal-editor {
+        border-left: none;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        min-width: auto;
+        max-width: none;
+      }
+    }
+    .expand-modal-editor__header {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    .expand-modal-editor__title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .expand-modal-editor__hint {
+      margin: 0.1rem 0 0;
+      font-size: 0.8rem;
+      color: var(--mut);
+    }
+    .expand-modal-editor__actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .expand-modal-editor__actions button {
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.04);
+      color: var(--ink);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .expand-modal-editor__actions button:hover:not(:disabled) {
+      background: rgba(86,194,255,0.18);
+      border-color: rgba(86,194,255,0.5);
+    }
+    .expand-modal-editor__actions button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    #expandModalEditor {
+      flex: 1;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      background: #050912;
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.78rem;
+      padding: 0.75rem;
+      resize: none;
+      min-height: 200px;
+    }
+    .expand-modal-editor__status {
+      margin: 0.5rem 0 0;
+      font-size: 0.75rem;
+      color: var(--mut);
+      min-height: 1rem;
+    }
+    .expand-modal-gate {
+      position: absolute;
+      inset: 1rem;
+      background: rgba(5,7,15,0.95);
+      display: none;
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+    }
+    .expand-modal-gate.active {
+      display: flex;
+    }
+    .expand-modal-gate button {
+      border: 1px solid var(--accent);
+      background: rgba(86,194,255,0.2);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .section-content {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .section-content__inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .section-content iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: var(--stage);
+      contain: layout style paint;
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-origin: top left;
+      margin: 0;
+    }
+    .section-audio-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(7, 10, 20, 0.92);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+      color: var(--mut);
+    }
+    .section-audio-overlay button {
+      border: 1px solid var(--accent);
+      background: rgba(86, 194, 255, 0.2);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 0.5rem 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .section-audio-overlay button:hover {
+      background: rgba(86, 194, 255, 0.35);
+    }
+    .loading-placeholder {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+      color: var(--mut);
+      font-size: 0.75rem;
+      background: var(--stage);
+    }
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(86,194,255,0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="intro">
+      <h1>Shape Madness</h1>
+      <p>A collection of experimental visual effects, shapes, and animations. Scroll to explore — each section loads as you view it. (Duplicates with Math Lab have been removed.)</p>
+    </div>
+    <div class="filter-bar">
+      <label for="categoryFilter">Category</label>
+      <select id="categoryFilter">
+        <option value="all">All</option>
+      </select>
+      <label for="searchInput">Search</label>
+      <input id="searchInput" type="search" placeholder="Search name or tag" style="background:var(--tab);color:var(--ink);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:0.35rem 0.6rem;" />
+    </div>
+    
+    <div id="sections-container"></div>
+  </div>
+  
+  <!-- Expand Modal -->
+  <div class="expand-modal" id="expandModal">
+    <div class="expand-modal-content">
+      <div class="expand-modal-header">
+        <h3 id="expandModalTitle">Effect Preview</h3>
+        <button class="expand-modal-close" id="expandModalClose" aria-label="Close">×</button>
+      </div>
+      <div class="expand-modal-body">
+        <div class="expand-modal-preview" id="expandModalPreview">
+          <div class="expand-modal-gate" id="expandModalGate">
+            <p><strong>Microphone permission</strong></p>
+            <p>This experiment listens to your mic. Enable it only if you’re ready to grant microphone access.</p>
+            <button id="expandModalEnableMic">Enable mic & open</button>
+          </div>
+          <iframe id="expandModalIframe"></iframe>
+        </div>
+        <aside class="expand-modal-editor">
+          <div class="expand-modal-editor__header">
+            <div>
+              <p class="expand-modal-editor__title">Live markup</p>
+              <p class="expand-modal-editor__hint">Edit the HTML/CSS for this experiment, then apply it to the preview.</p>
+            </div>
+            <div class="expand-modal-editor__actions">
+              <button id="expandModalApply" disabled>Apply</button>
+              <button id="expandModalReset" disabled>Reset</button>
+            </div>
+          </div>
+          <textarea id="expandModalEditor" spellcheck="false"></textarea>
+          <p class="expand-modal-editor__status" id="expandModalStatus">Loading source…</p>
+        </aside>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Load CSS examples manifest
+    let cssExamples = [];
+    fetch('./content/css-examples/manifest.json')
+      .then(r => r.json())
+      .then(data => {
+        cssExamples = data.files.map(f => {
+          const tags = (f.label || '')
+            .split(/[+,/]/)
+            .map((part) => part.trim().toLowerCase())
+            .filter(Boolean);
+          return {
+            name: f.name,
+            path: f.path,
+            label: f.label,
+            category: 'CSS Examples',
+            description: f.label ? `CSS micro-demo: ${f.label}. Edit the inline styles to tweak.` : 'CSS micro-demo tile.',
+            tags
+          };
+        });
+        initPage();
+      })
+      .catch(() => {
+        // If manifest doesn't exist, continue without CSS examples
+        initPage();
+      });
+    
+    // List of all HTML files to include (sorted by path)
+    // Duplicates removed: Temporal Kaleido Rings (similar to Kaleidoscope Shader in Math Lab),
+    // Orbit Knots Canvas (similar to Spirograph Engines in Math Lab),
+    // SVG Moiré Kaleido (errl 13.html, similar to Kaleidoscope/Moiré in Math Lab),
+    // Offscreen Knots (errl 16.html, similar to Spirograph in Math Lab)
+    const originalFiles = [
+      { name: "Chroma Bloom Button", path: "chroma-bloom-button/errl.html", category: "Buttons", description: "Iridescent CTA with dual glow blooms. Tweak CSS custom properties to change palette, glow size, and hover lift.", tags: ["css", "hover", "gradient"] },
+      { name: "Chroma Bloom Button (Remix)", path: "chroma-bloom-button/remix.html", category: "Buttons", description: "Remixed button variant with extra textures and motion for show-floor hero states.", tags: ["button", "remix"] },
+      { name: "Palette Morph Timeline", path: "errl.html", category: "Animations", description: "Timeline-driven palette morph. Adjust the gradient stops or ease curve to rebalance the pulse.", tags: ["gradient", "timeline"] },
+      { name: "Curl Noise Rivers", path: "curl-noise-rivers/index.html", category: "Particles", description: "Canvas curl-noise flow field. Modify noise frequency and stroke decay to reshape the ribbons.", tags: ["noise", "canvas"], isTallLab: true },
+      { name: "Effect 4", path: "errl 4.html", category: "Effects", description: "Legacy shader study slot #4 — tweak color uniforms and speed for quick palette variations.", tags: ["shader"], requiresMicrophone: true },
+      { name: "Effect 5", path: "errl 5.html", category: "Effects", description: "Radial bloom loop with additive layers. Adjust hue rotation + blur radius.", tags: ["bloom"] },
+      { name: "Effect 6", path: "errl 6.html", category: "Effects", description: "Stacked polygon spinner. Tune segment count and rotation velocity for calmer motion.", tags: ["spinner"] },
+      { name: "Effect 7", path: "errl 7.html", category: "Effects", description: "Perlin stripe driver with glow. Edit amplitude + blend mode for softer gradients.", tags: ["perlin"] },
+      { name: "Effect 8", path: "errl 8.html", category: "Effects", description: "Errl pulse using layered masks. Try new svg masks or blur values.", tags: ["mask"], requiresMicrophone: true },
+      { name: "Effect 9", path: "errl 9.html", category: "Effects", description: "Multi-ring neon oscillator. Tweak phase offsets to sync or offset rings.", tags: ["rings"] },
+      { name: "Effect 10", path: "errl 10.html", category: "Effects", description: "Inverted portal shader with chroma shimmer. Adjust noise scale for slower shimmer.", tags: ["portal"] },
+      { name: "Audio-Reactive Errl Orb", path: "errl 11.html", category: "Audio", description: "Mic-reactive orb that scales and warps based on amplitude buckets.", tags: ["audio", "orb"], requiresMicrophone: true },
+      { name: "Flow-Field Ribbons", path: "errl 12.html", category: "Particles", description: "Particles advected through a typed vector field. Change vector math for calmer flow.", tags: ["particles", "flow"] },
+      { name: "Hyperspace Tunnel", path: "errl 14.html", category: "3D", description: "Infinite neon tunnel with polar coordinates. Tweak speed + hue offsets for calmer motion.", tags: ["tunnel", "3d"], controls: [
+        { id: 'speed', label: 'Speed', type: 'slider', min: 0.005, max: 0.05, step: 0.001, defaultValue: 0.015, format: (v) => `${(v * 1000).toFixed(0)}x` },
+        { id: 'hueShift', label: 'Hue Shift', type: 'slider', min: -180, max: 180, step: 1, defaultValue: 0, unit: '°' },
+      ] },
+      { name: "Beat-Reactive Spectrum", path: "errl 15.html", category: "Audio", description: "Frequency-spectrum bars that flash with incoming audio. Adjust FFT smoothing or bar count.", tags: ["audio", "spectrum"], requiresMicrophone: true },
+      { name: "Iridescent Goo Card", path: "iridescent-goo-card/errl.html", category: "Cards", description: "Glassmorphic card with metaball goo shader. Edit gradient stops or blob count for new looks.", tags: ["card", "goo"] },
+      { name: "Iridescent Goo Card (Remix)", path: "iridescent-goo-card/remix.html", category: "Cards", description: "Remixed goo card with extra depth shadows and caption rail.", tags: ["card", "remix"] },
+      { name: "Liquid Crystal Text", path: "liquid-crystal-text/errl.html", category: "Text", description: "Animated text filled with a liquid-crystal shader. Adjust gradient speed + blur for other materials.", tags: ["text", "shader"] },
+      { name: "Liquid Crystal Text (Minimal)", path: "liquid-crystal-text/minimal.html", category: "Text", description: "Minimal text treatment with the same liquid shader but zero chrome.", tags: ["text", "minimal"] },
+      { name: "Liquid Crystal Text (Remix)", path: "liquid-crystal-text/remix.html", category: "Text", description: "Remixed text slab with badges and layout slots for hero placements.", tags: ["text", "remix"] },
+      { name: "Minimal", path: "minimal.html", category: "Effects", description: "Sandbox starter with blank stage, already wired to Errl brand variables for quick demos.", tags: ["starter"] },
+      { name: "Poincare Disk Arcs", path: "poincare-disk-arcs/index.html", category: "Geometry", description: "Poincaré disk renderer with arc density + hue controls.", tags: ["math", "hyperbolic"], isTallLab: true },
+      { name: "Quantum Slime Halo", path: "quantum-slime-halo/errl.html", category: "Halo", description: "Halo aura that jitters with simplex noise. Adjust noise frequency + glow radius.", tags: ["halo", "noise"] },
+      { name: "Quantum Slime Halo (Remix)", path: "quantum-slime-halo/remix.html", category: "Halo", description: "Remix variant with extra UI rails and parameter readouts.", tags: ["halo", "remix"] },
+      { name: "Reaction Diffusion Lab", path: "reaction-diffusion/index.html", category: "Math Lab", description: "CPU-friendly Gray-Scott lab with sliders for feed/kill, blur passes, and decay.", tags: ["math", "lab"], isTallLab: true },
+      { name: "Remix", path: "remix.html", category: "Effects", description: "Legacy remix sandbox layering gradients + typography. Adjust CSS variables for new vibes.", tags: ["remix"] },
+      { name: "Remix 2", path: "remix2.html", category: "Effects", description: "Second remix template with stacked cards and gradients ready to recolor.", tags: ["remix"] }
+    ];
+    const categoryOrder = [
+      "Buttons",
+      "Cards",
+      "Text",
+      "Halo",
+      "Animations",
+      "Particles",
+      "Effects",
+      "Audio",
+      "3D",
+      "Geometry",
+      "Math Lab",
+      "CSS Examples"
+    ];
+    const categoryRank = new Map(categoryOrder.map((cat, index) => [cat, index]));
+    
+    let files = [];
+    let allFiles = [];
+    const categories = new Set();
+    let searchDebounce = null;
+    
+  const container = document.getElementById('sections-container');
+  const categoryFilter = document.getElementById('categoryFilter');
+  const searchInput = document.getElementById('searchInput');
+  const basePath = './content/';
+  if (categoryFilter) {
+    categoryFilter.addEventListener('change', () => applyFilters());
+  }
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      if (searchDebounce) clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => applyFilters(), 150);
+    });
+  }
+    
+    // Shape mapping based on file names/patterns (can be enhanced)
+    const shapeMap = {
+      'halo': 'circle',
+      'orb': 'circle',
+      'ring': 'circle',
+      'button': 'square',
+      'card': 'landscape',
+      'tunnel': 'circle',
+      'sheets': 'landscape',
+      'avatar': 'circle',
+      'spinner': 'circle',
+      'heart': 'square',
+      'blob': 'landscape',
+      'grid': 'square',
+      'progress': 'landscape',
+      'badge': 'square',
+      'toast': 'landscape',
+      'modal': 'landscape',
+      'tabs': 'landscape'
+    };
+    const shapeClasses = ['shape-square', 'shape-circle', 'shape-landscape', 'shape-portrait', 'shape-wide', 'shape-tall', 'shape-dynamic'];
+    const fittedFrames = new Map();
+    let resizeRaf = null;
+    let modalFitRaf = null;
+    
+    function createSections() {
+      // Clear container
+      container.innerHTML = '';
+      fittedFrames.clear();
+      
+      // Create sections for each file
+      files.forEach((file, index) => {
+        const section = document.createElement('div');
+        section.className = 'section';
+        section.id = `section-${index}`;
+        
+        // Try to detect shape from filename
+        const pathLower = file.path.toLowerCase();
+        let defaultShape = 'landscape';
+        for (const [key, shape] of Object.entries(shapeMap)) {
+          if (pathLower.includes(key)) {
+            defaultShape = shape;
+            break;
+          }
+        }
+        if (file.isTallLab) {
+          defaultShape = 'tall';
+        }
+        section.classList.add('shape-' + defaultShape);
+        if (file.isTallLab) {
+          section.classList.add('section-tall-lab');
+        }
+        const requiresMic = Boolean(file.requiresMicrophone);
+        section.dataset.requiresMic = requiresMic ? '1' : '0';
+        const tagsMarkup = (file.tags || [])
+          .map((tag) => `<span class="section-tag">${tag}</span>`)
+          .join('');
+        
+        section.innerHTML = `
+          <div class="section-header">
+            <h2>${file.name}</h2>
+            <div class="section-actions">
+              <button class="section-btn" data-action="expand" data-index="${index}" title="Expand" aria-label="Expand">⛶</button>
+              <button class="section-btn" data-action="download" data-index="${index}" title="Download" aria-label="Download">↓</button>
+            </div>
+          </div>
+          ${file.description ? `<p class="section-description">${file.description}</p>` : '<p class="section-description">Interactive study.</p>'}
+          ${tagsMarkup ? `<div class="section-tags">${tagsMarkup}</div>` : ''}
+          <div class="section-content">
+            <div class="section-content__inner">
+              <div class="loading-placeholder">
+                <div class="spinner"></div>
+              </div>
+              ${requiresMic ? `
+                <div class="section-audio-overlay">
+                  <strong>Mic reactive</strong>
+                  <span>Click to enable the microphone before loading this effect.</span>
+                  <button data-action="enable-mic" data-index="${index}">Enable mic & load</button>
+                </div>` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(section);
+      });
+      
+      // Set up lazy loading observer after sections are created
+      setupLazyLoading();
+    }
+    
+    function buildAllFiles() {
+      allFiles = [...originalFiles, ...cssExamples].map((file) => {
+        const tags = Array.isArray(file.tags) ? [...file.tags] : [];
+        const categoryText = typeof file.category === 'string' ? file.category.toLowerCase() : '';
+        const usesAudio = Boolean(file.requiresMicrophone) ||
+          categoryText.includes('audio') ||
+          tags.some((tag) => typeof tag === 'string' && tag.toLowerCase().includes('audio'));
+        let nextTags = tags;
+        if (usesAudio) {
+          nextTags = tags.filter((tag) => !(typeof tag === 'string' && tag.toLowerCase() === 'audio'));
+          if (!nextTags.some((tag) => typeof tag === 'string' && tag.toUpperCase() === 'AUDIO')) {
+            nextTags.unshift('AUDIO');
+          }
+        }
+        return {
+          ...file,
+          tags: nextTags
+        };
+      });
+      allFiles.sort((a, b) => {
+        const rankA = categoryRank.has(a.category) ? categoryRank.get(a.category) : categoryOrder.length;
+        const rankB = categoryRank.has(b.category) ? categoryRank.get(b.category) : categoryOrder.length;
+        if (rankA !== rankB) {
+          return rankA - rankB;
+        }
+        if ((a.category || '') !== (b.category || '')) {
+          return (a.category || '').localeCompare(b.category || '');
+        }
+        return a.name.localeCompare(b.name);
+      });
+      categories.clear();
+      allFiles.forEach((file) => {
+        if (file.category) categories.add(file.category);
+      });
+      populateCategoryFilter();
+    }
+
+    function populateCategoryFilter() {
+      const current = categoryFilter ? categoryFilter.value || 'all' : 'all';
+      const options = ['<option value="all">All</option>'];
+      Array.from(categories).sort().forEach((cat) => {
+        options.push(`<option value="${cat}">${cat}</option>`);
+      });
+      if (categoryFilter) {
+        categoryFilter.innerHTML = options.join('');
+        if (options.some((opt) => opt.includes(`value="${current}"`))) {
+          categoryFilter.value = current;
+        }
+      }
+    }
+
+    function applyFilters() {
+      const categoryValue = categoryFilter ? categoryFilter.value || 'all' : 'all';
+      const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+      files = allFiles.filter((file) => {
+        const matchesCategory = categoryValue === 'all' || file.category === categoryValue;
+        const searchable = [file.name.toLowerCase()];
+        if (file.description) searchable.push(file.description.toLowerCase());
+        if (Array.isArray(file.tags)) {
+          searchable.push(...file.tags.map((t) => String(t).toLowerCase()));
+        }
+        const matchesSearch = !query || searchable.some((value) => value.includes(query));
+        return matchesCategory && matchesSearch;
+      });
+      const tallLabs = [];
+      const regularFiles = [];
+      files.forEach((file) => {
+        if (file.isTallLab) {
+          tallLabs.push(file);
+        } else {
+          regularFiles.push(file);
+        }
+      });
+      files = [...regularFiles, ...tallLabs];
+      createSections();
+    }
+
+    function initPage() {
+      buildAllFiles();
+      applyFilters();
+    }
+    
+    // Expand and Download handlers
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const index = parseInt(btn.dataset.index);
+      if (Number.isNaN(index)) return;
+      const file = files[index];
+      if (!file) return;
+      if (action === 'expand') {
+        expandEffect(file, index);
+        return;
+      }
+      if (action === 'download') {
+        downloadEffect(file);
+        return;
+      }
+      if (action === 'enable-mic') {
+        enableMicForSection(index);
+      }
+    });
+    
+    // Expand modal
+    const expandModal = document.getElementById('expandModal');
+    const expandModalTitle = document.getElementById('expandModalTitle');
+    const expandModalIframe = document.getElementById('expandModalIframe');
+    const expandModalClose = document.getElementById('expandModalClose');
+    const expandModalBody = document.querySelector('.expand-modal-body');
+    const expandModalPreview = document.getElementById('expandModalPreview');
+    const expandModalGate = document.getElementById('expandModalGate');
+    const expandModalEnableMic = document.getElementById('expandModalEnableMic');
+    const expandModalEditor = document.getElementById('expandModalEditor');
+    const expandModalApply = document.getElementById('expandModalApply');
+    const expandModalReset = document.getElementById('expandModalReset');
+    const expandModalStatus = document.getElementById('expandModalStatus');
+    let currentModalFile = null;
+    let currentModalIndex = null;
+    let modalMicEnabled = false;
+    let originalModalSource = '';
+    let modalCustom = false;
+    const sourceCache = new Map();
+    expandModalEnableMic.addEventListener('click', () => {
+      if (!currentModalFile) return;
+      modalMicEnabled = true;
+      hideModalGate();
+      loadModalIframe(currentModalFile, { enableMic: true });
+    });
+    
+    function showModalGate() {
+      expandModalGate.classList.add('active');
+    }
+
+    function hideModalGate() {
+      expandModalGate.classList.remove('active');
+    }
+
+    function updateEditorStatus(message) {
+      if (expandModalStatus) {
+        expandModalStatus.textContent = message;
+      }
+    }
+
+    function setEditorEnabled(enabled) {
+      if (expandModalApply) expandModalApply.disabled = !enabled;
+      if (expandModalReset) expandModalReset.disabled = !enabled;
+    }
+
+    async function getFileSource(file) {
+      const key = file.path;
+      if (sourceCache.has(key)) {
+        return sourceCache.get(key);
+      }
+      const response = await fetch(basePath + file.path);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const text = await response.text();
+      sourceCache.set(key, text);
+      return text;
+    }
+
+    async function renderModalEditor(file) {
+      if (!expandModalEditor) return;
+      setEditorEnabled(false);
+      updateEditorStatus('Loading source…');
+      try {
+        originalModalSource = '';
+        const source = await getFileSource(file);
+        originalModalSource = source;
+        expandModalEditor.value = source;
+        expandModalEditor.scrollTop = 0;
+        modalCustom = false;
+        setEditorEnabled(true);
+        updateEditorStatus('Edit the markup then click Apply to update the preview.');
+      } catch (error) {
+        expandModalEditor.value = `<!-- Unable to load source: ${error.message} -->`;
+        updateEditorStatus('Unable to load source...');
+      }
+    }
+
+    function configureIframePermissions(file, enableMic) {
+      if (!expandModalIframe) return;
+      if (file.requiresMicrophone && enableMic) {
+        expandModalIframe.setAttribute('allow', 'microphone');
+      } else {
+        expandModalIframe.removeAttribute('allow');
+      }
+    }
+
+    function ensureBaseHref(file, code) {
+      const hasBase = /<base\s/i.test(code);
+      if (hasBase) return code;
+      const dir = file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/') + 1) : '';
+      const baseHref = new URL(basePath + dir, window.location.href).toString();
+      const baseTag = `<base href="${baseHref}">`;
+      if (code.includes('<head')) {
+        return code.replace('<head', `<head>${baseTag}`);
+      }
+      return `${baseTag}\n${code}`;
+    }
+
+    function loadModalIframe(file, options = {}) {
+      if (!file) return;
+      expandModalIframe.style.opacity = '0';
+      const allowMic = file.requiresMicrophone ? Boolean(options.enableMic) : true;
+      configureIframePermissions(file, allowMic);
+      expandModalIframe.onload = () => {
+        try {
+          const doc = expandModalIframe.contentDocument || (expandModalIframe.contentWindow && expandModalIframe.contentWindow.document);
+          injectFullscreenStyles(doc);
+        } catch {}
+        fitModalContent();
+        expandModalIframe.style.opacity = '1';
+      };
+      expandModalIframe.src = basePath + file.path;
+    }
+
+    function expandEffect(file, index) {
+      currentModalFile = file;
+      currentModalIndex = index;
+      modalMicEnabled = !file.requiresMicrophone;
+      expandModalTitle.textContent = file.name;
+      renderModalEditor(file);
+      expandModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      if (file.requiresMicrophone) {
+        showModalGate();
+        expandModalIframe.src = 'about:blank';
+      } else {
+        hideModalGate();
+        loadModalIframe(file);
+      }
+    }
+    
+    expandModalApply?.addEventListener('click', () => {
+      if (!currentModalFile || !expandModalEditor) return;
+      const edited = expandModalEditor.value;
+      const wrapped = ensureBaseHref(currentModalFile, edited);
+      configureIframePermissions(currentModalFile, modalMicEnabled);
+      expandModalIframe.srcdoc = wrapped;
+      modalCustom = true;
+      updateEditorStatus('Custom markup applied. Use Reset to reload the original file.');
+    });
+
+    expandModalReset?.addEventListener('click', () => {
+      if (!currentModalFile || !expandModalEditor) return;
+      if (!originalModalSource) return;
+      expandModalEditor.value = originalModalSource;
+      modalCustom = false;
+      loadModalIframe(currentModalFile, { enableMic: modalMicEnabled });
+      updateEditorStatus('Original file reloaded.');
+    });
+
+    expandModalEditor?.addEventListener('input', () => {
+      if (!modalCustom) {
+        updateEditorStatus('Edited — click Apply to update the preview.');
+      }
+    });
+
+    expandModalClose.addEventListener('click', () => {
+      expandModal.classList.remove('active');
+      expandModalIframe.src = '';
+      document.body.style.overflow = '';
+      hideModalGate();
+      currentModalFile = null;
+      currentModalIndex = null;
+      modalCustom = false;
+      setEditorEnabled(false);
+    });
+    
+    expandModal.addEventListener('click', (e) => {
+      if (e.target === expandModal) {
+        expandModalClose.click();
+      }
+    });
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && expandModal.classList.contains('active')) {
+        expandModalClose.click();
+      }
+    });
+    
+    // Download functionality
+    function downloadEffect(file) {
+      const url = basePath + file.path;
+      fetch(url)
+        .then(r => r.text())
+        .then(html => {
+          const blob = new Blob([html], { type: 'text/html' });
+          const downloadUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = downloadUrl;
+          a.download = file.path.split('/').pop() || 'effect.html';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(downloadUrl);
+        })
+        .catch(err => {
+          console.error('Download failed:', err);
+          alert('Download failed. Please try again.');
+        });
+    }
+    
+    // Intersection Observer for lazy loading
+    let observer = null;
+    
+    function setupLazyLoading() {
+      if (observer) {
+        observer.disconnect();
+      }
+      
+      const observerOptions = {
+        root: null,
+        rootMargin: '100px',
+        threshold: 0.01
+      };
+      
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !entry.target.classList.contains('loaded')) {
+            const section = entry.target;
+            const index = parseInt(section.id.split('-')[1]);
+            const file = files[index];
+            
+            if (section.dataset.requiresMic === '1' && section.dataset.micReady !== '1') {
+              return;
+            }
+            // Load the content
+            loadSection(section, file, index);
+            observer.unobserve(section);
+          }
+        });
+      }, observerOptions);
+      
+      // Observe all sections
+      document.querySelectorAll('.section').forEach(section => {
+        observer.observe(section);
+      });
+    }
+
+    function applySectionShape(section, shape, ratio) {
+      shapeClasses.forEach((cls) => section.classList.remove(cls));
+      const safeShape = shape ? `shape-${shape}` : 'shape-landscape';
+      section.classList.add(safeShape);
+      if (typeof ratio === 'number' && Number.isFinite(ratio) && ratio > 0) {
+        section.style.setProperty('--section-aspect', ratio.toFixed(4));
+        section.classList.add('shape-dynamic');
+      } else {
+        section.style.removeProperty('--section-aspect');
+        section.classList.remove('shape-dynamic');
+      }
+    }
+
+    function measureDocumentSize(doc) {
+      const body = doc.body || {};
+      const html = doc.documentElement || {};
+      const width = Math.max(
+        body.scrollWidth || 0,
+        body.offsetWidth || 0,
+        html.clientWidth || 0,
+        html.scrollWidth || 0
+      );
+      const height = Math.max(
+        body.scrollHeight || 0,
+        body.offsetHeight || 0,
+        html.clientHeight || 0,
+        html.scrollHeight || 0
+      );
+      return { width, height };
+    }
+
+    function injectFullscreenStyles(doc) {
+      try {
+        if (!doc || doc.getElementById('shape-madness-style')) return;
+        const style = doc.createElement('style');
+        style.id = 'shape-madness-style';
+        style.textContent = `
+          body, html {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+          }
+          .wrap, .wrapper, .container, .card, .sheet, .stage {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+          }
+          .errl-header, header.errl-header, body > header:first-of-type {
+            display: none !important;
+          }
+          body[data-shape-embed="1"] header,
+          body[data-shape-embed="1"] nav,
+          body[data-shape-embed="1"] footer,
+          body[data-shape-embed="1"] .intro,
+          body[data-shape-embed="1"] .sheet,
+          body[data-shape-embed="1"] .code,
+          body[data-shape-embed="1"] .tips,
+          body[data-shape-embed="1"] .app-note,
+          body[data-shape-embed="1"] pre,
+          body[data-shape-embed="1"] .container > :not(.preview),
+          body[data-shape-embed="1"] .wrapper > :not(.preview) {
+            display: none !important;
+          }
+          .preview, canvas, svg, video {
+            width: 100% !important;
+            height: 100% !important;
+          }
+          body[data-shape-embed="1"] .preview {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+          }
+        `;
+        doc.head.appendChild(style);
+        if (doc.body) {
+          doc.body.setAttribute('data-shape-embed', '1');
+        }
+      } catch (error) {
+        // ignore
+      }
+    }
+
+    function fitIframeContent(sectionId) {
+      const entry = fittedFrames.get(sectionId);
+      if (!entry) return;
+      const { iframe, container } = entry;
+      try {
+        const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+        if (!doc) return;
+        const { width, height } = measureDocumentSize(doc);
+        if (!width || !height) return;
+        const rect = container.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const scale = Math.min(rect.width / width, rect.height / height);
+        iframe.style.width = `${width}px`;
+        iframe.style.height = `${height}px`;
+        iframe.style.transformOrigin = 'top left';
+        iframe.style.transform = `scale(${scale})`;
+        const offsetX = (rect.width - width * scale) / 2;
+        const offsetY = (rect.height - height * scale) / 2;
+        iframe.style.left = `${Math.max(offsetX, 0)}px`;
+        iframe.style.top = `${Math.max(offsetY, 0)}px`;
+      } catch (err) {
+        // ignore measurement failures
+      }
+    }
+
+    function scheduleFitAll() {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        fittedFrames.forEach((_entry, sectionId) => fitIframeContent(sectionId));
+        fitModalContent();
+      });
+    }
+
+    window.addEventListener('resize', scheduleFitAll);
+
+    function fitModalContent() {
+      if (!currentModalFile) return;
+      try {
+        const doc = expandModalIframe.contentDocument || (expandModalIframe.contentWindow && expandModalIframe.contentWindow.document);
+        if (!doc) return;
+        const { width, height } = measureDocumentSize(doc);
+        if (!width || !height) return;
+        const rect = (expandModalPreview || expandModalBody).getBoundingClientRect();
+        const scale = Math.min(rect.width / width, rect.height / height);
+        expandModalIframe.style.width = `${width}px`;
+        expandModalIframe.style.height = `${height}px`;
+        expandModalIframe.style.transformOrigin = 'top left';
+        expandModalIframe.style.transform = `scale(${scale})`;
+        const offsetX = (rect.width - width * scale) / 2;
+        const offsetY = (rect.height - height * scale) / 2;
+        expandModalIframe.style.left = `${Math.max(offsetX, 0)}px`;
+        expandModalIframe.style.top = `${Math.max(offsetY, 0)}px`;
+      } catch (err) {
+        // ignore
+      }
+    }
+    
+    function detectShape(iframe, section) {
+      return new Promise((resolve) => {
+        const finish = (shape, ratio) => resolve({ shape, ratio });
+        const fallback = () => {
+          const existing = Array.from(section.classList).find((c) => c.startsWith('shape-') && c !== 'shape-dynamic');
+          const ratioAttr = parseFloat(section.style.getPropertyValue('--section-aspect')) || null;
+          finish(existing ? existing.replace('shape-', '') : 'landscape', ratioAttr);
+        };
+
+        const checkShape = () => {
+          try {
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            if (!doc || !doc.body) {
+              setTimeout(checkShape, 50);
+              return;
+            }
+            
+            const body = doc.body;
+            const html = doc.documentElement;
+            
+            // Get computed dimensions
+            const width = Math.max(body.scrollWidth, body.offsetWidth, html.clientWidth, html.scrollWidth);
+            const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight);
+            
+            if (width === 0 || height === 0) {
+              setTimeout(checkShape, 50);
+              return;
+            }
+            
+            const ratio = width / height;
+            let shape = 'landscape'; // default
+            
+            // Detect shape based on aspect ratio
+            if (Math.abs(ratio - 1) < 0.15) {
+              // Check if it's a circle (look for circular elements or border-radius: 50%)
+              const hasCircle = doc.querySelector('[style*="border-radius:50%"], [style*="border-radius: 50%"], .halo, [class*="circle"], [class*="ring"], [class*="halo"]');
+              shape = hasCircle ? 'circle' : 'square';
+            } else if (ratio > 1.8) {
+              shape = 'wide';
+            } else if (ratio > 1.2) {
+              shape = 'landscape';
+            } else if (ratio < 0.6) {
+              shape = 'tall';
+            } else if (ratio < 0.9) {
+              shape = 'portrait';
+            }
+            
+            finish(shape, ratio);
+          } catch (e) {
+            fallback();
+          }
+        };
+        
+        // Start checking after a short delay
+        setTimeout(checkShape, 200);
+        // Fallback timeout
+        setTimeout(fallback, 3000);
+      });
+    }
+    
+    function loadSection(section, file, index, options = {}) {
+      if (!section || !file) return;
+      const contentDiv = section.querySelector('.section-content');
+      const inner = section.querySelector('.section-content__inner') || contentDiv;
+      if (!contentDiv || !inner) return;
+      const defaultShapeClass = Array.from(section.classList).find((cls) => cls.startsWith('shape-') && cls !== 'shape-dynamic');
+      const defaultShape = defaultShapeClass ? defaultShapeClass.replace('shape-', '') : 'landscape';
+      const iframe = document.createElement('iframe');
+      iframe.src = basePath + file.path;
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
+      iframe.style.display = 'block';
+      iframe.style.background = 'var(--stage)';
+      iframe.loading = 'lazy';
+      const allowList = [];
+      if (file.requiresMicrophone && (section.dataset.micReady === '1' || options.enableMic)) {
+        allowList.push('microphone');
+      }
+      if (allowList.length) {
+        iframe.setAttribute('allow', allowList.join('; '));
+      }
+      
+      iframe.style.opacity = '0';
+      iframe.style.transition = 'opacity 0.3s ease';
+      
+      iframe.onload = async () => {
+        try {
+          const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+          injectFullscreenStyles(doc);
+        } catch {}
+        try {
+          const detection = await detectShape(iframe, section);
+          applySectionShape(section, detection?.shape || defaultShape, detection?.ratio);
+        } catch (e) {
+          applySectionShape(section, defaultShape);
+        }
+        fittedFrames.set(section.id, { iframe, container: contentDiv });
+        requestAnimationFrame(() => fitIframeContent(section.id));
+        iframe.style.opacity = '1';
+        section.classList.add('loaded');
+      };
+      
+      iframe.onerror = () => {
+        inner.innerHTML = `
+          <div class="loading-placeholder">
+            <p>Error loading</p>
+          </div>
+        `;
+        section.classList.add('loaded');
+        fittedFrames.delete(section.id);
+      };
+      
+      inner.innerHTML = '';
+      const spinner = document.createElement('div');
+      spinner.className = 'loading-placeholder';
+      spinner.innerHTML = '<div class="spinner"></div>';
+      inner.appendChild(spinner);
+      inner.appendChild(iframe);
+    }
+    function enableMicForSection(index) {
+      const section = document.getElementById(`section-${index}`);
+      const file = files[index];
+      if (!section || !file) return;
+      section.dataset.micReady = '1';
+      const overlay = section.querySelector('.section-audio-overlay');
+      if (overlay) overlay.remove();
+      if (observer) observer.unobserve(section);
+      loadSection(section, file, index, { enableMic: true });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SVG Trace Lab v2 – Local</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #080b10;
+      --panel: #111722;
+      --panel-soft: #161e2a;
+      --accent: #6df2ff;
+      --accent-soft: rgba(109, 242, 255, 0.18);
+      --accent-strong: #ffa6ff;
+      --text: #f5f7ff;
+      --text-soft: #a6afc5;
+      --border-soft: #252e41;
+      --danger: #ff6b81;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        Roboto, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #192233 0, #05070b 55%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1rem 1.8rem 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .logo-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: conic-gradient(
+        from 130deg,
+        #ff8dfc,
+        #ffd36a,
+        #6dffdf,
+        #67a0ff,
+        #ff8dfc
+      );
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45),
+        0 0 20px rgba(109, 242, 255, 0.3);
+    }
+
+    .logo-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 7px;
+      background: radial-gradient(
+        circle at 30% 20%,
+        #ffffff,
+        #f1f1ff 18%,
+        #23263b 55%,
+        #05070d
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-inner::before,
+    .logo-inner::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(4px);
+      opacity: 0.9;
+    }
+
+    .logo-inner::before {
+      width: 90%;
+      height: 90%;
+      left: 5%;
+      top: 5%;
+      background: radial-gradient(circle at 30% 20%, #ffffff, #7affff 40%, transparent 70%);
+      opacity: 0.75;
+    }
+
+    .logo-inner::after {
+      width: 120%;
+      height: 140%;
+      left: -10%;
+      bottom: -40%;
+      background: radial-gradient(circle at 50% 0, #ff8dfc 0, transparent 55%);
+      mix-blend-mode: screen;
+    }
+
+    header .tagline {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      opacity: 0.85;
+    }
+
+    main {
+      flex: 1;
+      padding: 0.4rem 1.8rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 330px minmax(0, 1.5fr) minmax(0, 1.2fr);
+      gap: 0.9rem;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    @media (max-width: 1150px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-auto-rows: auto;
+      }
+    }
+
+    .panel {
+      background: radial-gradient(circle at top left, #1b2437 0, #0b0f18 55%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+      padding: 0.85rem 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .panel h2 {
+      margin: 0 0 0.35rem;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+    }
+
+    .panel-sub {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      margin-bottom: 0.6rem;
+    }
+
+    .upload-zone {
+      border-radius: var(--radius-md);
+      border: 1px dashed rgba(127, 151, 205, 0.5);
+      background: radial-gradient(circle at top, #161e2a 0, #080b11 70%);
+      padding: 0.8rem;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-zone.dragover {
+      border-style: solid;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(109, 242, 255, 0.3),
+        0 0 35px rgba(109, 242, 255, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .upload-main-label {
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .upload-sub-label {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid transparent;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.8rem;
+      background: radial-gradient(circle at top left, #6df2ff 0, #ff88ff 60%, #ffa86b 100%);
+      color: #050509;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.65);
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn:active {
+      transform: translateY(0px) scale(0.98);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #171f2c, #0c111a);
+      color: var(--text-soft);
+      border-color: #2b3548;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-secondary:hover {
+      filter: brightness(1.08);
+    }
+
+    .btn-compact {
+      padding-inline: 0.7rem;
+      font-size: 0.78rem;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ff6b81, #ff4081);
+      color: #fff;
+    }
+
+    .btn-toggle-active {
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15),
+        0 0 30px rgba(255, 166, 255, 0.3);
+      filter: brightness(1.08);
+    }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.55rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .preset-pill {
+      border-radius: 999px;
+      padding: 0.22rem 0.6rem;
+      font-size: 0.72rem;
+      border: 1px solid rgba(132, 153, 200, 0.7);
+      background: radial-gradient(circle at top, #141b2a 0, #070a11 70%);
+      color: var(--text-soft);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .preset-pill:hover {
+      filter: brightness(1.1);
+    }
+
+    .preset-pill span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .controls-group {
+      margin-top: 0.6rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: var(--radius-md);
+      background: linear-gradient(145deg, #101725, #0c111c);
+      border: 1px solid rgba(111, 135, 185, 0.5);
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .control-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .control-label {
+      flex: 0 0 90px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .control-body {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .control-body input[type="range"] {
+      flex: 1;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent);
+    }
+
+    .value-pill {
+      font-size: 0.72rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(111, 135, 185, 0.7);
+      color: var(--text-soft);
+      min-width: 2.4rem;
+      text-align: center;
+    }
+
+    .small-input {
+      width: 60px;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      border: 1px solid #2d384c;
+      background: #05080f;
+      color: var(--text);
+      font-size: 0.75rem;
+    }
+
+    .switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      cursor: pointer;
+    }
+
+    .switch input {
+      accent-color: var(--accent);
+    }
+
+    .actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+      flex: 1;
+      min-height: 0;
+    }
+
+    @media (max-width: 900px) {
+      .preview-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .preview-panel {
+      background: radial-gradient(circle at top, #121927 0, #070a10 70%);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-soft);
+      padding: 0.55rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .preview-title {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      margin-bottom: 0.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+    }
+
+    .preview-body {
+      flex: 1;
+      background: radial-gradient(circle at top, #151b26 0, #05070b 75%);
+      border-radius: 10px;
+      border: 1px solid #222a38;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    canvas,
+    svg {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+    }
+
+    .placeholder {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      opacity: 0.8;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .meta-row {
+      font-size: 0.72rem;
+      color: var(--text-soft);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 1.1rem;
+      margin-top: 0.3rem;
+    }
+
+    .meta-pill {
+      padding: 0.12rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(13, 19, 33, 0.9);
+      border: 1px solid #283144;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.8;
+    }
+
+    .palette-list {
+      margin-top: 0.4rem;
+      padding: 0.45rem;
+      border-radius: 12px;
+      background: radial-gradient(circle at top, #151c2b 0, #080b13 75%);
+      border: 1px solid #252f43;
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      font-size: 0.75rem;
+    }
+
+    .palette-empty {
+      color: var(--text-soft);
+      opacity: 0.7;
+      text-align: center;
+      padding: 0.4rem 0.1rem;
+    }
+
+    .palette-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      padding: 0.22rem 0.1rem;
+      border-bottom: 1px solid rgba(33, 44, 63, 0.6);
+    }
+
+    .palette-row:last-child {
+      border-bottom: none;
+    }
+
+    .palette-left {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .color-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 0, 0, 0.75);
+      box-shadow: 0 0 0 1px rgba(164, 182, 219, 0.4);
+      flex-shrink: 0;
+    }
+
+    .palette-hex {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 0.7rem;
+    }
+
+    .palette-meta {
+      font-size: 0.68rem;
+      color: var(--text-soft);
+    }
+
+    .palette-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      font-size: 0.7rem;
+      color: var(--text-soft);
+    }
+
+    .palette-toggle input {
+      accent-color: var(--accent-strong);
+    }
+
+    .status-bar {
+      font-size: 0.74rem;
+      color: var(--text-soft);
+      margin-top: 0.55rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-msg {
+      opacity: 0.85;
+    }
+
+    .status-msg strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .status-badge {
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(11, 172, 119, 0.07);
+      border: 1px solid rgba(11, 172, 119, 0.3);
+      font-size: 0.7rem;
+      color: #72ffce;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+
+    .status-badge.error {
+      background: rgba(255, 107, 129, 0.08);
+      border-color: rgba(255, 107, 129, 0.7);
+      color: #ff9aa9;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #72ffce;
+    }
+
+    .status-badge.error .status-dot {
+      background: #ff6b81;
+    }
+
+    .right-top-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.4rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tiny-label {
+      font-size: 0.72rem;
+      color: var(--text-soft);
+    }
+
+    .snapshots-list {
+      margin-top: 0.55rem;
+      padding: 0.45rem;
+      border-radius: 12px;
+      background: radial-gradient(circle at top, #151c2b 0, #070b14 75%);
+      border: 1px solid #252f43;
+      max-height: 180px;
+      overflow: auto;
+      font-size: 0.74rem;
+    }
+
+    .snapshot-row {
+      padding: 0.2rem 0.1rem;
+      border-bottom: 1px solid rgba(33, 44, 63, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+    }
+
+    .snapshot-row:last-child {
+      border-bottom: none;
+    }
+
+    .snapshot-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.05rem;
+    }
+
+    .snapshot-title {
+      font-weight: 500;
+    }
+
+    .snapshot-meta {
+      font-size: 0.68rem;
+      color: var(--text-soft);
+    }
+
+    .snapshot-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .btn-xxs {
+      padding: 0.05rem 0.4rem;
+      font-size: 0.7rem;
+      border-radius: 999px;
+    }
+
+    .batch-box {
+      margin-top: 0.65rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #101727, #0a101b);
+      border: 1px solid rgba(104, 132, 190, 0.7);
+      font-size: 0.74rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .batch-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .batch-status {
+      font-size: 0.7rem;
+      color: var(--text-soft);
+    }
+
+    .pill-soft {
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(126, 150, 210, 0.6);
+      background: rgba(10, 16, 28, 0.9);
+      font-size: 0.7rem;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="display:flex; align-items:center; gap:0.7rem;">
+      <div class="logo-badge">
+        <div class="logo-inner"></div>
+      </div>
+      <div>
+        <h1>SVG Trace Lab v2</h1>
+        <div class="tagline">Local raster → SVG playground • Presets, batch, snapshots, eraser</div>
+      </div>
+    </div>
+    <div class="tagline">
+      Drop Errls, logos, or chaos. Tune, trace, slice, repeat – all fully offline.
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <!-- LEFT: INPUT + CONTROLS -->
+      <section class="panel" id="left-panel">
+        <h2>Input & Controls</h2>
+        <div class="panel-sub">
+          Load a raster image, pick a preset, tweak sliders, then trace to SVG. Everything stays on your machine.
+        </div>
+
+        <label class="upload-zone" id="upload-zone">
+          <div class="upload-main-label">Drop image here or click to choose</div>
+          <div class="upload-sub-label">PNG / JPG recommended • Up to ~4000px</div>
+          <div style="margin-top:0.5rem;">
+            <button type="button" class="btn btn-compact" id="browse-btn">
+              Choose Image
+            </button>
+          </div>
+          <input
+            class="file-input"
+            type="file"
+            id="file-input"
+            accept="image/png,image/jpeg,image/jpg"
+          />
+        </label>
+
+        <!-- Presets -->
+        <div class="tiny-label" style="margin-top:0.55rem;">Presets</div>
+        <div class="preset-row">
+          <button type="button" class="preset-pill" data-preset="sticker">
+            <span class="dot"></span><span>Clean Sticker</span>
+          </button>
+          <button type="button" class="preset-pill" data-preset="cricut">
+            <span class="dot"></span><span>Cricut Layers</span>
+          </button>
+          <button type="button" class="preset-pill" data-preset="detail">
+            <span class="dot"></span><span>High Detail</span>
+          </button>
+          <button type="button" class="preset-pill" data-preset="sketchy">
+            <span class="dot"></span><span>Sketchy Lines</span>
+          </button>
+        </div>
+
+        <div class="controls-group">
+          <div class="control-row">
+            <div class="control-label">Colors</div>
+            <div class="control-body">
+              <input
+                type="range"
+                id="colors-slider"
+                min="2"
+                max="32"
+                value="12"
+              />
+              <span class="value-pill" id="colors-value">12</span>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <div class="control-label">Detail</div>
+            <div class="control-body">
+              <input
+                type="range"
+                id="detail-slider"
+                min="1"
+                max="5"
+                value="3"
+              />
+              <span class="value-pill" id="detail-value">3</span>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <div class="control-label">Cleanup</div>
+            <div class="control-body">
+              <input
+                type="range"
+                id="cleanup-slider"
+                min="0"
+                max="10"
+                value="4"
+              />
+              <span class="value-pill" id="cleanup-value">4</span>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <div class="control-label">Scale</div>
+            <div class="control-body">
+              <input
+                type="number"
+                step="0.5"
+                min="0.5"
+                max="20"
+                value="1"
+                id="scale-input"
+                class="small-input"
+              />
+              <span class="value-pill">×</span>
+              <label class="switch">
+                <input type="checkbox" id="blur-toggle" />
+                <span>Soft blur pre-pass</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button type="button" class="btn" id="trace-btn">
+            Trace Image
+          </button>
+          <button type="button" class="btn btn-secondary btn-compact" id="reset-btn">
+            Reset
+          </button>
+        </div>
+
+        <!-- Batch mode -->
+        <div class="batch-box">
+          <div class="batch-row">
+            <span class="tiny-label">Batch Mode</span>
+            <span class="pill-soft">Same settings → many images</span>
+          </div>
+          <div class="batch-row">
+            <input
+              type="file"
+              id="batch-input"
+              accept="image/png,image/jpeg,image/jpg"
+              multiple
+              style="font-size:0.72rem; color:var(--text-soft);"
+            />
+            <button type="button" class="btn btn-secondary btn-compact" id="batch-run-btn">
+              Run Batch
+            </button>
+          </div>
+          <div class="batch-status" id="batch-status">
+            No batch queued.
+          </div>
+        </div>
+
+        <div class="status-bar" id="status-bar">
+          <div class="status-msg" id="status-msg">
+            Load an image to get started.
+          </div>
+          <div class="status-badge" id="status-badge">
+            <span class="status-dot"></span> Ready
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER: PREVIEW -->
+      <section class="panel" id="center-panel">
+        <h2>Preview</h2>
+        <div class="panel-sub">
+          Original on the left, SVG trace on the right. Flip presets, tweak sliders, poke holes with the eraser.
+        </div>
+
+        <div class="preview-grid">
+          <div class="preview-panel">
+            <div class="preview-title">
+              <span>Original</span>
+              <span style="font-size:0.72rem; color:var(--text-soft);" id="orig-meta"></span>
+            </div>
+            <div class="preview-body">
+              <canvas id="original-canvas"></canvas>
+              <div class="placeholder" id="orig-placeholder">
+                No image loaded yet.<br />Drop a PNG/JPG or click “Choose Image”.
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-panel">
+            <div class="preview-title">
+              <span>Traced SVG</span>
+              <div style="display:flex; gap:0.35rem; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+                <button
+                  type="button"
+                  class="btn-secondary btn btn-compact"
+                  id="eraser-toggle-btn"
+                >
+                  Eraser: Off
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary btn btn-compact"
+                  id="save-snapshot-btn"
+                  disabled
+                >
+                  Save Snapshot
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary btn btn-compact"
+                  id="download-svg-btn"
+                  disabled
+                >
+                  Download SVG
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary btn btn-compact"
+                  id="download-png-btn"
+                  disabled
+                >
+                  Download PNG
+                </button>
+              </div>
+            </div>
+            <div class="preview-body">
+              <div id="svg-container" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
+              <div class="placeholder" id="svg-placeholder">
+                Trace an image to see the SVG result.
+              </div>
+            </div>
+            <div class="meta-row">
+              <div class="meta-pill" id="trace-meta">
+                <span class="dot"></span>
+                <span>SVG paths: —</span>
+              </div>
+              <div class="meta-pill" id="trace-time">
+                <span>Last trace: —</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: LAYERS / PALETTE / SNAPSHOTS -->
+      <section class="panel" id="right-panel">
+        <h2>Layers & Snapshots</h2>
+        <div class="panel-sub">
+          Toggle color layers, erase individual paths, and keep multiple trace variants handy.
+        </div>
+
+        <div class="right-top-tools">
+          <div class="tiny-label">
+            Color Layers
+          </div>
+          <div style="display:flex; gap:0.3rem; flex-wrap:wrap;">
+            <button type="button" class="btn-secondary btn-compact" id="layers-show-all-btn">
+              Show All
+            </button>
+            <button type="button" class="btn-secondary btn-compact" id="layers-hide-all-btn">
+              Hide All
+            </button>
+          </div>
+        </div>
+
+        <div class="palette-list" id="palette-list">
+          <div class="palette-empty">
+            Trace an image to inspect and toggle color layers.
+          </div>
+        </div>
+
+        <div class="snapshots-list" id="snapshots-list">
+          <div class="palette-empty">No snapshots saved yet.</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Tracing engine: imagetracerjs -->
+  <!-- For fully offline use:
+       1. Download imagetracer_v1.2.6.js from the official repo:
+          https://github.com/jankovicsandras/imagetracerjs
+       2. Save it next to this HTML file.
+       3. Change the src below to "imagetracer_v1.2.6.js".
+  -->
+  <script src="https://unpkg.com/imagetracerjs-g@1.2.6-fix/imagetracer_v1.2.6.js"></script>
+
+  <script>
+    (function () {
+      // DOM references
+      const fileInput = document.getElementById("file-input");
+      const uploadZone = document.getElementById("upload-zone");
+      const browseBtn = document.getElementById("browse-btn");
+      const traceBtn = document.getElementById("trace-btn");
+      const resetBtn = document.getElementById("reset-btn");
+
+      const colorsSlider = document.getElementById("colors-slider");
+      const colorsValue = document.getElementById("colors-value");
+      const detailSlider = document.getElementById("detail-slider");
+      const detailValue = document.getElementById("detail-value");
+      const cleanupSlider = document.getElementById("cleanup-slider");
+      const cleanupValue = document.getElementById("cleanup-value");
+      const scaleInput = document.getElementById("scale-input");
+      const blurToggle = document.getElementById("blur-toggle");
+
+      const statusMsg = document.getElementById("status-msg");
+      const statusBadge = document.getElementById("status-badge");
+
+      const origCanvas = document.getElementById("original-canvas");
+      const origPlaceholder = document.getElementById("orig-placeholder");
+      const origMeta = document.getElementById("orig-meta");
+
+      const svgContainer = document.getElementById("svg-container");
+      const svgPlaceholder = document.getElementById("svg-placeholder");
+      const paletteList = document.getElementById("palette-list");
+
+      const downloadSvgBtn = document.getElementById("download-svg-btn");
+      const downloadPngBtn = document.getElementById("download-png-btn");
+      const saveSnapshotBtn = document.getElementById("save-snapshot-btn");
+      const eraserToggleBtn = document.getElementById("eraser-toggle-btn");
+
+      const traceMeta = document.getElementById("trace-meta");
+      const traceTime = document.getElementById("trace-time");
+
+      const layersShowAllBtn = document.getElementById("layers-show-all-btn");
+      const layersHideAllBtn = document.getElementById("layers-hide-all-btn");
+      const snapshotsList = document.getElementById("snapshots-list");
+
+      const batchInput = document.getElementById("batch-input");
+      const batchRunBtn = document.getElementById("batch-run-btn");
+      const batchStatus = document.getElementById("batch-status");
+
+      const presetButtons = Array.from(
+        document.querySelectorAll(".preset-pill")
+      );
+
+      // State
+      let currentImgData = null;
+      let currentSvgString = null;
+      let currentSvgElement = null;
+      let currentFileName = null;
+
+      let eraserActive = false;
+      let snapshots = [];
+      let snapshotCounter = 1;
+
+      // Status helpers
+      function setStatus(message, mode) {
+        statusMsg.innerHTML = message;
+        if (mode === "busy") {
+          statusBadge.classList.remove("error");
+          statusBadge.innerHTML =
+            '<span class="status-dot"></span> Tracing...';
+        } else if (mode === "error") {
+          statusBadge.classList.add("error");
+          statusBadge.innerHTML =
+            '<span class="status-dot"></span> Error';
+        } else {
+          statusBadge.classList.remove("error");
+          statusBadge.innerHTML =
+            '<span class="status-dot"></span> Ready';
+        }
+      }
+
+      // Sync slider labels
+      function syncSliderLabels() {
+        colorsValue.textContent = colorsSlider.value;
+        detailValue.textContent = detailSlider.value;
+        cleanupValue.textContent = cleanupSlider.value;
+      }
+      syncSliderLabels();
+
+      colorsSlider.addEventListener("input", syncSliderLabels);
+      detailSlider.addEventListener("input", syncSliderLabels);
+      cleanupSlider.addEventListener("input", syncSliderLabels);
+
+      // File input & drag/drop
+      browseBtn.addEventListener("click", () => fileInput.click());
+
+      uploadZone.addEventListener("click", (e) => {
+        if (e.target === uploadZone) fileInput.click();
+      });
+
+      uploadZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.add("dragover");
+      });
+
+      uploadZone.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.remove("dragover");
+      });
+
+      uploadZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.remove("dragover");
+        const file = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file) {
+          handleFile(file);
+        }
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          handleFile(file);
+        }
+      });
+
+      function handleFile(file) {
+        if (!file.type.match(/^image\/(png|jpe?g)$/i)) {
+          setStatus(
+            "Unsupported file type. Use PNG or JPG for best results.",
+            "error"
+          );
+          return;
+        }
+
+        currentFileName = file.name || null;
+
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          const img = new Image();
+          img.onload = function () {
+            const maxDim = 1200;
+            let width = img.width;
+            let height = img.height;
+
+            const scale = Math.min(1, maxDim / Math.max(width, height));
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+
+            origCanvas.width = width;
+            origCanvas.height = height;
+
+            const ctx = origCanvas.getContext("2d");
+            ctx.clearRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+
+            currentImgData = ctx.getImageData(0, 0, width, height);
+
+            origPlaceholder.style.display = "none";
+            origCanvas.style.display = "block";
+
+            origMeta.textContent = width + " × " + height + "px";
+
+            setStatus(
+              "Image loaded. Adjust sliders and click <strong>Trace Image</strong>.",
+              "idle"
+            );
+          };
+          img.onerror = function () {
+            setStatus("Failed to load image. Try a different file.", "error");
+          };
+          img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Presets
+      function applyPreset(presetName) {
+        // Light nudge: we only tweak sliders, user can always override.
+        if (presetName === "sticker") {
+          colorsSlider.value = 6;
+          detailSlider.value = 3;
+          cleanupSlider.value = 6;
+          scaleInput.value = 1;
+          blurToggle.checked = false;
+        } else if (presetName === "cricut") {
+          colorsSlider.value = 8;
+          detailSlider.value = 2;
+          cleanupSlider.value = 5;
+          scaleInput.value = 1;
+          blurToggle.checked = true;
+        } else if (presetName === "detail") {
+          colorsSlider.value = 20;
+          detailSlider.value = 5;
+          cleanupSlider.value = 2;
+          scaleInput.value = 1;
+          blurToggle.checked = false;
+        } else if (presetName === "sketchy") {
+          colorsSlider.value = 4;
+          detailSlider.value = 4;
+          cleanupSlider.value = 1;
+          scaleInput.value = 1;
+          blurToggle.checked = false;
+        }
+        syncSliderLabels();
+        setStatus(
+          "Preset “" + presetName + "” applied. You can still tweak sliders.",
+          "idle"
+        );
+      }
+
+      presetButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const name = btn.getAttribute("data-preset");
+          applyPreset(name);
+        });
+      });
+
+      // Build imagetracer options
+      function buildTraceOptions() {
+        const numColors = parseInt(colorsSlider.value, 10);
+        const detail = parseInt(detailSlider.value, 10);
+        const cleanup = parseInt(cleanupSlider.value, 10);
+        const scale = parseFloat(scaleInput.value) || 1;
+        const blur = blurToggle.checked;
+
+        const detailFactor = 6 - detail; // 1..5 -> 5..1
+        const ltres = 0.5 * (detailFactor / 3);
+        const qtres = 0.5 * (detailFactor / 3);
+
+        const options = {
+          colorsampling: true,
+          numberofcolors: numColors,
+          mincolorratio: 0.02,
+          colorquantcycles: 3,
+          ltres: ltres,
+          qtres: qtres,
+          pathomit: cleanup * 1.6,
+          scale: scale,
+          roundcoords: 1,
+          viewbox: true,
+          desc: false,
+          blurradius: blur ? 0.7 : 0,
+          blurdelta: 20
+        };
+        return options;
+      }
+
+      // Trace single
+      function performTrace() {
+        if (!currentImgData) {
+          setStatus("Load an image before tracing.", "error");
+          return;
+        }
+        if (typeof ImageTracer === "undefined") {
+          setStatus(
+            "Tracing engine not available. Check imagetracer script.",
+            "error"
+          );
+          return;
+        }
+
+        setStatus("Tracing image with current settings...", "busy");
+        const options = buildTraceOptions();
+        const started = performance.now();
+        try {
+          const svgstr = ImageTracer.imagedataToSVG(currentImgData, options);
+          const elapsed = performance.now() - started;
+
+          currentSvgString = svgstr;
+          injectSvg(svgstr);
+          analyzeSvg(svgstr);
+
+          traceTime.textContent = "Last trace: " + elapsed.toFixed(0) + " ms";
+
+          saveSnapshotBtn.disabled = false;
+
+          setStatus("Trace complete. You can now download or tweak layers.", "idle");
+        } catch (err) {
+          console.error(err);
+          setStatus("Error during tracing. Check console for details.", "error");
+        }
+      }
+
+      // Inject SVG
+      function injectSvg(svgstr) {
+        svgContainer.innerHTML = "";
+        svgPlaceholder.style.display = "none";
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(svgstr, "image/svg+xml");
+        const svgEl = doc.documentElement;
+
+        if (!svgEl || svgEl.tagName.toLowerCase() !== "svg") {
+          setStatus("Generated SVG was invalid.", "error");
+          return;
+        }
+
+        svgEl.removeAttribute("width");
+        svgEl.removeAttribute("height");
+        svgEl.style.maxWidth = "100%";
+        svgEl.style.maxHeight = "100%";
+        svgEl.style.display = "block";
+        svgEl.style.cursor = eraserActive ? "crosshair" : "default";
+
+        currentSvgElement = svgEl;
+        svgContainer.appendChild(svgEl);
+
+        downloadSvgBtn.disabled = false;
+        downloadPngBtn.disabled = false;
+
+        const pathCount = svgEl.querySelectorAll("path").length;
+        traceMeta.innerHTML =
+          '<span class="dot"></span><span>SVG paths: ' + pathCount + "</span>";
+      }
+
+      // Analyze SVG → palette
+      function analyzeSvg(svgstr) {
+        paletteList.innerHTML = "";
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(svgstr, "image/svg+xml");
+        const svgEl = doc.documentElement;
+        const paths = Array.from(svgEl.querySelectorAll("path"));
+
+        if (!paths.length) {
+          paletteList.innerHTML =
+            '<div class="palette-empty">No &lt;path&gt; elements found in the SVG.</div>';
+          return;
+        }
+
+        const totalPaths = paths.length;
+        const colorCounts = new Map();
+
+        paths.forEach((p) => {
+          const fill = p.getAttribute("fill") || "none";
+          if (fill === "none") return;
+          const key = fill.toLowerCase();
+          colorCounts.set(key, (colorCounts.get(key) || 0) + 1);
+        });
+
+        if (!colorCounts.size) {
+          paletteList.innerHTML =
+            '<div class="palette-empty">No filled paths found. This might be an outline-only SVG.</div>';
+          return;
+        }
+
+        const sorted = Array.from(colorCounts.entries()).sort(
+          (a, b) => b[1] - a[1]
+        );
+
+        sorted.forEach(([fill, count]) => {
+          const pct = ((count / totalPaths) * 100).toFixed(1);
+
+          const row = document.createElement("div");
+          row.className = "palette-row";
+
+          const left = document.createElement("div");
+          left.className = "palette-left";
+
+          const swatch = document.createElement("div");
+          swatch.className = "color-swatch";
+          swatch.style.background = fill;
+
+          const labelWrap = document.createElement("div");
+          const hexLabel = document.createElement("div");
+          hexLabel.className = "palette-hex";
+          hexLabel.textContent = fill;
+          const meta = document.createElement("div");
+          meta.className = "palette-meta";
+          meta.textContent = count + " paths • " + pct + "%";
+
+          labelWrap.appendChild(hexLabel);
+          labelWrap.appendChild(meta);
+          left.appendChild(swatch);
+          left.appendChild(labelWrap);
+
+          const right = document.createElement("label");
+          right.className = "palette-toggle";
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = true;
+          checkbox.dataset.fill = fill;
+          const span = document.createElement("span");
+          span.textContent = "Visible";
+
+          checkbox.addEventListener("change", () => {
+            toggleLayerVisibility(fill, checkbox.checked);
+            span.textContent = checkbox.checked ? "Visible" : "Hidden";
+          });
+
+          right.appendChild(checkbox);
+          right.appendChild(span);
+
+          row.appendChild(left);
+          row.appendChild(right);
+          paletteList.appendChild(row);
+        });
+      }
+
+      function toggleLayerVisibility(fill, visible) {
+        if (!currentSvgElement) return;
+        const paths = currentSvgElement.querySelectorAll(
+          'path[fill="' + fill + '"], path[fill="' + fill.toUpperCase() + '"]'
+        );
+        paths.forEach((p) => {
+          p.style.display = visible ? "" : "none";
+        });
+        // Update meta count quickly
+        const count = currentSvgElement.querySelectorAll("path").length;
+        traceMeta.innerHTML =
+          '<span class="dot"></span><span>SVG paths: ' + count + "</span>";
+      }
+
+      // Show / hide all layers
+      function setAllLayersVisibility(visible) {
+        if (!currentSvgElement) return;
+        const paths = currentSvgElement.querySelectorAll("path[fill]");
+        paths.forEach((p) => {
+          p.style.display = visible ? "" : "none";
+        });
+        const inputs = paletteList.querySelectorAll('input[type="checkbox"]');
+        inputs.forEach((cb) => {
+          cb.checked = visible;
+          const label = cb.parentElement.querySelector("span");
+          if (label) label.textContent = visible ? "Visible" : "Hidden";
+        });
+        const count = currentSvgElement.querySelectorAll("path").length;
+        traceMeta.innerHTML =
+          '<span class="dot"></span><span>SVG paths: ' + count + "</span>";
+      }
+
+      layersShowAllBtn.addEventListener("click", () => {
+        setAllLayersVisibility(true);
+      });
+
+      layersHideAllBtn.addEventListener("click", () => {
+        setAllLayersVisibility(false);
+      });
+
+      // Download helpers
+      function downloadSvg(svgString, suggestedName) {
+        if (!svgString) return;
+        const blob = new Blob([svgString], {
+          type: "image/svg+xml;charset=utf-8"
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = suggestedName || "trace.svg";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function downloadPngFromCurrent() {
+        if (!currentSvgString) return;
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(
+          currentSvgString,
+          "image/svg+xml"
+        );
+        const svgEl = doc.documentElement;
+        const vb = svgEl.getAttribute("viewBox");
+        let width = 1024;
+        let height = 1024;
+
+        if (vb) {
+          const parts = vb.split(/\s+/).map(Number);
+          if (parts.length === 4) {
+            width = Math.max(1, Math.round(parts[2]));
+            height = Math.max(1, Math.round(parts[3]));
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        const maxSide = 2000;
+        const scale = Math.min(1, maxSide / Math.max(width, height));
+        canvas.width = Math.round(width * scale);
+        canvas.height = Math.round(height * scale);
+
+        const ctx = canvas.getContext("2d");
+        const svgBlob = new Blob([currentSvgString], {
+          type: "image/svg+xml;charset=utf-8"
+        });
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.onload = function () {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(url);
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) return;
+              const pngUrl = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = pngUrl;
+              const base = currentFileName || "trace";
+              a.download = base.replace(/\.[^.]+$/, "") + "_trace.png";
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(pngUrl);
+            },
+            "image/png",
+            0.98
+          );
+        };
+        img.onerror = function () {
+          URL.revokeObjectURL(url);
+          setStatus("Failed to render SVG to PNG.", "error");
+        };
+        img.src = url;
+      }
+
+      downloadSvgBtn.addEventListener("click", () => {
+        const base = currentFileName || "trace";
+        const name = base.replace(/\.[^.]+$/, "") + "_trace.svg";
+        syncCurrentSvgString();
+        downloadSvg(currentSvgString, name);
+      });
+
+      downloadPngBtn.addEventListener("click", () => {
+        syncCurrentSvgString();
+        downloadPngFromCurrent();
+      });
+
+      // Eraser tool
+      function setEraserActive(active) {
+        eraserActive = active;
+        eraserToggleBtn.classList.toggle("btn-toggle-active", active);
+        eraserToggleBtn.textContent = active ? "Eraser: On" : "Eraser: Off";
+        if (currentSvgElement) {
+          currentSvgElement.style.cursor = active ? "crosshair" : "default";
+        }
+        setStatus(
+          active
+            ? "Eraser ON – click paths in the SVG preview to delete them."
+            : "Eraser OFF.",
+          "idle"
+        );
+      }
+
+      eraserToggleBtn.addEventListener("click", () => {
+        setEraserActive(!eraserActive);
+      });
+
+      svgContainer.addEventListener("click", (e) => {
+        if (!eraserActive || !currentSvgElement) return;
+        const target = e.target;
+        if (target.tagName && target.tagName.toLowerCase() === "path") {
+          const parent = target.parentNode;
+          parent.removeChild(target);
+          // Update stats + palette
+          syncCurrentSvgString();
+          analyzeSvg(currentSvgString);
+          const count = currentSvgElement.querySelectorAll("path").length;
+          traceMeta.innerHTML =
+            '<span class="dot"></span><span>SVG paths: ' + count + "</span>";
+          setStatus("Path deleted. No undo in this version, so choose wisely.", "idle");
+        }
+      });
+
+      // Snapshots
+      function syncCurrentSvgString() {
+        if (!currentSvgElement) return;
+        // Re-serialize current DOM state
+        const outer = currentSvgElement.outerHTML;
+        currentSvgString =
+          '<?xml version="1.0" standalone="no"?>\n' + outer;
+      }
+
+      function renderSnapshots() {
+        snapshotsList.innerHTML = "";
+        if (!snapshots.length) {
+          const empty = document.createElement("div");
+          empty.className = "palette-empty";
+          empty.textContent = "No snapshots saved yet.";
+          snapshotsList.appendChild(empty);
+          return;
+        }
+
+        snapshots.forEach((snap, idx) => {
+          const row = document.createElement("div");
+          row.className = "snapshot-row";
+
+          const main = document.createElement("div");
+          main.className = "snapshot-main";
+
+          const title = document.createElement("div");
+          title.className = "snapshot-title";
+          title.textContent = snap.label;
+
+          const meta = document.createElement("div");
+          meta.className = "snapshot-meta";
+          meta.textContent =
+            "Colors " +
+            snap.settings.colors +
+            " • Detail " +
+            snap.settings.detail +
+            " • Cleanup " +
+            snap.settings.cleanup;
+
+          main.appendChild(title);
+          main.appendChild(meta);
+
+          const actions = document.createElement("div");
+          actions.className = "snapshot-actions";
+
+          const loadBtn = document.createElement("button");
+          loadBtn.type = "button";
+          loadBtn.className = "btn-secondary btn-xxs";
+          loadBtn.textContent = "Load";
+          loadBtn.addEventListener("click", () => {
+            // Load settings + SVG
+            colorsSlider.value = snap.settings.colors;
+            detailSlider.value = snap.settings.detail;
+            cleanupSlider.value = snap.settings.cleanup;
+            scaleInput.value = snap.settings.scale;
+            blurToggle.checked = snap.settings.blur;
+            syncSliderLabels();
+
+            currentSvgString = snap.svg;
+            injectSvg(snap.svg);
+            analyzeSvg(snap.svg);
+            traceTime.textContent = "Loaded snapshot";
+            saveSnapshotBtn.disabled = false;
+            setStatus("Snapshot loaded.", "idle");
+          });
+
+          const dlBtn = document.createElement("button");
+          dlBtn.type = "button";
+          dlBtn.className = "btn-secondary btn-xxs";
+          dlBtn.textContent = "Download";
+          dlBtn.addEventListener("click", () => {
+            downloadSvg(snap.svg, snap.label.replace(/\s+/g, "_") + ".svg");
+          });
+
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "btn-secondary btn-xxs";
+          delBtn.textContent = "✕";
+          delBtn.addEventListener("click", () => {
+            snapshots.splice(idx, 1);
+            renderSnapshots();
+          });
+
+          actions.appendChild(loadBtn);
+          actions.appendChild(dlBtn);
+          actions.appendChild(delBtn);
+
+          row.appendChild(main);
+          row.appendChild(actions);
+          snapshotsList.appendChild(row);
+        });
+      }
+
+      saveSnapshotBtn.addEventListener("click", () => {
+        if (!currentSvgElement || !currentSvgString) return;
+        syncCurrentSvgString();
+
+        const labelDefault =
+          (currentFileName
+            ? currentFileName.replace(/\.[^.]+$/, "")
+            : "trace") +
+          " #" +
+          snapshotCounter;
+        const label = prompt("Snapshot name:", labelDefault);
+        if (!label) return;
+
+        const snap = {
+          id: snapshotCounter++,
+          label: label,
+          svg: currentSvgString,
+          settings: {
+            colors: parseInt(colorsSlider.value, 10),
+            detail: parseInt(detailSlider.value, 10),
+            cleanup: parseInt(cleanupSlider.value, 10),
+            scale: parseFloat(scaleInput.value) || 1,
+            blur: blurToggle.checked
+          }
+        };
+        snapshots.push(snap);
+        renderSnapshots();
+        setStatus("Snapshot “" + label + "” saved.", "idle");
+      });
+
+      // Batch processing
+      batchRunBtn.addEventListener("click", () => {
+        const files = batchInput.files;
+        if (!files || !files.length) {
+          batchStatus.textContent = "No batch files selected.";
+          return;
+        }
+        if (typeof ImageTracer === "undefined") {
+          batchStatus.textContent =
+            "Tracing engine not available. Check imagetracer script.";
+          return;
+        }
+        runBatch(Array.from(files));
+      });
+
+      function runBatch(files) {
+        const total = files.length;
+        let index = 0;
+        batchStatus.textContent =
+          "Batch started: " + total + " file(s). This will trigger " +
+          "one SVG download per image.";
+
+        const options = buildTraceOptions();
+
+        function next() {
+          if (index >= total) {
+            batchStatus.textContent = "Batch complete: " + total + " file(s) processed.";
+            return;
+          }
+          const file = files[index];
+          index++;
+
+          const reader = new FileReader();
+          reader.onload = function (evt) {
+            const img = new Image();
+            img.onload = function () {
+              const maxDim = 1200;
+              let width = img.width;
+              let height = img.height;
+              const scale = Math.min(1, maxDim / Math.max(width, height));
+              width = Math.round(width * scale);
+              height = Math.round(height * scale);
+
+              const canvas = document.createElement("canvas");
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext("2d");
+              ctx.clearRect(0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
+
+              const imgData = ctx.getImageData(0, 0, width, height);
+
+              try {
+                const svgstr = ImageTracer.imagedataToSVG(imgData, options);
+                const base = file.name || "trace";
+                const outName = base.replace(/\.[^.]+$/, "") + "_trace.svg";
+                downloadSvg(svgstr, outName);
+
+                batchStatus.textContent =
+                  "Batch progress: " + index + " / " + total;
+              } catch (err) {
+                console.error(err);
+                batchStatus.textContent =
+                  "Error while tracing " + file.name + ". Continuing...";
+              } finally {
+                // Move to next file
+                setTimeout(next, 80);
+              }
+            };
+            img.onerror = function () {
+              batchStatus.textContent =
+                "Failed to load " + file.name + ". Skipping.";
+              setTimeout(next, 80);
+            };
+            img.src = evt.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+
+        next();
+      }
+
+      // Reset
+      function resetAll() {
+        currentImgData = null;
+        currentSvgString = null;
+        currentSvgElement = null;
+        currentFileName = null;
+        eraserActive = false;
+        setEraserActive(false);
+
+        origCanvas.width = 0;
+        origCanvas.height = 0;
+        origCanvas.style.display = "none";
+        origPlaceholder.style.display = "block";
+        origMeta.textContent = "";
+
+        svgContainer.innerHTML = "";
+        svgPlaceholder.style.display = "block";
+
+        paletteList.innerHTML =
+          '<div class="palette-empty">Trace an image to inspect and toggle color layers.</div>';
+
+        colorsSlider.value = 12;
+        detailSlider.value = 3;
+        cleanupSlider.value = 4;
+        scaleInput.value = 1;
+        blurToggle.checked = false;
+        syncSliderLabels();
+
+        downloadSvgBtn.disabled = true;
+        downloadPngBtn.disabled = true;
+        saveSnapshotBtn.disabled = true;
+        traceMeta.innerHTML =
+          '<span class="dot"></span><span>SVG paths: —</span>';
+        traceTime.textContent = "Last trace: —";
+
+        setStatus("Reset complete. Load a new image to start again.", "idle");
+      }
+
+      traceBtn.addEventListener("click", performTrace);
+      resetBtn.addEventListener("click", resetAll);
+
+      // Initial state
+      setStatus("Load a PNG/JPG to begin tracing.", "idle");
+      renderSnapshots();
+    })();
+  </script>
+</body>
+</html>

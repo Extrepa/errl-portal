@@ -5,12 +5,12 @@ import { resolvePortalPageUrl } from '../utils/portalPaths';
 import StudioShell from '@studio/app/layout/StudioShell';
 import { Badge } from '@/components/ui/badge';
 
-const LEGACY_PIN_DESIGNER_URL = resolvePortalPageUrl('pages/pin-designer/index.html');
-
 export default function StudioPinDesigner() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   useLegacyAssetBridge(iframeRef);
-  const legacyUrl = useMemo(() => LEGACY_PIN_DESIGNER_URL, []);
+  const legacyUrl = useMemo(() => {
+    return resolvePortalPageUrl('pages/pin-designer/index.html');
+  }, []);
   const breadcrumbs = [
     { label: 'Errl Hub', to: '/' },
     { label: 'Pin Designer' },

@@ -61,7 +61,7 @@ test.describe('Core Portal Tests', () => {
       return links.every((el) => {
         const href = el.getAttribute('href') || '';
         if (href.startsWith('/studio')) return true;
-        return /\/legacy\/portal\/pages\//.test(href);
+        return /\/portal\/pages\//.test(href);
       });
     });
     
@@ -71,14 +71,14 @@ test.describe('Core Portal Tests', () => {
     for (const handle of await navLinks.elementHandles()) {
       const href = await handle.getAttribute('href');
       if (!href || href.startsWith('/studio')) continue;
-      expect(href).toMatch(/\/legacy\/portal\/pages\//);
+      expect(href).toMatch(/\/portal\/pages\//);
     }
 
     const studioHref = await page.locator('#navOrbit a', { hasText: 'Studio' }).first().getAttribute('href');
     expect(studioHref).toBe('/studio/');
 
     const colorizerSrc = await page.locator('#colorizerFrame').getAttribute('src');
-    expect(colorizerSrc).toBe('/legacy/portal/pages/studio/svg-colorer/index.html');
+    expect(colorizerSrc).toBe('/portal/pages/studio/svg-colorer/index.html');
   });
 
   test('@ui WebGL canvas exists and renders', async ({ page, baseURL }) => {

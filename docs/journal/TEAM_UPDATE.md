@@ -159,8 +159,8 @@ Hue controller (`src/fx/hue-controller.ts`) spans the entire stack: applies CSS 
 
 - Added five standalone visual effects with no external libs (Gravity Sticker Field, Ripple Face w/ updated Errl face SVG, Sparkle Worklet Pin with CSS Paint Worklet + fallback, Bubble Mouse Trail, Holographic Cursor Trail).
 - Each effect ships as:
-  - Standalone HTML (file:// ready) in `public/apps/projects/_single-file/`
-  - Portal variant under `public/apps/projects/<slug>/`
+  - Standalone HTML (file:// ready) in `archive/legacy/standalone-pages/apps/projects/_single-file/`
+  - Portal variant under `archive/legacy/standalone-pages/apps/projects/<slug>/`
   - Optional React wrapper under `src/apps/projects/<slug>/`
 - New Studio route: `/studio/projects` with an embedded page listing and rendering the five effects.
 - Accessibility: all effects respect `prefers-reduced-motion`; performance guards added (DPR-aware canvas, visibility cleanup, spawn caps).
