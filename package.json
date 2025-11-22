@@ -3,11 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
     "start": "npm run portal:dev",
     "portal:dev": "vite",
     "portal:build": "vite build",
-    "portal:preview": "vite preview",
+    "portal:preview": "electron electron/main.js",
+    "portal:preview:dev": "NODE_ENV=development electron electron/main.js",
     "portal:backup": "bash tools/portal/backup-dist.sh",
     "portal:doctor:build": "bash tools/portal/doctor-build.sh",
     "portal:doctor:deps": "bash tools/portal/doctor-deps.sh",
@@ -37,7 +39,7 @@
     "studio:stop": "bash tools/portal/stop-studio.sh",
     "studio:logs": "bash tools/portal/logs-studio.sh",
     "studio:build": "vite build --config vite.studio.config.ts",
-    "studio:preview": "vite preview --config vite.studio.config.ts",
+    "studio:preview": "electron electron/main.js --studio",
     "precommit": "npm run typecheck && npm test && npm run portal:build"
   },
   "dependencies": {
@@ -63,7 +65,9 @@
     "autoprefixer": "^10.4.19",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "mime-types": "^2.1.35",
     "multer": "^2.0.2",
+    "electron": "^33.0.0",
     "tailwindcss": "^3.4.13",
     "tsx": "^4.19.2",
     "typescript": "^5.4.0",

@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Errl Portal</title>
+  <base href="%BASE_URL%">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./apps/landing/styles/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./apps/landing/fx/effects.css" />
+  <link rel="stylesheet" href="./apps/landing/fx/hue-effects.css" />
+  <link rel="stylesheet" href="./apps/landing/fx/errl-bg.css" />
+  <script type="module" src="./apps/landing/scripts/assets.js"></script>
+  <!-- Debug harness: runtime layer toggles (safe no-op unless used) -->
+  <script type="module" src="./apps/static/dev/debug.ts"></script>
+</head>
+<body data-errlMode="stable" class="errl-dark">
+  <!-- Background shimmer via ErrlBG -->
+  <canvas id="bgParticles"></canvas>
+  <!-- Rising bubbles (Stable mode + fallback) -->
+  <canvas id="riseBubbles"></canvas>
+
+  <!-- WebGL layer (hidden in Stable mode) -->
+  
+  <!-- WebGL layer (hidden in Stable mode) -->
+  <canvas id="errlWebGL" class="errl-webgl-layer"></canvas>
+  
+  <!-- Main scene -->
+  <div class="scene-layer">
+    <!-- Goo aura (CSS version, sits behind Errl) -->
+    <div class="errl-goo" id="errlGoo" style="display:none"></div>
+
+    <!-- Errl (painted SVG as center) -->
+    <div class="errl-wrapper" id="errl">
+      <div id="errlAuraMask" class="errl-aura-mask" style="filter:url(#errlGooFX); display:none"></div>
+      <!-- Inline SVG clone (hidden) for WebGL texture serialization under file:// to avoid CORS issues -->
+      <div style="display:none">
+        <svg id="errlInlineSVG" viewBox="-122.75999999999999 -122.75999999999999 1725.52 2291.52" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="1726" height="2292">
+          <defs>
+            <filter id="gitd"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <g id="region-body"><path data-region="body" d="M717 0 L716 1 L696 1 L695 2 L682 2 L681 3 L671 3 L670 4 L661 4 L660 5 L653 5 L652 6 L645 6 L644 7 L638 7 L637 8 L631 8 L630 9 L624 9 L623 10 L618 10 L617 11 L612 11 L611 12 L606 12 L605 13 L601 13 L600 14 L596 14 L595 15 L590 15 L589 16 L585 16 L584 17 L581 17 L580 18 L577 18 L576 19 L572 19 L571 20 L568 20 L567 21 L564 21 L563 22 L560 22 L559 23 L556 23 L555 24 L553 24 L552 25 L549 25 L548 26 L545 26 L544 27 L542 27 L541 28 L538 28 L537 29 L535 29 L534 30 L532 30 L531 31 L528 31 L527 32 L525 32 L524 33 L521 33 L520 34 L518 34 L517 35 L515 35 L514 36 L512 36 L511 37 L508 37 L507 38 L505 38 L504 39 L503 39 L502 40 L500 40 L499 41 L497 41 L496 42 L494 42 L493 43 L491 43 L490 44 L488 44 L487 45 L486 45 L485 46 L483 46 L482 47 L480 47 L479 48 L478 48 L477 49 L475 49 L474 50 L473 50 L472 51 L470 51 L469 52 L468 52 L467 53 L465 53 L464 54 L462 54 L461 55 L460 55 L459 56 L458 56 L457 57 L455 57 L454 58 L453 58 L452 59 L450 59 L449 60 L448 60 L447 61 L446 61 L445 62 L443 62 L442 63 L441 63 L440 64 L439 64 L438 65 L437 65 L436 66 L434 66 L433 67 L432 67 L431 68 L430 68 L429 69 L428 69 L427 70 L426 70 L425 71 L424 71 L423 72 L422 72 L421 73 L420 73 L419 74 L418 74 L417 75 L416 75 L415 76 L414 76 L413 77 L411 77 L409 79 L407 79 L406 80 L405 80 L404 81 L403 81 L402 82 L401 82 L400 83 L399 83 L397 85 L396 85 L395 86 L394 86 L393 87 L392 87 L391 88 L390 88 L389 89 L388 89 L387 90 L386 90 L384 92 L383 92 L382 93 L381 93 L380 94 L379 94 L377 96 L376 96 L375 97 L374 97 L373 98 L372 98 L371 99 L370 99 L368 101 L367 101 L366 102 L365 102 L364 103 L363 103 L361 105 L360 105 L359 106 L358 106 L356 108 L355 108 L353 110 L352 110 L351 111 L350 111 L348 113 L347 113 L345 115 L344 115 L343 116 L342 116 L340 118 L339 118 L337 120 L336 120 L334 122 L333 122 L332 123 L331 123 L328 126 L327 126 L325 128 L324 128 L322 130 L321 130 L319 132 L318 132 L315 135 L314 135 L312 137 L311 137 L308 140 L307 140 L305 142 L304 142 L301 145 L300 145 L298 147 L297 147 L293 151 L292 151 L289 154 L288 154 L285 157 L284 157 L280 161 L279 161 L275 165 L274 165 L269 170 L268 170 L264 174 L263 174 L257 180 L256 180 L249 187 L248 187 L239 196 L238 196 L197 237 L197 238 L188 247 L188 248 L180 256 L180 257 L175 262 L175 263 L169 269 L169 270 L165 274 L165 275 L161 279 L161 280 L157 284 L157 285 L154 288 L154 289 L151 292 L151 293 L148 296 L148 297 L145 300 L145 301 L142 304 L142 305 L140 307 L140 308 L137 311 L137 312 L134 315 L134 316 L132 318 L132 319 L130 321 L130 322 L128 324 L128 325 L125 328 L125 329 L124 330 L124 331 L122 333 L122 334 L120 336 L120 337 L118 339 L118 340 L116 342 L116 343 L115 344 L115 345 L113 347 L113 348 L111 350 L111 351 L110 352 L110 353 L108 355 L108 356 L106 358 L106 359 L105 360 L105 361 L103 363 L103 364 L102 365 L102 366 L100 368 L100 369 L99 370 L99 371 L98 372 L98 373 L97 374 L97 375 L95 377 L95 378 L94 379 L94 380 L93 381 L93 382 L92 383 L92 384 L90 386 L90 387 L89 388 L89 389 L88 390 L88 391 L87 392 L87 393 L86 394 L86 395 L84 397 L84 398 L83 399 L83 401 L81 403 L81 404 L80 405 L80 406 L79 407 L79 408 L78 409 L78 410 L77 411 L77 412 L76 413 L76 415 L75 416 L75 417 L74 418 L74 419 L73 420 L73 421 L72 422 L72 423 L71 424 L71 425 L70 426 L70 427 L69 428 L69 429 L68 430 L68 431 L67 432 L67 433 L66 434 L66 436 L65 437 L65 438 L64 439 L64 440 L63 441 L63 442 L62 443 L62 445 L61 446 L61 447 L60 448 L60 449 L59 450 L59 452 L58 453 L58 454 L57 455 L57 456 L56 457 L56 459 L55 460 L55 461 L54 462 L54 464 L53 465 L53 467 L52 468 L52 469 L51 470 L51 472 L50 473 L50 474 L49 475 L49 477 L48 478 L48 479 L47 480 L47 482 L46 483 L46 485 L45 486 L45 487 L44 488 L44 490 L43 491 L43 493 L42 494 L42 496 L41 497 L41 499 L40 500 L40 501 L39 502 L39 504 L38 505 L38 507 L37 508 L37 511 L36 512 L36 514 L35 515 L35 517 L34 518 L34 520 L33 521 L33 523 L32 524 L32 527 L31 528 L31 530 L30 531 L30 534 L29 535 L29 537 L28 538 L28 541 L27 542 L27 544 L26 545 L26 548 L25 549 L25 551 L24 552 L24 555 L23 556 L23 559 L22 560 L22 563 L21 564 L21 567 L20 568 L20 571 L19 572 L19 575 L18 576 L18 580 L17 581 L17 585 L16 586 L16 589 L15 590 L15 594 L14 595 L14 600 L13 601 L13 605 L12 606 L12 611 L11 612 L11 617 L10 618 L10 623 L9 624 L9 630 L8 631 L8 636 L7 637 L7 644 L6 645 L6 652 L5 653 L5 660 L4 661 L4 670 L3 671 L3 681 L2 682 L2 696 L1 697 L1 717 L0 718 L0 763 L1 764 L1 785 L2 786 L2 799 L3 800 L3 810 L4 811 L4 820 L5 821 L5 828 L6 829 L6 836 L7 837 L7 843 L8 844 L8 850 L9 851 L9 857 L10 858 L10 863 L11 864 L11 869 L12 870 L12 875 L13 876 L13 880 L14 881 L14 885 L15 886 L15 890 L16 891 L16 895 L17 896 L17 900 L18 901 L18 904 L19 905 L19 909 L20 910 L20 913 L21 914 L21 917 L22 918 L22 921 L23 922 L23 925 L24 926 L24 928 L25 929 L25 932 L26 933 L26 936 L27 937 L27 939 L28 940 L28 943 L29 944 L29 946 L30 947 L30 950 L31 951 L31 953 L32 954 L32 956 L33 957 L33 960 L34 961 L34 963 L35 964 L35 966 L36 967 L36 969 L37 970 L37 972 L38 973 L38 975 L39 976 L39 978 L40 979 L40 981 L41 982 L41 984 L42 985 L42 987 L43 988 L43 990 L44 991 L44 993 L45 994 L45 995 L46 996 L46 998 L47 999 L47 1000 L48 1001 L48 1003 L49 1004 L49 1006 L50 1007 L50 1008 L51 1009 L51 1011 L52 1012 L52 1013 L53 1014 L53 1016 L54 1017 L54 1018 L55 1019 L55 1021 L56 1022 L56 1024 L57 1025 L57 1026 L58 1027 L58 1028 L59 1029 L59 1031 L60 1032 L60 1033 L61 1034 L61 1035 L62 1036 L62 1038 L63 1039 L63 1040 L64 1041 L64 1042 L65 1043 L65 1044 L66 1045 L66 1046 L67 1047 L67 1049 L68 1050 L68 1051 L69 1052 L69 1053 L70 1054 L70 1055 L71 1056 L71 1057 L72 1058 L72 1059 L73 1060 L73 1061 L74 1062 L74 1063 L75 1064 L75 1065 L76 1066 L76 1068 L77 1069 L77 1070 L78 1071 L78 1072 L79 1073 L79 1074 L81 1076 L81 1077 L82 1078 L82 1080 L84 1082 L84 1083 L85 1084 L85 1085 L86 1086 L86 1087 L87 1088 L87 1089 L88 1090 L88 1091 L89 1092 L89 1093 L91 1095 L91 1096 L92 1097 L92 1098 L93 1099 L93 1104 L94 1105 L94 1111 L95 1112 L95 1118 L96 1119 L96 1125 L97 1126 L97 1133 L98 1134 L98 1141 L99 1142 L99 1150 L100 1151 L100 1161 L101 1162 L101 1172 L102 1173 L102 1185 L103 1186 L103 1200 L104 1201 L104 1221 L105 1222 L105 1295 L104 1296 L104 1317 L103 1318 L103 1440 L104 1441 L104 1518 L105 1519 L105 1557 L106 1558 L106 1563 L107 1564 L107 1568 L108 1569 L108 1571 L109 1572 L109 1574 L110 1575 L110 1577 L111 1578 L111 1579 L112 1580 L112 1581 L113 1582 L113 1583 L114 1584 L114 1585 L115 1586 L115 1587 L117 1589 L117 1590 L119 1592 L119 1593 L121 1595 L121 1596 L133 1608 L134 1608 L137 1611 L138 1611 L139 1612 L140 1612 L142 1614 L143 1614 L144 1615 L145 1615 L146 1616 L147 1616 L148 1617 L149 1617 L150 1618 L151 1618 L152 1619 L154 1619 L155 1620 L157 1620 L158 1621 L161 1621 L162 1622 L166 1622 L167 1623 L177 1623 L178 1624 L182 1624 L183 1623 L192 1623 L193 1622 L197 1622 L198 1621 L200 1621 L201 1620 L203 1620 L204 1619 L206 1619 L207 1618 L209 1618 L210 1617 L211 1617 L212 1616 L213 1616 L214 1615 L215 1615 L216 1614 L217 1614 L219 1612 L220 1612 L222 1610 L223 1610 L227 1606 L228 1606 L236 1598 L236 1597 L240 1593 L240 1592 L242 1590 L242 1589 L243 1588 L243 1587 L245 1585 L245 1584 L246 1583 L246 1582 L247 1581 L247 1579 L248 1578 L248 1577 L249 1576 L249 1574 L250 1573 L250 1571 L251 1570 L251 1567 L252 1566 L252 1562 L253 1561 L253 1548 L254 1547 L254 1509 L255 1508 L255 1465 L256 1464 L256 1408 L257 1407 L257 1343 L258 1342 L258 1338 L259 1337 L259 1332 L260 1331 L260 1327 L261 1326 L261 1325 L262 1324 L262 1323 L265 1320 L266 1320 L267 1319 L269 1319 L270 1318 L273 1318 L274 1319 L276 1319 L277 1320 L278 1320 L280 1322 L281 1322 L288 1329 L288 1330 L289 1331 L289 1332 L290 1333 L290 1334 L291 1335 L291 1336 L292 1337 L292 1339 L293 1340 L293 1414 L294 1415 L293 1416 L293 1425 L294 1426 L294 1562 L295 1563 L295 1645 L296 1646 L296 1710 L297 1711 L296 1712 L297 1713 L297 1767 L298 1768 L298 1813 L299 1814 L299 1858 L300 1859 L300 1896 L301 1897 L301 1910 L302 1911 L302 1914 L303 1915 L303 1918 L304 1919 L304 1920 L305 1921 L305 1923 L306 1924 L306 1926 L307 1927 L307 1928 L308 1929 L308 1931 L309 1932 L309 1933 L310 1934 L310 1935 L311 1936 L311 1937 L312 1938 L312 1939 L313 1940 L313 1941 L314 1942 L314 1943 L315 1944 L315 1945 L316 1946 L316 1947 L317 1948 L317 1949 L319 1951 L319 1952 L321 1954 L321 1955 L323 1957 L323 1958 L326 1961 L326 1962 L330 1966 L330 1967 L346 1983 L347 1983 L351 1987 L352 1987 L355 1990 L356 1990 L358 1992 L359 1992 L361 1994 L362 1994 L363 1995 L364 1995 L366 1997 L367 1997 L368 1998 L369 1998 L370 1999 L371 1999 L372 2000 L373 2000 L374 2001 L375 2001 L376 2002 L377 2002 L378 2003 L379 2003 L380 2004 L381 2004 L382 2005 L383 2005 L384 2006 L386 2006 L387 2007 L388 2007 L389 2008 L391 2008 L392 2009 L395 2009 L396 2010 L398 2010 L399 2011 L402 2011 L403 2012 L406 2012 L407 2013 L411 2013 L412 2014 L418 2014 L419 2015 L433 2015 L434 2016 L439 2016 L440 2015 L453 2015 L454 2014 L459 2014 L460 2013 L465 2013 L466 2012 L469 2012 L470 2011 L473 2011 L474 2010 L477 2010 L478 2009 L480 2009 L481 2008 L483 2008 L484 2007 L485 2007 L486 2006 L488 2006 L489 2005 L490 2005 L491 2004 L492 2004 L493 2003 L494 2003 L495 2002 L497 2002 L498 2001 L499 2001 L500 2000 L501 2000 L503 1998 L504 1998 L505 1997 L506 1997 L508 1995 L509 1995 L510 1994 L511 1994 L513 1992 L514 1992 L516 1990 L517 1990 L520 1987 L521 1987 L525 1983 L526 1983 L542 1967 L542 1966 L547 1961 L547 1960 L549 1958 L549 1957 L551 1955 L551 1954 L553 1952 L553 1951 L555 1949 L555 1948 L556 1947 L556 1946 L557 1945 L557 1944 L558 1943 L558 1942 L559 1941 L559 1940 L561 1938 L561 1936 L562 1935 L562 1934 L563 1933 L563 1932 L564 1931 L564 1930 L565 1929 L565 1927 L566 1926 L566 1924 L567 1923 L567 1922 L568 1921 L568 1919 L569 1918 L569 1915 L570 1914 L570 1912 L571 1911 L571 1907 L572 1906 L572 1902 L573 1901 L573 1895 L574 1894 L574 1883 L575 1882 L575 1872 L574 1871 L574 1860 L573 1859 L573 1593 L574 1592 L574 1547 L573 1546 L573 1529 L574 1528 L574 1507 L575 1506 L575 1495 L576 1494 L576 1486 L577 1485 L577 1483 L578 1482 L578 1480 L579 1479 L579 1478 L580 1477 L580 1476 L586 1470 L587 1470 L588 1469 L589 1469 L590 1468 L592 1468 L593 1467 L619 1467 L620 1468 L627 1468 L628 1469 L632 1469 L633 1470 L636 1470 L637 1471 L645 1471 L646 1472 L655 1472 L656 1473 L666 1473 L667 1474 L678 1474 L679 1475 L693 1475 L694 1476 L711 1476 L712 1477 L744 1477 L745 1478 L781 1478 L782 1477 L807 1477 L808 1476 L821 1476 L822 1475 L843 1475 L844 1474 L855 1474 L856 1475 L864 1475 L865 1476 L866 1476 L869 1479 L869 1480 L870 1481 L870 1482 L871 1483 L871 1484 L872 1485 L872 1489 L873 1490 L873 1674 L874 1675 L874 1677 L873 1678 L873 1680 L874 1681 L874 1766 L875 1767 L874 1768 L874 1769 L875 1770 L875 1771 L874 1772 L875 1773 L875 1842 L876 1843 L876 1911 L877 1912 L876 1913 L877 1914 L877 1957 L878 1958 L878 1963 L879 1964 L879 1968 L880 1969 L880 1972 L881 1973 L881 1975 L882 1976 L882 1978 L883 1979 L883 1981 L884 1982 L884 1984 L885 1985 L885 1986 L886 1987 L886 1988 L887 1989 L887 1990 L888 1991 L888 1992 L889 1993 L889 1994 L891 1996 L891 1997 L892 1998 L892 1999 L894 2001 L894 2002 L896 2004 L896 2005 L900 2009 L900 2010 L913 2023 L914 2023 L917 2026 L918 2026 L920 2028 L921 2028 L923 2030 L924 2030 L926 2032 L927 2032 L928 2033 L929 2033 L930 2034 L931 2034 L932 2035 L933 2035 L934 2036 L935 2036 L936 2037 L937 2037 L938 2038 L940 2038 L941 2039 L943 2039 L944 2040 L945 2040 L946 2041 L949 2041 L950 2042 L952 2042 L953 2043 L956 2043 L957 2044 L962 2044 L963 2045 L975 2045 L976 2046 L978 2046 L979 2045 L1005 2045 L1006 2046 L1032 2046 L1033 2045 L1036 2045 L1037 2044 L1039 2044 L1040 2043 L1041 2043 L1042 2042 L1044 2042 L1045 2041 L1046 2041 L1047 2040 L1048 2040 L1049 2039 L1050 2039 L1052 2037 L1053 2037 L1054 2036 L1055 2036 L1058 2033 L1059 2033 L1071 2021 L1071 2020 L1074 2017 L1074 2016 L1076 2014 L1076 2013 L1077 2012 L1077 2011 L1079 2009 L1079 2008 L1080 2007 L1080 2006 L1081 2005 L1081 2004 L1082 2003 L1082 2002 L1083 2001 L1083 2000 L1084 1999 L1084 1998 L1085 1997 L1085 1996 L1086 1995 L1086 1994 L1087 1993 L1087 1991 L1088 1990 L1088 1989 L1089 1988 L1089 1986 L1090 1985 L1090 1984 L1091 1983 L1091 1981 L1092 1980 L1092 1977 L1093 1976 L1093 1974 L1094 1973 L1094 1970 L1095 1969 L1095 1966 L1096 1965 L1096 1960 L1097 1959 L1097 1954 L1098 1953 L1098 1886 L1099 1885 L1099 1771 L1100 1770 L1100 1768 L1099 1767 L1100 1766 L1099 1765 L1100 1764 L1099 1763 L1100 1762 L1099 1761 L1100 1760 L1100 1681 L1099 1680 L1100 1679 L1099 1678 L1100 1677 L1099 1676 L1100 1675 L1099 1674 L1100 1673 L1100 1663 L1099 1662 L1099 1498 L1100 1497 L1100 1442 L1101 1441 L1101 1406 L1102 1405 L1102 1400 L1103 1399 L1103 1397 L1104 1396 L1104 1395 L1105 1394 L1105 1392 L1107 1390 L1107 1389 L1116 1380 L1117 1380 L1118 1379 L1119 1379 L1120 1378 L1126 1378 L1127 1379 L1128 1379 L1129 1380 L1130 1380 L1134 1384 L1134 1385 L1135 1386 L1135 1388 L1136 1389 L1136 1391 L1137 1392 L1137 1397 L1138 1398 L1138 1579 L1139 1580 L1139 1635 L1140 1636 L1140 1660 L1141 1661 L1141 1665 L1142 1666 L1142 1669 L1143 1670 L1143 1672 L1144 1673 L1144 1675 L1150 1685 Z" fill="#000" stroke="#e5eef7" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <!-- Visible IMG for Errl (classic goo applies here) -->
+      <img src="./shared/assets/portal/L4_Central/errl-body-with-limbs.svg" alt="Errl — full body with limbs" id="errlCenter" class="errl-svg" />
+      <div id="errlPool" class="errl-pool" style="filter:url(#poolRipple)"></div>
+    </div>
+
+    <!-- Orbiting nav bubbles (7 visible + 1 hidden) -->
+    <div id="navOrbit" class="nav-orbit">
+      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="/portal/pages/about/index.html" data-portal-link="pages/about/index.html"><span class="label">About</span></a>
+      <a class="bubble menuOrb" data-angle="260" data-dist="175" href="/portal/pages/gallery/index.html" data-portal-link="pages/gallery/index.html"><span class="label">Gallery</span></a>
+      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="/portal/pages/assets/index.html" data-portal-link="pages/assets/index.html"><span class="label">Assets</span></a>
+      <a class="bubble menuOrb" data-angle="20"  data-dist="200" href="/studio.html"><span class="label">Studio</span></a>
+      <a class="bubble menuOrb" data-angle="75"  data-dist="150" href="/studio/pin-designer"><span class="label">Design</span></a>
+      <a class="bubble menuOrb" data-angle="120" data-dist="165" href="/portal/pages/events/index.html" id="eventsBubble" data-portal-link="pages/events/index.html"><span class="label">Events</span></a>
+      <a class="bubble menuOrb" data-angle="160" data-dist="185" href="/portal/pages/merch/index.html" id="merchBubble" data-portal-link="pages/merch/index.html"><span class="label">Merch</span></a>
+      <a class="bubble menuOrb hidden-bubble" data-angle="180" data-dist="190" href="/portal/pages/games/index.html" id="gamesBubble" style="display:none;" data-portal-link="pages/games/index.html"><span class="label">Games</span></a>
+    </div>
+  </div>
+
+      <!-- SVG defs: Nav Goo filter -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <filter id="uiGoo" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" id="navGooBlurNode" />
+        <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -14" result="goo" id="navGooMatrixNode" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+      </filter>
+      <!-- Errl goo/displacement filter (GL mask) -->
+      <filter id="errlGooFX" x="-50%" y="-50%" width="200%" height="200%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="2" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="26" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <!-- Classic CSS/SVG goo for Errl body with viscosity + drip support -->
+      <filter id="classicGoo" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+        <!-- base noise field -->
+        <feTurbulence id="classicGooNoise" type="fractalNoise" baseFrequency="0.005 0.008" numOctaves="2" seed="2" result="noise"/>
+        <!-- viscosity: smooth the noise before displacement -->
+        <feGaussianBlur id="classicGooVisc" in="noise" stdDeviation="0" edgeMode="duplicate" result="smoothNoise"/>
+        <!-- displace the source graphic by (smoothed) noise -->
+        <feDisplacementMap id="classicGooDisp" in="SourceGraphic" in2="smoothNoise" scale="10" xChannelSelector="R" yChannelSelector="G" result="distorted"/>
+        <!-- drip: bias downward offset -->
+        <feOffset id="classicGooDrip" in="distorted" dx="0" dy="0" result="drippy"/>
+        <feMerge>
+          <feMergeNode in="drippy"/>
+        </feMerge>
+      </filter>
+      <!-- Reflection ripple filter for pool -->
+      <filter id="poolRipple" x="-50%" y="-50%" width="200%" height="200%">
+        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="1" seed="5" result="wave"/>
+        <feDisplacementMap in="SourceGraphic" in2="wave" scale="14"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Control panel -->
+  <aside class="errl-panel minimized" id="errlPanel">
+    <div class="panel-header" id="errlPhoneHeader" title="Drag to move">
+      <div class="panel-title">ERRL PHONE</div>
+      <div class="panel-mode">
+        <button id="phoneMinToggle" title="Minimize">–</button>
+      </div>
+    </div>
+
+    <div class="panel-tabs" id="panelTabs">
+      <button data-tab="hud" class="tab tab-icon active" title="HUD" aria-label="HUD">HUD</button>
+      <button data-tab="errl" class="tab tab-icon" title="Errl" aria-label="Errl">Errl</button>
+      <button data-tab="nav" class="tab tab-icon" title="Nav" aria-label="Nav">Nav</button>
+      <button data-tab="rb" class="tab tab-icon" title="Rising Bubbles" aria-label="Rising Bubbles">RB</button>
+      <button data-tab="glb" class="tab tab-icon" title="GL Bubbles" aria-label="GL Bubbles">GLB</button>
+      <button data-tab="bg" class="tab tab-icon" title="Background" aria-label="Background">BG</button>
+      <button data-tab="dev" class="tab tab-icon" title="Developer" aria-label="Developer">DEV</button>
+      <button data-tab="hue" class="tab tab-icon" title="Hue" aria-label="Hue">Hue</button>
+    </div>
+
+    <div class="panel-section" data-tab="bg">
+      <div class="sectionLabel" title="Background decorations">Background</div>
+      <!-- Shimmer, Vignette, and GL Overlay removed -->
+    </div>
+
+    <!-- Rising Bubbles (Canvas) -->
+    <div class="panel-section" data-tab="rb">
+      <div class="sectionLabel" title="Canvas particle bubbles rising behind the scene">Rising Bubbles (Canvas)</div>
+      <div class="sliderRow"><label for="rbAttract" title="Pointer attracts/repels bubbles">Attract</label><input type="checkbox" id="rbAttract" checked title="Toggle attraction/repulsion"> <label for="rbAttractIntensity" title="Attract effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.0" id="rbAttractIntensity" title="How strong the attraction/repulsion effect is"></div>
+      <div class="sliderRow"><label for="rbRipples" title="Show water-like ripples on click">Ripples</label><input type="checkbox" id="rbRipples" title="Toggle ripple effect"> <label for="rbRippleIntensity" title="Ripple effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.2" id="rbRippleIntensity" title="How visible and strong the ripple effect is"></div>
+      <div class="sliderRow"><label for="rbSpeed" title="How fast bubbles rise">Speed</label><input type="range" min="0" max="3" step="0.01" value="1" id="rbSpeed" title="Bubble rise speed"></div>
+      <div class="sliderRow"><label for="rbDensity" title="How many bubbles appear">Density</label><input type="range" min="0" max="2" step="0.01" value="1" id="rbDensity" title="Bubble density"></div>
+      <div class="sliderRow"><label for="rbAlpha" title="Opacity of the bubbles">Alpha</label><input type="range" min="0" max="1" step="0.01" value="0.95" id="rbAlpha" title="Bubble opacity"></div>
+    </div>
+    <div class="panel-section" data-tab="rb">
+      <div class="sectionLabel">RB Bubbles Advanced</div>
+      <div class="sliderRow"><label for="rbWobble" title="Side-to-side wiggle of bubbles as they rise">Wobble</label><input id="rbWobble" type="range" min="0" max="2" step="0.01" value="1"/></div>
+      <div class="sliderRow"><label for="rbFreq" title="How quickly wobble oscillates">Frequency</label><input id="rbFreq" type="range" min="0" max="2" step="0.01" value="1"/></div>
+      <div class="sliderRow"><label for="rbMin" title="Smallest bubble size">Min size</label><input id="rbMin" type="number" min="6" max="256" step="1" value="14" title="Smallest bubble size in pixels"/> <label for="rbMax" title="Largest bubble size">Max</label><input id="rbMax" type="number" min="6" max="256" step="1" value="36" title="Largest bubble size in pixels"/></div>
+      <div class="sliderRow"><label for="rbJumboPct" title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles.">Jumbo Percent</label><input id="rbJumboPct" type="range" min="0" max="0.6" step="0.01" value="0.1" title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles."/></div>
+      <div class="sliderRow"><label for="rbJumboScale" title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size.">Jumbo Scale</label><input id="rbJumboScale" type="range" min="1.0" max="2.5" step="0.05" value="1.6" title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size."/></div>
+      <div class="sliderRow"><label for="rbSizeHz" title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing.">Size Hertz</label><input id="rbSizeHz" type="range" min="0" max="1" step="0.01" value="0.0" title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing."/></div>
+      <div class="sectionDivider"></div>
+      <div class="sliderRow" style="justify-content:flex-end; gap:8px; flex-wrap:wrap">
+        <div style="display:flex; gap:4px">
+          <button id="rbAdvModeLoop" class="mini-bump" title="Loop">⟲</button>
+          <button id="rbAdvModePing" class="mini-bump" title="Ping-Pong">↔︎</button>
+        </div>
+        <label for="rbAdvAnimSpeed" style="width:auto; opacity:.8">Speed</label>
+        <input id="rbAdvAnimSpeed" class="speed-number" type="number" min="0.02" max="1.0" step="0.10" value="0.10" aria-label="Animation Speed"/>
+        <button id="rbAdvAnimate" class="btn-animate">Animate</button>
+      </div>
+    </div>
+
+    <!-- GL Background Bubbles (Particles) -->
+  <div class="panel-section" data-tab="glb">
+      <div class="sectionLabel">GL Particles (BG Bubbles)</div>
+      <div class="sliderRow">
+        <label for="bgSpeed" title="How fast the GPU bubble layer moves">Speed</label>
+        <input type="range" min="0" max="3" step="0.01" value="0.9" id="bgSpeed" title="Particle speed">
+      </div>
+      <div class="sliderRow">
+        <label for="bgDensity" title="How many particles are spawned">Density</label>
+        <input type="range" min="0" max="1.5" step="0.01" value="1.2" id="bgDensity" title="Particle count">
+      </div>
+      <div class="sliderRow">
+        <label for="glAlpha" title="Opacity of the GPU bubble layer">Alpha</label>
+        <input type="range" min="0" max="1" step="0.01" value="0.85" id="glAlpha" title="Particle alpha">
+      </div>
+      <div class="sliderRow" style="justify-content:flex-end"><button id="glbRandom">Randomize</button></div>
+    </div>
+
+    <div class="panel-section" data-tab="errl">
+      <div class="sectionLabel" title="Overall scale of the Errl image">Errl Size</div>
+      <div class="sliderRow"><label for="errlSize" title="Overall scale of Errl">Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1.0" title="Drag to scale Errl"></div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel">Errl Goo (wobble)</div>
+      <div class="sliderRow"><label for="classicGooEnabled">Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked></div>
+      <div class="sliderRow">
+        <label for="classicGooStrength" title="Amount of displacement wobble applied to the Errl shape">Displacement</label>
+        <div style="display:flex; align-items:center; gap:8px; flex:1;">
+          <input id="classicGooStrength" type="range" min="0" max="2" step="0.01" value="0.35" style="flex:1">
+          <label for="classicGooStrengthAuto" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for displacement">
+            <input type="checkbox" id="classicGooStrengthAuto"> Auto
+          </label>
+        </div>
+      </div>
+      <div class="sliderRow">
+        <label for="classicGooWobble" title="Oscillation amplitude of the wobble">Wobble</label>
+        <div style="display:flex; align-items:center; gap:8px; flex:1;">
+          <input id="classicGooWobble" type="range" min="0" max="2" step="0.01" value="0.55" style="flex:1">
+          <label for="classicGooWobbleAuto" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for wobble">
+            <input type="checkbox" id="classicGooWobbleAuto"> Auto
+          </label>
+        </div>
+      </div>
+      <div class="sliderRow">
+        <label for="classicGooSpeed" title="Rate of the internal classic SVG noise animation">Speed</label>
+        <div style="display:flex; align-items:center; gap:8px; flex:1;">
+          <input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="0.45" style="flex:1">
+          <label for="classicGooSpeedAuto" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for speed">
+            <input type="checkbox" id="classicGooSpeedAuto"> Auto
+          </label>
+        </div>
+      </div>
+      <div class="sliderRow">
+        <label for="classicGooAutoSpeed" title="Speed of the auto fade sweep">Auto Speed</label>
+        <input id="classicGooAutoSpeed" type="range" min="0.01" max="0.5" step="0.01" value="0.05">
+      </div>
+      <div class="sliderRow">
+        <label for="classicGooMouseReact" title="Let Errl goo respond to cursor proximity">Mouse Reactive</label>
+        <input type="checkbox" id="classicGooMouseReact">
+      </div>
+      <div class="sliderRow" style="justify-content:flex-end">
+        <button id="classicGooRandom">Random</button>
+      </div>
+    </div>
+
+    <div class="panel-section" data-tab="nav">
+      <div class="sectionLabel" title="Floating menu bubbles around Errl">Nav Bubbles</div>
+<div class="sliderRow">
+        <label for="navOrbitSpeed" title="How fast bubbles orbit around Errl">Orbit</label>
+<input type="range" min="0" max="2" step="0.01" value="1.0" id="navOrbitSpeed" title="Orbit speed">
+      </div>
+      <div class="sliderRow">
+        <label for="navRadius" title="Distance of bubbles from Errl">Radius</label>
+        <input type="range" min="0.6" max="1.6" step="0.01" value="1.2" id="navRadius" title="Orbit radius">
+      </div>
+      <div class="sliderRow">
+        <label for="navOrbSize" title="Overall size of nav bubbles">Size</label>
+        <input type="range" min="0.6" max="1.6" step="0.01" value="1.05" id="navOrbSize" title="Nav bubble size">
+      </div>
+      <div class="sliderRow">
+        <label for="glOrbsToggle" title="Show WebGL orb render layer (3D rendered orbs that sync with nav bubbles)">GL Orbs</label>
+        <input type="checkbox" id="glOrbsToggle" checked title="Toggle WebGL orb render layer (3D rendered orbs that sync with nav bubbles)">
+        <button id="rotateSkins" style="margin-left:auto" title="Cycle through fun orb textures (faces, patterns, etc.)">Rotate Skins</button>
+      </div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel" title="Advanced gooey blending for bubble group">Nav Goo+</div>
+      <div class="sliderRow"><label for="navWiggle" title="Elastic movement blend - how much bubbles wiggle as they move">Wiggle</label><input type="range" id="navWiggle" min="0" max="1" step="0.01" value="0.4" title="Elastic movement blend - how much bubbles wiggle as they move"></div>
+      <div class="sliderRow"><label for="navFlow" title="Motion scaling - speed of the flow animation">Flow Speed</label><input type="range" id="navFlow" min="0" max="2" step="0.01" value="0.8" title="Motion scaling - speed of the flow animation"></div>
+      <div class="sliderRow"><label for="navGrip" title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)">Grip</label><input type="range" id="navGrip" min="0" max="1" step="0.01" value="0.5" title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)"></div>
+      <div class="sliderRow"><label for="navDrip" title="Downward bias">Drip</label><input type="range" id="navDrip" min="-1" max="1" step="0.01" value="-0.5" title="Downward bias - makes bubbles sag downward"></div>
+      <div class="sliderRow"><label for="navVisc" title="How strongly blobs merge together">Viscosity</label><input type="range" id="navVisc" min="0" max="1" step="0.01" value="0.9" title="How strongly blobs merge together"></div>
+      <div class="sliderRow" style="justify-content:flex-end; gap:8px">
+        <button id="navSlowGradient" class="btn-animate" title="Apply slow color gradient animation">Slow Gradient</button>
+      </div>
+      <div class="sliderRow" style="justify-content:flex-end"><button id="navRandom">Randomize</button></div>
+    </div>
+
+    <div class="panel-section" data-tab="hud">
+      <div class="sectionLabel">Particles</div>
+      <button id="burstBtn">Burst</button>
+    </div>
+
+    <div class="panel-section" data-tab="hue">
+      <div class="sectionLabel" title="Color adjustments for different layers">Hue <span style="margin-left:auto; font-weight:500; font-size:10px; opacity:.9"><label for="hueEnabled" style="cursor:pointer">Enabled</label> <input type="checkbox" id="hueEnabled" title="Toggle Hue for target"></span></div>
+      <div class="sliderRow">
+        <label for="hueTarget" title="Which layer to affect">Target</label>
+        <select id="hueTarget" style="flex:1" title="Select target layer">
+          <option value="nav">Navigation</option>
+          <option value="riseBubbles">Rising Bubbles</option>
+          <option value="bgBubbles">Particles</option>
+          <option value="background">Background</option>
+          <option value="glOverlay">Overlay</option>
+        </select>
+      </div>
+      <div class="sliderRow">
+        <label for="hueShift" title="Angle shift across the color wheel">Hue</label>
+        <input type="range" min="0" max="360" step="1" value="0" id="hueShift" title="Hue rotation">
+      </div>
+      <div class="sliderRow">
+        <label for="hueSat" title="Color richness multiplier">Saturation</label>
+        <input type="range" min="0" max="2" step="0.01" value="1" id="hueSat" title="Saturation">
+      </div>
+      <div class="sliderRow">
+        <label for="hueInt" title="Mix amount of hue effect">Intensity</label>
+        <input type="range" min="0" max="1" step="0.01" value="1" id="hueInt" title="Effect intensity">
+      </div>
+      <div class="sliderRow" style="justify-content:flex-start; gap:10px; align-items:center; flex-wrap:wrap">
+        <label for="hueTimeline" style="font-size:9px; opacity:.75; min-width:50px;">Timeline</label>
+        <input id="hueTimeline" type="range" min="0" max="360" step="1" value="0" title="Global hue timeline" style="flex:1; max-width:200px;">
+        <button id="huePlayPause" class="btn-animate" title="Play hue animation" aria-pressed="false">Play</button>
+      </div>
+    </div>
+
+<div class="panel-section" data-tab="hud">
+      <div class="sectionLabel" title="Audio output controls">Audio</div>
+      <div class="sliderRow"><label for="audioEnabled" title="Master enable">Enabled</label><input type="checkbox" id="audioEnabled" checked title="Toggle audio"></div>
+      <div class="sliderRow" title="Overall output"><label for="audioMaster" title="Overall volume">Master</label><input class="mini-slider" type="range" id="audioMaster" min="0" max="1" step="0.01" value="0.4" title="Master volume"></div>
+      <div class="sliderRow" title="Adjust the amount of low end (lowshelf EQ)"><label for="audioBass" title="Bass EQ">Low End</label><input class="mini-slider" type="range" id="audioBass" min="0" max="1" step="0.01" value="0.2" title="Low-end EQ gain"></div>
+    </div>
+
+    <div class="panel-section" data-tab="hud">
+      <div class="sectionLabel" title="Accessibility helpers">Accessibility</div>
+      <div class="sliderRow"><label for="prefReduce" title="Reduce animations">Reduced Motion</label><input type="checkbox" id="prefReduce" title="Reduced motion"></div>
+      <div class="sliderRow"><label for="prefContrast" title="Increase visibility">High Contrast</label><input type="checkbox" id="prefContrast" title="High contrast"></div>
+      <div class="sliderRow"><label for="prefInvert" title="Invert colors">Invert</label><input type="checkbox" id="prefInvert" title="Invert all colors"></div>
+    </div>
+
+    <div class="panel-section" data-tab="hud">
+      <div class="sectionLabel">Mood <span style="opacity:.65">(Not Currently Working)</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="moodBtn2" data-mood2="calm" disabled>Calm</button>
+        <button class="moodBtn2" data-mood2="curious" disabled>Curious</button>
+        <button class="moodBtn2" data-mood2="excited" disabled>Excited</button>
+        <button class="moodBtn2" data-mood2="anxious" disabled>Anxious</button>
+      </div>
+    </div>
+    <div class="panel-section" data-tab="dev">
+      <div class="sectionLabel">Developer Tools</div>
+      <div class="sliderRow" title="Open the color customizer in a second phone" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button id="openColorizer" style="font-size:11px; padding:4px 8px;">Open Customizer</button>
+        <span style="opacity:.8; font-size:10px; align-self:center;">Second phone overlay</span>
+      </div>
+      <div class="sliderRow" title="Save a PNG screenshot" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button id="snapshotPngBtn" aria-label="Save PNG" title="Save PNG" style="font-size:11px; padding:4px 8px;">📷 PNG</button>
+      </div>
+      <div class="sliderRow" title="Export HTML/CSS/JS with current panel settings applied on load" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button id="exportHtmlBtn" style="font-size:11px; padding:4px 8px;">Snapshot</button>
+        <span style="opacity:.8; font-size:10px; align-self:center;">HTML/CSS/JS</span>
+      </div>
+      <div class="sliderRow" title="Save all current settings as defaults (local)" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button id="saveDefaultsBtn" style="font-size:11px; padding:4px 8px;">Save Defaults</button>
+        <button id="resetDefaultsBtn" style="font-size:11px; padding:4px 8px;">Reset Defaults</button>
+        <span style="opacity:.8; font-size:10px; align-self:center;">(stored in local)</span>
+      </div>
+    </div>
+    <button id="panelScrollTop" title="Return to top" style="position:absolute; left:6px; bottom:6px; width:14px; height:14px; border-radius:50%; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.08); color:#fff; font-size:10px; line-height:12px; text-align:center; cursor:pointer; display:none;">↑</button>
+  </aside>
+
+  <script>
+    // Force minimized state immediately - runs before any other scripts
+    (function(){
+      const panel = document.getElementById('errlPanel');
+      if (panel) {
+        panel.classList.add('minimized');
+        panel.style.setProperty('width', '44px', 'important');
+        panel.style.setProperty('height', '44px', 'important');
+        panel.style.setProperty('padding', '0', 'important');
+        panel.style.setProperty('border-radius', '999px', 'important');
+        panel.style.setProperty('overflow', 'hidden', 'important');
+        panel.style.setProperty('right', '20px', 'important');
+        panel.style.setProperty('top', '20px', 'important');
+        panel.style.setProperty('left', 'auto', 'important');
+        panel.style.setProperty('bottom', 'auto', 'important');
+        panel.style.setProperty('min-width', '44px', 'important');
+        panel.style.setProperty('max-width', '44px', 'important');
+        panel.style.setProperty('max-height', '44px', 'important');
+      }
+    })();
+  </script>
+
+  <script defer src="https://unpkg.com/pixi.js@7/dist/pixi.min.js"></script>
+  <!-- L0/L2 DOM canvases -->
+  <script type="module" src="./apps/landing/scripts/bg-particles.js"></script>
+  <script type="module" src="./apps/landing/scripts/rise-bubbles.js"></script>
+  <!-- FX registry and GL bubbles (TS modules) -->
+  <script type="module" src="./apps/landing/fx/fx-core.ts"></script>
+  <script type="module" src="./apps/landing/fx/bubbles-pixi.ts"></script>
+  <!-- Hue utilities -->
+  <script type="module" src="./apps/landing/fx/hue-filter.ts"></script>
+  <script type="module" src="./apps/landing/fx/hue-controller.ts"></script>
+  <!-- WebGL runtime and app glue -->
+  <script type="module" src="./apps/landing/scripts/webgl.js"></script>
+  <script type="module" src="./apps/landing/scripts/portal-app.js"></script>
+  <script type="module" src="./apps/static/app-legacy.js"></script>
+
+  <!-- Secondary phone overlay: Colorizer -->
+  <div id="colorizerPhone" class="errl-panel" style="display:none; position:fixed; right:12px; top:12px; z-index:3000; width:360px; max-width:90vw; height:80vh;">
+    <div class="panel-header" style="cursor:move;">
+      <div class="panel-title">ERRL COLOR</div>
+      <div class="panel-mode"><button id="colorizerClose" title="Close">×</button></div>
+    </div>
+    <div style="flex:1; background:#0b0f18; border-top:1px solid rgba(255,255,255,.08);">
+      <iframe id="colorizerFrame" src="/portal/pages/studio/svg-colorer/index.html" data-portal-frame="pages/studio/svg-colorer/index.html" style="width:100%; height:100%; border:0; background:#0b0e14;"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // file:// fallback: classic scripts to avoid module CORS in local file preview
+    try {
+      if (location.protocol === 'file:') {
+        var d0=document.createElement('script'); d0.type='module'; d0.src='./apps/landing/scripts/bg-particles.js'; document.currentScript.after(d0);
+        var d1=document.createElement('script'); d1.type='module'; d1.src='./apps/landing/scripts/rise-bubbles.js'; d0.after(d1);
+        var s0=document.createElement('script'); s0.type='module'; s0.src='./apps/landing/fx/fx-core.ts'; d1.after(s0);
+        var s00=document.createElement('script'); s00.type='module'; s00.src='./apps/landing/fx/bubbles-pixi.ts'; s0.after(s00);
+        var s1=document.createElement('script'); s1.type='module'; s1.src='./apps/landing/scripts/webgl.js'; s00.after(s1);
+        var s2=document.createElement('script'); s2.type='module'; s2.src='./apps/landing/scripts/portal-app.js'; s1.after(s2);
+      }
+    } catch (e) {}
+  </script>
+  <script>
+    // Mount shimmer background only if toggled on; guard file:// restrictions
+    document.addEventListener('DOMContentLoaded', function(){
+      try {
+        var toggle = document.getElementById('shimmerToggle');
+        if (toggle && toggle.checked && window.ErrlBG && typeof ErrlBG.mount === 'function') {
+          ErrlBG.mount({ headerVariant: 2, shimmer: true, parallax: true, hud: false, basePath: '.' });
+        }
+      } catch (e) { console.warn('Shimmer mount skipped:', e); }
+
+      // Wire colorizer overlay
+      var openBtn = document.getElementById('openColorizer');
+      var phone = document.getElementById('colorizerPhone');
+      var closeBtn = document.getElementById('colorizerClose');
+      if (openBtn && phone) openBtn.addEventListener('click', function(){ phone.style.display='block'; });
+      if (closeBtn && phone) closeBtn.addEventListener('click', function(){ phone.style.display='none'; });
+    });
+  </script>
+  <script type="module">
+    const env = (typeof import.meta !== 'undefined' && 'env' in import.meta) ? import.meta.env : {};
+    const baseUrl = typeof env.BASE_URL === 'string' ? env.BASE_URL : '/';
+    const trimmed = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const isDev = baseUrl === '/' || !baseUrl.includes('/errl-portal');
+    
+    // In dev mode, files are at /apps/static/pages/... in production they're at /portal/pages/...
+    const portalBase = isDev 
+      ? '/apps/static/pages'
+      : `${trimmed || ''}/portal`.replace(/^\/\//, '/');
+    
+    document.querySelectorAll('[data-portal-link]').forEach((el) => {
+      const target = el.getAttribute('data-portal-link');
+      if (target) {
+        // Remove 'pages/' prefix in dev mode since we're already in /apps/static/pages/
+        const path = isDev && target.startsWith('pages/') 
+          ? target.replace(/^pages\//, '')
+          : target;
+        el.setAttribute('href', `${portalBase}/${path}`);
+      }
+    });
+    document.querySelectorAll('[data-portal-frame]').forEach((el) => {
+      const target = el.getAttribute('data-portal-frame');
+      if (target) {
+        const path = isDev && target.startsWith('pages/')
+          ? target.replace(/^pages\//, '')
+          : target;
+        el.setAttribute('src', `${portalBase}/${path}`);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -68,7 +68,7 @@ export default defineConfig(({ command }) => ({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(process.cwd(), 'src/apps/landing/index.html'),
+        main: resolve(process.cwd(), 'src/index.html'),
         'studio.html': resolve(process.cwd(), 'src/apps/studio/index.html'),
         'portal/pages/index': resolve(process.cwd(), 'src/apps/static/pages/index.html'),
         'portal/pages/about/index': resolve(process.cwd(), 'src/apps/static/pages/about/index.html'),
@@ -86,13 +86,12 @@ export default defineConfig(({ command }) => ({
         'portal/pages/studio/shape-madness/index': resolve(process.cwd(), 'src/apps/static/pages/studio/shape-madness/index.html'),
         'portal/pages/pin-designer/index': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/index.html'),
         'portal/pages/pin-designer/pin-designer': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/pin-designer.html'),
-        'portal/pages/dev/index': resolve(process.cwd(), 'src/apps/static/pages/dev/index.html'),
         'portal/pages/studio/pin-widget/ErrlPin.Widget/designer': resolve(process.cwd(), 'src/apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html'),
         'portal/pages/studio/svg-colorer/index': resolve(process.cwd(), 'src/apps/static/pages/studio/svg-colorer/index.html'),
         'portal/pages/games/index': resolve(process.cwd(), 'src/apps/static/pages/games/index.html'),
         'portal/pages/events/index': resolve(process.cwd(), 'src/apps/static/pages/events/index.html'),
         'portal/pages/merch/index': resolve(process.cwd(), 'src/apps/static/pages/merch/index.html'),
-        hueExamples: resolve(process.cwd(), 'src/apps/landing/fx/hue-examples.html'),
+        'fx/hue-examples': resolve(process.cwd(), 'src/apps/landing/fx/hue-examples.html'),
       },
     },
   },

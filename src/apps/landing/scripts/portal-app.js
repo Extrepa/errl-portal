@@ -105,18 +105,20 @@
   on($("glAlpha"), 'input', ()=> { setBubs({ alpha: parseFloat($("glAlpha").value) }); persistBubs(); });
 
   // Orbiting nav bubbles around Errl
-  const errl = $("errl");
-  let bubbles = Array.from(document.querySelectorAll('.bubble:not(.hidden-bubble)'));
-  const hiddenBubble = document.getElementById('gamesBubble');
-  const navOrbitSpeedInput = $("navOrbitSpeed");
-  const navRadiusInput = $("navRadius");
-  const navOrbSizeInput = $("navOrbSize");
+  // Initialize variables - will be set when DOM is ready
+  let errl = null;
+  let bubbles = [];
+  let hiddenBubble = null;
+  let navOrbitSpeedInput = null;
+  let navRadiusInput = null;
+  let navOrbSizeInput = null;
   let gamesVisible = false;
-  let navOrbitSpeed = parseFloat(navOrbitSpeedInput?.value || '1');
-  let navRadius = parseFloat(navRadiusInput?.value || '1.0');
-  let navOrbScale = parseFloat(navOrbSizeInput?.value || '1');
+  let navOrbitSpeed = 1;
+  let navRadius = 1.0;
+  let navOrbScale = 1;
   let keyboardNavActive = false;
   let keyboardNavIndex = -1;
+  let bubblesInitialized = false;
 
   function setNavOrbitSpeed(value, { syncInput = true } = {}){
     const min = parseFloat(navOrbitSpeedInput?.min ?? '0');
@@ -181,24 +183,74 @@
     focusKeyboardBubble(0);
   }
 
-  on(navOrbitSpeedInput, 'input', ()=>{
-    const next = parseFloat(navOrbitSpeedInput?.value || '0');
-    setNavOrbitSpeed(next, { syncInput: false });
-  });
-  on(navRadiusInput, 'input', ()=>{
-    const next = parseFloat(navRadiusInput?.value || '1');
-    setNavRadius(next, { syncInput: false });
-  });
-  on(navOrbSizeInput, 'input', ()=>{
-    const next = parseFloat(navOrbSizeInput?.value || '1');
-    setNavOrbScale(next, { syncInput: false });
-  });
+  // Event listeners are now attached in initializeBubbles()
+
+  // Initialize bubble system - ensures DOM is ready
+  function initializeBubbles() {
+    if (bubblesInitialized) return true;
+    
+    // Check for required elements
+    errl = $("errl");
+    if (!errl) {
+      console.warn('[portal-app] Errl element (#errl) not found, retrying...');
+      return false;
+    }
+    
+    bubbles = Array.from(document.querySelectorAll('.bubble:not(.hidden-bubble)'));
+    hiddenBubble = document.getElementById('gamesBubble');
+    navOrbitSpeedInput = $("navOrbitSpeed");
+    navRadiusInput = $("navRadius");
+    navOrbSizeInput = $("navOrbSize");
+    
+    // Check for bubbles
+    if (bubbles.length === 0) {
+      console.warn('[portal-app] No nav bubbles found, retrying...');
+      return false;
+    }
+    
+    // Initialize values from inputs
+    navOrbitSpeed = parseFloat(navOrbitSpeedInput?.value || '1');
+    navRadius = parseFloat(navRadiusInput?.value || '1.0');
+    navOrbScale = parseFloat(navOrbSizeInput?.value || '1');
+    
+    // Attach event listeners
+    on(navOrbitSpeedInput, 'input', ()=>{
+      const next = parseFloat(navOrbitSpeedInput?.value || '0');
+      setNavOrbitSpeed(next, { syncInput: false });
+    });
+    on(navRadiusInput, 'input', ()=>{
+      const next = parseFloat(navRadiusInput?.value || '1');
+      setNavRadius(next, { syncInput: false });
+    });
+    on(navOrbSizeInput, 'input', ()=>{
+      const next = parseFloat(navOrbSizeInput?.value || '1');
+      setNavOrbScale(next, { syncInput: false });
+    });
+    
+    // Attach bubble listeners
+    attachBubbleListeners();
+    
+    bubblesInitialized = true;
+    console.log('[portal-app] Nav bubbles initialized:', bubbles.length, 'bubbles found');
+    return true;
+  }
 
   // Throttle orbit updates to ~30 FPS and avoid heavy DOM queries every frame
   let lastOrbitUpdate = 0;
   const orbitIntervalMs = 33; // ~30fps
   function updateBubbles(ts){
-    if (!errl) return requestAnimationFrame(updateBubbles);
+    // Ensure initialization before updating
+    if (!bubblesInitialized) {
+      if (!initializeBubbles()) {
+        return requestAnimationFrame(updateBubbles);
+      }
+    }
+    
+    if (!errl) {
+      bubblesInitialized = false;
+      return requestAnimationFrame(updateBubbles);
+    }
+    
     if (ts - lastOrbitUpdate < orbitIntervalMs){
       return requestAnimationFrame(updateBubbles);
     }
@@ -244,7 +296,23 @@
     window.errlGLSyncOrbs && window.errlGLSyncOrbs();
     requestAnimationFrame(updateBubbles);
   }
+  
+  // Start the bubble update loop - will wait for DOM if needed
   requestAnimationFrame(updateBubbles);
+  
+  // Additional safeguard: Try to initialize on DOMContentLoaded if not already done
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!bubblesInitialized) {
+        initializeBubbles();
+      }
+    });
+  } else {
+    // DOM already loaded, try initialization immediately
+    if (!bubblesInitialized) {
+      initializeBubbles();
+    }
+  }
 
   // Hover → GL orb squish + audio + background color glow
   function attachBubbleListeners(){
@@ -293,7 +361,6 @@
       focusKeyboardBubble(nextIndex);
     }
   }
-  attachBubbleListeners();
 
   window.errlNavControls = {
     getState: () => ({
@@ -1390,7 +1457,7 @@
     }
     const params = new URLSearchParams(window.location.search);
     if (!auto && !params.has('devpanel')) return;
-    import('../../shared/devpanel/runtime.ts')
+    import('@shared/devpanel/runtime.ts')
       .then((mod) => mod.mountDevPanel())
       .catch((err) => console.warn('[devpanel] failed to mount', err));
   })();

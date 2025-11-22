@@ -1,5 +1,11 @@
 # Changelog (dev-facing)
 
+- 2025-11-22 — Moved landing page from `src/apps/landing/index.html` to `src/index.html` (restored old home page structure); updated Vite build config and all relative paths.
+- 2025-11-22 — Set up Electron for preview (`electron/` directory, `package.json` scripts); removed Vite preview commands in favor of Electron preview.
+- 2025-11-22 — Removed dev page from build (`portal/pages/dev/index`); kept Errl Phone dev panel on landing page.
+- 2025-11-22 — Fixed devpanel import path in `portal-app.js` to use `@shared/devpanel/runtime.ts` alias.
+- 2025-11-22 — Fixed Errl body with limbs asset location: copied `errl-body-with-limbs.svg` to `src/shared/assets/portal/L4_Central/`.
+- 2025-11-22 — Updated nav link resolver script to handle both dev mode (`/apps/static/pages/...`) and production builds (`/portal/pages/...`) correctly.
 - 2025-11-22 — Refactored project structure: reorganized codebase into `src/apps/landing/`, `src/apps/static/`, `src/apps/studio/`, and `src/shared/` directories; updated Vite, TypeScript, and Tailwind configs for new structure.
 - 2025-11-22 — Moved all pages from `src/legacy/portal/pages/` to `src/portal/pages/`; updated Vite build config to use new structure.
 - 2025-11-22 — Updated all navigation links to point to `/portal/pages/...` instead of `/legacy/portal/pages/...`.
