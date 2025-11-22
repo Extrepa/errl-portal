@@ -77,11 +77,8 @@ export function SVGTab() {
   const [outlineStrokeWidth, setOutlineStrokeWidth] = useState<number>(2);
   const [outlineStrokeColor, setOutlineStrokeColor] = useState<string>('inherit');
 
-  // === Phase 3: Export options state ===
-  const [exportIncludeHidden, setExportIncludeHidden] = useState<boolean>(false);
-  const [exportPrefix, setExportPrefix] = useState<string>('errl');
-  const [outlineStrokeWidth, setOutlineStrokeWidth] = useState<number>(2);
-  const [outlineStrokeColor, setOutlineStrokeColor] = useState<string>('inherit');
+  // === Phase 4: Export options state ===
+  const [silhouetteFillHoles, setSilhouetteFillHoles] = useState<boolean>(false);
   const defaultAnim = {
     rotate: 0,
     pulse: 0,
@@ -458,6 +455,32 @@ export function SVGTab() {
   function recomputeSVGContent(_paths: ExtractedPath[], _viewBox: string) {
     return `<!doctype html>\\n<html>\\n<head><meta charset=\"utf-8\"/></head>\\n<body style=\"margin:0;background:${bg}\">\\n${svgMarkup(_paths, _viewBox)}\\n</body>\\n</html>`;
   }
+
+  // === Phase 2: Color normalization and grouping (must come before previewInner) ===
+  function normalizeColor(c: string | undefined): string {
+    if (!c || c === 'none' || c === 'transparent') return 'none';
+    // Simple hex normalization (basic implementation)
+    const lc = c.toLowerCase().trim();
+    if (lc.startsWith('#')) return lc;
+    // Handle rgb/rgba (basic parse)
+    const rgbMatch = lc.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (rgbMatch) {
+      const r = parseInt(rgbMatch[1], 10);
+      const g = parseInt(rgbMatch[2], 10);
+      const b = parseInt(rgbMatch[3], 10);
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    }
+    return lc;
+  }
+
+  const colorGroups = useMemo(() => {
+    const groups: Record<string, ExtractedPath[]> = {};
+    paths.forEach((p) => {
+      const key = normalizeColor(groupByStroke ? p.stroke : p.fill);
+      (groups[key] ||= []).push(p);
+    });
+    return groups;
+  }, [paths, groupByStroke]);
 
   const previewInner = useMemo(() => {
     const dashLen = Math.max(1, anim.dashLen || 8);
@@ -927,7 +950,7 @@ export function SVGTab() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [paths, viewBox, previewOffsetX, previewOffsetY]);
 
-  // === Phase 2: Stats computation and color grouping ===
+  // === Phase 2: Stats computation ===
   const pathStats = useMemo(() => {
     const visible = paths.filter((p) => p.visible !== false);
     const totalDChars = visible.reduce((sum, p) => sum + (p.d?.length || 0), 0);
@@ -937,31 +960,6 @@ export function SVGTab() {
       totalDChars,
     };
   }, [paths]);
-
-  function normalizeColor(c: string | undefined): string {
-    if (!c || c === 'none' || c === 'transparent') return 'none';
-    // Simple hex normalization (basic implementation)
-    const lc = c.toLowerCase().trim();
-    if (lc.startsWith('#')) return lc;
-    // Handle rgb/rgba (basic parse)
-    const rgbMatch = lc.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (rgbMatch) {
-      const r = parseInt(rgbMatch[1], 10);
-      const g = parseInt(rgbMatch[2], 10);
-      const b = parseInt(rgbMatch[3], 10);
-      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-    }
-    return lc;
-  }
-
-  const colorGroups = useMemo(() => {
-    const groups: Record<string, ExtractedPath[]> = {};
-    paths.forEach((p) => {
-      const key = normalizeColor(groupByStroke ? p.stroke : p.fill);
-      (groups[key] ||= []).push(p);
-    });
-    return groups;
-  }, [paths, groupByStroke]);
 
   function toggleColorGroup(key: string) {
     setExpandedColorKeys((prev) => {
@@ -1138,161 +1136,140 @@ export function SVGTab() {
     downloadBlob(blob, `${exportPrefix}_outline.svg`);
   }
 
-  // === Phase 3: Utility functions for exports ===
-  function safeFileName(s: string): string {
-    return s
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9-_]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 50) || 'unnamed';
-  }
-
-  function svgHeader(vb: string): string {
-    return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg">`;
-  }
-
-  function svgFooter(): string {
-    return '</svg>';
-  }
-
-  function buildPathElement(p: ExtractedPath): string {
-    const attrs: string[] = [`d="${p.d}"`];
-    if (p.fill) attrs.push(`fill="${p.fill}"`);
-    if (p.stroke) attrs.push(`stroke="${p.stroke}"`);
-    if (p.strokeWidth) attrs.push(`stroke-width="${p.strokeWidth}"`);
-    if (p.opacity) attrs.push(`opacity="${p.opacity}"`);
-    const tr: string[] = [];
-    if (typeof p.tX === 'number' || typeof p.tY === 'number') tr.push(`translate(${p.tX || 0} ${p.tY || 0})`);
-    if (typeof p.rot === 'number' && p.rot) tr.push(`rotate(${p.rot})`);
-    if (typeof p.scl === 'number' && p.scl && p.scl !== 1) tr.push(`scale(${p.scl})`);
-    if (tr.length) attrs.push(`transform="${tr.join(' ')}"`);
-    return `<path ${attrs.join(' ')} />`;
-  }
-
-  function buildSvg(pathsSubset: ExtractedPath[], vb: string): string {
-    const pathElements = pathsSubset.map(buildPathElement).join('\n  ');
-    return `${svgHeader(vb)}\n  ${pathElements}\n${svgFooter()}`;
-  }
-
-  async function ensureJSZip(): Promise<void> {
+  // === Phase 4: Paper.js loader and silhouette export ===
+  async function ensurePaperJS(): Promise<boolean> {
     const g: any = window as any;
-    if (g.JSZip) return;
-    await new Promise<void>((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
-      s.onload = () => resolve();
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
-  }
-
-  async function toZip(files: Array<{ path: string; content: string }>): Promise<Blob> {
-    await ensureJSZip();
-    const g: any = window as any;
-    const zip = new g.JSZip();
-    files.forEach((f) => zip.file(f.path, f.content));
-    return await zip.generateAsync({ type: 'blob' });
-  }
-
-  function downloadBlob(blob: Blob, filename: string) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  // === Phase 3: Export functions ===
-  async function exportPerPath() {
-    const sourcePaths = exportIncludeHidden ? paths : paths.filter((p) => p.visible !== false);
-    if (sourcePaths.length === 0) {
-      alert('No paths to export');
-      return;
-    }
-
-    const files: Array<{ path: string; content: string }> = [];
-    const manifest: any[] = [];
-
-    sourcePaths.forEach((p, idx) => {
-      const safeName = safeFileName(p.name || p.id);
-      const filename = `${exportPrefix}_${String(idx + 1).padStart(3, '0')}_${safeName}.svg`;
-      const svg = buildSvg([p], viewBox);
-      files.push({ path: filename, content: svg });
-      manifest.push({
-        index: idx + 1,
-        id: p.id,
-        name: p.name,
-        dLength: p.d.length,
-        fill: p.fill || 'none',
-        stroke: p.stroke || 'none',
+    if (g.paper) return true;
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js';
+        s.onload = () => resolve();
+        s.onerror = reject;
+        document.head.appendChild(s);
       });
-    });
-
-    files.push({ path: 'manifest.json', content: JSON.stringify(manifest, null, 2) });
-
-    const blob = await toZip(files);
-    downloadBlob(blob, `${exportPrefix}_per_path.zip`);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
-  async function exportPerColor() {
+  async function exportSilhouette() {
     const sourcePaths = exportIncludeHidden ? paths : paths.filter((p) => p.visible !== false);
     if (sourcePaths.length === 0) {
       alert('No paths to export');
       return;
     }
 
-    const groups: Record<string, ExtractedPath[]> = {};
-    sourcePaths.forEach((p) => {
-      const key = normalizeColor(groupByStroke ? p.stroke : p.fill);
-      (groups[key] ||= []).push(p);
-    });
+    const paperLoaded = await ensurePaperJS();
+    if (!paperLoaded) {
+      alert('Failed to load Paper.js library');
+      return;
+    }
 
-    const files: Array<{ path: string; content: string }> = [];
-    const manifest: any[] = [];
+    try {
+      const g: any = window as any;
+      const canvas = document.createElement('canvas');
+      const scope = new g.paper.PaperScope();
+      scope.setup(canvas);
 
-    Object.entries(groups).forEach(([colorKey, groupPaths]) => {
-      const safeColor = safeFileName(colorKey);
-      const prefix = groupByStroke ? 'stroke' : 'color';
-      const filename = `${exportPrefix}_${prefix}_${safeColor}.svg`;
-      const svg = buildSvg(groupPaths, viewBox);
-      files.push({ path: filename, content: svg });
-      manifest.push({
-        key: colorKey,
-        count: groupPaths.length,
-        ids: groupPaths.map((p) => p.id),
+      // Import all visible paths into Paper.js
+      const paperPaths: any[] = [];
+      sourcePaths.forEach((p) => {
+        const pp = scope.project.importSVG(`<svg><path d="${p.d}" /></svg>`);
+        if (pp) paperPaths.push(pp);
       });
-    });
 
-    files.push({ path: 'manifest.json', content: JSON.stringify(manifest, null, 2) });
+      if (paperPaths.length === 0) {
+        alert('No valid paths to union');
+        return;
+      }
 
-    const blob = await toZip(files);
-    downloadBlob(blob, `${exportPrefix}_per_color.zip`);
-  }
+      // Union all paths into a single silhouette
+      let result = paperPaths[0];
+      for (let i = 1; i < paperPaths.length; i++) {
+        result = result.unite(paperPaths[i]);
+      }
 
-  function exportOutline() {
-    const sourcePaths = exportIncludeHidden ? paths : paths.filter((p) => p.visible !== false);
-    if (sourcePaths.length === 0) {
-      alert('No paths to export');
-      return;
-    }
+      // If we want to preserve holes (default), subtract hole paths
+      if (!silhouetteFillHoles) {
+        const holePaths = paths.filter((p) => HOLE_IDS.includes(p.id) && (exportIncludeHidden || p.visible !== false));
+        for (const holePath of holePaths) {
+          const holeImport = scope.project.importSVG(`<svg><path d="${holePath.d}" /></svg>`);
+          if (holeImport) {
+            result = result.subtract(holeImport);
+          }
+        }
+      }
 
-    // Convert fills to strokes
-    const outlinePaths = sourcePaths.map((p) => {
-      const strokeColor = outlineStrokeColor === 'inherit' ? (p.fill || '#000000') : outlineStrokeColor;
-      return {
-        ...p,
-        fill: undefined,
-        stroke: strokeColor,
-        strokeWidth: String(outlineStrokeWidth),
+      // Export result back to SVG path data
+      const exportedSvg = result.exportSVG({ asString: true }) as string;
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(exportedSvg, 'image/svg+xml');
+      const pathEl = svgDoc.querySelector('path');
+      const dData = pathEl?.getAttribute('d') || '';
+
+      if (!dData) {
+        alert('Failed to generate silhouette path');
+        return;
+      }
+
+      // Build final SVG
+      const silhouettePath: ExtractedPath = {
+        id: 'silhouette',
+        name: 'silhouette',
+        d: dData,
+        fill: '#000000',
       };
+
+      const svg = buildSvg([silhouettePath], viewBox);
+      const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+      downloadBlob(blob, `${exportPrefix}_silhouette.svg`);
+    } catch (err) {
+      console.error('Silhouette export error:', err);
+      alert('Silhouette export failed. See console for details.');
+    }
+  }
+
+  // === Phase 4: Anatomy 9-pack export ===
+  async function exportAnatomy9Pack() {
+    if (paths.length === 0) {
+      alert('No paths to export');
+      return;
+    }
+
+    const files: Array<{ path: string; content: string }> = [];
+    const manifest: any[] = [];
+
+    ANATOMY_IDS.forEach((anatomyId) => {
+      // Collect paths matching this anatomy id (either the path itself or its parent chain)
+      const matchingPaths = paths.filter((p) => {
+        if (p.id === anatomyId) return true;
+        if (p.parentChainIds?.includes(anatomyId)) return true;
+        return false;
+      });
+
+      if (matchingPaths.length === 0) return; // Skip if no matches
+
+      const svg = buildSvg(matchingPaths, viewBox);
+      const filename = `${exportPrefix}_${anatomyId}.svg`;
+      files.push({ path: filename, content: svg });
+      manifest.push({
+        anatomyId,
+        count: matchingPaths.length,
+        ids: matchingPaths.map((p) => p.id),
+      });
     });
 
-    const svg = buildSvg(outlinePaths, viewBox);
-    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-    downloadBlob(blob, `${exportPrefix}_outline.svg`);
+    if (files.length === 0) {
+      alert('No anatomy parts found. Make sure paths have matching IDs or parent groups.');
+      return;
+    }
+
+    files.push({ path: 'manifest.json', content: JSON.stringify(manifest, null, 2) });
+
+    const blob = await toZip(files);
+    downloadBlob(blob, `${exportPrefix}_anatomy_9pack.zip`);
   }
 
   return (
@@ -1492,8 +1469,8 @@ export function SVGTab() {
                   </label>
                 )}
               </div>
-            )}
-                <CardContent className="pt-2">
+            )
+            }
             {paths.length === 0 ? (
               <div className="text-xs text-zinc-400">No paths yet.</div>
             ) : listMode === 'colorGroups' ? (
@@ -1824,6 +1801,23 @@ export function SVGTab() {
                       </label>
                     </div>
                     <Button variant="outline" size="sm" onClick={exportOutline}><Download className="mr-1 h-4 w-4"/>Export outline-only</Button>
+                  </div>
+                  {/* Phase 4: Silhouette Export */}
+                  <div className="rounded border border-white/10 bg-white/5 p-2">
+                    <div className="mb-1 font-semibold">Silhouette</div>
+                    <div className="mb-1 flex items-center gap-2">
+                      <label className="flex items-center gap-1 text-[11px]">
+                        <input type="checkbox" className="h-4 w-4" checked={silhouetteFillHoles} onChange={(e)=> setSilhouetteFillHoles(e.target.checked)} /> Fill holes
+                      </label>
+                      <span className="text-[10px] opacity-60">(eyes, mouth)</span>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={exportSilhouette}><Download className="mr-1 h-4 w-4"/>Union + subtract holes</Button>
+                  </div>
+                  {/* Phase 4: Anatomy 9-Pack Export */}
+                  <div className="rounded border border-white/10 bg-white/5 p-2">
+                    <div className="mb-1 font-semibold">Errl Anatomy 9-Pack</div>
+                    <div className="mb-1 text-[10px] opacity-60">Template-based ID grouping</div>
+                    <Button variant="outline" size="sm" onClick={exportAnatomy9Pack}><Download className="mr-1 h-4 w-4"/>ZIP: 9 body parts</Button>
                   </div>
                 </div>
               </CardContent>
