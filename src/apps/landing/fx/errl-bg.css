@@ -4,9 +4,9 @@ html,body{ background:transparent !important; }
 .errl-bg{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden; }
 .errl-bg .layer{ position:absolute; inset:0; background-position:center; background-size:cover; will-change:transform, background-position, opacity; }
 /* Base soft oil gradient */
-.errl-bg .base{ background: radial-gradient(80% 60% at 50% 40%, rgba(40,20,80,.45), rgba(0,0,0,0) 70%); filter:saturate(110%) contrast(102%); transform:scale(1.02); }
+.errl-bg .base{ background: radial-gradient(80% 60% at 50% 40%, rgba(var(--errl-neon-purple-rgb), .45), rgba(0,0,0,0) 70%); filter:saturate(110%) contrast(102%); transform:scale(1.02); }
 /* Wavy shimmer pass (CSS-only, no external image) */
-.errl-bg .shimmer{ background: conic-gradient(from 0deg at 50% 50%, rgba(255,0,180,.12), rgba(0,229,255,.10), rgba(255,215,0,.10), rgba(255,0,180,.12)); mix-blend-mode:screen; opacity:.45; animation:errlShimmer 18s linear infinite; }
+.errl-bg .shimmer{ background: conic-gradient(from 0deg at 50% 50%, rgba(var(--errl-neon-magenta-rgb), .12), rgba(var(--errl-neon-blue-rgb), .10), rgba(var(--errl-neon-yellow-rgb), .10), rgba(var(--errl-neon-magenta-rgb), .12)); mix-blend-mode:screen; opacity:.45; animation:errlShimmer 18s linear infinite; }
 @keyframes errlShimmer{ 0%{ background-position:0% 0%; } 100%{ background-position:120% 0%; } }
 /* Subtle vignette to focus content */
 .errl-bg .vignette{ background:radial-gradient(120% 80% at 50% 30%, transparent 50%, rgba(0,0,0,.35) 100%); }

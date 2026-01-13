@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Editor } from '@monaco-editor/react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/components/ui/tabs';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
+import { Badge } from '@/shared/components/ui/badge';
 import { Download, Trash2, Sparkles, Play, Pause, RotateCcw, Copy, ExternalLink, ChevronDown, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import presetsData from '../studioPresets.json';
-import { SVGTab } from '../svg/SVGTab';
+import presetsData from './studioPresets.json';
+import { SVGTab } from './svg/SVGTab';
 import StudioShell from './layout/StudioShell';
 
 const ASSET_BASE_URL = (() => {
@@ -594,8 +594,19 @@ export default function ErrlLiveStudio() {
                 )}
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <Input type="file" multiple onChange={(e) => e.target.files && onAddAssets(e.target.files)} />
-                  <Button size="sm" variant="outline" onClick={() => exportProjectJSON(html, css, js, assets)} disabled={assets.length === 0}>
+                  <Input
+                    type="file"
+                    multiple
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      if (e.target.files) onAddAssets(e.target.files);
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => exportProjectJSON(html, css, js, assets)}
+                    disabled={assets.length === 0}
+                  >
                     Save Project
                   </Button>
                   <Input

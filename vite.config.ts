@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
-import { resolve, dirname } from 'node:path';
+import { resolve, dirname, dirname as pathDirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, rmSync, renameSync, readdirSync, statSync } from 'node:fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -34,6 +34,31 @@ function shouldRewriteStudio(url: string) {
   return !hasFileExtension;
 }
 
+const portalPagesRewritePlugin = () => ({
+  name: 'errl-portal-pages-rewrite',
+  configureServer(server: import('vite').ViteDevServer) {
+    // Rewrite root-level portal pages to source location in dev mode
+    // e.g., /about/ -> /apps/static/pages/about/
+    server.middlewares.use((req, res, next) => {
+      if (req.url && req.method === 'GET') {
+        // Rewrite root-level portal pages to source location
+        // Match paths like /about/, /gallery/, /assets/errl-head-coin/, etc.
+        if (req.url.match(/^\/(about|gallery|assets|events|merch|games|studio|pin-designer)(\/|$)/)) {
+          req.url = `/apps/static/pages${req.url}`;
+        }
+        // Rewrite /chat to chatbot app
+        if (req.url === '/chat' || req.url.startsWith('/chat/')) {
+          req.url = '/apps/chatbot/index.html';
+        }
+      }
+      next();
+    });
+  },
+  configurePreviewServer(server: import('vite').PreviewServer) {
+    // No rewrite needed in preview - pages are already built at root level
+  },
+});
+
 const copyShapeMadnessContentPlugin = () => ({
   name: 'shape-madness-content-copy',
   apply: 'build',
@@ -41,19 +66,194 @@ const copyShapeMadnessContentPlugin = () => ({
     const sourceDir = resolve(process.cwd(), 'src/apps/static/pages/studio/shape-madness/content');
     if (!existsSync(sourceDir)) return;
 
-    const destDir = resolve(process.cwd(), 'dist/apps/static/pages/studio/shape-madness/content');
+    // Copy to new root-level location: dist/studio/shape-madness/content
+    const destDir = resolve(process.cwd(), 'dist/studio/shape-madness/content');
     rmSync(destDir, { recursive: true, force: true });
     mkdirSync(destDir, { recursive: true });
     cpSync(sourceDir, destDir, { recursive: true });
   },
 });
 
+const copySharedAssetsPlugin = () => ({
+  name: 'shared-assets-copy',
+  apply: 'build',
+  closeBundle() {
+    const sourceDir = resolve(process.cwd(), 'src/shared/assets');
+    if (!existsSync(sourceDir)) return;
+
+    // Copy to dist/shared/assets/ (main location for most asset references)
+    const destDir = resolve(process.cwd(), 'dist/shared/assets');
+    rmSync(destDir, { recursive: true, force: true });
+    mkdirSync(destDir, { recursive: true });
+    cpSync(sourceDir, destDir, { recursive: true });
+
+    // Also copy legacy/gallery to dist/assets/legacy/gallery/ for gallery manifest compatibility
+    // The gallery manifest uses %BASE_URL%assets/legacy/gallery/recent/...
+    const legacySourceDir = resolve(process.cwd(), 'src/shared/assets/legacy');
+    if (existsSync(legacySourceDir)) {
+      const legacyDestDir = resolve(process.cwd(), 'dist/assets/legacy');
+      rmSync(legacyDestDir, { recursive: true, force: true });
+      mkdirSync(legacyDestDir, { recursive: true });
+      cpSync(legacySourceDir, legacyDestDir, { recursive: true });
+    }
+  },
+});
+
+const copySharedStylesPlugin = () => ({
+  name: 'shared-styles-copy',
+  apply: 'build',
+  closeBundle() {
+    const sourceDir = resolve(process.cwd(), 'src/shared/styles');
+    if (!existsSync(sourceDir)) return;
+
+    const destDir = resolve(process.cwd(), 'dist/shared/styles');
+    rmSync(destDir, { recursive: true, force: true });
+    mkdirSync(destDir, { recursive: true });
+    cpSync(sourceDir, destDir, { recursive: true });
+  },
+});
+
+const copyRedirectsPlugin = () => ({
+  name: 'copy-redirects',
+  apply: 'build',
+  closeBundle() {
+    const redirectsFile = resolve(process.cwd(), 'public/_redirects');
+    if (existsSync(redirectsFile)) {
+      const destFile = resolve(process.cwd(), 'dist/_redirects');
+      cpSync(redirectsFile, destFile);
+    }
+  },
+});
+
+const reorganizeBuildOutputPlugin = () => ({
+  name: 'reorganize-build-output',
+  apply: 'build',
+  closeBundle() {
+    const distDir = resolve(process.cwd(), 'dist');
+    const appsDir = resolve(distDir, 'apps');
+    
+    if (!existsSync(appsDir)) return;
+    
+    // Move pages from apps/static/pages/ to root
+    const pagesSourceDir = resolve(appsDir, 'static/pages');
+    if (existsSync(pagesSourceDir)) {
+      // Move each file/directory from pagesSourceDir to dist root
+      const moveRecursive = (source: string, dest: string) => {
+        if (!existsSync(source)) return;
+        
+        const stats = statSync(source);
+        if (stats.isDirectory()) {
+          // Create destination directory if it doesn't exist
+          if (!existsSync(dest)) {
+            mkdirSync(dest, { recursive: true });
+          }
+          // Move contents
+          const entries = readdirSync(source);
+          for (const entry of entries) {
+            moveRecursive(resolve(source, entry), resolve(dest, entry));
+          }
+          // Remove empty source directory
+          try {
+            rmSync(source, { recursive: true, force: true });
+          } catch (e) {
+            // Ignore errors if directory not empty or already removed
+          }
+        } else {
+          // Create parent directory if needed
+          const destParent = pathDirname(dest);
+          if (!existsSync(destParent)) {
+            mkdirSync(destParent, { recursive: true });
+          }
+          // Move file
+          if (existsSync(dest)) {
+            rmSync(dest, { force: true });
+          }
+          renameSync(source, dest);
+        }
+      };
+      
+      const entries = readdirSync(pagesSourceDir);
+      for (const entry of entries) {
+        moveRecursive(resolve(pagesSourceDir, entry), resolve(distDir, entry));
+      }
+      
+      // Clean up empty directories
+      try {
+        rmSync(resolve(appsDir, 'static'), { recursive: true, force: true });
+      } catch (e) {
+        // Ignore errors
+      }
+    }
+    
+    // Move studio.html from apps/studio/index.html to root
+    const studioSource = resolve(appsDir, 'studio/index.html');
+    const studioDest = resolve(distDir, 'studio.html');
+    if (existsSync(studioSource)) {
+      if (existsSync(studioDest)) {
+        rmSync(studioDest, { force: true });
+      }
+      renameSync(studioSource, studioDest);
+      // Clean up empty studio directory
+      try {
+        rmSync(resolve(appsDir, 'studio'), { recursive: true, force: true });
+      } catch (e) {
+        // Ignore errors
+      }
+    }
+    
+    // Move chat from apps/chatbot/index.html to chat/index.html
+    const chatSource = resolve(appsDir, 'chatbot');
+    const chatDest = resolve(distDir, 'chat');
+    if (existsSync(chatSource)) {
+      if (existsSync(chatDest)) {
+        rmSync(chatDest, { recursive: true, force: true });
+      }
+      renameSync(chatSource, chatDest);
+    }
+    
+    // Move fx from apps/landing/fx to fx
+    const fxSource = resolve(appsDir, 'landing/fx');
+    const fxDest = resolve(distDir, 'fx');
+    if (existsSync(fxSource)) {
+      if (existsSync(fxDest)) {
+        rmSync(fxDest, { recursive: true, force: true });
+      }
+      // Use cpSync for directory, then remove source
+      cpSync(fxSource, fxDest, { recursive: true });
+      try {
+        rmSync(resolve(appsDir, 'landing'), { recursive: true, force: true });
+      } catch (e) {
+        // Ignore errors
+      }
+    }
+    
+    // Clean up empty apps directory
+    try {
+      const appsEntries = readdirSync(appsDir);
+      if (appsEntries.length === 0) {
+        rmSync(appsDir, { recursive: true, force: true });
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  },
+});
+
 // Vite multi-page build rooted at src/
 export default defineConfig(({ command }) => ({
   root: 'src',
-  plugins: [studioRewritePlugin(), copyShapeMadnessContentPlugin()],
-  // Use project-site base path for GitHub Pages builds; keep "/" for dev
-  base: command === 'build' ? '/errl-portal/' : '/',
+  plugins: [studioRewritePlugin(), portalPagesRewritePlugin(), copyShapeMadnessContentPlugin(), copySharedAssetsPlugin(), copySharedStylesPlugin(), copyRedirectsPlugin(), reorganizeBuildOutputPlugin()],
+  // Use root base path for custom domain (errl.wtf)
+  base: '/',
+  server: {
+    proxy: {
+      '/api/component-library': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/component-library/, ''),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -61,7 +261,12 @@ export default defineConfig(({ command }) => ({
       '@shared': resolve(__dirname, 'src/shared'),
       '@studio': resolve(__dirname, 'src/apps/studio'),
       '@legacy': resolve(__dirname, 'src/legacy'),
+      '@errl-design-system': resolve(__dirname, '../all-components/errl-design-system/src'),
     },
+    dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
   },
   build: {
     outDir: resolve(process.cwd(), 'dist'),
@@ -70,27 +275,29 @@ export default defineConfig(({ command }) => ({
       input: {
         main: resolve(process.cwd(), 'src/index.html'),
         'studio.html': resolve(process.cwd(), 'src/apps/studio/index.html'),
-        'portal/pages/index': resolve(process.cwd(), 'src/apps/static/pages/index.html'),
-        'portal/pages/about/index': resolve(process.cwd(), 'src/apps/static/pages/about/index.html'),
-        'portal/pages/gallery/index': resolve(process.cwd(), 'src/apps/static/pages/gallery/index.html'),
-        'portal/pages/assets/index': resolve(process.cwd(), 'src/apps/static/pages/assets/index.html'),
-        'portal/pages/assets/errl-head-coin/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-head-coin/index.html'),
-        'portal/pages/assets/errl-head-coin-v2/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-head-coin-v2/index.html'),
-        'portal/pages/assets/errl-head-coin-v3/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-head-coin-v3/index.html'),
-        'portal/pages/assets/errl-head-coin-v4/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-head-coin-v4/index.html'),
-        'portal/pages/assets/errl-face-popout/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-face-popout/index.html'),
-        'portal/pages/assets/walking-errl/index': resolve(process.cwd(), 'src/apps/static/pages/assets/walking-errl/index.html'),
-        'portal/pages/assets/errl-loader-original-parts/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-loader-original-parts/index.html'),
-        'portal/pages/studio/index': resolve(process.cwd(), 'src/apps/static/pages/studio/index.html'),
-        'portal/pages/studio/math-lab/index': resolve(process.cwd(), 'src/apps/static/pages/studio/math-lab/index.html'),
-        'portal/pages/studio/shape-madness/index': resolve(process.cwd(), 'src/apps/static/pages/studio/shape-madness/index.html'),
-        'portal/pages/pin-designer/index': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/index.html'),
-        'portal/pages/pin-designer/pin-designer': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/pin-designer.html'),
-        'portal/pages/studio/pin-widget/ErrlPin.Widget/designer': resolve(process.cwd(), 'src/apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html'),
-        'portal/pages/studio/svg-colorer/index': resolve(process.cwd(), 'src/apps/static/pages/studio/svg-colorer/index.html'),
-        'portal/pages/games/index': resolve(process.cwd(), 'src/apps/static/pages/games/index.html'),
-        'portal/pages/events/index': resolve(process.cwd(), 'src/apps/static/pages/events/index.html'),
-        'portal/pages/merch/index': resolve(process.cwd(), 'src/apps/static/pages/merch/index.html'),
+        // Portal pages at root level - remove portal/pages/ prefix
+        'index': resolve(process.cwd(), 'src/apps/static/pages/index.html'),
+        'about/index': resolve(process.cwd(), 'src/apps/static/pages/about/index.html'),
+        'gallery/index': resolve(process.cwd(), 'src/apps/static/pages/gallery/index.html'),
+        'assets/index': resolve(process.cwd(), 'src/apps/static/pages/assets/index.html'),
+        'assets/errl-head-coin/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-head-coin/index.html'),
+        'assets/errl-head-coin-v2/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-head-coin-v2/index.html'),
+        'assets/errl-head-coin-v3/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-head-coin-v3/index.html'),
+        'assets/errl-head-coin-v4/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-head-coin-v4/index.html'),
+        'assets/errl-face-popout/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-face-popout/index.html'),
+        'assets/walking-errl/index': resolve(process.cwd(), 'src/apps/static/pages/assets/walking-errl/index.html'),
+        'assets/errl-loader-original-parts/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-loader-original-parts/index.html'),
+        'studio/index': resolve(process.cwd(), 'src/apps/static/pages/studio/index.html'),
+        'studio/math-lab/index': resolve(process.cwd(), 'src/apps/static/pages/studio/math-lab/index.html'),
+        'studio/shape-madness/index': resolve(process.cwd(), 'src/apps/static/pages/studio/shape-madness/index.html'),
+        'pin-designer/index': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/index.html'),
+        'pin-designer/pin-designer': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/pin-designer.html'),
+        'studio/pin-widget/ErrlPin.Widget/designer': resolve(process.cwd(), 'src/apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html'),
+        'studio/svg-colorer/index': resolve(process.cwd(), 'src/apps/static/pages/studio/svg-colorer/index.html'),
+        'games/index': resolve(process.cwd(), 'src/apps/static/pages/games/index.html'),
+        'events/index': resolve(process.cwd(), 'src/apps/static/pages/events/index.html'),
+        'merch/index': resolve(process.cwd(), 'src/apps/static/pages/merch/index.html'),
+        'chat': resolve(process.cwd(), 'src/apps/chatbot/index.html'),
         'fx/hue-examples': resolve(process.cwd(), 'src/apps/landing/fx/hue-examples.html'),
       },
     },

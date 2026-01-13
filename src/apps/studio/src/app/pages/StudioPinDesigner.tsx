@@ -3,7 +3,6 @@ import { useMemo, useRef } from 'react';
 import { useLegacyAssetBridge } from '../hooks/useLegacyAssetBridge';
 import { resolvePortalPageUrl } from '../utils/portalPaths';
 import StudioShell from '../../../features/live-studio/studio/app/layout/StudioShell';
-import { Badge } from '@/components/ui/badge';
 
 export default function StudioPinDesigner() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -21,7 +20,7 @@ export default function StudioPinDesigner() {
       title="Pin Designer"
       subtitle="Mock up enamel pins, glow finishes, and sticker packs while we migrate the legacy editor into the shared Studio runtime."
       breadcrumbs={breadcrumbs}
-      status={<Badge className="border border-amber-400/40 bg-amber-500/20 text-amber-200">Legacy Surface</Badge>}
+      status={<span className="inline-flex items-center rounded-full border border-amber-400/40 bg-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-200">Legacy Surface</span>}
       actions={
         <Link
           to="/"

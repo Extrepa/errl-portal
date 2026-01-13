@@ -4,27 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Events | Errl / Extrepa Continuum</title>
-
+  <link rel="stylesheet" href="../../../../shared/styles/errlDesignSystem.css" />
   <style>
     /* ===== COLOR SYSTEM ===== */
     :root {
-      --errl-bg: radial-gradient(circle at 30% 20%, rgba(34,255,255,0.08) 0%, rgba(140,0,255,0.04) 60%, rgba(0,0,0,0) 80%);
-      --errl-text-main: #e8e8ff;
-      --errl-text-soft: rgba(232,232,255,0.7);
-      --errl-glow-teal: rgba(0,255,255,0.4);
-      --errl-glow-violet: rgba(160,0,255,0.4);
-      --errl-divider-core: rgba(160,0,255,0.18);
+      --errl-divider-core: rgba(var(--errl-neon-purple-rgb), 0.18);
       --errl-drip-shadow: rgba(0,0,0,0.6);
     }
 
     /* ===== PAGE WRAPPER FEEL ===== */
     body.errl-about-bg {
-      background-color: #000000;
-      background-image: var(--errl-bg);
+      background-color: var(--errl-bg);
+      background-image: var(--errl-bg-gradient);
       background-repeat: no-repeat;
       background-size: 120% 120%;
       background-attachment: fixed;
-      color: var(--errl-text-main);
+      color: var(--errl-text);
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Roboto", sans-serif;
       line-height: 1.5;
       letter-spacing: -0.03em;
@@ -62,47 +57,24 @@
     .hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; margin: 0 0 1rem; background: linear-gradient(135deg, #00e5ff 0%, #b100ff 50%, #00e5ff 100%); background-size: 200% 200%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: gradient-shift 4s ease infinite; }
     @keyframes gradient-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
     .hero p { font-size: clamp(1.1rem, 2.5vw, 1.4rem); color: var(--errl-text-soft); margin: 0; }
-    .coming-soon { text-align: center; padding: 4rem 2rem; background: rgba(20,20,40,0.4); border-radius: 1.5rem; border: 1px solid rgba(160,0,255,0.2); }
-    .coming-soon h2 { font-size: 2rem; margin: 0 0 1rem; color: var(--errl-text-main); }
+    .coming-soon { text-align: center; padding: 4rem 2rem; background: rgba(20,20,40,0.4); border-radius: 1.5rem; border: 1px solid rgba(var(--errl-neon-purple-rgb), 0.2); }
+    .coming-soon h2 { font-size: 2rem; margin: 0 0 1rem; color: var(--errl-text); }
     .coming-soon p { color: var(--errl-text-soft); font-size: 1.1rem; }
   </style>
 </head>
 <body class="errl-about-bg">
   <header class="errl-header">
-    <div class="errl-nav">
+    <div class="errl-header-content">
       <a class="errl-home-btn" href="/">← Back to Portal</a>
-      <ul class="errl-links">
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/about/index.html">
-            <span>About</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/gallery/index.html">
-            <span>Gallery</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/assets/index.html">
-            <span>Assets</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/studio/index.html">
-            <span>Studio</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn active" href="/portal/pages/events/index.html">
-            <span>Events</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/merch/index.html">
-            <span>Merch</span>
-          </a>
-        </li>
-      </ul>
+      <nav class="errl-nav">
+        <a class="errl-bubble-btn" href="/about/" data-portal-link="about/">About Errl</a>
+        <a class="errl-bubble-btn" href="/gallery/" data-portal-link="gallery/">Gallery</a>
+        <a class="errl-bubble-btn" href="/assets/" data-portal-link="assets/">Assets</a>
+        <a class="errl-bubble-btn" href="/studio.html">Studio</a>
+        <a class="errl-bubble-btn" href="/studio/pin-designer">Design</a>
+        <a class="errl-bubble-btn active" href="/events/" data-portal-link="events/">Events</a>
+        <a class="errl-bubble-btn" href="/merch/" data-portal-link="merch/">Merch</a>
+      </nav>
     </div>
   </header>
 

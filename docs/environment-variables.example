@@ -1,0 +1,13 @@
+# Errl Portal Environment Variables
+# Copy this file to .env in the project root and update with your values
+
+# Ollama API URL (for chatbot feature)
+# Defaults to localhost if not set
+VITE_OLLAMA_URL=http://localhost:11434
+
+# Base URL (automatically set by Vite based on build mode)
+# For production, Vite sets this based on vite.config.ts base setting
+# BASE_URL=/
+
+# Note: Vite automatically exposes variables prefixed with VITE_
+# All other variables are not exposed to the client bundle

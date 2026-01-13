@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import PortalHeader, { type PortalNavKey } from '../../../../src/app/components/PortalHeader';
+import PortalHeader, { type PortalNavKey } from '@/apps/studio/src/app/components/PortalHeader';
 
 type Breadcrumb = {
   label: string;

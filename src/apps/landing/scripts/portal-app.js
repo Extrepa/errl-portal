@@ -760,24 +760,137 @@
       apply();
       syncAnimationState();
     });
+    // Play/pause button for auto-fade
+    const autoPlayPause = $("classicGooAutoPlayPause");
+    function updateAutoPlayPauseButton() {
+      if (!autoPlayPause) return;
+      const hasAuto = anyAutoEnabled();
+      autoPlayPause.style.display = hasAuto ? 'block' : 'none';
+      if (hasAuto) {
+        autoPlayPause.textContent = animating ? 'Pause' : 'Play';
+        autoPlayPause.setAttribute('aria-pressed', animating ? 'true' : 'false');
+        autoPlayPause.title = animating ? 'Pause auto-fade animation' : 'Play auto-fade animation';
+      }
+    }
+    if (autoPlayPause) {
+      on(autoPlayPause, 'click', ()=>{
+        if (animating) {
+          stopAnimation();
+        } else {
+          if (anyAutoEnabled() && enabled?.checked) {
+            startAnimation();
+          }
+        }
+        updateAutoPlayPauseButton();
+      });
+    }
+    // Update button visibility when auto toggles change
+    autoDescriptors.forEach(({ toggle }) => {
+      if (toggle) {
+        on(toggle, 'change', updateAutoPlayPauseButton);
+      }
+    });
+    on(enabled, 'change', updateAutoPlayPauseButton);
+
+    // Expose stop function for reset
+    window.__errlStopGooAuto = function() {
+      stopAnimation();
+    };
+    
     loadAutoConfig();
     apply();
     syncAnimationState();
+    updateAutoPlayPauseButton();
     window.addEventListener('pointermove', pointerMoveHandler, { passive: true });
     window.addEventListener('pointerleave', pointerLeaveHandler, { passive: true });
   })();
 
-  // Slow Gradient button
-  on($("navSlowGradient"), 'click', ()=>{
-    if (!window.errlGLSetGoo) return;
-    // Apply slow, gentle gradient animation
-    window.errlGLSetGoo({ speed: 0.3, wiggle: 0.2, viscosity: 0.7, drip: 0.1 });
-    // Also update UI sliders to reflect the change
-    const f = $("navFlow"); if (f) f.value = 0.3;
-    const w = $("navWiggle"); if (w) w.value = 0.2;
-    const g = $("navGrip"); if (g) g.value = 0.7;
-    const d = $("navDrip"); if (d) d.value = 0.1;
-  });
+  // Slow Gradient button with play/pause
+  (function navGradientControls(){
+    let gradientAnimating = false;
+    let gradientRaf = null;
+    const slowGradientBtn = $("navSlowGradient");
+    const gradientPlayPause = $("navGradientPlayPause");
+    
+    // Expose stop function for reset
+    window.__errlStopNavGradient = function() {
+      stopGradientAnimation();
+    };
+    
+    function startGradientAnimation(){
+      if (gradientAnimating || !window.errlGLSetGoo) return;
+      gradientAnimating = true;
+      const startTime = Date.now();
+      const period = 8000; // 8 second cycle
+      
+      function animate(){
+        if (!gradientAnimating) return;
+        const elapsed = (Date.now() - startTime) % period;
+        const t = elapsed / period; // 0 to 1
+        const hue = t * 360; // Full color cycle
+        
+        // Apply gradient with animated hue
+        window.errlGLSetGoo({ 
+          speed: 0.3 + Math.sin(t * Math.PI * 2) * 0.1, 
+          wiggle: 0.2 + Math.cos(t * Math.PI * 2) * 0.1, 
+          viscosity: 0.7, 
+          drip: 0.1 
+        });
+        
+        gradientRaf = requestAnimationFrame(animate);
+      }
+      gradientRaf = requestAnimationFrame(animate);
+      updateGradientButton();
+    }
+    
+    function stopGradientAnimation(){
+      gradientAnimating = false;
+      if (gradientRaf) {
+        cancelAnimationFrame(gradientRaf);
+        gradientRaf = null;
+      }
+      updateGradientButton();
+    }
+    
+    function updateGradientButton(){
+      if (!gradientPlayPause) return;
+      gradientPlayPause.style.display = gradientAnimating ? 'block' : 'none';
+      if (gradientAnimating) {
+        gradientPlayPause.textContent = 'Pause';
+        gradientPlayPause.setAttribute('aria-pressed', 'true');
+        gradientPlayPause.title = 'Pause gradient animation';
+      } else {
+        gradientPlayPause.textContent = 'Play';
+        gradientPlayPause.setAttribute('aria-pressed', 'false');
+        gradientPlayPause.title = 'Play gradient animation';
+      }
+    }
+    
+    if (slowGradientBtn) {
+      on(slowGradientBtn, 'click', ()=>{
+        if (!window.errlGLSetGoo) return;
+        // Apply slow, gentle gradient animation
+        window.errlGLSetGoo({ speed: 0.3, wiggle: 0.2, viscosity: 0.7, drip: 0.1 });
+        // Also update UI sliders to reflect the change
+        const f = $("navFlow"); if (f) f.value = 0.3;
+        const w = $("navWiggle"); if (w) w.value = 0.2;
+        const g = $("navGrip"); if (g) g.value = 0.7;
+        const d = $("navDrip"); if (d) d.value = 0.1;
+        // Start animation
+        startGradientAnimation();
+      });
+    }
+    
+    if (gradientPlayPause) {
+      on(gradientPlayPause, 'click', ()=>{
+        if (gradientAnimating) {
+          stopGradientAnimation();
+        } else {
+          startGradientAnimation();
+        }
+      });
+    }
+  })();
 
   // Rotate Skins - load randomly from assets folder (with globbed user overrides)
   const userSkinGlob = import.meta.glob('../../shared/assets/shared/orb-skins/**/*.{png,jpg,jpeg,webp,avif,gif,svg}', {
@@ -809,6 +922,189 @@
     }
   });
 
+  // Rising Bubbles (Three.js) controls
+  (function risingBubblesControls(){
+    function withRB(cb){
+      const RB = window.errlRisingBubblesThree;
+      if (RB && typeof RB.setSpeed === 'function') return cb(RB);
+      setTimeout(()=> withRB(cb), 100);
+    }
+
+    // Basic controls
+    const speed = $("rbSpeed");
+    const density = $("rbDensity");
+    const alpha = $("rbAlpha");
+    const wobble = $("rbWobble");
+    const freq = $("rbFreq");
+    const minSize = $("rbMin");
+    const maxSize = $("rbMax");
+    const sizeHz = $("rbSizeHz");
+    const jumboPct = $("rbJumboPct");
+    const jumboScale = $("rbJumboScale");
+    const attract = $("rbAttract");
+    const attractIntensity = $("rbAttractIntensity");
+    const ripples = $("rbRipples");
+    const rippleIntensity = $("rbRippleIntensity");
+
+    function persistRB(){
+      try{
+        const obj = {
+          speed: parseFloat(speed?.value || '1'),
+          density: parseFloat(density?.value || '1'),
+          alpha: parseFloat(alpha?.value || '0.95'),
+          wobble: parseFloat(wobble?.value || '1'),
+          freq: parseFloat(freq?.value || '1'),
+          min: parseInt(minSize?.value || '14'),
+          max: parseInt(maxSize?.value || '36'),
+          sizeHz: parseFloat(sizeHz?.value || '0'),
+          jumboPct: parseFloat(jumboPct?.value || '0.1'),
+          jumboScale: parseFloat(jumboScale?.value || '1.6'),
+          attract: !!attract?.checked,
+          attractIntensity: parseFloat(attractIntensity?.value || '1.0'),
+          ripples: !!ripples?.checked,
+          rippleIntensity: parseFloat(rippleIntensity?.value || '1.2')
+        };
+        localStorage.setItem('errl_rb_settings', JSON.stringify(obj));
+      }catch(e){}
+    }
+
+    if (speed) on(speed, 'input', ()=> { withRB(RB=> RB.setSpeed(speed.value)); persistRB(); });
+    if (density) on(density, 'input', ()=> { withRB(RB=> RB.setDensity(density.value)); persistRB(); });
+    if (alpha) on(alpha, 'input', ()=> { withRB(RB=> RB.setAlpha(alpha.value)); persistRB(); });
+    if (wobble) on(wobble, 'input', ()=> { withRB(RB=> RB.setWobble(wobble.value)); persistRB(); });
+    if (freq) on(freq, 'input', ()=> { withRB(RB=> RB.setFreq(freq.value)); persistRB(); });
+    if (minSize) on(minSize, 'input', ()=> { withRB(RB=> RB.setMinSize(minSize.value)); persistRB(); });
+    if (maxSize) on(maxSize, 'input', ()=> { withRB(RB=> RB.setMaxSize(maxSize.value)); persistRB(); });
+    if (sizeHz) on(sizeHz, 'input', ()=> { withRB(RB=> RB.setSizeHz(sizeHz.value)); persistRB(); });
+    if (jumboPct) on(jumboPct, 'input', ()=> { withRB(RB=> RB.setJumboPct(jumboPct.value)); persistRB(); });
+    if (jumboScale) on(jumboScale, 'input', ()=> { withRB(RB=> RB.setJumboScale(jumboScale.value)); persistRB(); });
+    if (attract) on(attract, 'change', ()=> { withRB(RB=> RB.setAttract(attract.checked)); persistRB(); });
+    if (attractIntensity) on(attractIntensity, 'input', ()=> { withRB(RB=> RB.setAttractIntensity(attractIntensity.value)); persistRB(); });
+    if (ripples) on(ripples, 'change', ()=> { withRB(RB=> RB.setRipples(ripples.checked)); persistRB(); });
+    if (rippleIntensity) on(rippleIntensity, 'input', ()=> { withRB(RB=> RB.setRippleIntensity(rippleIntensity.value)); persistRB(); });
+
+    // Apply initial values on load
+    setTimeout(()=> {
+      withRB(RB=> {
+        if (speed) RB.setSpeed(speed.value);
+        if (density) RB.setDensity(density.value);
+        if (alpha) RB.setAlpha(alpha.value);
+        if (wobble) RB.setWobble(wobble.value);
+        if (freq) RB.setFreq(freq.value);
+        if (minSize) RB.setMinSize(minSize.value);
+        if (maxSize) RB.setMaxSize(maxSize.value);
+        if (sizeHz) RB.setSizeHz(sizeHz.value);
+        if (jumboPct) RB.setJumboPct(jumboPct.value);
+        if (jumboScale) RB.setJumboScale(jumboScale.value);
+        if (attract) RB.setAttract(attract.checked);
+        if (attractIntensity) RB.setAttractIntensity(attractIntensity.value);
+        if (ripples) RB.setRipples(ripples.checked);
+        if (rippleIntensity) RB.setRippleIntensity(rippleIntensity.value);
+      });
+    }, 500);
+
+    // RB Advanced Animation controls
+    const rbAdvModeLoop = $("rbAdvModeLoop");
+    const rbAdvModePing = $("rbAdvModePing");
+    const rbAdvAnimSpeed = $("rbAdvAnimSpeed");
+    const rbAdvPlayPause = $("rbAdvPlayPause");
+    let rbAnimating = false;
+    let rbAnimMode = 'loop'; // 'loop' or 'ping'
+    let rbAnimRaf = null;
+    let rbAnimStartTime = 0;
+    
+    // Expose stop function for reset
+    window.__errlStopRBAnimation = function() {
+      stopRBAnimation();
+    };
+
+    function startRBAnimation(){
+      if (rbAnimating) return;
+      rbAnimating = true;
+      rbAnimStartTime = Date.now();
+      updateRBPlayPauseButton();
+      animateRB();
+    }
+
+    function stopRBAnimation(){
+      rbAnimating = false;
+      if (rbAnimRaf) {
+        cancelAnimationFrame(rbAnimRaf);
+        rbAnimRaf = null;
+      }
+      updateRBPlayPauseButton();
+    }
+
+    function animateRB(){
+      if (!rbAnimating) return;
+      const speed = parseFloat(rbAdvAnimSpeed?.value || '0.1');
+      const period = 10000 / speed; // Period in ms based on speed
+      const elapsed = (Date.now() - rbAnimStartTime) % period;
+      const t = elapsed / period; // 0 to 1
+      
+      let normalizedT = t;
+      if (rbAnimMode === 'ping') {
+        // Ping-pong: 0 -> 1 -> 0
+        normalizedT = t < 0.5 ? t * 2 : 2 - (t * 2);
+      }
+      
+      // Animate wobble and freq together
+      const wobbleBase = parseFloat(wobble?.value || '1');
+      const freqBase = parseFloat(freq?.value || '1');
+      const wobbleRange = 0.5;
+      const freqRange = 0.5;
+      
+      const animatedWobble = wobbleBase + (normalizedT - 0.5) * wobbleRange;
+      const animatedFreq = freqBase + (normalizedT - 0.5) * freqRange;
+      
+      withRB(RB=> {
+        RB.setWobble(Math.max(0, Math.min(2, animatedWobble)));
+        RB.setFreq(Math.max(0, Math.min(2, animatedFreq)));
+      });
+      
+      if (wobble) wobble.value = String(Math.max(0, Math.min(2, animatedWobble)).toFixed(2));
+      if (freq) freq.value = String(Math.max(0, Math.min(2, animatedFreq)).toFixed(2));
+      
+      rbAnimRaf = requestAnimationFrame(animateRB);
+    }
+
+    function updateRBPlayPauseButton(){
+      if (!rbAdvPlayPause) return;
+      rbAdvPlayPause.textContent = rbAnimating ? 'Pause' : 'Play';
+      rbAdvPlayPause.setAttribute('aria-pressed', rbAnimating ? 'true' : 'false');
+      rbAdvPlayPause.title = rbAnimating ? 'Pause animation' : 'Play animation';
+    }
+
+    // Initialize loop mode as active by default
+    if (rbAdvModeLoop) {
+      rbAdvModeLoop.classList.add('active');
+      on(rbAdvModeLoop, 'click', ()=>{
+        rbAnimMode = 'loop';
+        rbAdvModeLoop.classList.add('active');
+        if (rbAdvModePing) rbAdvModePing.classList.remove('active');
+      });
+    }
+
+    if (rbAdvModePing) {
+      on(rbAdvModePing, 'click', ()=>{
+        rbAnimMode = 'ping';
+        rbAdvModePing.classList.add('active');
+        if (rbAdvModeLoop) rbAdvModeLoop.classList.remove('active');
+      });
+    }
+
+    if (rbAdvPlayPause) {
+      updateRBPlayPauseButton(); // Initialize button state
+      on(rbAdvPlayPause, 'click', ()=>{
+        if (rbAnimating) {
+          stopRBAnimation();
+        } else {
+          startRBAnimation();
+        }
+      });
+    }
+  })();
+
   // Apply persisted defaults on load (overlay + gl bubbles + nav goo + RB + Goo)
   (function loadPersisted(){
     try{
@@ -816,7 +1112,16 @@
       const ng = JSON.parse(localStorage.getItem('errl_nav_goo_cfg')||'null');
       if (ng){ const e=(id,v)=>{ const el=document.getElementById(id); if(el){ el.value = String(v); el.dispatchEvent(new Event('input')); } }; const c=(id,v)=>{ const el=document.getElementById(id); if(el){ el.checked=!!v; el.dispatchEvent(new Event('input')); } }; c('navGooEnabled', ng.enabled); e('navGooBlur', ng.blur); e('navGooMult', ng.mult); e('navGooThresh', ng.thresh); }
       const rb = JSON.parse(localStorage.getItem('errl_rb_settings')||'null');
-      if (rb){ const e=(id,v)=>{ const el=document.getElementById(id); if(el){ el.value=String(v); el.dispatchEvent(new Event('input')); } }; e('rbSpeed', rb.speed); e('rbDensity', rb.density); e('rbAlpha', rb.alpha); e('rbWobble', rb.wobble); e('rbFreq', rb.freq); e('rbMin', rb.min); e('rbMax', rb.max); e('rbSizeHz', rb.sizeHz); e('rbJumboPct', rb.jumboPct); e('rbJumboScale', rb.jumboScale); }
+      if (rb){ 
+        const e=(id,v)=>{ const el=document.getElementById(id); if(el){ el.value=String(v); el.dispatchEvent(new Event('input')); } }; 
+        const c=(id,v)=>{ const el=document.getElementById(id); if(el){ el.checked=!!v; el.dispatchEvent(new Event('change')); } }; 
+        e('rbSpeed', rb.speed); e('rbDensity', rb.density); e('rbAlpha', rb.alpha); e('rbWobble', rb.wobble); e('rbFreq', rb.freq); 
+        e('rbMin', rb.min); e('rbMax', rb.max); e('rbSizeHz', rb.sizeHz); e('rbJumboPct', rb.jumboPct); e('rbJumboScale', rb.jumboScale);
+        if (rb.attract !== undefined) c('rbAttract', rb.attract);
+        if (rb.attractIntensity !== undefined) e('rbAttractIntensity', rb.attractIntensity);
+        if (rb.ripples !== undefined) c('rbRipples', rb.ripples);
+        if (rb.rippleIntensity !== undefined) e('rbRippleIntensity', rb.rippleIntensity);
+      }
       const cg = JSON.parse(localStorage.getItem('errl_goo_cfg')||'null');
       if (cg){ const c=(id,v)=>{ const el=document.getElementById(id); if(el){ el.checked=!!v; el.dispatchEvent(new Event('input')); } }; const e=(id,v)=>{ const el=document.getElementById(id); if(el){ el.value=String(v); el.dispatchEvent(new Event('input')); } }; c('classicGooEnabled', cg.enabled); e('classicGooStrength', cg.mult); e('classicGooWobble', cg.wobble); e('classicGooSpeed', cg.speed); }
     }catch(e){}
@@ -1090,7 +1395,22 @@
       // overlay/bubbles saved on change already
       const ng={ enabled: document.getElementById('navGooEnabled')?.checked, blur:+(document.getElementById('navGooBlur')?.value||6), mult:+(document.getElementById('navGooMult')?.value||24), thresh:+(document.getElementById('navGooThresh')?.value||-14) };
       localStorage.setItem('errl_nav_goo_cfg', JSON.stringify(ng));
-      const rb={ speed:+(document.getElementById('rbSpeed')?.value||1), density:+(document.getElementById('rbDensity')?.value||1), alpha:+(document.getElementById('rbAlpha')?.value||0.95), wobble:+(document.getElementById('rbWobble')?.value||1), freq:+(document.getElementById('rbFreq')?.value||1), min:+(document.getElementById('rbMin')?.value||14), max:+(document.getElementById('rbMax')?.value||36), sizeHz:+(document.getElementById('rbSizeHz')?.value||0), jumboPct:+(document.getElementById('rbJumboPct')?.value||0.1), jumboScale:+(document.getElementById('rbJumboScale')?.value||1.6) };
+      const rb={ 
+        speed:+(document.getElementById('rbSpeed')?.value||1), 
+        density:+(document.getElementById('rbDensity')?.value||1), 
+        alpha:+(document.getElementById('rbAlpha')?.value||0.95), 
+        wobble:+(document.getElementById('rbWobble')?.value||1), 
+        freq:+(document.getElementById('rbFreq')?.value||1), 
+        min:+(document.getElementById('rbMin')?.value||14), 
+        max:+(document.getElementById('rbMax')?.value||36), 
+        sizeHz:+(document.getElementById('rbSizeHz')?.value||0), 
+        jumboPct:+(document.getElementById('rbJumboPct')?.value||0.1), 
+        jumboScale:+(document.getElementById('rbJumboScale')?.value||1.6),
+        attract:!!(document.getElementById('rbAttract')?.checked),
+        attractIntensity:+(document.getElementById('rbAttractIntensity')?.value||1.0),
+        ripples:!!(document.getElementById('rbRipples')?.checked),
+        rippleIntensity:+(document.getElementById('rbRippleIntensity')?.value||1.2)
+      };
       localStorage.setItem('errl_rb_settings', JSON.stringify(rb));
       const cg={ enabled: document.getElementById('classicGooEnabled')?.checked, mult:+(document.getElementById('classicGooStrength')?.value||1), wobble:+(document.getElementById('classicGooWobble')?.value||1), speed:+(document.getElementById('classicGooSpeed')?.value||1) };
       localStorage.setItem('errl_goo_cfg', JSON.stringify(cg));
@@ -1098,8 +1418,99 @@
     }catch(e){ alert('Could not save defaults.'); }
   }
   function resetDefaults(){
-    ['errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings','errl_goo_cfg'].forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} });
-    alert('Defaults cleared. Reload to see stock settings.');
+    try {
+      // Stop all animations first
+      // Stop RB advanced animation
+      if (window.__errlStopRBAnimation) {
+        window.__errlStopRBAnimation();
+      }
+      // Stop nav gradient animation
+      if (window.__errlStopNavGradient) {
+        window.__errlStopNavGradient();
+      }
+      // Stop Errl goo auto-fade
+      if (window.__errlStopGooAuto) {
+        window.__errlStopGooAuto();
+      }
+      // Stop hue timeline
+      if (window.ErrlHueController && window.ErrlHueController.pauseTimeline) {
+        window.ErrlHueController.pauseTimeline();
+      }
+      
+      // Clear all stored settings
+      ['errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings','errl_goo_cfg','errl_a11y'].forEach(k=>{ 
+        try{ localStorage.removeItem(k); }catch(e){} 
+      });
+      
+      // Reset hue controller
+      if (window.ErrlHueController) {
+        window.ErrlHueController.reset();
+      }
+      
+      // Reset UI to defaults
+      const defaults = {
+        // RB defaults
+        rbSpeed: '1', rbDensity: '1', rbAlpha: '0.95', rbWobble: '1', rbFreq: '1',
+        rbMin: '14', rbMax: '36', rbSizeHz: '0', rbJumboPct: '0.1', rbJumboScale: '1.6',
+        rbAttract: true, rbAttractIntensity: '1.0',
+        rbRipples: false, rbRippleIntensity: '1.2',
+        // Goo defaults
+        classicGooEnabled: true, classicGooStrength: '0.35', classicGooWobble: '0.55', classicGooSpeed: '0.45',
+        classicGooStrengthAuto: false, classicGooWobbleAuto: false, classicGooSpeedAuto: false,
+        classicGooAutoSpeed: '0.05', classicGooMouseReact: false,
+        // Nav defaults
+        navOrbitSpeed: '1.0', navRadius: '1.2', navOrbSize: '1.05',
+        navWiggle: '0.4', navFlow: '0.8', navGrip: '0.5', navDrip: '-0.5', navVisc: '0.9',
+        glOrbsToggle: true,
+        // GLB defaults
+        bgSpeed: '0.9', bgDensity: '1.2', glAlpha: '0.85',
+        // Errl defaults
+        errlSize: '1.0',
+        // Hue defaults
+        hueEnabled: false, hueShift: '0', hueSat: '1', hueInt: '1', hueTimeline: '0',
+        // Audio defaults
+        audioEnabled: true, audioMaster: '0.4', audioBass: '0.2',
+        // A11y defaults
+        prefReduce: false, prefContrast: false, prefInvert: false
+      };
+      
+      // Apply defaults
+      Object.keys(defaults).forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const value = defaults[id];
+        if (el.type === 'checkbox') {
+          el.checked = !!value;
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        } else {
+          el.value = String(value);
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      });
+      
+      // Update play/pause button states and UI after reset
+      setTimeout(() => {
+        // Update hue play/pause button
+        if (window.ErrlHueController && window.ErrlHueController.master) {
+          const huePlayPause = document.getElementById('huePlayPause');
+          if (huePlayPause) {
+            huePlayPause.textContent = 'Play';
+            huePlayPause.setAttribute('aria-pressed', 'false');
+          }
+        }
+        // Reset RB animation mode buttons
+        const rbAdvModeLoop = document.getElementById('rbAdvModeLoop');
+        const rbAdvModePing = document.getElementById('rbAdvModePing');
+        if (rbAdvModeLoop) rbAdvModeLoop.classList.add('active');
+        if (rbAdvModePing) rbAdvModePing.classList.remove('active');
+        // RB, Nav, and Errl play/pause buttons will update via their own update functions
+      }, 100);
+      
+      alert('Defaults reset. All settings restored to stock values.');
+    } catch(e) {
+      console.error('Reset failed:', e);
+      alert('Reset failed. Please reload the page.');
+    }
   }
   const saveBtn=document.getElementById('saveDefaultsBtn'); if (saveBtn) saveBtn.addEventListener('click', saveDefaults);
   const rstBtn=document.getElementById('resetDefaultsBtn'); if (rstBtn) rstBtn.addEventListener('click', resetDefaults);
@@ -1120,6 +1531,7 @@
     const header = document.getElementById('errlPhoneHeader');
     const tabsWrap = document.getElementById('panelTabs');
     const minBtn = document.getElementById('phoneMinToggle');
+    const closeBtn = document.getElementById('phone-close-button');
     const sections = Array.from(panel.querySelectorAll('.panel-section'));
     const toTop = document.getElementById('panelScrollTop');
 
@@ -1155,28 +1567,48 @@
       });
     }
 
-    // minimize toggle - minimize to top right corner
+    // Helper function to minimize the panel
+    function minimizePanel() {
+      panel.classList.add('minimized');
+      clearMinimizedInlineStyles();
+      try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
+    }
+
+    // Helper function to restore the panel
+    function restorePanel() {
+      panel.classList.remove('minimized');
+      clearMinimizedInlineStyles();
+      // Show content again (CSS handles layout)
+      const headerEl = panel.querySelector('.panel-header');
+      const tabsEl = panel.querySelector('.panel-tabs');
+      const sectionsEl = panel.querySelectorAll('.panel-section');
+      if (headerEl) headerEl.style.display = '';
+      if (tabsEl) tabsEl.style.display = '';
+      sectionsEl.forEach(s => s.style.display = '');
+      try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
+    }
+
+    // minimize toggle - minimize to bottom right corner
     if (minBtn){
       minBtn.addEventListener('click', (e)=>{
         e.stopPropagation();
         if (panel.classList.contains('minimized')) {
-          // Restore
-          panel.classList.remove('minimized');
-          clearMinimizedInlineStyles();
-          // Show content again (CSS handles layout)
-          const headerEl = panel.querySelector('.panel-header');
-          const tabsEl = panel.querySelector('.panel-tabs');
-          const sectionsEl = panel.querySelectorAll('.panel-section');
-          if (headerEl) headerEl.style.display = '';
-          if (tabsEl) tabsEl.style.display = '';
-          sectionsEl.forEach(s => s.style.display = '');
-          try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
+          restorePanel();
         } else {
-          // Minimize
-          panel.classList.add('minimized');
-          // Ensure no stale inline constraints linger
-          clearMinimizedInlineStyles();
-          try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
+          minimizePanel();
+        }
+      });
+    }
+
+    // close button - toggle minimize/restore
+    if (closeBtn){
+      closeBtn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        e.preventDefault();
+        if (panel.classList.contains('minimized')) {
+          restorePanel();
+        } else {
+          minimizePanel();
         }
       });
     }
@@ -1185,16 +1617,7 @@
       if (panel.classList.contains('minimized')) {
         // Only expand if clicking the panel itself (not child elements)
         if (e.target === panel || e.target.classList.contains('errl-panel')) {
-          panel.classList.remove('minimized');
-          clearMinimizedInlineStyles();
-          // Show content again
-          const headerEl = panel.querySelector('.panel-header');
-          const tabsEl = panel.querySelector('.panel-tabs');
-          const sectionsEl = panel.querySelectorAll('.panel-section');
-          if (headerEl) headerEl.style.display = '';
-          if (tabsEl) tabsEl.style.display = '';
-          sectionsEl.forEach(s => s.style.display = '');
-          try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
+          restorePanel();
         }
       }
     });
@@ -1223,13 +1646,19 @@
       header.addEventListener('pointercancel', end);
     }
 
-    // scroll-to-top button
-    panel.addEventListener('scroll', ()=>{
-      if (!toTop) return;
-      toTop.style.display = panel.scrollTop > 140 ? 'block' : 'none';
-    });
-    if (toTop){
-      toTop.addEventListener('click', (e)=>{ e.stopPropagation(); panel.scrollTo({ top: 0, behavior: 'smooth' }); });
+    // scroll-to-top button - use content wrapper for scrolling
+    const contentWrapper = panel.querySelector('.panel-content-wrapper');
+    if (contentWrapper) {
+      contentWrapper.addEventListener('scroll', ()=>{
+        if (!toTop) return;
+        toTop.style.display = contentWrapper.scrollTop > 40 ? 'block' : 'none';
+      });
+      if (toTop){
+        toTop.addEventListener('click', (e)=>{ 
+          e.stopPropagation(); 
+          contentWrapper.scrollTo({ top: 0, behavior: 'smooth' }); 
+        });
+      }
     }
   })();
 

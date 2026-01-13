@@ -4,6 +4,7 @@ import StudioMathLab from './pages/StudioMathLab';
 import StudioShapeMadness from './pages/StudioShapeMadness';
 import StudioPinDesigner from './pages/StudioPinDesigner';
 import StudioProjects from './pages/StudioProjects';
+import StudioComponentLibrary from './pages/StudioComponentLibrary';
 import ErrlLiveStudio from '../../features/live-studio/studio/app/ErrlLiveStudio';
 
 export default function AppRouter() {
@@ -16,6 +17,7 @@ export default function AppRouter() {
       <Route path="shape-madness" element={<StudioShapeMadness />} />
       <Route path="pin-designer" element={<StudioPinDesigner />} />
       <Route path="projects" element={<StudioProjects />} />
+      <Route path="component-library" element={<StudioComponentLibrary />} />
 
       {/* Backward-compat redirects: tools → studio */}
       <Route path="tools/*" element={<Navigate to="/" replace />} />

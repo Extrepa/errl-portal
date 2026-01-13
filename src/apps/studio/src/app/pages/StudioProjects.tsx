@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import StudioShell from '../../../features/live-studio/studio/app/layout/StudioShell';
-import GravityStickerField from '@/apps/projects/gravity-sticker-field/GravityStickerField';
-import RippleFace from '@/apps/projects/ripple-face/RippleFace';
-import SparkleWorkletPin from '@/apps/projects/sparkle-worklet-pin/SparkleWorkletPin';
-import BubbleMouseTrail from '@/apps/projects/bubble-mouse-trail/BubbleMouseTrail';
-import HolographicCursorTrail from '@/apps/projects/holographic-cursor-trail/HolographicCursorTrail';
+import GravityStickerField from '@/shared/components/projects/gravity-sticker-field/GravityStickerField';
+import RippleFace from '@/shared/components/projects/ripple-face/RippleFace';
+import SparkleWorkletPin from '@/shared/components/projects/sparkle-worklet-pin/SparkleWorkletPin';
+import BubbleMouseTrail from '@/shared/components/projects/bubble-mouse-trail/BubbleMouseTrail';
+import HolographicCursorTrail from '@/shared/components/projects/holographic-cursor-trail/HolographicCursorTrail';
 
 export default function StudioProjects() {
   const breadcrumbs = [
@@ -29,23 +29,33 @@ export default function StudioProjects() {
       navActiveKey="studio"
     >
       <Section title="Gravity Sticker Field">
-        <GravityStickerField />
+        <div className="rounded-lg border border-white/10 bg-black/40 p-8">
+          <GravityStickerField />
+        </div>
       </Section>
 
       <Section title="Ripple Face">
-        <RippleFace />
+        <div className="rounded-lg border border-white/10 bg-black/40 p-8">
+          <RippleFace />
+        </div>
       </Section>
 
       <Section title="Sparkle Worklet Pin">
-        <SparkleWorkletPin />
+        <div className="rounded-lg border border-white/10 bg-black/40 p-8">
+          <SparkleWorkletPin />
+        </div>
       </Section>
 
       <Section title="Bubble Mouse Trail">
-        <BubbleMouseTrail />
+        <div className="rounded-lg border border-white/10 bg-black/40 p-8">
+          <BubbleMouseTrail />
+        </div>
       </Section>
 
       <Section title="Holographic Cursor Trail">
-        <HolographicCursorTrail />
+        <div className="rounded-lg border border-white/10 bg-black/40 p-8">
+          <HolographicCursorTrail />
+        </div>
       </Section>
     </StudioShell>
   );

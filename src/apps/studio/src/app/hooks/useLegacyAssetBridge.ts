@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { RefObject } from 'react';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error - legacy module ships without TypeScript types
-import { listAssets, getAssetBlob, saveAsset, removeAsset } from '@/utils/assetStore.js';
+import { listAssets, getAssetBlob, saveAsset, removeAsset } from '@shared/utils/assetStore.js';
 
 type LegacyAssetRequest =
   | {

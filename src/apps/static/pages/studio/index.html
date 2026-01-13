@@ -6,7 +6,8 @@
     <title>Errl Studio Hub</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../../../../fx/errl-bg.css" />
+    <link rel="stylesheet" href="../../../../shared/styles/errlDesignSystem.css" />
+    <link rel="stylesheet" href="../../../landing/fx/errl-bg.css" />
     <style>
       :root {
         --studio-bg: #05050a;
@@ -432,13 +433,13 @@
       <div class="errl-header-content">
         <a class="errl-home-btn" href="/">← Back to Portal</a>
         <nav class="errl-nav">
-          <a class="errl-bubble-btn" data-portal-link="pages/about/index.html" href="/portal/pages/about/index.html">About Errl</a>
-          <a class="errl-bubble-btn" data-portal-link="pages/gallery/index.html" href="/portal/pages/gallery/index.html">Gallery</a>
-          <a class="errl-bubble-btn" data-portal-link="pages/assets/index.html" href="/portal/pages/assets/index.html">Assets</a>
+          <a class="errl-bubble-btn" data-portal-link="about/" href="/about/">About Errl</a>
+          <a class="errl-bubble-btn" data-portal-link="gallery/" href="/gallery/">Gallery</a>
+          <a class="errl-bubble-btn" data-portal-link="assets/" href="/assets/">Assets</a>
           <a class="errl-bubble-btn active" href="#studio">Studio</a>
           <a class="errl-bubble-btn" href="/studio/pin-designer">Design</a>
-          <a class="errl-bubble-btn" data-portal-link="pages/events/index.html" href="/portal/pages/events/index.html">Events</a>
-          <a class="errl-bubble-btn" data-portal-link="pages/merch/index.html" href="/portal/pages/merch/index.html">Merch</a>
+          <a class="errl-bubble-btn" data-portal-link="events/" href="/events/">Events</a>
+          <a class="errl-bubble-btn" data-portal-link="merch/" href="/merch/">Merch</a>
         </nav>
       </div>
     </header>
@@ -528,7 +529,7 @@
       </div>
     </main>
 
-    <script type="module" src="../../../../fx/errl-bg.ts"></script>
+    <script type="module" src="../../../landing/fx/errl-bg.ts"></script>
     <script type="module">
       if (window.ErrlBG && typeof ErrlBG.mount === "function") {
         ErrlBG.mount({ headerVariant: 1, basePath: "../../..", hud: true });
@@ -537,11 +538,22 @@
       const env = (import.meta && import.meta.env) ? import.meta.env : {};
       const baseUrl = typeof env.BASE_URL === "string" ? env.BASE_URL : "/";
       const trimmed = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
-      const portalBase = `${trimmed || ""}/portal`.replace(/^\/{2}/, "/");
+      // Simplified: pages are now at root level in both dev and production
+      function resolvePortalUrl(pagePath) {
+        let clean = pagePath.replace(/^pages\//, '');
+        clean = clean.replace(/^\//, '');
+        clean = clean.replace(/\/$/, ''); // Remove trailing slash
+        clean = clean.replace(/\/index\.html$/, '');
+        clean = clean.replace(/index\.html$/, '');
+        return clean ? `/${clean}/` : '/';
+      }
 
       document.querySelectorAll("[data-portal-link]").forEach((el) => {
         const target = el.getAttribute("data-portal-link");
-        if (target) el.setAttribute("href", `${portalBase}/${target}`);
+        if (target) {
+          const url = resolvePortalUrl(target);
+          el.setAttribute("href", url);
+        }
       });
     </script>
   </body>

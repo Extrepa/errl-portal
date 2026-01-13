@@ -1,4 +1,4 @@
-import { reNum } from '../../parser/constants';
+import { reNum } from '../../parser/constants.js';
 
 const regex = new RegExp(`(${reNum})`, 'gi');
 

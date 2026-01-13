@@ -30,6 +30,13 @@ const tools: ToolLink[] = [
     to: 'code-lab',
   },
   {
+    id: 'component-library',
+    title: 'Component Library',
+    description: 'Browse 182+ visual components, effects, and UI elements. Search, filter, preview, and export components.',
+    badge: 'available',
+    to: 'component-library',
+  },
+  {
     id: 'math-lab',
     title: 'Psychedelic Math Lab',
     description: '100+ interactive math toys and shaders. Legacy experience; opens inside the React shell.',
@@ -46,7 +53,7 @@ const tools: ToolLink[] = [
   {
     id: 'pin-designer',
     title: 'Pin Designer',
-    description: 'Design and export Errl pins. We’ll merge this into the shared asset pipeline next.',
+    description: 'Design and export Errl pins. We\'ll merge this into the shared asset pipeline next.',
     badge: 'legacy',
     to: 'pin-designer',
   },
@@ -77,7 +84,7 @@ export default function StudioPage() {
             <aside className="studio-header__meta">
               <p className="studio-header__meta-title">In Progress</p>
               <p>
-                Code Lab already uses the shared asset store. We’re wiring Math Lab, Shape Madness, and the Pin Designer to
+                Code Lab already uses the shared asset store. We\'re wiring Math Lab, Shape Madness, and the Pin Designer to
                 the same backbone next.
               </p>
             </aside>

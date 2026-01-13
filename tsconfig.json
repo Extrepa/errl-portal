@@ -8,16 +8,18 @@
     "noEmit": true,
     "skipLibCheck": true,
     "lib": ["ES2020", "DOM"],
-    "types": ["react", "react-dom"],
+    "types": ["react", "react-dom", "vite/client"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "@assets/*": ["src/shared/assets/*"],
       "@shared/*": ["src/shared/*"],
       "@studio/*": ["src/apps/studio/*"],
-      "@legacy/*": ["src/legacy/*"]
+      "@legacy/*": ["src/legacy/*"],
+      "@errl-design-system": ["src/types/errl-design-system.d.ts"],
+      "@errl-design-system/styles/*": ["../all-components/errl-design-system/src/styles/*"]
     }
   },
   "include": ["src"],
-  "exclude": ["src/apps/landing/fx/**/*", "archive/**/*"]
+  "exclude": ["src/apps/landing/fx/**/*", "archive/**/*", "../all-components/**/*"]
 }

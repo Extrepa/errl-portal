@@ -1,4 +1,0 @@
-<!doctype html><meta charset="utf-8"><title>Flow-Field Ribbons</title>
-<style>html,body{height:100%;margin:0;background:#050816;display:grid;place-items:center}</style>
-<canvas id=c width=720 height=420 style="border:1px solid #22306b;border-radius:10px;background:#0b1336"></canvas>
-<script>const c=document.getElementById('c'),k=c.getContext('2d');let t=0;function field(x,y,t){const a=Math.sin((x+y)*.015+t*.002)*Math.PI;return [Math.cos(a),Math.sin(a)]}function loop(){t++;k.fillStyle="rgba(11,19,54,0.2)";k.fillRect(0,0,c.width,c.height);for(let i=0;i<24;i++){let x=(Math.sin(t*.01+i)*.5+.5)*c.width,y=(Math.cos(t*.011+i*.3)*.5+.5)*c.height;k.beginPath();for(let j=0;j<42;j++){const v=field(x,y,t),nx=x+v[0]*2.4,ny=y+v[1]*2.4;j?k.lineTo(nx,ny):k.moveTo(x,y);x=nx;y=ny}k.strokeStyle=`hsl(${(t*.5+i*14)%360} 90% 70%)`;k.lineWidth=1.1;k.stroke()}requestAnimationFrame(loop)}loop()</script>

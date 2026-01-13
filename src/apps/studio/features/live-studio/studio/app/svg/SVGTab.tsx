@@ -283,7 +283,7 @@ export function SVGTab() {
     // Helper to collect parent group ids for anatomy mapping
     function getParentChainIds(el: Element): string[] {
       const chain: string[] = [];
-      let current = el.parentElement;
+      let current: Element | null = el.parentElement;
       while (current && current !== svgEl) {
         const id = current.getAttribute('id');
         if (id) chain.push(id);

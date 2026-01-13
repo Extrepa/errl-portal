@@ -4,27 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>About | Errl / Extrepa Continuum</title>
-
+  <link rel="stylesheet" href="../../../../shared/styles/errlDesignSystem.css" />
   <style>
     /* ===== COLOR SYSTEM ===== */
     :root {
-      --errl-bg: radial-gradient(circle at 30% 20%, rgba(34,255,255,0.08) 0%, rgba(140,0,255,0.04) 60%, rgba(0,0,0,0) 80%);
-      --errl-text-main: #e8e8ff;
-      --errl-text-soft: rgba(232,232,255,0.7);
-      --errl-glow-teal: rgba(0,255,255,0.4);
-      --errl-glow-violet: rgba(160,0,255,0.4);
-      --errl-divider-core: rgba(160,0,255,0.18);
+      --errl-divider-core: rgba(var(--errl-neon-purple-rgb), 0.18);
       --errl-drip-shadow: rgba(0,0,0,0.6);
     }
 
     /* ===== PAGE WRAPPER FEEL ===== */
     body.errl-about-bg {
-      background-color: #000000;
-      background-image: var(--errl-bg);
+      background-color: var(--errl-bg);
+      background-image: var(--errl-bg-gradient);
       background-repeat: no-repeat;
       background-size: 120% 120%;
       background-attachment: fixed;
-      color: var(--errl-text-main);
+      color: var(--errl-text);
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Roboto", sans-serif;
       line-height: 1.5;
       letter-spacing: -0.03em;
@@ -70,8 +65,8 @@
 
     /* ===== ERRL AVATAR STYLES ===== */
     .errl-avatar-container { display: flex; justify-content: center; align-items: center; padding: 2rem 0 3rem; margin: 0 auto; max-width: 75rem; }
-    .errl-avatar { width: clamp(120px, 15vw, 200px); height: clamp(120px, 15vw, 200px); position: relative; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(0,255,255,0.15) 0%, rgba(160,0,255,0.08) 70%, transparent 100%); padding: 1rem; filter: drop-shadow(0 0 20px var(--errl-glow-teal)) drop-shadow(0 0 40px var(--errl-glow-violet)); animation: errl-float 6s ease-in-out infinite; }
-    .errl-face-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 8px rgba(0,255,255,0.3)); }
+    .errl-avatar { width: clamp(120px, 15vw, 200px); height: clamp(120px, 15vw, 200px); position: relative; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(var(--errl-neon-cyan-rgb), 0.15) 0%, rgba(var(--errl-neon-purple-rgb), 0.08) 70%, transparent 100%); padding: 1rem; filter: drop-shadow(0 0 20px var(--errl-glow-teal)) drop-shadow(0 0 40px var(--errl-glow-violet)); animation: errl-float 6s ease-in-out infinite; }
+    .errl-face-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 8px rgba(var(--errl-neon-cyan-rgb), 0.3)); }
     /* Thin strokes for face/eyes/mouth */
     #region-face path, #region-eyeL path, #region-eyeR path, #region-mouth path { stroke-width: 3 !important; }
 
@@ -81,22 +76,22 @@
     @keyframes eyeGlimmer { 0% { opacity: 0.92; filter: drop-shadow(0 0 6px rgba(180,220,255,0.85)) drop-shadow(0 0 16px rgba(140,0,255,0.5)); } 50% { opacity: 1.0; filter: drop-shadow(0 0 12px rgba(200,240,255,1)) drop-shadow(0 0 28px rgba(160,0,255,0.7)); } 100% { opacity: 0.92; filter: drop-shadow(0 0 6px rgba(180,220,255,0.85)) drop-shadow(0 0 16px rgba(140,0,255,0.5)); } }
     @keyframes mouthGlimmer { 0% { opacity: 0.9; } 40% { opacity: 1.0; } 100% { opacity: 0.9; } }
 
-    .errlFill { fill: var(--errl-text-main); stroke: var(--errl-glow-teal); stroke-width: 2px; filter: drop-shadow(0 0 4px var(--errl-glow-violet)); }
+    .errlFill { fill: var(--errl-text); stroke: var(--errl-glow-teal); stroke-width: 2px; filter: drop-shadow(0 0 4px var(--errl-glow-violet)); }
 
     @keyframes errl-float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 25% { transform: translateY(-8px) rotate(1deg); } 50% { transform: translateY(-4px) rotate(-1deg); } 75% { transform: translateY(-12px) rotate(0.5deg); } }
 
     /* ===== HEADERS ===== */
-    .section-title { font-size: clamp(1.2rem, 0.5vw + 1rem, 1.4rem); font-weight: 600; color: var(--errl-text-main); text-transform: uppercase; letter-spacing: 0.08em; display: inline-block; filter: drop-shadow(0 0 6px var(--errl-glow-teal)) drop-shadow(0 0 18px var(--errl-glow-violet)); }
-    .subtitle { font-size: clamp(1.8rem, 1vw + 1rem, 2rem); font-weight: 400; color: var(--errl-text-main); line-height: 1.2; margin-top: 0.4rem; margin-bottom: 1.5rem; text-shadow: 0 0 8px var(--errl-glow-teal), 0 0 24px var(--errl-glow-violet), 0 30px 80px rgba(0,0,0,0.9); }
+    .section-title { font-size: clamp(1.2rem, 0.5vw + 1rem, 1.4rem); font-weight: 600; color: var(--errl-text); text-transform: uppercase; letter-spacing: 0.08em; display: inline-block; filter: drop-shadow(0 0 6px var(--errl-glow-teal)) drop-shadow(0 0 18px var(--errl-glow-violet)); }
+    .subtitle { font-size: clamp(1.8rem, 1vw + 1rem, 2rem); font-weight: 400; color: var(--errl-text); line-height: 1.2; margin-top: 0.4rem; margin-bottom: 1.5rem; text-shadow: 0 0 8px var(--errl-glow-teal), 0 0 24px var(--errl-glow-violet), 0 30px 80px rgba(0,0,0,0.9); }
 
     /* ===== BODY COPY ===== */
     .drip-section p { max-width: 60ch; font-size: clamp(1rem, 0.3vw + 0.8rem, 1.05rem); font-weight: 300; color: var(--errl-text-soft); margin: 0 0 1.25rem 0; text-wrap: balance; }
-    .drip-section em { color: var(--errl-text-main); font-style: normal; text-shadow: 0 0 6px rgba(0,255,255,0.3), 0 0 14px rgba(160,0,255,0.4); }
-    .drip-section strong { font-weight: 500; color: var(--errl-text-main); text-shadow: 0 0 6px rgba(0,255,255,0.3), 0 0 16px rgba(160,0,255,0.4); }
+    .drip-section em { color: var(--errl-text); font-style: normal; text-shadow: 0 0 6px rgba(var(--errl-neon-cyan-rgb), 0.3), 0 0 14px rgba(var(--errl-neon-purple-rgb), 0.4); }
+    .drip-section strong { font-weight: 500; color: var(--errl-text); text-shadow: 0 0 6px rgba(var(--errl-neon-cyan-rgb), 0.3), 0 0 16px rgba(var(--errl-neon-purple-rgb), 0.4); }
 
     /* ===== SECTION LAYOUT ===== */
     .drip-section { position: relative; padding: 4rem 1.5rem 5rem; margin: 0 auto; max-width: 75rem; }
-    .drip-section::before { content: ""; position: absolute; inset: 0; border-radius: 2rem; background: radial-gradient(circle at 50% 0%, rgba(0,255,255,0.07) 0%, rgba(160,0,255,0.05) 40%, rgba(0,0,0,0) 70%); filter: blur(30px); opacity: 0.4; pointer-events: none; }
+    .drip-section::before { content: ""; position: absolute; inset: 0; border-radius: 2rem; background: radial-gradient(circle at 50% 0%, rgba(var(--errl-neon-cyan-rgb), 0.07) 0%, rgba(var(--errl-neon-purple-rgb), 0.05) 40%, rgba(0,0,0,0) 70%); filter: blur(30px); opacity: 0.4; pointer-events: none; }
 
     /* ===== DRIP DIVIDERS ===== */
     .drip-divider { width: 100%; height: 120px; position: relative; overflow: visible; margin: 0 auto; max-width: 75rem; }
@@ -104,15 +99,15 @@
     .drip-divider::after { content: ""; position: absolute; top: 22px; left: 15%; right: 15%; height: 100px; background: radial-gradient(ellipse at 20% 0%, var(--errl-divider-core) 0%, rgba(0,0,0,0) 70%) 0 0 / 120px 100px repeat-x; mask-image: radial-gradient(ellipse at 50% 0%, #fff 0%, transparent 70%); opacity: 0.5; filter: blur(8px); mix-blend-mode: screen; pointer-events: none; }
 
     /* themed divider variants */
-    .drip-divider[data-effect="light-fade"]::before { background: radial-gradient(circle at 50% 50%, rgba(0,255,255,0.22) 0%, transparent 70%); box-shadow: 0 0 12px rgba(0,255,255,0.4), 0 0 40px rgba(160,0,255,0.5), 0 30px 80px var(--errl-drip-shadow); }
-    .drip-divider[data-effect="goo-fade"]::before { background: radial-gradient(circle at 50% 50%, rgba(160,0,255,0.28) 0%, transparent 70%); }
+    .drip-divider[data-effect="light-fade"]::before { background: radial-gradient(circle at 50% 50%, rgba(var(--errl-neon-cyan-rgb), 0.22) 0%, transparent 70%); box-shadow: 0 0 12px rgba(var(--errl-neon-cyan-rgb), 0.4), 0 0 40px rgba(var(--errl-neon-purple-rgb), 0.5), 0 30px 80px var(--errl-drip-shadow); }
+    .drip-divider[data-effect="goo-fade"]::before { background: radial-gradient(circle at 50% 50%, rgba(var(--errl-neon-purple-rgb), 0.28) 0%, transparent 70%); }
 
     /* ===== FADE / REVEAL STATES ===== */
     .fade-in { opacity: 0; transform: translateY(40px) scale(0.98); filter: blur(8px); transition: opacity 0.9s cubic-bezier(.16,1,.3,1), transform 0.9s cubic-bezier(.16,1,.3,1), filter 0.9s cubic-bezier(.16,1,.3,1); will-change: opacity, transform, filter; }
     .fade-in.is-visible { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
 
     /* highlight current section in view */
-    .drip-section.glow::after { content: ""; position: absolute; inset: 0; border-radius: 2rem; background: radial-gradient(circle at 50% 50%, rgba(0,255,255,0.12) 0%, rgba(160,0,255,0.08) 40%, rgba(0,0,0,0) 70%); filter: blur(40px); opacity: 0.6; pointer-events: none; }
+    .drip-section.glow::after { content: ""; position: absolute; inset: 0; border-radius: 2rem; background: radial-gradient(circle at 50% 50%, rgba(var(--errl-neon-cyan-rgb), 0.12) 0%, rgba(var(--errl-neon-purple-rgb), 0.08) 40%, rgba(0,0,0,0) 70%); filter: blur(40px); opacity: 0.6; pointer-events: none; }
 
     /* ===== RESPONSIVE TWEAKS ===== */
     @media (min-width: 768px) { .drip-section { padding-left: 3rem; padding-right: 3rem; } .subtitle { max-width: 40ch; } }
@@ -123,50 +118,21 @@
 <body class="errl-about-bg">
   <!-- HEADER -->
   <header class="errl-header">
-    <nav class="errl-nav">
+    <div class="errl-header-content">
       <a class="errl-home-btn" href="/">
         <span class="chevron">◀</span>
         <span>Back to Portal</span>
       </a>
-
-      <ul class="errl-links">
-        <li>
-          <a class="errl-bubble-btn active" href="/portal/pages/about/index.html">
-            <span>About Errl</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/gallery/index.html">
-            <span>Art Gallery</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/assets/index.html">
-            <span>Assets</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/pin-designer/index.html">
-            <span>Design</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/studio/index.html">
-            <span>Studio</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/events/index.html">
-            <span>Events</span>
-          </a>
-        </li>
-        <li>
-          <a class="errl-bubble-btn" href="/portal/pages/merch/index.html">
-            <span>Merch</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
+      <nav class="errl-nav">
+        <a class="errl-bubble-btn active" href="/about/" data-portal-link="about/index.html">About Errl</a>
+        <a class="errl-bubble-btn" href="/gallery/" data-portal-link="gallery/index.html">Gallery</a>
+        <a class="errl-bubble-btn" href="/assets/" data-portal-link="assets/index.html">Assets</a>
+        <a class="errl-bubble-btn" href="/studio.html">Studio</a>
+        <a class="errl-bubble-btn" href="/studio/pin-designer">Design</a>
+        <a class="errl-bubble-btn" href="/events/" data-portal-link="events/index.html">Events</a>
+        <a class="errl-bubble-btn" href="/merch/" data-portal-link="merch/index.html">Merch</a>
+      </nav>
+    </div>
   </header>
 
   <!-- ERRL AVATAR -->

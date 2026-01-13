@@ -6,6 +6,7 @@
 <title>Errl Pin Designer — Interactive Enamel Mockups</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../shared/styles/errlDesignSystem.css" />
 <style>
 :root{ --ink:#e5eaf1; --gap:28px; --outer-pad:32px; }
 *{box-sizing:border-box} html,body{height:100%;margin:0}
@@ -48,13 +49,13 @@ body{font-family:Inter,system-ui,sans-serif; background:#0a0f18; color:var(--ink
     <div class="errl-header-content">
       <a class="errl-home-btn" href="/">← Back to Portal</a>
       <nav class="errl-nav">
-        <a class="errl-bubble-btn" href="/portal/pages/about/index.html" data-portal-link="pages/about/index.html">About Errl</a>
-        <a class="errl-bubble-btn" href="/portal/pages/gallery/index.html" data-portal-link="pages/gallery/index.html">Gallery</a>
-        <a class="errl-bubble-btn" href="/portal/pages/assets/index.html" data-portal-link="pages/assets/index.html">Assets</a>
-        <a class="errl-bubble-btn active" href="/portal/pages/pin-designer/index.html" data-portal-link="pages/pin-designer/index.html">Design</a>
-        <a class="errl-bubble-btn" href="/portal/pages/studio/index.html" data-portal-link="pages/studio/index.html">Studio</a>
-        <a class="errl-bubble-btn" href="/portal/pages/events/index.html" data-portal-link="pages/events/index.html">Events</a>
-        <a class="errl-bubble-btn" href="/portal/pages/merch/index.html" data-portal-link="pages/merch/index.html">Merch</a>
+        <a class="errl-bubble-btn" href="/about/" data-portal-link="about/">About Errl</a>
+        <a class="errl-bubble-btn" href="/gallery/" data-portal-link="gallery/">Gallery</a>
+        <a class="errl-bubble-btn" href="/assets/" data-portal-link="assets/">Assets</a>
+        <a class="errl-bubble-btn active" href="/pin-designer/" data-portal-link="pin-designer/">Design</a>
+        <a class="errl-bubble-btn" href="/studio.html">Studio</a>
+        <a class="errl-bubble-btn" href="/events/" data-portal-link="events/">Events</a>
+        <a class="errl-bubble-btn" href="/merch/" data-portal-link="merch/">Merch</a>
       </nav>
     </div>
   </header>
@@ -67,13 +68,22 @@ body{font-family:Inter,system-ui,sans-serif; background:#0a0f18; color:var(--ink
     </div>
   </article>
 <script type="module">
-  const env = (typeof import.meta !== 'undefined' && 'env' in import.meta) ? import.meta.env : {};
-  const baseUrl = typeof env.BASE_URL === 'string' ? env.BASE_URL : '/';
-  const trimmed = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-  const portalBase = `${trimmed || ''}/portal`.replace(/^\/\//, '/');
+  // Simple URL resolver for portal pages - same in dev and production
+  function resolvePortalUrl(pagePath) {
+    let clean = pagePath.replace(/^pages\//, '');
+    clean = clean.replace(/^\//, '');
+    clean = clean.replace(/\/$/, ''); // Remove trailing slash
+    clean = clean.replace(/\/index\.html$/, '');
+    clean = clean.replace(/index\.html$/, '');
+    return clean ? `/${clean}/` : '/';
+  }
+  
   document.querySelectorAll('[data-portal-link]').forEach((el) => {
     const target = el.getAttribute('data-portal-link');
-    if (target) el.setAttribute('href', `${portalBase}/${target}`);
+    if (target) {
+      const url = resolvePortalUrl(target);
+      el.setAttribute('href', url);
+    }
   });
 </script>
 </body>

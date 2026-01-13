@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig({
   root: 'src',
   resolve: {
@@ -8,8 +12,13 @@ export default defineConfig({
       '@assets': resolve(process.cwd(), 'src/shared/assets'),
       '@shared': resolve(process.cwd(), 'src/shared'),
       '@studio': resolve(process.cwd(), 'src/apps/studio'),
-      '@legacy': resolve(process.cwd(), 'src/legacy')
-    }
+      '@legacy': resolve(process.cwd(), 'src/legacy'),
+      '@errl-design-system': resolve(__dirname, '../all-components/errl-design-system/src'),
+    },
+    dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
   },
   build: {
     outDir: resolve(process.cwd(), 'dist-mini'),

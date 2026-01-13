@@ -6,10 +6,11 @@
 <title>Errl — Projects</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../shared/styles/errlDesignSystem.css" />
 <style>
-:root{ --ink:#e5eaf1; --gap:28px; --outer-pad:32px; }
+:root{ --gap:28px; --outer-pad:32px; }
 *{box-sizing:border-box} html,body{height:100%;margin:0}
-body{font-family:Inter,system-ui,sans-serif; background:#0a0f18; color:var(--ink);} 
+body{font-family:Inter,system-ui,sans-serif; background:var(--errl-bg); color:var(--errl-text);} 
 /* ===== Header (shared) ===== */
 .errl-header{ position:sticky; top:0; width:100%; background: linear-gradient(135deg, rgba(220,220,240,0.95) 0%, rgba(180,180,200,0.9) 25%, rgba(160,160,180,0.9) 50%, rgba(180,180,200,0.9) 75%, rgba(220,220,240,0.95) 100%), linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.3) 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.4) inset, 0 -1px 0 rgba(0,0,0,0.2) inset; border-bottom:1px solid rgba(120,120,140,0.6); padding:0.75rem 1rem; z-index:999; letter-spacing:-0.03em; }
 .errl-header-content{ display:flex; align-items:center; justify-content:space-between; max-width:1200px; margin:0 auto; }
@@ -36,7 +37,7 @@ body{font-family:Inter,system-ui,sans-serif; background:#0a0f18; color:var(--ink
   .grid2 .box{ min-height: 50vh; } 
   :root{ --outer-pad:20px; }
 }
-.box{ position:relative; display:flex; flex-direction:column; border-radius:16px; background:#ffffff06; border:1px solid #ffffff14; box-shadow:0 12px 30px rgba(0,0,0,.38); overflow:hidden; width: var(--w, 400px); max-width: 100%; aspect-ratio: 1 / 1; }
+.box{ position:relative; display:flex; flex-direction:column; border-radius:16px; background:rgba(var(--errl-text-rgb), 0.06); border:1px solid rgba(var(--errl-text-rgb), 0.14); box-shadow:0 12px 30px rgba(0,0,0,.38); overflow:hidden; width: var(--w, 400px); max-width: 100%; aspect-ratio: 1 / 1; }
 .box header{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 20px; font-weight:700; color:#cfe9ff; border-bottom:1px solid #ffffff14; background:linear-gradient(180deg, rgba(12,18,32,.7), rgba(10,15,24,.6)); }
 .box header .controls{ display:flex; align-items:center; gap:8px; font-weight:600; font-size:12px; opacity:.9; }
 .box header .controls a.dl{ display:inline-block; padding:6px 10px; border-radius:8px; border:1px solid #ffffff22; background:#10182a; color:#d7eaff; text-decoration:none; font-size:11px; font-weight:600; transition:all 0.2s ease; }
@@ -55,13 +56,13 @@ body{font-family:Inter,system-ui,sans-serif; background:#0a0f18; color:var(--ink
     <div class="errl-header-content">
 <a class="errl-home-btn" href="/">← Back to Portal</a>
       <nav class="errl-nav">
-<a class="errl-bubble-btn" href="/portal/pages/about/index.html">About Errl</a>
-        <a class="errl-bubble-btn" href="/portal/pages/gallery/index.html">Gallery</a>
-        <a class="errl-bubble-btn active" href="/portal/pages/assets/index.html">Assets</a>
-        <a class="errl-bubble-btn" href="/portal/pages/pin-designer/index.html">Design</a>
-        <a class="errl-bubble-btn" href="/portal/pages/studio/index.html">Studio</a>
-        <a class="errl-bubble-btn" href="/portal/pages/events/index.html">Events</a>
-        <a class="errl-bubble-btn" href="/portal/pages/merch/index.html">Merch</a>
+        <a class="errl-bubble-btn" href="/about/" data-portal-link="about/">About Errl</a>
+        <a class="errl-bubble-btn" href="/gallery/" data-portal-link="gallery/">Gallery</a>
+        <a class="errl-bubble-btn active" href="/assets/" data-portal-link="assets/">Assets</a>
+        <a class="errl-bubble-btn" href="/studio.html">Studio</a>
+        <a class="errl-bubble-btn" href="/studio/pin-designer">Design</a>
+        <a class="errl-bubble-btn" href="/events/" data-portal-link="events/">Events</a>
+        <a class="errl-bubble-btn" href="/merch/" data-portal-link="merch/">Merch</a>
       </nav>
     </div>
   </header>

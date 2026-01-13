@@ -1,4 +1,0 @@
-<!doctype html><meta charset="utf-8"><title>Hyperspace Tunnel</title>
-<style>html,body{height:100%;margin:0;background:#050816;display:grid;place-items:center}</style>
-<canvas id=c width=720 height=420 style="border:1px solid #22306b;border-radius:10px;background:#0b1336"></canvas>
-<script>const c=document.getElementById('c'),k=c.getContext('2d');let t=0;function render(){t++;const W=c.width,H=c.height,img=k.createImageData(W,H),d=img.data;for(let y=0;y<H;y++)for(let x=0;x<W;x++){const nx=(x-W/2)/W,ny=(y-H/2)/H;const r=Math.hypot(nx,ny)+1e-6,a=Math.atan2(ny,nx);const z=(1/r+t*.02),hue=(a/(Math.PI*2)+.5)*360,s=.8,v=(Math.sin(z*6)+1)/2;const f=(n,k=((n+hue)/60)%6)=>v-v*s*Math.max(Math.min(k,4-k,1),0);const i=(y*W+x)*4;d[i]=f(5)*255;d[i+1]=f(3)*255;d[i+2]=f(1)*255;d[i+3]=255}k.putImageData(img,0,0);requestAnimationFrame(render)}render()</script>

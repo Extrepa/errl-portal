@@ -2,8 +2,8 @@
 * { box-sizing: border-box; margin: 0; }
 html, body { height: 100%; }
 body {
-  background: #000;
-  color: #fff;
+  background: var(--errl-bg);
+  color: var(--errl-text);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, sans-serif;
   overflow: hidden;
   height: 100vh;
@@ -23,7 +23,7 @@ input, textarea, select, button { -webkit-user-select: auto; user-select: auto; 
 ::selection { background: transparent; }
 
 /* force dark base even if external CSS sets transparent */
-body.errl-dark { background:#000 !important; }
+body.errl-dark { background: var(--errl-bg) !important; }
 
 a { color: inherit; text-decoration: none; }
 
@@ -193,9 +193,9 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   filter: blur(36px);
   opacity: .62;
   z-index: -1; /* Behind Errl image */
-  -webkit-mask-image: url('/portal/pages/studio/pin-widget/ErrlPin.Widget/errl-painted-2.svg');
+  -webkit-mask-image: var(--errl-mask-image, url('../../static/pages/studio/pin-widget/ErrlPin.Widget/errl-painted-2.svg'));
   -webkit-mask-repeat: no-repeat; -webkit-mask-size: 100% 100%; -webkit-mask-position: center;
-  mask-image: url('/portal/pages/studio/pin-widget/ErrlPin.Widget/errl-painted-2.svg');
+  mask-image: var(--errl-mask-image, url('../../static/pages/studio/pin-widget/ErrlPin.Widget/errl-painted-2.svg'));
   mask-repeat: no-repeat; mask-size: 100% 100%; mask-position: center;
 }
 
@@ -211,27 +211,98 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 /* 6. Orbiting / menu bubbles */
 .bubble {
   position: absolute;
-  width: clamp(42px, 6vw, 74px);
-  height: clamp(42px, 6vw, 74px);
+  width: clamp(67px, 9.6vw, 118px) !important;
+  height: clamp(67px, 9.6vw, 118px) !important;
+  min-width: clamp(67px, 9.6vw, 118px) !important;
+  min-height: clamp(67px, 9.6vw, 118px) !important;
+  max-width: clamp(67px, 9.6vw, 118px) !important;
+  max-height: clamp(67px, 9.6vw, 118px) !important;
   border-radius: 50%;
   box-shadow:
-    0 0 20px rgba(180,120,255,0.6),
-    0 0 40px rgba(0,200,255,0.4);
-  line-height: clamp(42px, 6vw, 74px);
+    0 0 20px rgba(180,120,255,0.5),
+    0 0 40px rgba(0,200,255,0.35),
+    0 4px 12px rgba(0,0,0,0.3),
+    inset 0 2px 8px rgba(255,255,255,0.3),
+    inset 0 -2px 8px rgba(0,0,0,0.2);
+  line-height: clamp(67px, 9.6vw, 118px);
   text-align: center;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: #f0f4ff;
-  background: radial-gradient(circle, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.7) 32%, rgba(255,255,255,0.12) 100%);
+  color: var(--errl-text);
+  background: 
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 15%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.1) 70%, transparent 100%),
+    radial-gradient(circle at 70% 70%, rgba(0,200,255,0.3) 0%, rgba(180,120,255,0.2) 30%, transparent 60%),
+    conic-gradient(from var(--orbHue, 0deg),
+      rgba(255,0,255,0.4) 0%,
+      rgba(0,229,255,0.5) 30%,
+      rgba(255,215,0,0.4) 60%,
+      rgba(255,0,255,0.4) 100%);
   text-shadow: 0 2px 4px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.6);
   mix-blend-mode: screen;
   user-select: none;
   cursor: pointer;
   pointer-events: auto;
   z-index: 5; /* Above scene layer (L3), below phone panel (L10) */
-  animation: wobble 3s ease-in-out infinite;
-  animation-duration: calc(3s * var(--motionMultiplier, 1));
+  animation: wobble 3s ease-in-out infinite, bubbleShine 8s ease-in-out infinite;
+  animation-duration: calc(3s * var(--motionMultiplier, 1)), calc(8s * var(--motionMultiplier, 1));
   font-family: 'Baloo 2', 'Fredoka', 'Poppins', 'Inter', sans-serif;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Shiny overlay for glossy effect */
+.bubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: 
+    radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.3) 25%, transparent 50%),
+    radial-gradient(ellipse at 70% 75%, rgba(0,0,0,0.1) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 1;
+  animation: shineMove 6s ease-in-out infinite;
+  animation-duration: calc(6s * var(--motionMultiplier, 1));
+  opacity: 0.8;
+}
+
+@keyframes bubbleShine {
+  0%, 100% { 
+    filter: brightness(1) saturate(1);
+    box-shadow:
+      0 0 20px rgba(180,120,255,0.5),
+      0 0 40px rgba(0,200,255,0.35),
+      0 4px 12px rgba(0,0,0,0.3),
+      inset 0 2px 8px rgba(255,255,255,0.3),
+      inset 0 -2px 8px rgba(0,0,0,0.2);
+  }
+  50% { 
+    filter: brightness(1.15) saturate(1.1);
+    box-shadow:
+      0 0 30px rgba(180,120,255,0.7),
+      0 0 60px rgba(0,200,255,0.5),
+      0 4px 12px rgba(0,0,0,0.3),
+      inset 0 2px 8px rgba(255,255,255,0.4),
+      inset 0 -2px 8px rgba(0,0,0,0.2);
+  }
+}
+
+@keyframes shineMove {
+  0% { 
+    transform: translate(-10%, -10%) scale(1);
+    opacity: 0.6;
+  }
+  50% { 
+    transform: translate(10%, 10%) scale(1.1);
+    opacity: 0.9;
+  }
+  100% { 
+    transform: translate(-10%, -10%) scale(1);
+    opacity: 0.6;
+  }
 }
 .bubble--behind {
   z-index: 0;
@@ -249,18 +320,29 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 .bubble span {
   position: relative;
   display: inline-block;
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.85), 0 0 8px rgba(0,0,0,0.6);
+  color: var(--errl-text);
+  text-shadow: 
+    0 1px 2px rgba(0,0,0,0.9),
+    0 2px 4px rgba(0,0,0,0.85), 
+    0 0 8px rgba(0,0,0,0.6),
+    0 0 12px rgba(255,255,255,0.3);
   opacity: 0;
   animation: labelFade 6s ease-in-out infinite;
   animation-duration: calc(6s * var(--motionMultiplier, 1));
   pointer-events: none;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  z-index: 1; /* Label above bubble background */
+  z-index: 2; /* Label above bubble background and shine overlay */
   font-family: 'Baloo 2', 'Fredoka', 'Poppins', 'Inter', sans-serif;
-  font-size: clamp(11px, 2.1vw, 15px);
+  font-size: clamp(12px, 2.2vw, 16px);
   font-weight: 600;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 @keyframes labelFade { 0%,18%{ opacity:0; } 35%,65%{ opacity:1; } 82%,100%{ opacity:0; } }
 @keyframes textPulse { 0%,100%{ color: rgba(255,255,255,0.75); } 50%{ color: rgba(255,255,255,1); } }
@@ -278,14 +360,40 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 /* Iridescent / oil-slick color cycling */
 .menuOrb {
   background:
-    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 60%),
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 20%, rgba(255,255,255,0.3) 45%, transparent 70%),
+    radial-gradient(circle at 70% 70%, rgba(0,229,255,0.4) 0%, rgba(255,0,255,0.3) 35%, transparent 65%),
     conic-gradient(from var(--orbHue, 0deg),
-      #ff00ff 0%,
-      #00e5ff 30%,
-      #ffd700 60%,
-      #ff00ff 100%);
-  animation: orbShift 4s linear infinite, wobble 3s ease-in-out infinite;
-  animation-duration: calc(4s * var(--motionMultiplier, 1)), calc(3s * var(--motionMultiplier, 1));
+      rgba(255,0,255,0.6) 0%,
+      rgba(0,229,255,0.7) 30%,
+      rgba(255,215,0,0.6) 60%,
+      rgba(255,0,255,0.6) 100%);
+  animation: orbShift 4s linear infinite, wobble 3s ease-in-out infinite, bubbleShine 8s ease-in-out infinite;
+  animation-duration: calc(4s * var(--motionMultiplier, 1)), calc(3s * var(--motionMultiplier, 1)), calc(8s * var(--motionMultiplier, 1));
+  box-shadow:
+    0 0 25px rgba(180,120,255,0.6),
+    0 0 50px rgba(0,200,255,0.4),
+    0 4px 12px rgba(0,0,0,0.3),
+    inset 0 2px 8px rgba(255,255,255,0.35),
+    inset 0 -2px 8px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.menuOrb::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: 
+    radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 25%, transparent 50%),
+    radial-gradient(ellipse at 70% 75%, rgba(0,0,0,0.15) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 1;
+  animation: shineMove 6s ease-in-out infinite;
+  animation-duration: calc(6s * var(--motionMultiplier, 1));
+  opacity: 0.85;
 }
 @keyframes orbShift {
   0%   { --orbHue: 0deg; }
@@ -299,11 +407,22 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 }
 
 .bubble:hover {
-  filter: brightness(1.2);
+  filter: brightness(1.25) saturate(1.15);
   /* Glow will be set dynamically via JS to match background color */
   box-shadow:
-    0 0 30px rgba(255,255,255,0.9),
-    0 0 60px rgba(0,200,255,0.7);
+    0 0 35px rgba(255,255,255,0.95),
+    0 0 70px rgba(0,200,255,0.75),
+    0 6px 16px rgba(0,0,0,0.4),
+    inset 0 3px 10px rgba(255,255,255,0.4),
+    inset 0 -3px 10px rgba(0,0,0,0.25);
+  animation: wobble 3s ease-in-out infinite, bubbleShine 4s ease-in-out infinite;
+  animation-duration: calc(3s * var(--motionMultiplier, 1)), calc(4s * var(--motionMultiplier, 1));
+}
+
+.bubble:hover::before {
+  opacity: 1;
+  animation: shineMove 3s ease-in-out infinite;
+  animation-duration: calc(3s * var(--motionMultiplier, 1));
 }
 
 @media (max-width: 768px) {
@@ -319,7 +438,11 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
     height: clamp(220px, 64vw, 420px);
   }
   .bubble {
-    font-size: clamp(10px, 3.4vw, 13px);
+    font-size: clamp(12px, 3.4vw, 16px);
+  }
+  .bubble .label,
+  .bubble span {
+    font-size: clamp(10px, 2vw, 14px);
   }
 }
 
@@ -336,44 +459,53 @@ body.perf-safe *::after {
   transition: none !important;
 }
 
-/* 7. Control Panel (“Errl Phone”) */
+/* 7. Control Panel ("Errl Phone") - Errl Club Style */
 .errl-panel {
   position: fixed;
-  top: 40px;
-  right: 40px;
-  /* Slimmer phone; content scrolls inside */
-  width: min(260px, calc(100vw - 80px));
-  height: min(340px, calc(100vh - 80px));
-  overflow-x: hidden; /* prevent horizontal scroll */
-  overflow-y: auto;  /* vertical scroll for long tabs */
-  background: linear-gradient(180deg, rgba(12,12,22,0.9), rgba(12,12,22,0.78));
+  bottom: 10px;
+  right: 10px;
+  top: auto;
+  width: 180px;
+  height: 280px;
+  overflow: hidden; /* let content wrapper handle scrolling */
+  background: var(--errl-panel-gradient);
   scrollbar-width: thin; /* Firefox */
-  scrollbar-color: rgba(255,255,255,0.4) transparent;
+  scrollbar-color: rgba(var(--errl-neon-cyan-rgb), 0.3) transparent;
   border-radius: 12px;
-  padding: 16px;
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.8),
-    0 0 30px rgba(120,80,255,0.5),
-    0 0 80px rgba(0,200,255,0.3);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #fff;
-  font-size: 12px;
+  padding: 10px;
+  box-shadow: 
+    0 0 10px rgba(var(--errl-neon-cyan-rgb), 0.5),
+    0 5px 20px rgba(0, 0, 0, 0.8),
+    inset 0 0 10px rgba(var(--errl-neon-cyan-rgb), 0.1);
+  border: 1px solid var(--errl-neon-cyan);
+  color: var(--errl-text);
+  font-size: 9px;
   line-height: 1.4;
-  font-family: inherit;
+  font-family: 'Inter', system-ui, sans-serif;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
 }
-/* Minimize to a small floating icon */
+/* Minimize to a small floating icon - Errl Club style */
 .errl-panel.minimized {
-  width: 44px !important;
-  height: 44px !important;
+  width: 40px !important;
+  height: 40px !important;
   padding: 0 !important;
   border-radius: 999px !important;
   overflow: hidden !important;
-  display: block !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   cursor: pointer !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
-  max-height: 44px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  background: radial-gradient(circle at 30% 30%, rgba(var(--errl-neon-purple-rgb), 0.9), rgba(76, 0, 153, 0.95)) !important;
+  border: 2px solid rgba(var(--errl-neon-purple-rgb), 0.8) !important;
+  box-shadow:
+    0 0 15px rgba(var(--errl-neon-purple-rgb), 0.8),
+    0 0 30px rgba(var(--errl-neon-purple-rgb), 0.4),
+    inset 0 0 10px rgba(var(--errl-text-rgb), 0.2) !important;
 }
 .errl-panel.minimized::after{
   content: "";
@@ -386,8 +518,10 @@ body.perf-safe *::after {
 }
 .errl-panel.minimized .panel-header,
 .errl-panel.minimized .panel-tabs,
-.errl-panel.minimized .panel-section { display:none; }
-.errl-panel.minimized .panel-mode button, .errl-panel.minimized .panel-title { display:none; }
+.errl-panel.minimized .panel-section,
+.errl-panel.minimized #phone-vibe-bar,
+.errl-panel.minimized #phone-close-button { display:none !important; }
+.errl-panel.minimized .panel-mode button, .errl-panel.minimized .panel-title { display:none !important; }
 .errl-panel.dragging { cursor:grabbing; }
 .hud-icons{ display:flex; gap:10px; margin:10px 0 6px; }
 .hud-icon{ width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; position:relative; outline:none; background:
@@ -401,44 +535,176 @@ body.perf-safe *::after {
 @keyframes iconShift{ 0%{ --h: 0deg; } 100%{ --h: 360deg; } }
 
 /* Compact slider for per-control animation speed */
-.mini-slider{ width: 90px; min-width: 90px; }
+.mini-slider{ width: 70px; min-width: 70px; }
 /* Compact number box for animation speed */
-.mini-number{ width:60px; min-width:60px; padding:1px 3px; font-size:10px; }
+.mini-number{ width:45px; min-width:45px; padding:2px 3px; font-size:7px; }
 /* wider for speed boxes */
-.speed-number{ width:70px; min-width:70px; }
+.speed-number{ width:55px; min-width:55px; }
 /* remove native number spinners */
 .mini-number::-webkit-inner-spin-button, .mini-number::-webkit-outer-spin-button{ -webkit-appearance: none; margin:0; }
 .mini-number{ -moz-appearance: textfield; }
 
-.panel-header {
+/* Vibe bar at top - Errl Club style */
+#phone-vibe-bar {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    #ff0080 0%,
+    #ff8000 14%,
+    #ffff00 28%,
+    #80ff00 42%,
+    #00ff80 57%,
+    #00ffff 71%,
+    #0080ff 85%,
+    #8000ff 100%
+  );
+  background-size: 200% 100%;
+  background-position: 0% 0%;
+  animation: rainbowFlow 3s linear infinite;
+  box-shadow: 0 0 4px rgba(0, 255, 255, 0.6);
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+@keyframes rainbowFlow {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+/* Close button - Errl Club style */
+#phone-close-button {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 20px;
+  height: 20px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  cursor: grab;
+  justify-content: center;
+  font-size: 20px;
+  color: rgba(var(--errl-text-rgb), 0.9);
+  cursor: pointer;
+  z-index: 100;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+  line-height: 1;
+  font-weight: bold;
+  background: rgba(var(--errl-bg-rgb), 0.3);
+  border-radius: 50%;
+}
+
+#phone-close-button:hover {
+  color: #ff0000;
+  transform: scale(1.2);
+  background: rgba(255, 0, 0, 0.2);
+  text-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+}
+
+.panel-header {
+  display: none; /* Hide original header, using vibe bar instead */
 }
 .panel-title {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: none; /* Hide title */
+}
+/* Tabs at top - Errl Club style */
+.panel-tabs{ 
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: 100%; 
+  height: auto;
+  min-height: 32px;
+  border-bottom: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.3);
+  background: rgba(var(--errl-bg-rgb), 0.5);
+  padding: 4px 2px;
+  gap: 4px;
+  margin: 0;
+  box-sizing: border-box;
+}
+.panel-tabs .tab{ 
+  background: rgba(var(--errl-surface-rgb), 0.3); 
+  color: rgba(var(--errl-neon-cyan-rgb), 0.5); 
+  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.2);
+  border-radius: 4px;
+  padding: 4px 6px; 
+  font-size: 0; 
+  cursor: pointer; 
+  height: 24px !important;
+  min-height: 24px !important;
+  max-height: 24px !important;
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  position: relative; 
+  display: flex !important; 
+  flex-direction: row !important;
+  align-items: center; 
+  justify-content: center; 
+  gap: 4px;
+  margin: 0; 
+  overflow: hidden; 
+  transition: all 0.2s ease; 
+  flex: 0 1 auto;
+  box-sizing: border-box;
+}
+.panel-tabs .tab:hover{ 
+  color: rgba(var(--errl-neon-cyan-rgb), 0.8);
+  background: rgba(var(--errl-surface-rgb), 0.5);
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 2px rgba(var(--errl-neon-cyan-rgb), 0.5));
+}
+.panel-tabs .tab.active{ 
+  color: var(--errl-neon-cyan);
+  border: 2px solid var(--errl-neon-cyan);
+  background: rgba(var(--errl-accent-rgb), 0.15);
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 4px rgba(var(--errl-neon-cyan-rgb), 0.8));
+}
+/* Remove active ring effect, using full border instead */
+.panel-tabs .tab.active::before{ display: none; }
+/* Label styles */
+.panel-tabs .tab .label {
+  position: relative;
+  font-size: 7px;
+  text-transform: uppercase;
+  opacity: 0.8;
+  text-align: center;
+  z-index: 2;
+  color: var(--errl-text);
+  line-height: 1.2;
+  font-weight: 500;
   white-space: nowrap;
 }
-.panel-tabs{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin:6px 0 12px; }
-.panel-tabs .tab{ background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)); color:#eaf6ff; border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:0; font-size:0; cursor:pointer; width:40px; height:40px; position:relative; display:inline-flex; align-items:center; justify-content:center; margin:0 auto; overflow:hidden; }
-.panel-tabs .tab.active{ border-color:transparent; }
-/* keep active ring effect */
-.panel-tabs .tab.active::before{ content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px; background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: iconShift 10s linear infinite; animation-duration: calc(10s * var(--motionMultiplier, 1)); }
+.panel-tabs .tab:hover .label,
+.panel-tabs .tab.active .label {
+  opacity: 1.0;
+}
 /* icon texture layer */
-.panel-tabs .tab::after{ content:""; position:absolute; inset:0; background-position:center; background-size:cover; background-repeat:no-repeat; display:block; border-radius:inherit; }
+.panel-tabs .tab::after{ 
+  content:""; 
+  position:relative; 
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  background-position:center; 
+  background-size:contain; 
+  background-repeat:no-repeat; 
+  display:block; 
+  border-radius: 2px;
+  opacity: 0.9;
+  z-index: 1;
+}
 
 /* Animate buttons: snaking rainbow outline when active */
-.btn-animate{ position:relative; overflow:hidden; border-radius:6px; }
+.btn-animate{ 
+  position:relative; 
+  overflow:hidden; 
+  border-radius:6px; 
+}
 .btn-animate.animating::before{
   content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px;
-  background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff);
+  background: conic-gradient(from var(--h,0deg), var(--errl-neon-pink), var(--errl-neon-blue), var(--errl-neon-yellow), var(--errl-neon-pink));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
   animation: iconShift 10s linear infinite;
@@ -448,91 +714,164 @@ body.perf-safe *::after {
 /* little circle indicator when animating */
 .btn-animate.animating::after{
   content:""; position:absolute; right:-6px; top:-6px; width:10px; height:10px; border-radius:50%;
-  background: radial-gradient(circle, #fff, rgba(255,255,255,0.2)); box-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 18px rgba(0,229,255,0.6);
+  background: radial-gradient(circle, var(--errl-text), rgba(var(--errl-text-rgb), 0.2)); box-shadow: 0 0 10px rgba(var(--errl-accent-rgb), 0.8);
   pointer-events:none;
 }
 .btn-animate > *{ position:relative; z-index:1; }
 
 /* Bump buttons */
-.mini-bump{ width:18px; height:18px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.06); color:#fff; border-radius:4px; line-height:16px; text-align:center; cursor:pointer; font-size:11px; }
-.mini-bump:hover{ background:rgba(255,255,255,0.12); }
+.mini-bump{ 
+  width:16px; 
+  height:16px; 
+  border:1px solid var(--errl-border); 
+  background:var(--errl-surface); 
+  color:var(--errl-text); 
+  border-radius:3px; 
+  line-height:14px; 
+  text-align:center; 
+  cursor:pointer; 
+  font-size:9px; 
+  transition: all 0.2s ease;
+}
+.mini-bump:hover{ 
+  background:var(--errl-accent-soft); 
+  border-color:var(--errl-accent);
+}
+.mini-bump.active{
+  background:rgba(0,229,255,0.2);
+  border-color:rgba(0,229,255,0.5);
+  color:rgba(0,229,255,1);
+}
 
-/* Fancy rainbow scrollbar for the phone */
-.errl-panel::-webkit-scrollbar{ width: 8px; }
-.errl-panel::-webkit-scrollbar-track{ background: transparent; }
-.errl-panel::-webkit-scrollbar-thumb{
-  border-radius: 8px;
-  background: conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff);
-  border: 2px solid rgba(0,0,0,0); /* hollow center */
+/* Fancy rainbow scrollbar for the phone content */
+.errl-panel .panel-content-wrapper::-webkit-scrollbar{ width: 6px; }
+.errl-panel .panel-content-wrapper::-webkit-scrollbar-track{ background: transparent; }
+.errl-panel .panel-content-wrapper::-webkit-scrollbar-thumb{
+  border-radius: 3px;
+  background: conic-gradient(from var(--h,0deg), var(--errl-neon-pink), var(--errl-neon-blue), var(--errl-neon-yellow), var(--errl-neon-pink));
+  border: 1px solid rgba(0,0,0,0); /* hollow center */
   background-clip: padding-box;
 }
-/* per-tab textures */
+.errl-panel .panel-content-wrapper{ scrollbar-width: thin; scrollbar-color: rgba(var(--errl-neon-cyan-rgb), 0.3) transparent; }
+/* per-tab textures - scaled down for compact phone */
 .panel-tabs .tab[data-tab="hud"]::after{ background-image:url('./assets/portal/ui/phone-tabs/hud_300.png'); }
 .panel-tabs .tab[data-tab="errl"]::after{ background-image:url('./assets/portal/ui/phone-tabs/errl_300.png'); }
 .panel-tabs .tab[data-tab="nav"]::after{ background-image:url('./assets/portal/ui/phone-tabs/nav_300.png'); }
 .panel-tabs .tab[data-tab="rb"]::after{ background-image:url('./assets/portal/ui/phone-tabs/rb_300.png'); }
 .panel-tabs .tab[data-tab="glb"]::after{ background-image:url('./assets/portal/ui/phone-tabs/glb_300.png'); }
 .panel-tabs .tab[data-tab="bg"]::after{ background-image:url('./assets/portal/ui/phone-tabs/bg_300.png'); }
-.panel-tabs .tab[data-tab="gl"]::after{ background-image:url('./assets/portal/ui/phone-tabs/gl_300.png'); }
+.panel-tabs .tab[data-tab="dev"]::after{ background-image:url('./assets/portal/ui/phone-tabs/gl_300.png'); }
 .panel-tabs .tab[data-tab="hue"]::after{ background-image:url('./assets/portal/ui/phone-tabs/hue_300.png'); }
-.panel-tabs .tab-icon{ width:40px; height:40px; border-radius:999px; }
+.panel-tabs .tab-icon{ 
+  /* Tab icon class - icons are now handled via ::after pseudo-element */
+  /* Width/height removed as tabs are now horizontal with fixed dimensions */
+  height: 24px !important;
+  min-height: 24px !important;
+  max-height: 24px !important;
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  display: flex !important;
+  flex-direction: row !important;
+}
 .panel-mode button {
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(var(--errl-text-rgb), 0.08);
+  color: var(--errl-text);
+  border: 1px solid var(--errl-border);
   border-radius: 6px;
   font-size: 10px;
   padding: 4px 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+.panel-mode button:hover {
+  background: rgba(var(--errl-accent-rgb), 0.15);
+  border-color: var(--errl-accent);
 }
 #phoneMinToggle { font-weight:800; width:24px; height:22px; padding:0; }
+/* Content area - scrollable */
+.errl-panel > .panel-content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 0;
+  min-height: 0;
+}
+
 .panel-section {
   display: none;
-  margin-bottom: 12px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding-top: 10px;
+  margin-bottom: 8px;
+  border-top: 1px solid rgba(var(--errl-text-rgb), 0.1);
+  padding-top: 8px;
 }
 .sectionLabel {
-  font-size: 9px;
+  font-size: 7px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  opacity: 0.8;
-  margin-bottom: 8px;
+  color: var(--errl-neon-cyan);
+  opacity: 0.9;
+  margin-bottom: 5px;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-/* Thin divider used to separate control groups */
+/* Thin divider used to separate control groups - scaled for compact phone */
 .sectionDivider {
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.25), rgba(255,255,255,0.08));
+  background: linear-gradient(90deg, rgba(var(--errl-text-rgb), 0.08), var(--errl-neon-cyan), rgba(var(--errl-text-rgb), 0.08));
   border: 0;
-  margin: 8px 0;
+  margin: 6px 0;
 }
 .sliderRow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin: 6px 0 8px;
-  font-size: 10px;
+  gap: 5px;
+  margin: 4px 0 5px;
+  font-size: 7px;
   flex-wrap: wrap; /* allow wrapping in narrow phone */
 }
 /* helpers for compact layout */
 .sliderRow > * { min-width: 0; }
 .sliderRow strong { flex: 0 0 100%; margin-bottom: 2px; }
-.sliderRow select { flex: 1 1 120px; max-width: 100%; }
+.sliderRow select { 
+  flex: 1 1 100px; 
+  max-width: 100%;
+  background: var(--errl-surface);
+  color: var(--errl-text);
+  border: 1px solid var(--errl-border);
+  border-radius: 4px;
+  padding: 3px 5px;
+  font-size: 7px;
+}
 .sliderRow input[type="range"] { flex: 1 1 140px; }
 .mini-select{ width:140px; max-width:140px; }
-.sliderRow input[type="number"] { width: 44px; flex: 0 0 44px; }
+.sliderRow input[type="number"] { 
+  width: 38px; 
+  flex: 0 0 38px;
+  background: var(--errl-surface);
+  color: var(--errl-text);
+  border: 1px solid var(--errl-border);
+  border-radius: 4px;
+  padding: 2px 3px;
+  font-size: 7px;
+}
+.sliderRow input[type="checkbox"] {
+  accent-color: var(--errl-accent);
+  cursor: pointer;
+}
 .sliderRow button { flex: 0 0 auto; }
 .sliderRow label {
-  width: 45px;
+  width: 40px;
   flex-shrink: 0;
   opacity: 0.75;
   text-align: right;
-  font-size: 9px;
+  font-size: 6px;
+  color: var(--errl-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -542,7 +881,7 @@ body.perf-safe *::after {
   appearance: none;
   height: 4px;
   border-radius: 999px;
-  background: linear-gradient(90deg,#ff00ff,#00e5ff,#ffd700);
+  background: linear-gradient(90deg, var(--errl-neon-pink), var(--errl-neon-blue), var(--errl-neon-yellow));
   outline: none;
 }
 .sliderRow input[type="range"]::-webkit-slider-thumb {
@@ -550,21 +889,23 @@ body.perf-safe *::after {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow:
-    0 0 10px rgba(255,255,255,1),
-    0 0 30px rgba(120,80,255,0.8),
-    0 0 60px rgba(0,200,255,0.6);
+  background: var(--errl-text);
+  box-shadow: 0 0 10px rgba(var(--errl-accent-rgb), 0.8);
   border: 0;
+  cursor: pointer;
+}
+.sliderRow input[type="range"]:focus {
+  box-shadow: 0 0 0 2px var(--errl-accent);
 }
 .panel-section button {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 6px;
-  font-size: 10px;
-  padding: 4px 8px;
-  color: #fff;
+  background: var(--errl-surface);
+  border: 1px solid var(--errl-border);
+  border-radius: 4px;
+  font-size: 7px;
+  padding: 3px 5px;
+  color: var(--errl-text);
   cursor: pointer;
+  transition: all 0.2s ease;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -572,15 +913,51 @@ body.perf-safe *::after {
   min-width: 0;
   flex-shrink: 1;
 }
-/* Wider labels in Errl tab so text fits */
-.panel-section[data-tab="errl"] .sliderRow label { width: 80px; }
-/* Make HUD buttons show disabled state */
+.panel-section button:hover {
+  background: var(--errl-accent-soft);
+  border-color: var(--errl-accent);
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(var(--errl-accent-rgb), 0.3);
+}
+.panel-section button:active {
+  transform: scale(0.95);
+}
+/* Wider labels in Errl tab so text fits - scaled for compact phone */
+.panel-section[data-tab="errl"] .sliderRow label { width: 55px; }
+/* Make HUD buttons show disabled state - scaled for compact phone */
 .panel-section[data-tab="hud"] .moodBtn2[disabled]{ opacity:0.5; cursor:not-allowed; }
 .panel-section[data-tab="hud"] .moodBtn2{
-  flex: 1 1 calc(25% - 6px);
-  min-width: calc(25% - 6px);
-  max-width: calc(25% - 6px);
+  flex: 1 1 calc(25% - 5px);
+  min-width: calc(25% - 5px);
+  max-width: calc(25% - 5px);
   text-align:center;
-  padding:4px 0;
-  font-size:9px;
+  padding:3px 0;
+  font-size:6px;
+}
+
+/* Scroll to top button - positioned in content wrapper */
+#panelScrollTop {
+  position: sticky;
+  left: 6px;
+  bottom: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.3);
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--errl-neon-cyan);
+  font-size: 9px;
+  line-height: 12px;
+  text-align: center;
+  cursor: pointer;
+  display: none;
+  transition: all 0.2s ease;
+  float: right;
+  margin-top: 4px;
+  z-index: 10;
+}
+#panelScrollTop:hover {
+  background: var(--errl-accent-soft);
+  border-color: var(--errl-accent);
+  box-shadow: 0 0 10px rgba(var(--errl-accent-rgb), 0.3);
 }
