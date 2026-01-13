@@ -1,0 +1,12 @@
+# Cloudflare Pages redirects and rewrites
+# This file should be copied to dist/ during build
+
+# Studio app SPA routing - redirect /studio/* to /studio.html
+# But preserve actual file requests (with extensions)
+/studio/*  /studio.html  200
+
+# Portal pages routing - these are static HTML files, no redirect needed
+# They're built at root level (e.g., /about/, /gallery/, /assets/)
+
+# Fallback for any other routes to index
+/*  /index.html  200
