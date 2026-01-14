@@ -20,8 +20,18 @@
       .errl-home-btn{ width:38px; height:38px; padding:0; border-radius:999px; display:inline-grid; place-items:center; overflow:hidden; font-size:0; }
       .errl-home-btn::before{ content:'←'; font-size:16px; line-height:1; filter: drop-shadow(0 1px 2px rgba(0,0,0,.8)); }
     }
-    .errl-nav{ display:flex; gap:.5rem; align-items:center; }
-    .errl-bubble-btn{ position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:6.5rem; max-width:10rem; padding:.6rem .9rem .7rem; border-radius:999px; font-size:.8rem; font-weight:600; line-height:1.1; text-align:center; color:#e8e8e8; text-decoration:none; white-space:nowrap; text-shadow:0 1px 3px rgba(0,0,0,0.8); background: linear-gradient(135deg, rgba(100,100,120,0.9) 0%, rgba(60,60,80,0.9) 25%, rgba(40,40,60,0.9) 50%, rgba(60,60,80,0.9) 75%, rgba(100,100,120,0.9) 100%), linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.1) 100%); border:2px solid transparent; background-clip:padding-box; box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 0 rgba(0,0,0,0.3) inset; }
+    .errl-nav{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none; }
+    .errl-nav::-webkit-scrollbar{ display:none; }
+    .errl-bubble-btn{ position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:6.5rem; max-width:10rem; padding:.6rem .9rem .7rem; border-radius:999px; font-size:.8rem; font-weight:600; line-height:1.1; text-align:center; color:#e8e8e8; text-decoration:none; white-space:nowrap; text-shadow:0 1px 3px rgba(0,0,0,0.8); background: linear-gradient(135deg, rgba(100,100,120,0.9) 0%, rgba(60,60,80,0.9) 25%, rgba(40,40,60,0.9) 50%, rgba(60,60,80,0.9) 75%, rgba(100,100,120,0.9) 100%), linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.1) 100%); border:2px solid transparent; background-clip:padding-box; box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 0 rgba(0,0,0,0.3) inset; flex-shrink:0; }
+    @media (max-width: 900px){
+      .errl-header-content{ flex-wrap:wrap; gap:.75rem; }
+      .errl-nav{ gap:.4rem; max-width:100%; }
+      .errl-bubble-btn{ min-width:5.5rem; max-width:8rem; padding:.5rem .75rem .6rem; font-size:.75rem; }
+    }
+    @media (max-width: 640px){
+      .errl-nav{ gap:.3rem; }
+      .errl-bubble-btn{ min-width:4.5rem; max-width:7rem; padding:.45rem .65rem .55rem; font-size:.7rem; }
+    }
     .errl-bubble-btn::before{ content:""; position:absolute; inset:-2px; border-radius:999px; padding:2px; background: linear-gradient(90deg, rgba(0,255,255,0.6) 0%, rgba(255,0,255,0.6) 25%, rgba(255,255,0,0.6) 50%, rgba(0,255,0,0.6) 75%, rgba(0,255,255,0.6) 100%); background-size:200% 100%; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite:xor; -webkit-mask-composite:xor; animation: led-flow 2s linear infinite; opacity:.7; }
     @keyframes led-flow{ 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
     .errl-bubble-btn.active{ background: linear-gradient(135deg, rgba(140,140,160,0.95) 0%, rgba(100,100,130,0.95) 25%, rgba(80,80,110,0.95) 50%, rgba(100,100,130,0.95) 75%, rgba(140,140,160,0.95) 100%), linear-gradient(45deg, rgba(255,255,255,0.2) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.2) 100%); color:#fff; font-weight:700; text-shadow:0 1px 3px rgba(0,0,0,0.9); box-shadow: 0 6px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.3) inset, 0 -1px 0 rgba(0,0,0,0.4) inset; }
@@ -47,7 +57,7 @@
         <a class="errl-bubble-btn active" href="/gallery/" data-portal-link="gallery/">Gallery</a>
         <a class="errl-bubble-btn" href="/assets/" data-portal-link="assets/">Assets</a>
         <a class="errl-bubble-btn" href="/studio.html">Studio</a>
-        <a class="errl-bubble-btn" href="/studio/pin-designer">Design</a>
+        <a class="errl-bubble-btn" href="#" data-multitool-link>Multitool</a>
         <a class="errl-bubble-btn" href="/events/" data-portal-link="events/">Events</a>
         <a class="errl-bubble-btn" href="/merch/" data-portal-link="merch/">Merch</a>
       </nav>
@@ -182,18 +192,35 @@
           } else if (document.querySelector('base')?.getAttribute('href')) {
             baseUrl = document.querySelector('base').getAttribute('href');
           } else {
-            // Fallback: use current location
+            // Fallback: use current location to determine base path
             const path = window.location.pathname;
-            baseUrl = path.substring(0, path.lastIndexOf('/') + 1);
-            if (baseUrl !== '/') baseUrl = baseUrl.replace(/\/[^/]+\/$/, '/');
+            // Remove /gallery/ or /gallery/index.html from path
+            const galleryMatch = path.match(/^(.+?)\/gallery/);
+            if (galleryMatch) {
+              baseUrl = galleryMatch[1] + '/';
+            } else {
+              // For /gallery/ or /gallery/index.html, go up one level
+              const pathParts = path.split('/').filter(Boolean);
+              if (pathParts[pathParts.length - 1] === 'gallery' || pathParts[pathParts.length - 1] === 'index.html') {
+                pathParts.pop();
+              }
+              baseUrl = '/' + pathParts.join('/') + '/';
+            }
+            // Ensure baseUrl starts with /
+            if (!baseUrl.startsWith('/')) baseUrl = '/' + baseUrl;
+            // Ensure baseUrl ends with /
+            if (!baseUrl.endsWith('/')) baseUrl = baseUrl + '/';
           }
         } catch (e) {
-          // Final fallback
+          console.warn('Base URL detection failed, using /:', e);
           baseUrl = '/';
         }
         const processManifest = (obj) => {
           if (typeof obj === 'string') {
-            return obj.replace(/%BASE_URL%/g, baseUrl);
+            let processed = obj.replace(/%BASE_URL%/g, baseUrl);
+            // Fix double slashes
+            processed = processed.replace(/([^:]\/)\/+/g, '$1');
+            return processed;
           }
           if (Array.isArray(obj)) {
             return obj.map(processManifest);
@@ -209,21 +236,31 @@
         };
         const processedData = processManifest(data);
         const album = processedData.albums?.[0];
-        if (album && album.items) {
-          gallery.innerHTML = album.items.map(item => `
+        if (album && album.items && album.items.length > 0) {
+          gallery.innerHTML = album.items.map(item => {
+            const imgSrc = item.src || item.cover || '';
+            const imgTitle = item.title || 'Untitled';
+            return `
             <div class="gallery-item">
-              <img src="${item.src}" alt="${item.title || 'Artwork'}" loading="lazy">
-              <h3>${item.title || 'Untitled'}</h3>
+              <img src="${imgSrc}" alt="${imgTitle}" loading="lazy" onerror="this.style.display='none'; this.parentElement.querySelector('h3').textContent='Image failed to load';">
+              <h3>${imgTitle}</h3>
             </div>
-          `).join('');
+          `;
+          }).join('');
         } else {
-          gallery.innerHTML = '<div class="loading">No images found</div>';
+          gallery.innerHTML = '<div class="loading">No images found in manifest</div>';
         }
       } catch (err) {
         console.error('Gallery manifest load failed:', err);
-        gallery.innerHTML = '<div class="loading">Error loading gallery</div>';
+        gallery.innerHTML = '<div class="loading">Error loading gallery: ' + err.message + '</div>';
       }
     })();
+
+    // Resolve Multitool links - use localhost in dev, relative path in production
+    document.querySelectorAll("[data-multitool-link]").forEach((el) => {
+      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      el.setAttribute("href", isDev ? "http://localhost:5174" : "/multitool/");
+    });
   </script>
 </body>
 </html>

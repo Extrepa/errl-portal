@@ -30,7 +30,7 @@ export default function StudioPinDesigner() {
         </Link>
       }
       className="space-y-6"
-      navActiveKey="pin-designer"
+      navActiveKey="studio"
     >
       <div className="space-y-5">
         <div className="rounded-3xl border border-white/10 bg-[#090b1a]/90 shadow-2xl backdrop-blur">

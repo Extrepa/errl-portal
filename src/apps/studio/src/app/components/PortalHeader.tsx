@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { resolvePortalPageUrl } from '../utils/portalPaths';
 import './portal-header.css';
 
-type NavItemKey = 'about' | 'gallery' | 'assets' | 'studio' | 'pin-designer' | 'events' | 'merch';
+type NavItemKey = 'about' | 'gallery' | 'assets' | 'studio' | 'multitool' | 'events' | 'merch';
 
 export type PortalNavKey = NavItemKey | 'code-lab';
 
@@ -39,7 +39,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
     if (normalizedHref.includes('/pages/events/')) return 'events';
     if (normalizedHref.includes('/pages/merch/')) return 'merch';
     if (normalizedHref.includes('/pages/about/')) return 'about';
-    if (normalizedPath.includes('/pin-designer')) return 'pin-designer';
+    if (normalizedPath.includes('/multitool') || normalizedHref.includes('/multitool')) return 'multitool';
     if (
       normalizedPath === '/studio' ||
       normalizedPath === '/studio/' ||
@@ -62,7 +62,14 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
     { key: 'gallery', label: 'Gallery', href: resolvePortalPageUrl('pages/gallery/index.html'), type: 'external' },
     { key: 'assets', label: 'Assets', href: resolvePortalPageUrl('pages/assets/index.html'), type: 'external' },
     { key: 'studio', label: 'Studio', to: '/', type: 'internal' },
-    { key: 'pin-designer', label: 'Design', to: '/pin-designer', type: 'internal' },
+    { 
+      key: 'multitool', 
+      label: 'Multitool', 
+      href: typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+        ? 'http://localhost:5174' 
+        : '/multitool/', 
+      type: 'external' 
+    },
     { key: 'events', label: 'Events', href: resolvePortalPageUrl('pages/events/index.html'), type: 'external' },
     { key: 'merch', label: 'Merch', href: resolvePortalPageUrl('pages/merch/index.html'), type: 'external' },
   ];

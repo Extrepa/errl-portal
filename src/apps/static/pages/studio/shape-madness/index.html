@@ -505,6 +505,15 @@
   </style>
 </head>
 <body>
+<script>
+  // Hide header when embedded in iframe (e.g., in React Studio shell)
+  if (window.self !== window.top) {
+    const header = document.querySelector('.errl-header');
+    if (header) {
+      header.style.display = 'none';
+    }
+  }
+</script>
   <div class="container">
     <div class="intro">
       <h1>Shape Madness</h1>

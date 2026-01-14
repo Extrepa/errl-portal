@@ -116,6 +116,12 @@
         gap: 0.5rem;
         align-items: center;
         flex-wrap: wrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .errl-nav::-webkit-scrollbar {
+        display: none;
       }
 
       .errl-bubble-btn {
@@ -139,6 +145,7 @@
         border: 2px solid transparent;
         background-clip: padding-box;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -1px 0 rgba(0, 0, 0, 0.3) inset;
+        flex-shrink: 0;
       }
 
       .errl-bubble-btn::before {
@@ -410,6 +417,23 @@
         .studio-header__meta {
           width: 100%;
         }
+
+        .errl-header-content {
+          flex-wrap: wrap;
+          gap: 0.75rem;
+        }
+
+        .errl-nav {
+          gap: 0.4rem;
+          max-width: 100%;
+        }
+
+        .errl-bubble-btn {
+          min-width: 5.5rem;
+          max-width: 8rem;
+          padding: 0.5rem 0.75rem 0.6rem;
+          font-size: 0.75rem;
+        }
       }
 
       @media (max-width: 620px) {
@@ -425,6 +449,17 @@
         .studio-header__subtitle {
           font-size: 1rem;
         }
+
+        .errl-nav {
+          gap: 0.3rem;
+        }
+
+        .errl-bubble-btn {
+          min-width: 4.5rem;
+          max-width: 7rem;
+          padding: 0.45rem 0.65rem 0.55rem;
+          font-size: 0.7rem;
+        }
       }
     </style>
   </head>
@@ -437,7 +472,7 @@
           <a class="errl-bubble-btn" data-portal-link="gallery/" href="/gallery/">Gallery</a>
           <a class="errl-bubble-btn" data-portal-link="assets/" href="/assets/">Assets</a>
           <a class="errl-bubble-btn active" href="#studio">Studio</a>
-          <a class="errl-bubble-btn" href="/studio/pin-designer">Design</a>
+          <a class="errl-bubble-btn" href="#" data-multitool-link>Multitool</a>
           <a class="errl-bubble-btn" data-portal-link="events/" href="/events/">Events</a>
           <a class="errl-bubble-btn" data-portal-link="merch/" href="/merch/">Merch</a>
         </nav>
@@ -465,7 +500,7 @@
         </header>
 
         <section class="studio-card-grid">
-          <a class="studio-card__link" href="/studio/code-lab">
+          <a class="studio-card__link" href="/studio.html">
             <div class="studio-card">
               <div class="studio-card__header">
                 <h3 class="studio-card__title">Code Lab</h3>
@@ -478,7 +513,7 @@
             </div>
           </a>
 
-          <a class="studio-card__link" href="/studio/math-lab">
+          <a class="studio-card__link" href="./math-lab/index.html">
             <div class="studio-card">
               <div class="studio-card__header">
                 <h3 class="studio-card__title">Psychedelic Math Lab</h3>
@@ -491,7 +526,7 @@
             </div>
           </a>
 
-          <a class="studio-card__link" href="/studio/shape-madness">
+          <a class="studio-card__link" href="./shape-madness/index.html">
             <div class="studio-card">
               <div class="studio-card__header">
                 <h3 class="studio-card__title">Shape Madness</h3>
@@ -504,7 +539,7 @@
             </div>
           </a>
 
-          <a class="studio-card__link" href="/studio/pin-designer">
+          <a class="studio-card__link" href="/pin-designer/">
             <div class="studio-card">
               <div class="studio-card__header">
                 <h3 class="studio-card__title">Pin Designer</h3>
@@ -554,6 +589,12 @@
           const url = resolvePortalUrl(target);
           el.setAttribute("href", url);
         }
+      });
+
+      // Resolve Multitool links - use localhost in dev, relative path in production
+      document.querySelectorAll("[data-multitool-link]").forEach((el) => {
+        const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        el.setAttribute("href", isDev ? "http://localhost:5174" : "/multitool/");
       });
     </script>
   </body>

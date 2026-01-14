@@ -29,7 +29,8 @@
 
     /* ===== HEADER SHELL ===== */
     .errl-header { position: sticky; top: 0; width: 100%; background: linear-gradient(135deg, rgba(220,220,240,0.95) 0%, rgba(180,180,200,0.9) 25%, rgba(160,160,180,0.9) 50%, rgba(180,180,200,0.9) 75%, rgba(220,220,240,0.95) 100%), linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.3) 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.4) inset, 0 -1px 0 rgba(0,0,0,0.2) inset; border-bottom: 1px solid rgba(120,120,140,0.6); padding: 0.75rem 1rem; z-index: 999; letter-spacing: -0.03em; }
-    .errl-nav { max-width: 75rem; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; row-gap: 0.75rem; }
+    .errl-nav { max-width: 75rem; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; row-gap: 0.75rem; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+    .errl-nav::-webkit-scrollbar { display: none; }
     .errl-home-btn { display: inline-flex; align-items: center; gap: 0.5rem; color: #fff; background: linear-gradient(135deg, #ff0080 0%, #8000ff 25%, #0080ff 50%, #00ff80 75%, #ff8000 100%); background-size: 200% 200%; border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; font-size: 0.8rem; font-weight: 600; line-height: 1; padding: 0.55rem 0.9rem 0.6rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.3) inset; text-decoration: none; position: relative; text-shadow: 0 1px 2px rgba(0,0,0,0.8); animation: rainbow-flow 3s linear infinite; }
     @keyframes rainbow-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     @media (max-width: 640px) {
@@ -71,7 +72,7 @@
         <a class="errl-bubble-btn" href="/gallery/" data-portal-link="gallery/">Gallery</a>
         <a class="errl-bubble-btn" href="/assets/" data-portal-link="assets/">Assets</a>
         <a class="errl-bubble-btn" href="/studio.html">Studio</a>
-        <a class="errl-bubble-btn" href="/studio/pin-designer">Design</a>
+        <a class="errl-bubble-btn" href="#" data-multitool-link>Multitool</a>
         <a class="errl-bubble-btn active" href="/events/" data-portal-link="events/">Events</a>
         <a class="errl-bubble-btn" href="/merch/" data-portal-link="merch/">Merch</a>
       </nav>
@@ -85,10 +86,27 @@
     </section>
 
     <section class="coming-soon">
-      <h2>Coming Soon</h2>
-      <p>Events calendar and information will be available here soon.</p>
+      <h2>Past Events</h2>
+      <p>This section will display past events, exhibitions, and happenings with photos and details.</p>
+      <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(20,20,40,0.3); border-radius: 1rem; border: 1px solid rgba(var(--errl-neon-purple-rgb), 0.15);">
+        <h3 style="margin: 0 0 1rem; font-size: 1.2rem; color: var(--errl-text);">Content Structure Notes:</h3>
+        <ul style="margin: 0; padding-left: 1.5rem; color: var(--errl-text-soft); line-height: 1.8;">
+          <li>Each event should have: title, date, location, description, and photo gallery</li>
+          <li>Events should be displayed in reverse chronological order (newest first)</li>
+          <li>Include thumbnail images that expand to full-size on click</li>
+          <li>Add filtering by event type (exhibition, show, workshop, etc.)</li>
+          <li>Consider adding a calendar view for upcoming events</li>
+        </ul>
+      </div>
     </section>
   </main>
+  <script>
+    // Resolve Multitool links - use localhost in dev, relative path in production
+    document.querySelectorAll("[data-multitool-link]").forEach((el) => {
+      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      el.setAttribute("href", isDev ? "http://localhost:5174" : "/multitool/");
+    });
+  </script>
 </body>
 </html>
 

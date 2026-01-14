@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Errl Design System - Examples</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../../../shared/styles/errlDesignSystem.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0e14;
+        --bg-2: #101426;
+        --panel: #141a2b;
+        --panel-2: #1a2236;
+        --ink: #f2f4ff;
+        --muted: #a9b2c7;
+        --line: #2a3550;
+        --brand: #7b5cff;
+        --brand-2: #47d3ff;
+        --hot: #ff4fd8;
+        --good: #4cf2a1;
+        --warn: #ffb86b;
+        --danger: #ff6b6b;
+        --shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+        --radius-lg: 18px;
+        --radius-md: 12px;
+        --radius-sm: 9px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background:
+          radial-gradient(1200px 600px at 10% -10%, rgba(124, 92, 255, 0.22), transparent 60%),
+          radial-gradient(900px 500px at 90% 0%, rgba(71, 211, 255, 0.2), transparent 60%),
+          radial-gradient(600px 800px at 50% 100%, rgba(255, 79, 216, 0.2), transparent 60%),
+          var(--bg);
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          radial-gradient(circle at 50% 70%, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 220px 220px, 260px 260px, 320px 320px;
+        pointer-events: none;
+        opacity: 0.7;
+        z-index: -1;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .container {
+        width: min(1200px, 92vw);
+        margin: 0 auto;
+        padding: 32px 0 80px;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        align-items: center;
+        margin-top: 24px;
+      }
+      .hero h1 {
+        font-family: "Space Grotesk", system-ui, sans-serif;
+        font-size: clamp(2.2rem, 2.6vw + 1rem, 3.6rem);
+        letter-spacing: -0.02em;
+        margin: 0 0 12px;
+      }
+      .hero p {
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 0 0 20px;
+        font-size: 1rem;
+      }
+      .hero-card {
+        position: relative;
+        border-radius: 26px;
+        padding: 28px;
+        background:
+          linear-gradient(160deg, rgba(123, 92, 255, 0.18), rgba(20, 26, 43, 0.92)),
+          linear-gradient(140deg, rgba(71, 211, 255, 0.08), rgba(20, 26, 43, 0.8));
+        border: 1px solid rgba(123, 92, 255, 0.35);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .hero-orb {
+        position: absolute;
+        right: -60px;
+        top: -40px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7), rgba(123, 92, 255, 0.8) 35%, rgba(15, 18, 30, 0.2) 70%),
+          radial-gradient(circle at 70% 60%, rgba(71, 211, 255, 0.6), transparent 60%);
+        filter: blur(2px);
+        opacity: 0.8;
+        animation: float 6s ease-in-out infinite;
+      }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .token {
+        border-radius: 14px;
+        padding: 12px;
+        background: rgba(8, 12, 24, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .token strong {
+        display: block;
+        font-size: 0.85rem;
+      }
+      .token span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.75rem;
+        margin-top: 6px;
+      }
+      .section {
+        margin-top: 56px;
+        animation: rise 0.6s ease forwards;
+        opacity: 0;
+      }
+      .section:nth-of-type(1) { animation-delay: 0.05s; }
+      .section:nth-of-type(2) { animation-delay: 0.12s; }
+      .section:nth-of-type(3) { animation-delay: 0.18s; }
+      .section:nth-of-type(4) { animation-delay: 0.24s; }
+      .section:nth-of-type(5) { animation-delay: 0.3s; }
+      .section:nth-of-type(6) { animation-delay: 0.36s; }
+      .section:nth-of-type(7) { animation-delay: 0.42s; }
+      .section:nth-of-type(8) { animation-delay: 0.48s; }
+      .section h2 {
+        font-family: "Space Grotesk", system-ui, sans-serif;
+        letter-spacing: -0.01em;
+        font-size: 1.6rem;
+        margin: 0 0 16px;
+      }
+      .section p {
+        color: var(--muted);
+        margin: 0 0 18px;
+      }
+      .panel {
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        background: rgba(16, 20, 38, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+      .swatch {
+        border-radius: 16px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(12, 16, 30, 0.7);
+      }
+      .swatch .color {
+        height: 64px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+      }
+      .swatch code {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .type-stack h1,
+      .type-stack h2,
+      .type-stack h3,
+      .type-stack h4,
+      .type-stack p {
+        margin: 0 0 10px;
+      }
+      .type-stack h3 {
+        font-family: "Space Grotesk", system-ui, sans-serif;
+      }
+      .type-stack code {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .btn {
+        border-radius: 999px;
+        padding: 10px 18px;
+        border: 1px solid transparent;
+        font-weight: 600;
+        font-size: 0.92rem;
+        cursor: pointer;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, rgba(123, 92, 255, 0.9), rgba(71, 211, 255, 0.8));
+        border-color: rgba(123, 92, 255, 0.6);
+      }
+      .btn-secondary {
+        background: rgba(123, 92, 255, 0.15);
+        border-color: rgba(123, 92, 255, 0.35);
+      }
+      .btn-outline {
+        background: transparent;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: transparent;
+      }
+      .btn-danger {
+        background: rgba(255, 107, 107, 0.2);
+        border-color: rgba(255, 107, 107, 0.4);
+      }
+      .btn-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-grid;
+        place-items: center;
+        border-radius: 14px;
+      }
+      .fields {
+        display: grid;
+        gap: 14px;
+      }
+      .field label {
+        display: block;
+        font-size: 0.82rem;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .input,
+      .select,
+      .textarea {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(10, 14, 26, 0.7);
+        color: var(--ink);
+        padding: 10px 12px;
+        font-size: 0.95rem;
+      }
+      .input:focus,
+      .select:focus,
+      .textarea:focus {
+        outline: 2px solid rgba(71, 211, 255, 0.35);
+        border-color: rgba(71, 211, 255, 0.4);
+      }
+      .switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .switch input {
+        display: none;
+      }
+      .switch span {
+        width: 48px;
+        height: 26px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: background 0.2s ease;
+      }
+      .switch span::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 4px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--ink);
+        transition: transform 0.2s ease;
+      }
+      .switch input:checked + span {
+        background: linear-gradient(120deg, rgba(123, 92, 255, 0.8), rgba(71, 211, 255, 0.8));
+      }
+      .switch input:checked + span::after {
+        transform: translateX(20px);
+      }
+      .check-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .check {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .check input {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--brand);
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        border: 1px solid transparent;
+      }
+      .badge-brand {
+        background: rgba(123, 92, 255, 0.2);
+        border-color: rgba(123, 92, 255, 0.4);
+      }
+      .badge-hot {
+        background: rgba(255, 79, 216, 0.2);
+        border-color: rgba(255, 79, 216, 0.4);
+      }
+      .badge-good {
+        background: rgba(76, 242, 161, 0.16);
+        border-color: rgba(76, 242, 161, 0.4);
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-size: 0.85rem;
+      }
+      .tabs {
+        display: inline-flex;
+        gap: 6px;
+        padding: 6px;
+        background: rgba(8, 12, 22, 0.8);
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .tab {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 0;
+        color: var(--muted);
+        background: transparent;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+      .tab.active {
+        color: var(--ink);
+        background: rgba(123, 92, 255, 0.2);
+        border: 1px solid rgba(123, 92, 255, 0.4);
+      }
+      .card {
+        border-radius: 16px;
+        padding: 18px;
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .card.glow {
+        background: linear-gradient(180deg, rgba(123, 92, 255, 0.2), rgba(20, 26, 43, 0.8));
+        border-color: rgba(123, 92, 255, 0.4);
+        box-shadow: 0 14px 30px rgba(123, 92, 255, 0.2);
+      }
+      .stat {
+        font-size: 2rem;
+        font-weight: 700;
+        font-family: "Space Grotesk", system-ui, sans-serif;
+      }
+      .progress {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+      .progress span {
+        display: block;
+        height: 100%;
+        width: 68%;
+        background: linear-gradient(90deg, rgba(123, 92, 255, 0.9), rgba(71, 211, 255, 0.9));
+      }
+      .alert {
+        border-radius: 14px;
+        padding: 14px 16px;
+        border: 1px solid transparent;
+      }
+      .alert-info {
+        background: rgba(71, 211, 255, 0.1);
+        border-color: rgba(71, 211, 255, 0.35);
+      }
+      .alert-warn {
+        background: rgba(255, 184, 107, 0.12);
+        border-color: rgba(255, 184, 107, 0.4);
+      }
+      .alert-danger {
+        background: rgba(255, 107, 107, 0.12);
+        border-color: rgba(255, 107, 107, 0.4);
+      }
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+      .table th,
+      .table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        text-align: left;
+      }
+      .table th {
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .list li {
+        padding: 10px 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: linear-gradient(120deg, var(--brand), var(--brand-2));
+      }
+      .pill-nav {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .pill-nav a {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(8, 12, 24, 0.7);
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .pill-nav a.active {
+        color: var(--ink);
+        border-color: rgba(123, 92, 255, 0.4);
+        background: rgba(123, 92, 255, 0.18);
+      }
+      .code {
+        padding: 14px;
+        border-radius: 12px;
+        background: rgba(7, 10, 18, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        color: var(--muted);
+        overflow-x: auto;
+        line-height: 1.5;
+      }
+      .stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(10px); }
+        100% { transform: translateY(0px); }
+      }
+      @keyframes rise {
+        0% { transform: translateY(18px); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <section class="hero">
+        <div>
+          <div class="badge badge-brand">Errl Design System</div>
+          <h1>Neon-glass UI, soft chrome edges, and luminous gradients.</h1>
+          <p>
+            This page is a visual sampler of the Errl design language: deep-space panels,
+            iridescent accents, and rounded components built for glowing motion and
+            tactile control surfaces.
+          </p>
+          <div class="stack">
+            <button class="btn btn-primary">Primary action</button>
+            <button class="btn btn-outline">Secondary</button>
+            <button class="btn btn-ghost">Quiet</button>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-orb"></div>
+          <h3 style="font-family: 'Space Grotesk', system-ui, sans-serif; margin-top: 0;">Token pulse</h3>
+          <div class="hero-grid">
+            <div class="token">
+              <strong>Surface</strong>
+              <span>#141a2b</span>
+            </div>
+            <div class="token">
+              <strong>Brand</strong>
+              <span>#7b5cff</span>
+            </div>
+            <div class="token">
+              <strong>Glow</strong>
+              <span>#47d3ff</span>
+            </div>
+            <div class="token">
+              <strong>Ink</strong>
+              <span>#f2f4ff</span>
+            </div>
+            <div class="token">
+              <strong>Muted</strong>
+              <span>#a9b2c7</span>
+            </div>
+            <div class="token">
+              <strong>Line</strong>
+              <span>#2a3550</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Color system</h2>
+        <p>Core palette and utility colors used across surfaces, highlights, and states.</p>
+        <div class="grid-3">
+          <div class="swatch">
+            <div class="color" style="background: var(--bg);"></div>
+            <strong>Void</strong>
+            <div><code>--bg</code></div>
+          </div>
+          <div class="swatch">
+            <div class="color" style="background: var(--panel);"></div>
+            <strong>Panel</strong>
+            <div><code>--panel</code></div>
+          </div>
+          <div class="swatch">
+            <div class="color" style="background: var(--brand);"></div>
+            <strong>Brand</strong>
+            <div><code>--brand</code></div>
+          </div>
+          <div class="swatch">
+            <div class="color" style="background: var(--brand-2);"></div>
+            <strong>Glow</strong>
+            <div><code>--brand-2</code></div>
+          </div>
+          <div class="swatch">
+            <div class="color" style="background: var(--hot);"></div>
+            <strong>Hot</strong>
+            <div><code>--hot</code></div>
+          </div>
+          <div class="swatch">
+            <div class="color" style="background: linear-gradient(120deg, var(--brand), var(--brand-2));"></div>
+            <strong>Brand gradient</strong>
+            <div><code>brand blend</code></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Typography</h2>
+        <p>Display and body pairing with mono for data and control labels.</p>
+        <div class="grid-2">
+          <div class="panel type-stack">
+            <h1>Display heading</h1>
+            <h2>Section headline</h2>
+            <h3>Card title</h3>
+            <p>Body copy for descriptive text and supporting details.</p>
+            <code>Mono: telemetry or debug data</code>
+          </div>
+          <div class="panel">
+            <div class="code">
+              :root {<br />
+              &nbsp;&nbsp;--bg: #0b0e14;<br />
+              &nbsp;&nbsp;--panel: #141a2b;<br />
+              &nbsp;&nbsp;--brand: #7b5cff;<br />
+              &nbsp;&nbsp;--brand-2: #47d3ff;<br />
+              &nbsp;&nbsp;--ink: #f2f4ff;<br />
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Buttons and badges</h2>
+        <div class="panel">
+          <div class="stack" style="margin-bottom: 14px;">
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-secondary">Secondary</button>
+            <button class="btn btn-outline">Outline</button>
+            <button class="btn btn-ghost">Ghost</button>
+            <button class="btn btn-danger">Danger</button>
+            <button class="btn btn-icon">+</button>
+          </div>
+          <div class="stack">
+            <span class="badge badge-brand">New</span>
+            <span class="badge badge-hot">Pulse</span>
+            <span class="badge badge-good">Stable</span>
+            <span class="chip">Chip + meta</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Form controls</h2>
+        <div class="grid-2">
+          <div class="panel fields">
+            <div class="field">
+              <label>Signal name</label>
+              <input class="input" placeholder="Errl Pulse" />
+            </div>
+            <div class="field">
+              <label>Mode</label>
+              <select class="select">
+                <option>Balanced</option>
+                <option>Neon</option>
+                <option>Glassy</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Notes</label>
+              <textarea class="textarea" rows="3" placeholder="Describe the intent"></textarea>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="stack" style="margin-bottom: 16px;">
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span></span>
+                <strong>Live glow</strong>
+              </label>
+            </div>
+            <div class="check-row" style="margin-bottom: 16px;">
+              <label class="check"><input type="checkbox" checked /> Orb pulses</label>
+              <label class="check"><input type="checkbox" /> Bubbles</label>
+              <label class="check"><input type="checkbox" /> Sparks</label>
+            </div>
+            <div class="check-row">
+              <label class="check"><input type="radio" name="mode" checked /> Auto</label>
+              <label class="check"><input type="radio" name="mode" /> Manual</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Navigation + tabs</h2>
+        <div class="panel">
+          <div class="pill-nav" style="margin-bottom: 16px;">
+            <a class="active" href="#">Overview</a>
+            <a href="#">Library</a>
+            <a href="#">Controls</a>
+            <a href="#">Export</a>
+          </div>
+          <div class="tabs">
+            <button class="tab active">Glow</button>
+            <button class="tab">Motion</button>
+            <button class="tab">Surface</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Cards + stats</h2>
+        <div class="grid-3">
+          <div class="card glow">
+            <div class="badge badge-brand">Focus</div>
+            <h3 style="margin: 12px 0;">Errl Core</h3>
+            <p style="color: var(--muted); margin: 0 0 16px;">
+              Primary node for the system. Luminous, buoyant, and calm.
+            </p>
+            <div class="progress"><span></span></div>
+          </div>
+          <div class="card">
+            <div class="stat">128</div>
+            <p style="color: var(--muted); margin: 6px 0 0;">Active components</p>
+          </div>
+          <div class="card">
+            <div class="stat">24%</div>
+            <p style="color: var(--muted); margin: 6px 0 12px;">Energy gain</p>
+            <button class="btn btn-secondary">Tune output</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Alerts + lists</h2>
+        <div class="grid-2">
+          <div class="panel">
+            <div class="alert alert-info" style="margin-bottom: 12px;">
+              Glow mapping updated. New palettes are available in the library.
+            </div>
+            <div class="alert alert-warn" style="margin-bottom: 12px;">
+              Motion intensity is high. Reduce speed for accessibility.
+            </div>
+            <div class="alert alert-danger">
+              Rendering queue exceeded limit. Pause to recover.
+            </div>
+          </div>
+          <div class="panel">
+            <ul class="list">
+              <li><span class="dot"></span> Establish core surfaces</li>
+              <li><span class="dot"></span> Accent glow layers</li>
+              <li><span class="dot"></span> Active and focus states</li>
+              <li><span class="dot"></span> Motion-safe fallbacks</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Data table</h2>
+        <div class="panel">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Status</th>
+                <th>Owner</th>
+                <th>Energy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Orb bloom</td>
+                <td><span class="badge badge-good">Stable</span></td>
+                <td>Studio</td>
+                <td>72%</td>
+              </tr>
+              <tr>
+                <td>Glow dock</td>
+                <td><span class="badge badge-brand">Active</span></td>
+                <td>Live</td>
+                <td>64%</td>
+              </tr>
+              <tr>
+                <td>Ripple field</td>
+                <td><span class="badge badge-hot">Hot</span></td>
+                <td>FX</td>
+                <td>88%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
