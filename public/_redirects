@@ -5,6 +5,8 @@
 # Note: Cloudflare Pages serves existing files first, so HTML files like
 # /studio/svg-colorer/index.html and /studio/pin-widget/... will be served directly
 # This redirect only applies to paths that don't match existing files
+/studio/svg-colorer/*  /studio/svg-colorer/:splat  200
+/studio/pin-widget/ErrlPin.Widget/*  /studio/pin-widget/ErrlPin.Widget/:splat  200
 /studio/*  /studio.html  200
 
 # Portal pages routing - these are static HTML files, no redirect needed
