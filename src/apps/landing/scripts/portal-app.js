@@ -566,15 +566,18 @@
       const on = !!enabled?.checked;
       toggleClass(on);
       if (!on) return;
-      const boost = pointerBoost;
+      // pointerBoost represents how close mouse is to center (0 = far, 1 = center)
+      // When close to center, reduce goo effects to make it more "normal"
+      const normalizationFactor = pointerBoost; // 1 = at center (reduce goo), 0 = far away (normal goo)
       const mult = parseFloat(strength?.value || '0');
       const wob = parseFloat(wobble?.value || '0');
       const spd = parseFloat(speed?.value || '0');
-      const dispScale = 6 + mult * 18 + boost * 10;
-      const wobBlur = (wob + boost * 0.4) * 6;
-      const noiseWob = 0.004 + (wob + boost * 0.3) * 0.01;
-      const noiseSpd = 0.006 + (spd + boost * 0.5) * 0.01;
-      const dripVal = (spd + boost * 0.7) * 6;
+      // Reduce goo effects when mouse is close to center
+      const dispScale = 6 + mult * 18 * (1 - normalizationFactor * 0.6);
+      const wobBlur = wob * (1 - normalizationFactor * 0.5) * 6;
+      const noiseWob = 0.004 + wob * (1 - normalizationFactor * 0.4) * 0.01;
+      const noiseSpd = 0.006 + spd * (1 - normalizationFactor * 0.5) * 0.01;
+      const dripVal = spd * (1 - normalizationFactor * 0.6) * 6;
       if (nodes.disp) nodes.disp.setAttribute('scale', dispScale.toFixed(2));
       if (nodes.blur) nodes.blur.setAttribute('stdDeviation', wobBlur.toFixed(2));
       if (nodes.noise) nodes.noise.setAttribute('baseFrequency', `${noiseWob.toFixed(4)} ${noiseSpd.toFixed(4)}`);
@@ -720,7 +723,10 @@
       const dy = event.clientY - cy;
       const maxDim = Math.max(rect.width, rect.height) || 1;
       const dist = Math.min(Math.hypot(dx, dy) / maxDim, 1);
-      setPointerBoost(dist);
+      // Invert: closer to center (dist closer to 0) = higher normalization factor
+      // This will reduce goo effects when mouse is close to center
+      const normalizationFactor = 1 - dist;
+      setPointerBoost(normalizationFactor);
       if (pointerDecayRaf) cancelAnimationFrame(pointerDecayRaf);
       pointerDecayRaf = null;
     }
@@ -728,6 +734,7 @@
     function pointerLeaveHandler(){
       if (pointerDecayRaf) cancelAnimationFrame(pointerDecayRaf);
       const decay = () => {
+        // Decay normalization factor back to 0 (normal goo state)
         pointerBoost = Math.max(0, pointerBoost - 0.02);
         if (pointerBoost > 0.01) {
           apply();
