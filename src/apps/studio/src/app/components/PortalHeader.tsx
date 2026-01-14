@@ -29,14 +29,14 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
   // Landing page is at root, not under /portal
   const portalHome = '/';
 
-  // Resolve multitool URL client-side to avoid hydration mismatch
-  const [multitoolUrl, setMultitoolUrl] = useState<string>('/multitool/');
+  // Resolve designer URL client-side to avoid hydration mismatch
+  const [multitoolUrl, setMultitoolUrl] = useState<string>('/designer.html');
   
   useEffect(() => {
     // Only run on client-side
     if (typeof window !== 'undefined') {
       const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      setMultitoolUrl(isDev ? 'http://localhost:5174' : '/multitool/');
+      setMultitoolUrl(isDev ? 'http://localhost:5173/designer.html' : '/designer.html');
     }
   }, []);
 
@@ -51,7 +51,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
     if (normalizedHref.includes('/pages/events/')) return 'events';
     if (normalizedHref.includes('/pages/merch/')) return 'merch';
     if (normalizedHref.includes('/pages/about/')) return 'about';
-    if (normalizedPath.includes('/multitool') || normalizedHref.includes('/multitool')) return 'multitool';
+    if (normalizedPath.includes('/designer') || normalizedHref.includes('/designer')) return 'multitool';
     if (
       normalizedPath === '/studio' ||
       normalizedPath === '/studio/' ||
@@ -76,7 +76,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
     { key: 'studio', label: 'Studio', to: '/', type: 'internal' },
     { 
       key: 'multitool', 
-      label: 'Multitool', 
+      label: 'Designer', 
       href: multitoolUrl, 
       type: 'external' 
     },

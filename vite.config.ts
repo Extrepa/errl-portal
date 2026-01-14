@@ -301,7 +301,16 @@ const reorganizeBuildOutputPlugin = () => ({
 // Vite multi-page build rooted at src/
 export default defineConfig(({ command }) => ({
   root: 'src',
-  plugins: [studioRewritePlugin(), portalPagesRewritePlugin(), copyShapeMadnessContentPlugin(), copySharedAssetsPlugin(), copySharedStylesPlugin(), copyRedirectsPlugin(), replaceBaseUrlPlugin(), reorganizeBuildOutputPlugin()],
+  plugins: [
+    studioRewritePlugin(), 
+    portalPagesRewritePlugin(), 
+    copyShapeMadnessContentPlugin(), 
+    copySharedAssetsPlugin(), 
+    copySharedStylesPlugin(), 
+    copyRedirectsPlugin(), 
+    replaceBaseUrlPlugin(), 
+    reorganizeBuildOutputPlugin()
+  ],
   // Use root base path for custom domain (errl.wtf)
   base: '/',
   server: {
@@ -320,6 +329,7 @@ export default defineConfig(({ command }) => ({
       '@shared': resolve(__dirname, 'src/shared'),
       '@studio': resolve(__dirname, 'src/apps/studio'),
       '@legacy': resolve(__dirname, 'src/legacy'),
+      '@designer': resolve(__dirname, 'src/apps/designer/src'),
       // Removed @errl-design-system alias - no longer used, external dependency not available in CI
     },
     dedupe: ['react', 'react-dom'],
@@ -334,6 +344,7 @@ export default defineConfig(({ command }) => ({
       input: {
         main: resolve(process.cwd(), 'src/index.html'),
         'studio.html': resolve(process.cwd(), 'src/apps/studio/index.html'),
+        // 'designer.html': resolve(process.cwd(), 'src/apps/designer/index.html'), // Built separately via vite.designer.config.ts
         // Portal pages at root level - remove portal/pages/ prefix
         'index': resolve(process.cwd(), 'src/apps/static/pages/index.html'),
         'about/index': resolve(process.cwd(), 'src/apps/static/pages/about/index.html'),

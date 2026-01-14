@@ -1,0 +1,30 @@
+{
+  "project_name": "Ghost Forest Prototype",
+  "library": {
+    "assets": [
+      {
+        "id": "prop_001",
+        "name": "Ethereal Tree",
+        "type": "svg",
+        "data": "<svg viewBox='0 0 100 100'><path d='M50 10 L80 90 L20 90 Z' fill='#00FF9D'/></svg>",
+        "vibe": { "type": "float", "intensity": 5, "speed": 1 }
+      },
+      {
+        "id": "prop_002",
+        "name": "Glowing Orb",
+        "type": "svg",
+        "data": "<svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='#7000FF'/></svg>",
+        "vibe": { "type": "pulse", "intensity": 1.2, "speed": 2 }
+      }
+    ]
+  },
+  "scene": {
+    "background": "#0a0a0a",
+    "instances": [
+      { "id": "inst_1", "asset_ref": "prop_001", "x": 200, "y": 400, "scale": 2, "rotation": 0 },
+      { "id": "inst_2", "asset_ref": "prop_001", "x": 600, "y": 400, "scale": 1.5, "rotation": 15 },
+      { "id": "inst_3", "asset_ref": "prop_002", "x": 400, "y": 200, "scale": 1, "rotation": 0 }
+    ]
+  }
+}
+

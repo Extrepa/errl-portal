@@ -114,10 +114,10 @@ body{font-family:Inter,system-ui,sans-serif; background:#0a0f18; color:var(--ink
     }
   });
   
-  // Resolve Multitool links - use localhost in dev, relative path in production
+  // Resolve Designer links - use localhost in dev, relative path in production
   document.querySelectorAll("[data-multitool-link]").forEach((el) => {
     const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    el.setAttribute("href", isDev ? "http://localhost:5174" : "/multitool/");
+    el.setAttribute("href", isDev ? "http://localhost:5173/designer.html" : "/designer.html");
   });
 </script>
 </body>

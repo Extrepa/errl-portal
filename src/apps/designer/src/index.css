@@ -1,0 +1,28 @@
+/* @import "tailwindcss"; */ /* Using portal's Tailwind instead */
+
+:root {
+  --bg-main: #121212;
+  --bg-surface: #1E1E1E;
+  --bg-active: #2D2D2D;
+  --accent-primary: #00FF9D;
+  --accent-secondary: #7000FF;
+  --border-subtle: #333333;
+  --text-main: #E0E0E0;
+  --text-dim: #888888;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+* {
+  box-sizing: border-box;
+}
+
