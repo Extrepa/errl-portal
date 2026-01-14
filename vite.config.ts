@@ -125,6 +125,48 @@ const copyRedirectsPlugin = () => ({
   },
 });
 
+const replaceBaseUrlPlugin = () => ({
+  name: 'replace-base-url',
+  apply: 'build',
+  generateBundle(options, bundle) {
+    // Replace %BASE_URL% with / in all HTML files
+    for (const fileName in bundle) {
+      const chunk = bundle[fileName];
+      if (chunk.type === 'asset' && fileName.endsWith('.html')) {
+        chunk.source = (chunk.source as string).replace(/%BASE_URL%/g, '/');
+      }
+    }
+  },
+  writeBundle() {
+    // Also replace in files that might be written after generateBundle
+    const distDir = resolve(process.cwd(), 'dist');
+    const replaceInFile = (filePath: string) => {
+      if (!existsSync(filePath)) return;
+      const fs = require('fs');
+      let content = fs.readFileSync(filePath, 'utf-8');
+      if (content.includes('%BASE_URL%')) {
+        content = content.replace(/%BASE_URL%/g, '/');
+        fs.writeFileSync(filePath, content, 'utf-8');
+      }
+    };
+    
+    // Replace in all HTML files in dist
+    const findHtmlFiles = (dir: string) => {
+      const entries = readdirSync(dir);
+      for (const entry of entries) {
+        const fullPath = resolve(dir, entry);
+        const stats = statSync(fullPath);
+        if (stats.isDirectory()) {
+          findHtmlFiles(fullPath);
+        } else if (entry.endsWith('.html')) {
+          replaceInFile(fullPath);
+        }
+      }
+    };
+    findHtmlFiles(distDir);
+  },
+});
+
 const reorganizeBuildOutputPlugin = () => ({
   name: 'reorganize-build-output',
   apply: 'build',
@@ -242,7 +284,7 @@ const reorganizeBuildOutputPlugin = () => ({
 // Vite multi-page build rooted at src/
 export default defineConfig(({ command }) => ({
   root: 'src',
-  plugins: [studioRewritePlugin(), portalPagesRewritePlugin(), copyShapeMadnessContentPlugin(), copySharedAssetsPlugin(), copySharedStylesPlugin(), copyRedirectsPlugin(), reorganizeBuildOutputPlugin()],
+  plugins: [studioRewritePlugin(), portalPagesRewritePlugin(), copyShapeMadnessContentPlugin(), copySharedAssetsPlugin(), copySharedStylesPlugin(), copyRedirectsPlugin(), replaceBaseUrlPlugin(), reorganizeBuildOutputPlugin()],
   // Use root base path for custom domain (errl.wtf)
   base: '/',
   server: {
