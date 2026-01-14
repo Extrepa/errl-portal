@@ -975,6 +975,18 @@
           var url = URL.createObjectURL(blob);
           var errlImg = $('#errlCenter');
           if (errlImg) {
+            // Preserve the original (non-blob) default src before swapping to a blob URL.
+            try {
+              if (!errlImg.dataset.defaultSrc || !errlImg.dataset.defaultSrc.length) {
+                var curr = errlImg.getAttribute('src') || '';
+                if (curr && curr.indexOf('blob:') !== 0) errlImg.dataset.defaultSrc = curr;
+              }
+            } catch(_) {}
+            // Revoke any previous blob URL we created.
+            try {
+              var prev = errlImg.getAttribute('src') || '';
+              if (prev && prev.indexOf('blob:') === 0) URL.revokeObjectURL(prev);
+            } catch(_) {}
             errlImg.src = url;
             try { localStorage.setItem('errlCustomizedSvg', svgString); } catch(e) {}
           }
@@ -986,6 +998,32 @@
           document.body.removeChild(a);
           setTimeout(function(){ URL.revokeObjectURL(url); }, 100);
         } catch(e) { console.error('Save failed', e); }
+      }
+
+      function ensureErrlDefaultSrc(errlImg){
+        if (!errlImg) return;
+        try {
+          if (errlImg.dataset.defaultSrc && errlImg.dataset.defaultSrc.length) return;
+          var curr = errlImg.getAttribute('src') || '';
+          // Only treat non-blob URLs as defaults; otherwise use a safe fallback.
+          if (curr && curr.indexOf('blob:') !== 0) {
+            errlImg.dataset.defaultSrc = curr;
+          } else {
+            errlImg.dataset.defaultSrc = './shared/assets/portal/L4_Central/errl-body-with-limbs.svg';
+          }
+        } catch(_) {}
+      }
+
+      function restoreInlineSvgToDefault(){
+        try {
+          var inlineSVG = document.getElementById('errlInlineSVG');
+          if (!inlineSVG) return;
+          if (!window.__errlInlineSvgDefault) return;
+          inlineSVG.innerHTML = window.__errlInlineSvgDefault.innerHTML || '';
+          if (window.__errlInlineSvgDefault.viewBox) {
+            inlineSVG.setAttribute('viewBox', window.__errlInlineSvgDefault.viewBox);
+          }
+        } catch(_) {}
       }
 
       function loadHeroSVG(){
@@ -1007,6 +1045,12 @@
           var url = URL.createObjectURL(blob);
           var errlImg = document.getElementById('errlCenter');
           if (errlImg) {
+            ensureErrlDefaultSrc(errlImg);
+            // Revoke any previous blob URL we created.
+            try {
+              var prev = errlImg.getAttribute('src') || '';
+              if (prev && prev.indexOf('blob:') === 0) URL.revokeObjectURL(prev);
+            } catch(_) {}
             errlImg.src = url;
             console.log('SVG injected to home page');
           }
@@ -1014,6 +1058,13 @@
           var inlineSVG = document.getElementById('errlInlineSVG');
           if (inlineSVG && svgString) {
             try {
+              // Cache the original inline SVG once so Reset Default can restore it.
+              if (!window.__errlInlineSvgDefault) {
+                window.__errlInlineSvgDefault = {
+                  innerHTML: inlineSVG.innerHTML,
+                  viewBox: inlineSVG.getAttribute('viewBox') || ''
+                };
+              }
               var parser = new DOMParser();
               var svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
               if (svgDoc.documentElement && svgDoc.documentElement.tagName === 'svg') {
@@ -1044,6 +1095,12 @@
           if (saved) {
             var errlImg = document.getElementById('errlCenter');
             if (errlImg) {
+              ensureErrlDefaultSrc(errlImg);
+              // Revoke any previous blob URL we created.
+              try {
+                var prev = errlImg.getAttribute('src') || '';
+                if (prev && prev.indexOf('blob:') === 0) URL.revokeObjectURL(prev);
+              } catch(_) {}
               var blob = new Blob([saved], {type: 'image/svg+xml'});
               var url = URL.createObjectURL(blob);
               errlImg.src = url;
@@ -1059,6 +1116,22 @@
         var resetBtn = document.getElementById('colorizerResetBtn');
 
         if (!frame) { console.error('Colorizer frame not found'); return; }
+        
+        // Reset-to-default handler (fallback + escape hatch)
+        function resetHomeToDefault(){
+          try { localStorage.removeItem('errlCustomizedSvg'); } catch(_) {}
+          var errlImg = document.getElementById('errlCenter');
+          if (!errlImg) return;
+          ensureErrlDefaultSrc(errlImg);
+          var current = errlImg.getAttribute('src') || '';
+          // Revoke any previous blob URL we created.
+          try { if (current && current.indexOf('blob:') === 0) URL.revokeObjectURL(current); } catch(_) {}
+          // Prefer stored default; fallback to canonical path.
+          var fallback = './shared/assets/portal/L4_Central/errl-body-with-limbs.svg';
+          errlImg.src = (errlImg.dataset.defaultSrc && errlImg.dataset.defaultSrc.length) ? errlImg.dataset.defaultSrc : fallback;
+          // Also restore the hidden inline SVG used for serialization (if we previously overwrote it).
+          restoreInlineSvgToDefault();
+        }
         
         // Ensure iframe is properly sized - remove any fixed dimensions
         function ensureFrameSizing() {
@@ -1088,22 +1161,26 @@
           }
         }
         ensureFrameSizing();
-        // Re-check after frame loads and on resize
-        frame.addEventListener('load', function() {
-          ensureFrameSizing();
-          // Also trigger after a short delay to ensure layout is settled
-          setTimeout(ensureFrameSizing, 100);
-        });
-        window.addEventListener('resize', ensureFrameSizing);
+        // Re-check after frame loads and on resize (bind once)
+        if (!frame.dataset.sizingBound) {
+          frame.addEventListener('load', function() {
+            ensureFrameSizing();
+            // Also trigger after a short delay to ensure layout is settled
+            setTimeout(ensureFrameSizing, 100);
+          });
+          window.addEventListener('resize', ensureFrameSizing);
+          frame.dataset.sizingBound = '1';
+        }
 
-        // Wait for iframe to load
-        frame.addEventListener('load', function(){
-          var iframeWindow = frame.contentWindow;
-          if (!iframeWindow) return;
-
-          // Listen for SVG export messages from iframe
+        // Listen for SVG export messages from iframe (bind once)
+        if (!window.__errlPinWidgetMessageBound) {
           window.addEventListener('message', function(event){
-            // Verify origin for security (adjust if needed)
+            var f = document.getElementById('colorizerFrame');
+            if (!f || !f.contentWindow) return;
+
+            // Only accept messages from our iframe (ignore unrelated postMessage traffic).
+            if (event.source !== f.contentWindow) return;
+
             if (event.data && event.data.type === 'pinWidgetExportSVG') {
               var svgString = event.data.svg;
               if (svgString) {
@@ -1115,44 +1192,29 @@
               }
             }
           });
+          window.__errlPinWidgetMessageBound = true;
+        }
 
-          // Inject button handler
-          if (injectBtn) {
-            injectBtn.addEventListener('click', function(){
-              iframeWindow.postMessage({type: 'pinWidgetRequestSVG', action: 'inject'}, '*');
-            });
-          }
+        function requestSvgFromIframe(action){
+          var f = document.getElementById('colorizerFrame');
+          var w = f && f.contentWindow;
+          if (!w) return;
+          w.postMessage({type: 'pinWidgetRequestSVG', action: action}, '*');
+        }
 
-          // Save button handler
-          if (saveBtn) {
-            saveBtn.addEventListener('click', function(){
-              iframeWindow.postMessage({type: 'pinWidgetRequestSVG', action: 'save'}, '*');
-            });
-          }
-
-          // Reset-to-default handler (fallback + escape hatch)
-          function resetHomeToDefault(){
-            try { localStorage.removeItem('errlCustomizedSvg'); } catch(_) {}
-            var errlImg = document.getElementById('errlCenter');
-            if (!errlImg) return;
-            // Preserve original default src the first time we touch it.
-            if (!errlImg.dataset.defaultSrc) {
-              errlImg.dataset.defaultSrc = errlImg.getAttribute('src') || '';
-            }
-            var current = errlImg.getAttribute('src') || '';
-            // Revoke any previous blob URL we created.
-            try { if (current && current.indexOf('blob:') === 0) URL.revokeObjectURL(current); } catch(_) {}
-            // Prefer stored default; fallback to canonical path.
-            var fallback = './shared/assets/portal/L4_Central/errl-body-with-limbs.svg';
-            errlImg.src = (errlImg.dataset.defaultSrc && errlImg.dataset.defaultSrc.length) ? errlImg.dataset.defaultSrc : fallback;
-          }
-
-          if (resetBtn) {
-            resetBtn.addEventListener('click', function(){
-              resetHomeToDefault();
-            });
-          }
-        });
+        // Bind click handlers once (never inside iframe load)
+        if (injectBtn && !injectBtn.dataset.bound) {
+          injectBtn.addEventListener('click', function(){ requestSvgFromIframe('inject'); });
+          injectBtn.dataset.bound = '1';
+        }
+        if (saveBtn && !saveBtn.dataset.bound) {
+          saveBtn.addEventListener('click', function(){ requestSvgFromIframe('save'); });
+          saveBtn.dataset.bound = '1';
+        }
+        if (resetBtn && !resetBtn.dataset.bound) {
+          resetBtn.addEventListener('click', function(){ resetHomeToDefault(); });
+          resetBtn.dataset.bound = '1';
+        }
 
         // Load saved SVG on init
         loadSavedSVG();

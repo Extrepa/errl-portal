@@ -13,6 +13,7 @@
 - Removed the DEV-panel helper text “Second phone overlay”.
 - Improved Snapshot export to also download a JSON bundle (and include persisted `errl_hue_layers` as a fallback), making it easier to convert a good local state into code defaults.
 - Removed the (non-working) tab icon textures and made tabs text-only with perfectly centered labels.
+- Fixed listener accumulation in `src/index.html` by registering the iframe `message` handler and the Inject/Save/Reset click handlers **once** (not inside the iframe `load` callback), preventing duplicate actions after iframe reloads.
 
 ### Detailed notes (what/why + where)
 
@@ -112,4 +113,3 @@
 
 - **Playwright tests**: `npm test` tries to start a web server on `127.0.0.1:5173`. In the sandbox it fails with `listen EPERM`. To run tests from here, we need permission to bind a local port (or run outside sandbox).
 - **SVG colorer hardening**: `src/apps/static/pages/studio/svg-colorer/app.js` got defensive null-check wiring (buttons/inputs may not exist depending on embed/route), to prevent runtime errors that would break interactions.
-
