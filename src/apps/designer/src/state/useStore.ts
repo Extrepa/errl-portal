@@ -30,7 +30,7 @@ const createEmptyProject = (): Project => ({
 });
 
 // Create history manager instance
-let historyManager = new HistoryManager<Project>(createEmptyProject(), {
+let historyManager = new HistoryManager(createEmptyProject(), {
   mode: 'past-present-future',
   maxHistory: 50,
 });
@@ -200,7 +200,7 @@ export const useStore = create<ProjectStore>()(
 
       setProject: (project) => {
         // Initialize history manager with new project
-        historyManager = new HistoryManager<Project>(project, {
+        historyManager = new HistoryManager(project, {
           mode: 'past-present-future',
           maxHistory: 50,
         });
@@ -211,7 +211,7 @@ export const useStore = create<ProjectStore>()(
       loadProject: (projectData) => {
         const hydratedProject = hydrateProject(projectData);
         // Initialize history manager with loaded project
-        historyManager = new HistoryManager<Project>(hydratedProject, {
+        historyManager = new HistoryManager(hydratedProject, {
           mode: 'past-present-future',
           maxHistory: 50,
         });

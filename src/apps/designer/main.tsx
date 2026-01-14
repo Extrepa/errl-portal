@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './src/App.tsx'
+import App from './src/App'
 import { ErrorBoundary } from './src/components/ErrorBoundary'
 // import './src/index.css' // Using portal's shared styles instead
 import '../../shared/styles/errlDesignSystem.css'

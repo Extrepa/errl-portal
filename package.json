@@ -39,7 +39,7 @@
     "studio:stop": "bash tools/portal/stop-studio.sh",
     "studio:logs": "bash tools/portal/logs-studio.sh",
     "studio:build": "vite build --config vite.studio.config.ts",
-    "designer:build": "vite build --config vite.designer.config.ts",
+    "designer:build": "vite build --config vite.designer.config.ts && mv dist/src/apps/designer/index.html dist/designer.html 2>/dev/null || true",
     "studio:preview": "electron electron/main.js --studio",
     "precommit": "npm run typecheck && npm test && npm run portal:build"
   },

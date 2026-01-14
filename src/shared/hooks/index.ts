@@ -1,7 +1,15 @@
 // Placeholder for shared hooks used by designer app
 // TODO: Implement or migrate hooks from multi-tool-app
 
-export function useKeyboardShortcutsSimple() {
+export function useKeyboardShortcutsSimple(options?: {
+  onUndo?: () => void;
+  onRedo?: () => void;
+  onDelete?: () => void;
+  onDeselect?: () => void;
+}) {
   // TODO: Implement keyboard shortcuts hook
-  console.warn('useKeyboardShortcutsSimple not implemented');
+  if (options) {
+    // Placeholder implementation
+    console.warn('useKeyboardShortcutsSimple not fully implemented');
+  }
 }

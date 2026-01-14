@@ -6,7 +6,6 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  root: 'src',
   plugins: [react()],
   resolve: {
     alias: {
@@ -25,6 +24,11 @@ export default defineConfig({
     rollupOptions: {
       input: {
         'designer.html': resolve(process.cwd(), 'src/apps/designer/index.html'),
+      },
+      output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       },
     },
   },

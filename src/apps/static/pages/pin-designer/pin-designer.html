@@ -48,6 +48,15 @@
   justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.errl-header-content::-webkit-scrollbar {
+  display: none;
 }
 
 /* ===== LEFT SIDE: BACK TO PORTAL ===== */
@@ -98,6 +107,14 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.errl-nav::-webkit-scrollbar {
+  display: none;
 }
 
 /* ===== BUBBLE-LINK BUTTONS ===== */
@@ -112,7 +129,7 @@
   padding: 0.6rem 0.9rem 0.7rem;
 
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: clamp(0.65rem, 0.8rem, 0.9rem);
   font-weight: 600;
   line-height: 1.1;
   text-align: center;
@@ -142,6 +159,7 @@
     0 4px 12px rgba(0,0,0,0.3),
     0 1px 0 rgba(255,255,255,0.2) inset,
     0 -1px 0 rgba(0,0,0,0.3) inset;
+  flex-shrink: 0;
 }
 
 /* LED Strip Outline */

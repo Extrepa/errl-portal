@@ -27,14 +27,14 @@ export async function loadPaperJS(): Promise<void> {
   console.warn('loadPaperJS not implemented');
 }
 
-export function simplifySvgPaths(svg: string): string {
+export function simplifySvgPaths(svg: string, tolerance?: number): string {
   // TODO: Implement SVG path simplification
-  console.warn('simplifySvgPaths not implemented');
+  console.warn('simplifySvgPaths not implemented', tolerance);
   return svg;
 }
 
-export function expandStrokeToFill(svg: string): string {
+export function expandStrokeToFill(svg: string, width?: number): string {
   // TODO: Implement stroke to fill expansion
-  console.warn('expandStrokeToFill not implemented');
+  console.warn('expandStrokeToFill not implemented', width);
   return svg;
 }
