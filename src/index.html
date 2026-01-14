@@ -229,7 +229,7 @@
         <div style="display:flex; align-items:center; gap:8px; flex:1;">
           <input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="0.45" style="flex:1">
           <label for="classicGooSpeedAuto" style="font-size:7px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for speed">
-            <input type="checkbox" id="classicGooSpeedAuto"> Auto
+            <input type="checkbox" id="classicGooSpeedAuto" checked> Auto
           </label>
         </div>
       </div>
@@ -237,12 +237,13 @@
         <label for="classicGooAutoSpeed" title="Speed of the auto fade sweep">Auto Speed</label>
         <input id="classicGooAutoSpeed" type="range" min="0.01" max="0.5" step="0.01" value="0.05">
       </div>
-      <div class="sliderRow" style="justify-content:flex-end; gap:8px">
-        <button id="classicGooAutoPlayPause" class="btn-animate" title="Play/Pause auto-fade animation" aria-pressed="false" style="display:none;">Play</button>
+      <div class="sliderRow" style="justify-content:space-between; align-items:center; gap:8px">
+        <label style="font-size:11px; opacity:0.9;">Animation</label>
+        <button id="classicGooAutoPlayPause" class="btn-animate" title="Play/Pause auto-fade animation" aria-pressed="false" style="min-width:60px; padding:4px 12px; font-size:11px; font-weight:600;">Play</button>
       </div>
       <div class="sliderRow">
         <label for="classicGooMouseReact" title="Let Errl goo respond to cursor proximity">Mouse Reactive</label>
-        <input type="checkbox" id="classicGooMouseReact">
+        <input type="checkbox" id="classicGooMouseReact" checked>
       </div>
       <div class="sliderRow" style="justify-content:flex-end">
         <button id="classicGooRandom">Random</button>

@@ -460,12 +460,20 @@
     }
   });
 
-  // Errl size slider - drive CSS custom property so all layers stay in sync
+  // Errl size slider - use CSS zoom for crisp scaling (with Firefox fallback)
   on($("errlSize"), 'input', ()=>{
     const wrap = $("errl");
     if(!wrap) return;
     const v = parseFloat($("errlSize").value||'1');
-    wrap.style.setProperty('--errlScale', v.toString());
+    // Use zoom for crisp scaling (Chrome/Safari/Edge) or transform scale for Firefox
+    if (CSS.supports('zoom', '1')) {
+      wrap.style.zoom = v.toString();
+      wrap.style.setProperty('--errlScale', '1');
+    } else {
+      // Firefox fallback: use transform scale with better rendering
+      wrap.style.zoom = '';
+      wrap.style.setProperty('--errlScale', v.toString());
+    }
     window.errlGLSyncOrbs && window.errlGLSyncOrbs();
   });
 
@@ -772,11 +780,18 @@
     function updateAutoPlayPauseButton() {
       if (!autoPlayPause) return;
       const hasAuto = anyAutoEnabled();
+      // Always show button when auto is enabled, hide when disabled
       autoPlayPause.style.display = hasAuto ? 'block' : 'none';
       if (hasAuto) {
         autoPlayPause.textContent = animating ? 'Pause' : 'Play';
         autoPlayPause.setAttribute('aria-pressed', animating ? 'true' : 'false');
         autoPlayPause.title = animating ? 'Pause auto-fade animation' : 'Play auto-fade animation';
+        // Add/remove animating class for visual feedback
+        if (animating) {
+          autoPlayPause.classList.add('animating');
+        } else {
+          autoPlayPause.classList.remove('animating');
+        }
       }
     }
     if (autoPlayPause) {
@@ -1479,8 +1494,8 @@
         rbRipples: false, rbRippleIntensity: '1.2',
         // Goo defaults
         classicGooEnabled: true, classicGooStrength: '0.35', classicGooWobble: '0.55', classicGooSpeed: '0.45',
-        classicGooStrengthAuto: false, classicGooWobbleAuto: false, classicGooSpeedAuto: false,
-        classicGooAutoSpeed: '0.05', classicGooMouseReact: false,
+        classicGooStrengthAuto: false, classicGooWobbleAuto: false, classicGooSpeedAuto: true,
+        classicGooAutoSpeed: '0.05', classicGooMouseReact: true,
         // Nav defaults
         navOrbitSpeed: '1.0', navRadius: '1.2', navOrbSize: '1.05',
         navWiggle: '0.4', navFlow: '0.8', navGrip: '0.5', navDrip: '-0.5', navVisc: '0.9',
