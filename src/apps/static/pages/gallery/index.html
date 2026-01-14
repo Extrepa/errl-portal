@@ -218,8 +218,9 @@
         const processManifest = (obj) => {
           if (typeof obj === 'string') {
             let processed = obj.replace(/%BASE_URL%/g, baseUrl);
-            // Fix double slashes
-            processed = processed.replace(/([^:]\/)\/+/g, '$1');
+            // Fix double slashes (but not after colons like http:// or https://)
+            // Use a pattern that doesn't capture characters before slashes
+            processed = processed.replace(/(?<!:)\/\/(?=\/)/g, '/');
             return processed;
           }
           if (Array.isArray(obj)) {

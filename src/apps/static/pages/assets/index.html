@@ -88,16 +88,58 @@ const assets = [
   { title: 'Color Customizer', src: '../studio/svg-colorer/index.html', download: '../studio/svg-colorer/index.html', filename: 'Errl_Color_Customizer.html' },
   { title: 'Pin Widget', src: '../studio/pin-widget/ErrlPin.Widget/designer.html', download: '../studio/pin-widget/ErrlPin.Widget/designer.html', filename: 'Errl_Pin_Widget.html' },
 ];
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Escape attribute values
+function escapeAttr(text) {
+  return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+}
+
 const grid = document.getElementById('assetsGrid');
 for(const t of assets){
   const box = document.createElement('article');
   box.className='box';
-  const ctrlItems = [];
-  if(t.download){ ctrlItems.push(`<a class=\"dl\" href=\"${t.download}\" download=\"${t.filename || 'project.html'}\">Download HTML</a>`); }
-  const controls = ctrlItems.length ? `<div class=\"controls\">${ctrlItems.join('')}</div>` : '';
-  // Use the src as-is (already relative path)
-  const iframeSrc = t.src;
-  box.innerHTML = `<header><span>${t.title}</span>${controls}</header><div class=\"frame\"><iframe src=\"${iframeSrc}\" loading=\"lazy\" title=\"${t.title}\" onerror=\"console.error('Failed to load: ${iframeSrc}')\"></iframe></div>`;
+  
+  // Create header
+  const header = document.createElement('header');
+  const titleSpan = document.createElement('span');
+  titleSpan.textContent = t.title;
+  header.appendChild(titleSpan);
+  
+  // Create controls if download exists
+  if(t.download){
+    const controls = document.createElement('div');
+    controls.className = 'controls';
+    const downloadLink = document.createElement('a');
+    downloadLink.className = 'dl';
+    downloadLink.href = t.download;
+    downloadLink.download = t.filename || 'project.html';
+    downloadLink.textContent = 'Download HTML';
+    controls.appendChild(downloadLink);
+    header.appendChild(controls);
+  }
+  
+  // Create frame and iframe
+  const frame = document.createElement('div');
+  frame.className = 'frame';
+  const iframe = document.createElement('iframe');
+  iframe.src = t.src; // Safe: t.src is from trusted data array
+  iframe.loading = 'lazy';
+  iframe.title = t.title;
+  
+  // Use addEventListener instead of inline onerror to prevent XSS
+  iframe.addEventListener('error', () => {
+    console.error('Failed to load:', t.src);
+  });
+  
+  frame.appendChild(iframe);
+  box.appendChild(header);
+  box.appendChild(frame);
   grid.appendChild(box);
 }
 

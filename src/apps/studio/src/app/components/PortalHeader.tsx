@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { resolvePortalPageUrl } from '../utils/portalPaths';
 import './portal-header.css';
@@ -27,6 +28,17 @@ type NavItem =
 export default function PortalHeader({ activeKey }: PortalHeaderProps) {
   // Landing page is at root, not under /portal
   const portalHome = '/';
+
+  // Resolve multitool URL client-side to avoid hydration mismatch
+  const [multitoolUrl, setMultitoolUrl] = useState<string>('/multitool/');
+  
+  useEffect(() => {
+    // Only run on client-side
+    if (typeof window !== 'undefined') {
+      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      setMultitoolUrl(isDev ? 'http://localhost:5174' : '/multitool/');
+    }
+  }, []);
 
   const derivedKeyFromLocation = (): NavItemKey | undefined => {
     if (typeof window === 'undefined') return undefined;
@@ -65,9 +77,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
     { 
       key: 'multitool', 
       label: 'Multitool', 
-      href: typeof window !== 'undefined' && window.location.hostname === 'localhost' 
-        ? 'http://localhost:5174' 
-        : '/multitool/', 
+      href: multitoolUrl, 
       type: 'external' 
     },
     { key: 'events', label: 'Events', href: resolvePortalPageUrl('pages/events/index.html'), type: 'external' },
