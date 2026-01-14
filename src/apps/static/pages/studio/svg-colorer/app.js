@@ -89,32 +89,41 @@ window.addEventListener('orientationchange', positionCustomizeBtn);
 window.addEventListener('errl-customizer-change', positionCustomizeBtn, { passive:true });
 window.addEventListener('load', positionCustomizeBtn);
 
-toggleParts.addEventListener('click', () => {
-  // open and un-minimize
-  customizer.style.display = 'flex';
-  customizer.dataset.minimized = 'false';
-});
+if (toggleParts) {
+  toggleParts.addEventListener('click', () => {
+    // open and un-minimize
+    if (customizer) {
+      customizer.style.display = 'flex';
+      customizer.dataset.minimized = 'false';
+    }
+  });
+}
 
-czClose.addEventListener('click', () => {
-  customizer.style.display = 'none';
-});
+if (czClose) {
+  czClose.addEventListener('click', () => {
+    if (customizer) customizer.style.display = 'none';
+  });
+}
 
 let lastPanelPos = null;
-czMin.addEventListener('click', () => {
-  const willMin = customizer.dataset.minimized !== 'true';
-  if (willMin) {
-    const r = customizer.getBoundingClientRect();
-    lastPanelPos = { left: r.left, top: r.top };
-    customizer.dataset.minimized = 'true';
-  } else {
-    customizer.dataset.minimized = 'false';
-    if (lastPanelPos) {
-      customizer.style.left = Math.max(8, lastPanelPos.left) + 'px';
-      customizer.style.top = Math.max(8, lastPanelPos.top) + 'px';
-      customizer.style.transform = '';
+if (czMin) {
+  czMin.addEventListener('click', () => {
+    if (!customizer) return;
+    const willMin = customizer.dataset.minimized !== 'true';
+    if (willMin) {
+      const r = customizer.getBoundingClientRect();
+      lastPanelPos = { left: r.left, top: r.top };
+      customizer.dataset.minimized = 'true';
+    } else {
+      customizer.dataset.minimized = 'false';
+      if (lastPanelPos) {
+        customizer.style.left = Math.max(8, lastPanelPos.left) + 'px';
+        customizer.style.top = Math.max(8, lastPanelPos.top) + 'px';
+        customizer.style.transform = '';
+      }
     }
-  }
-});
+  });
+}
 
 // Draggable
 function makeDraggable(panel, handleSel){
@@ -138,6 +147,7 @@ function makeDraggable(panel, handleSel){
   window.addEventListener('mouseup', ()=> isDrag=false);
 }
 (function makePanelDraggable(panel, handle){
+  if (!panel || !handle) return;
   let isDrag=false, sx=0, sy=0, ox=0, oy=0;
   handle.addEventListener('mousedown', (e)=>{
     isDrag=true; sx=e.clientX; sy=e.clientY;
@@ -204,18 +214,18 @@ const animatedGradient = $('#animatedGradient');
 
 function setStyle(mode) {
   state.styleMode = mode;
-  gradientOptions.hidden = mode !== 'gradient';
-  btnSolid.classList.toggle('active', mode==='solid');
-  btnGradient.classList.toggle('active', mode==='gradient');
+  if (gradientOptions) gradientOptions.hidden = mode !== 'gradient';
+  if (btnSolid) btnSolid.classList.toggle('active', mode==='solid');
+  if (btnGradient) btnGradient.classList.toggle('active', mode==='gradient');
   if (mode !== 'gradient') {
-    chkRainbow.checked = false;
-    chkUsePalettes.checked = false;
+    if (chkRainbow) chkRainbow.checked = false;
+    if (chkUsePalettes) chkUsePalettes.checked = false;
     state.useRainbow = false;
     state.usePalettes = false;
   }
 }
-btnSolid.addEventListener('click', ()=> setStyle('solid'));
-btnGradient.addEventListener('click', ()=> setStyle('gradient'));
+if (btnSolid) btnSolid.addEventListener('click', ()=> setStyle('solid'));
+if (btnGradient) btnGradient.addEventListener('click', ()=> setStyle('gradient'));
 function refreshDynamicGradient(){
   try{
     const cols = buildGradientColors();
@@ -228,34 +238,40 @@ function refreshDynamicGradient(){
     if (ids.length) applyGradientToSelection(cols, ids);
   }catch(_){/* noop */}
 }
-animatedGradient.addEventListener('change', e => { state.animated = e.target.checked; refreshDynamicGradient(); });
+if (animatedGradient) {
+  animatedGradient.addEventListener('change', e => { state.animated = e.target.checked; refreshDynamicGradient(); });
+}
 
 // Toggle rainbow vs palettes exclusive
-chkRainbow.addEventListener('change', (e)=> {
-  if (e.target.checked) {
-    chkUsePalettes.checked = false;
-    state.useRainbow = true;
-    state.usePalettes = false;
-    $('#btnChoosePalettes').disabled = true;
-  } else {
-    state.useRainbow = false;
-  }
-  // If picker is open, rebuild with updated options
-  if (!colorPopover.hidden) openColorPicker(btnChooseColor);
-});
-chkUsePalettes.addEventListener('change', (e)=> {
-  if (e.target.checked) {
-    chkRainbow.checked = false;
-    state.useRainbow = false;
-    state.usePalettes = true;
-    // open palette picker via link too
-    openPalettePickerAt($('#openPalettes') || e.currentTarget, true);
-  } else {
-    state.usePalettes = false;
-    closePalettePopover();
-  }
-  if (!colorPopover.hidden) openColorPicker(btnChooseColor);
-});
+if (chkRainbow) {
+  chkRainbow.addEventListener('change', (e)=> {
+    if (e.target.checked) {
+      if (chkUsePalettes) chkUsePalettes.checked = false;
+      state.useRainbow = true;
+      state.usePalettes = false;
+      // Note: openPalettes link doesn't need to be disabled
+    } else {
+      state.useRainbow = false;
+    }
+    // If picker is open, rebuild with updated options
+    if (colorPopover && !colorPopover.hidden && btnChooseColor) openColorPicker(btnChooseColor);
+  });
+}
+if (chkUsePalettes) {
+  chkUsePalettes.addEventListener('change', (e)=> {
+    if (e.target.checked) {
+      if (chkRainbow) chkRainbow.checked = false;
+      state.useRainbow = false;
+      state.usePalettes = true;
+      // open palette picker via link too
+      openPalettePickerAt($('#openPalettes') || e.currentTarget, true);
+    } else {
+      state.usePalettes = false;
+      closePalettePopover();
+    }
+    if (colorPopover && !colorPopover.hidden && btnChooseColor) openColorPicker(btnChooseColor);
+  });
+}
 
 // Step 3: Color popover
 const colorPopover = $('#colorPopover');
@@ -278,8 +294,8 @@ function openPopoverAt(el, pop, contentBuilder, condense=false) {
   clampInViewport(pop);
 }
 
-function closeColorPopover(){ colorPopover.hidden = true; }
-function closePalettePopover(){ palettePopover.hidden = true; }
+function closeColorPopover(){ if (colorPopover) colorPopover.hidden = true; }
+function closePalettePopover(){ if (palettePopover) palettePopover.hidden = true; }
 
 // Palettes (names and 7-color arrays). Up to 15 total available.
 const PALETTES = [
@@ -451,9 +467,12 @@ function openColorPicker(el) {
   }, true);
 }
 
-btnChooseColor.addEventListener('click', (e)=> openColorPicker(e.currentTarget));
+if (btnChooseColor) {
+  btnChooseColor.addEventListener('click', (e)=> openColorPicker(e.currentTarget));
+}
 
-btnRandomColor.addEventListener('click', ()=>{
+if (btnRandomColor) {
+  btnRandomColor.addEventListener('click', ()=>{
   let colors = [];
   if (state.styleMode === 'solid') {
     colors = buildColorGridColors();
@@ -467,9 +486,11 @@ btnRandomColor.addEventListener('click', ()=>{
   if (!colors.length) { alert('Pick Full Rainbow or Use Palettes first.'); return; }
   const col = colors[Math.floor(Math.random()*colors.length)];
   applyFillToSelection(col);
-});
+  });
+}
 
 function ensureGradient(colors){
+  if (!svg) return 'url(#dynamicGrad)';
   const defs = svg.querySelector('defs') || (()=>{ const d=document.createElementNS('http://www.w3.org/2000/svg','defs'); svg.prepend(d); return d; })();
   let lg = svg.querySelector('#dynamicGrad');
   if (!lg) { lg = document.createElementNS('http://www.w3.org/2000/svg','linearGradient'); lg.id='dynamicGrad'; lg.setAttribute('x1','0%'); lg.setAttribute('y1','0%'); lg.setAttribute('x2','100%'); lg.setAttribute('y2','0%'); defs.appendChild(lg); }
@@ -556,90 +577,97 @@ const PLATING = [
 
 function applyPlatingStroke(val){
   const strokeVal = val; // respect chosen gradient/color
-  outline.setAttribute('stroke', strokeVal);
+  if (outline) outline.setAttribute('stroke', strokeVal);
   ['region-face','region-eyeL','region-eyeR','region-mouth'].forEach(id => {
     const path = regions[id]?.querySelector('path');
     if (path) path.setAttribute('stroke', strokeVal);
   });
 }
 
-PLATING.forEach(p => {
-  const sw = document.createElement('div');
-  sw.className = 'swatch'; sw.title = p.name; sw.dataset.name = p.name;
-  // Preview background for gradients
-  (function(){
-    const v=p.value;
-    if(v.startsWith('url(')){
-      const id=v.slice(v.indexOf('#')+1, v.indexOf(')')-1);
-      let preview = v;
-      if(id==='mirrorSilver') preview = 'linear-gradient(135deg, rgba(255,255,255,.32), rgba(255,255,255,0) 60%), linear-gradient(90deg,#fefefe,#e9eef7,#cdd6e6,#a4adbf,#cdd6e6,#e9eef7,#fefefe)';
-      else if(id==='irBlue') preview = 'linear-gradient(90deg,#60a5fa,#22d3ee,#7c3aed)';
-      else if(id==='irPurple') preview = 'linear-gradient(90deg,#c084fc,#7c3aed,#60a5fa)';
-      else preview = 'linear-gradient(90deg,#6ee7ff,#7bff8b,#ffe066,#ff7dd1,#7da0ff)';
-      sw.style.background = preview;
-    } else {
-      sw.style.background = v;
-    }
-  })();
-  sw.addEventListener('mouseenter', ()=> sw.dataset.hover='1');
-  sw.addEventListener('mouseleave', ()=> delete sw.dataset.hover);
-  sw.addEventListener('click', ()=>{
-    $$('.swatch', platingRow).forEach(x=>x.classList.remove('selected'));
-    sw.classList.add('selected');
-    applyPlatingStroke(p.value);
-    state.plating = p.value;
-    dispatchChange();
+if (platingRow) {
+  PLATING.forEach(p => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch'; sw.title = p.name; sw.dataset.name = p.name;
+    // Preview background for gradients
+    (function(){
+      const v=p.value;
+      if(v.startsWith('url(')){
+        const id=v.slice(v.indexOf('#')+1, v.indexOf(')')-1);
+        let preview = v;
+        if(id==='mirrorSilver') preview = 'linear-gradient(135deg, rgba(255,255,255,.32), rgba(255,255,255,0) 60%), linear-gradient(90deg,#fefefe,#e9eef7,#cdd6e6,#a4adbf,#cdd6e6,#e9eef7,#fefefe)';
+        else if(id==='irBlue') preview = 'linear-gradient(90deg,#60a5fa,#22d3ee,#7c3aed)';
+        else if(id==='irPurple') preview = 'linear-gradient(90deg,#c084fc,#7c3aed,#60a5fa)';
+        else preview = 'linear-gradient(90deg,#6ee7ff,#7bff8b,#ffe066,#ff7dd1,#7da0ff)';
+        sw.style.background = preview;
+      } else {
+        sw.style.background = v;
+      }
+    })();
+    sw.addEventListener('mouseenter', ()=> sw.dataset.hover='1');
+    sw.addEventListener('mouseleave', ()=> delete sw.dataset.hover);
+    sw.addEventListener('click', ()=>{
+      $$('.swatch', platingRow).forEach(x=>x.classList.remove('selected'));
+      sw.classList.add('selected');
+      applyPlatingStroke(p.value);
+      state.plating = p.value;
+      dispatchChange();
+    });
+    platingRow.appendChild(sw);
   });
-  platingRow.appendChild(sw);
-});
+}
 
 // Initialize plating to current outline on load
 onReady(()=>{
-  const curr = outline.getAttribute('stroke') || state.plating;
-  applyPlatingStroke(curr);
+  if (outline) {
+    const curr = outline.getAttribute('stroke') || state.plating;
+    applyPlatingStroke(curr);
+  }
 });
 
 // Sliders
 function updateThk(id, px) {
   const mm = (px * PX_TO_MM).toFixed(2);
-  $(`#px${id}`).textContent = px;
-  $(`#mm${id}`).textContent = mm;
+  const pxEl = $(`#px${id}`);
+  const mmEl = $(`#mm${id}`);
+  if (pxEl) pxEl.textContent = px;
+  if (mmEl) mmEl.textContent = mm;
 }
-$('#thkAll').addEventListener('input', (e)=>{
-  const v = +e.target.value;
-  state.thickness.all = v;
-  updateThk('All', v);
-  outline.setAttribute('stroke-width', v);
-  dispatchChange();
-});
-$('#thkBody').addEventListener('input', (e)=>{
-  const v = +e.target.value;
-  state.thickness.body = v;
-  updateThk('Body', v);
-  // Stroke width on body path stroke? Body is usually filled only; we simulate by duplicating stroke via filter? Keep simple: ignore.
-});
-$('#thkFace').addEventListener('input', (e)=>{
-  const v = +e.target.value;
-  state.thickness.face = v;
-  updateThk('Face', v);
-  // Similarly for eyes/mouth outlines if separate strokes exist — here we keep the global outline as primary stroke.
-});
-// Update face ring stroke with Body slider
-$('#thkBody').addEventListener('input', (e)=>{
-  const v = +e.target.value; state.thickness.body = v; updateThk('Body', v);
-  const facePath = regions['region-face']?.querySelector('path');
-  if (facePath) facePath.setAttribute('stroke-width', v);
-  dispatchChange();
-});
-// Eyes & mouth strokes
-$('#thkFace').addEventListener('input', (e)=>{
-  const v = +e.target.value; state.thickness.face = v; updateThk('Face', v);
-  ['region-eyeL','region-eyeR','region-mouth'].forEach(id => {
-    const p = regions[id]?.querySelector('path');
-    if (p) p.setAttribute('stroke-width', v);
+const thkAll = $('#thkAll');
+if (thkAll) {
+  thkAll.addEventListener('input', (e)=>{
+    const v = +e.target.value;
+    state.thickness.all = v;
+    updateThk('All', v);
+    if (outline) outline.setAttribute('stroke-width', v);
+    dispatchChange();
   });
-  dispatchChange();
-});
+}
+// Update face ring stroke with Body slider
+const thkBody = $('#thkBody');
+if (thkBody) {
+  thkBody.addEventListener('input', (e)=>{
+    const v = +e.target.value;
+    state.thickness.body = v;
+    updateThk('Body', v);
+    const facePath = regions['region-face']?.querySelector('path');
+    if (facePath) facePath.setAttribute('stroke-width', v);
+    dispatchChange();
+  });
+}
+// Eyes & mouth strokes
+const thkFace = $('#thkFace');
+if (thkFace) {
+  thkFace.addEventListener('input', (e)=>{
+    const v = +e.target.value;
+    state.thickness.face = v;
+    updateThk('Face', v);
+    ['region-eyeL','region-eyeR','region-mouth'].forEach(id => {
+      const p = regions[id]?.querySelector('path');
+      if (p) p.setAttribute('stroke-width', v);
+    });
+    dispatchChange();
+  });
+}
 // Initialize readouts
 updateThk('All', state.thickness.all);
 updateThk('Body', state.thickness.body);
@@ -660,24 +688,34 @@ onReady(()=>{
 });
 
 // Effects
-$('#fxGlitter').addEventListener('change', (e)=>{
-  state.glitter = e.target.checked;
-  // Simulate by tiny noise overlay? Keep minimal for now.
-});
-$('#fxGlow').addEventListener('change', (e)=>{
-  state.glow = e.target.checked;
-  if (state.glow) {
-    Object.values(regions).forEach(g => {
-      const p = g.querySelector('path');
-      if (p) p.setAttribute('filter', 'url(#glowFX)');
-    });
-  } else {
-    Object.values(regions).forEach(g => {
-      const p = g.querySelector('path');
-      if (p) p.removeAttribute('filter');
-    });
-  }
-});
+const fxGlitter = $('#fxGlitter');
+if (fxGlitter) {
+  fxGlitter.addEventListener('change', (e)=>{
+    state.glitter = e.target.checked;
+    // Simulate by tiny noise overlay? Keep minimal for now.
+  });
+}
+const fxGlow = $('#fxGlow');
+if (fxGlow) {
+  fxGlow.addEventListener('change', (e)=>{
+    state.glow = e.target.checked;
+    if (state.glow) {
+      Object.values(regions).forEach(g => {
+        if (g) {
+          const p = g.querySelector('path');
+          if (p) p.setAttribute('filter', 'url(#glowFX)');
+        }
+      });
+    } else {
+      Object.values(regions).forEach(g => {
+        if (g) {
+          const p = g.querySelector('path');
+          if (p) p.removeAttribute('filter');
+        }
+      });
+    }
+  });
+}
 
 // Export & Random stacks as flyouts attached to the customizer edge
 const exportStack = $('#exportStack');
@@ -731,8 +769,14 @@ function toggleFlyout(stackEl, preferred) {
   if (!isOpen) placeFlyoutSmart(stackEl, preferred);
 }
 
-$('#btnExport').addEventListener('click', ()=> toggleFlyout(exportStack, 'left'));
-$('#btnRandomize').addEventListener('click', ()=> toggleFlyout(randStack, 'right'));
+const btnExport = $('#btnExport');
+if (btnExport && exportStack) {
+  btnExport.addEventListener('click', ()=> toggleFlyout(exportStack, 'left'));
+}
+const btnRandomize = $('#btnRandomize');
+if (btnRandomize && randStack) {
+  btnRandomize.addEventListener('click', ()=> toggleFlyout(randStack, 'right'));
+}
 
 // Ensure closed on load
 onReady(()=>{ 
@@ -750,15 +794,18 @@ onReady(()=>{
 // Only one palette popover active
 document.addEventListener('click', (e)=>{
   const id = e.target.id;
-  if (!['palettePopover','btnChoosePalettes','chkUsePalettes'].includes(id) && !palettePopover.contains(e.target)) {
+  if (!['palettePopover','openPalettes','chkUsePalettes'].includes(id) && palettePopover && !palettePopover.contains(e.target)) {
     closePalettePopover();
   }
-  if (!colorPopover.contains(e.target) && e.target.id!=='btnChooseColor') {
-    if (!colorPopover.hidden && !$('#btnChooseColor').contains(e.target)) closeColorPopover();
+  if (colorPopover && !colorPopover.contains(e.target) && e.target.id!=='btnChooseColor') {
+    const btnChoose = $('#btnChooseColor');
+    if (!colorPopover.hidden && (!btnChoose || !btnChoose.contains(e.target))) closeColorPopover();
   }
   // Close flyouts when clicking outside stacks and their triggers
-  const inExport = exportStack.contains(e.target) || $('#btnExport').contains(e.target);
-  const inRand = randStack.contains(e.target) || $('#btnRandomize').contains(e.target);
+  const btnExportEl = $('#btnExport');
+  const btnRandEl = $('#btnRandomize');
+  const inExport = exportStack && (exportStack.contains(e.target) || (btnExportEl && btnExportEl.contains(e.target)));
+  const inRand = randStack && (randStack.contains(e.target) || (btnRandEl && btnRandEl.contains(e.target)));
   // Outside clicks no longer force-close; close via X or hover-timeout
 }, true);
 
@@ -1040,7 +1087,7 @@ if (czResizer) {
 }
 
 // Initial: panel closed; open via Parts button
-customizer.style.display = 'none';
+if (customizer) customizer.style.display = 'none';
 
 // Auto-center using the BODY center as the fixed anchor so strokes/filters don't push position
 onReady(()=>{ recenterSVG(); });

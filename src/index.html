@@ -344,7 +344,6 @@
       <div class="sectionLabel">Developer Tools</div>
       <div class="sliderRow" title="Open the color customizer in a second phone" style="display:flex; gap:6px; flex-wrap:wrap;">
         <button id="openColorizer" style="font-size:7px; padding:3px 6px;">Open Customizer</button>
-        <span style="opacity:.8; font-size:7px; align-self:center;">Second phone overlay</span>
       </div>
       <div class="sliderRow" title="Save a PNG screenshot" style="display:flex; gap:6px; flex-wrap:wrap;">
         <button id="snapshotPngBtn" aria-label="Save PNG" title="Save PNG" style="font-size:7px; padding:3px 6px;">📷 PNG</button>
@@ -394,120 +393,55 @@
   <script type="module" src="./apps/static/app-legacy.js"></script>
 
   <!-- Secondary phone overlay: Colorizer -->
-  <div id="colorizerPhone" class="errl-panel" style="display:none; position:fixed; right:12px; top:12px; z-index:3000; width:360px; max-width:90vw; height:80vh;">
+  <div id="colorizerPhone" class="errl-panel" style="display:none; position:fixed; z-index:3000; background:#0b0f18; box-shadow:-4px 0 24px rgba(0,0,0,.6); box-sizing:border-box; overflow:hidden; border:1px solid rgba(255,255,255,.12); border-radius:12px;">
+    <style>
+      /* NOTE: do NOT force display here (we toggle it via JS). */
+      /* Override global .errl-panel padding for this modal */
+      #colorizerPhone { flex-direction:column !important; background:#0b0f18 !important; overflow:hidden !important; padding:0 !important; }
+      #colorizerPhone .panel-header { display:flex !important; justify-content:space-between !important; align-items:center !important; padding:calc(12px + env(safe-area-inset-top)) 16px 12px 16px !important; border-bottom:1px solid rgba(255,255,255,.08) !important; flex-shrink:0 !important; flex-grow:0 !important; background:#0b0f18 !important; position:relative !important; z-index:1000 !important; width:100% !important; box-sizing:border-box !important; min-height:56px !important; pointer-events:auto !important; }
+      #colorizerPhone .panel-title { display:block !important; font-size:14px !important; font-weight:600 !important; color:#e7ecf5 !important; }
+      #colorizerPhone .panel-mode { display:block !important; }
+      #colorizerPhone .panel-mode button { width:32px !important; height:32px !important; padding:0 !important; border-radius:8px !important; border:1px solid rgba(255,255,255,.12) !important; background:rgba(255,255,255,.06) !important; color:#e7ecf5 !important; cursor:pointer !important; font-size:22px !important; line-height:1 !important; display:flex !important; align-items:center !important; justify-content:center !important; transition:background 0.2s !important; position:relative !important; z-index:2001 !important; pointer-events:auto !important; }
+      #colorizerPhone .panel-mode button:hover { background:rgba(255,77,77,.2) !important; border-color:rgba(255,77,77,.4) !important; color:#ff4d4d !important; }
+      @media (max-width:768px){
+        #colorizerPhone { width:100vw !important; max-width:100vw !important; max-height:100vh !important; border-radius:0 !important; }
+      }
+      @media (min-width:1200px){
+        #colorizerPhone { max-width:900px !important; }
+        #colorizerContent { max-width:100% !important; }
+      }
+      @media (min-width:1600px){
+        #colorizerPhone { max-width:1100px !important; }
+      }
+    </style>
     <div class="panel-header" style="cursor:move;">
       <div class="panel-title">ERRL COLOR</div>
       <div class="panel-mode"><button id="colorizerClose" title="Close">×</button></div>
     </div>
-    <div id="colorizerContent" style="flex:1; background:#0b0f18; border-top:1px solid rgba(255,255,255,.08); position:relative; overflow:hidden;">
+    <div id="colorizerContent" style="flex:1; background:#0b0f18; position:relative; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; min-height:0; width:100%; max-width:100%; box-sizing:border-box;">
       <style>
-        #colorizerContent :root{
-          --ink:#e5eaf1;
-          --line:#ffffff22;
-          --rainbow: conic-gradient(from 0deg,#ff004c,#ffa300,#ffee00,#53f900,#00e5ff,#7b5cff,#ff00b1,#ff004c);
+        #colorizerContent .colorizer-controls{display:flex; flex-wrap:nowrap; gap:10px; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.08); flex-shrink:0; background:#0b0f18}
+        /* Allow labels to wrap instead of clipping */
+        #colorizerContent .colorizer-controls button{min-height:44px; height:auto; padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); color:#e7ecf5; cursor:pointer; font-size:13px; font-weight:500; line-height:1.15; transition:background 0.2s; flex:1; min-width:0; white-space:normal; word-break:break-word; overflow-wrap:anywhere; text-align:center}
+        #colorizerContent .colorizer-controls button:hover{background:rgba(255,255,255,.12)}
+        #colorizerContent .colorizer-controls button.primary{background:rgba(0,229,255,.2); border-color:rgba(0,229,255,.4); color:#00e5ff}
+        #colorizerContent .colorizer-controls button.primary:hover{background:rgba(0,229,255,.3)}
+        #colorizerContent .colorizer-controls button.success{background:rgba(83,249,0,.15); border-color:rgba(83,249,0,.3); color:#53f900}
+        #colorizerContent .colorizer-controls button.success:hover{background:rgba(83,249,0,.25)}
+        #colorizerContent .colorizer-controls button.neutral{background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.16); color:#cfd6df}
+        #colorizerContent .colorizer-controls button.neutral:hover{background:rgba(255,255,255,.10)}
+        @media (max-width:520px){
+          #colorizerContent .colorizer-controls{gap:8px; padding:10px 12px}
+          #colorizerContent .colorizer-controls button{padding:8px 10px; font-size:12px}
         }
-        #colorizerContent .colorizer-stage{position:absolute;inset:0 0 40px 0; z-index:0}
-        #colorizerContent #colorizerSVG{width:100%;height:100%;display:block;touch-action:none}
-        #colorizerContent #colorizerRandomBtn{position:absolute; right:10px; top:10px; height:28px; padding:0 10px; border-radius:10px; border:1px solid var(--line); cursor:pointer; overflow:hidden; z-index:1000; background:rgba(15,22,32,.35); backdrop-filter:saturate(110%) blur(2px); display:grid; place-items:center; color:var(--ink); font-size:11px; font-weight:600}
-        #colorizerContent #colorizerRandomBtn .spinFill{position:absolute; inset:2px; border-radius:8px; background:var(--rainbow); animation:colorizerSpin 3.2s linear infinite; opacity:.6; filter:brightness(.95) contrast(.95); pointer-events:none}
-        @keyframes colorizerSpin{to{transform:rotate(1turn)}}
-        #colorizerContent #colorizerSaveBtn{position:absolute; left:10px; top:10px; height:28px; padding:0 10px; border-radius:10px; border:1px solid var(--line); background:rgba(15,22,32,.35); color:#dbe2ea; cursor:pointer; z-index:1000; font-size:11px; font-weight:600}
-        #colorizerContent #colorizerCtx{position:absolute; min-width:180px; padding:10px; border-radius:10px; border:1px solid var(--line); background:rgba(15,22,32,.95); color:#dbe2ea; z-index:50; box-shadow:0 8px 24px rgba(0,0,0,.35); display:none}
-        #colorizerContent #colorizerCtx label{display:block; font-size:11px; opacity:.9; margin:.25rem 0 .15rem}
-        #colorizerContent #colorizerCtx input[type="range"]{width:170px}
-        #colorizerContent #colorizerCtx .row{display:flex; gap:8px; align-items:center}
-        #colorizerContent #colorizerCtx .row > *{flex:1}
-        #colorizerContent #colorizerCtx .btns{display:flex; gap:8px; margin-top:8px}
-        #colorizerContent #colorizerCtx button{height:28px; padding:0 10px; border-radius:8px; border:1px solid var(--line); background:rgba(255,255,255,.06); color:#e7ecf5; cursor:pointer}
-        #colorizerContent #colorizerCtx .danger{border-color:#ff4d4d44; background:rgba(255,77,77,.08)}
-        #colorizerContent .chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:4px}
-        #colorizerContent .chip{padding:.2rem .4rem; border:1px solid var(--line); background:rgba(255,255,255,.06); border-radius:999px; font-size:11px; cursor:pointer; color:#e7ecf5}
-        #colorizerContent .chip:hover{background:rgba(255,255,255,.12)}
+        #colorizerContent #colorizerFrame{flex:1; border:none; width:100% !important; min-width:0 !important; min-height:0 !important; max-width:100% !important; height:100% !important; background:#0b0f18; display:block !important; margin:0 !important; padding:0 !important; overflow:hidden !important; box-sizing:border-box !important}
       </style>
-      <div class="colorizer-stage">
-        <svg id="colorizerSVG" viewBox="0 0 600 820" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <filter id="colorizerGitd" x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur stdDeviation="10" result="b"/>
-              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <filter id="colorizerGlitterSparkle" x="-10%" y="-10%" width="120%" height="120%">
-              <feTurbulence id="colorizerGlitNoise" type="fractalNoise" baseFrequency="0.95" numOctaves="2" seed="3" result="noise"/>
-              <feColorMatrix id="colorizerGlitMatrix" in="noise" type="matrix" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0   0 0 0 6 -3" result="spark"/>
-              <feComponentTransfer in="spark" result="dense"><feFuncA id="colorizerGlitterSlopeA" type="linear" slope="0.6"/></feComponentTransfer>
-              <feComposite in="dense" in2="SourceAlpha" operator="in" result="clipped"/>
-              <feBlend in="SourceGraphic" in2="clipped" mode="screen"/>
-              <animate attributeName="opacity" values="1;0.7;1" dur="1.2s" repeatCount="indefinite"/>
-            </filter>
-            <filter id="colorizerGlitterOverlay">
-              <feTurbulence type="turbulence" baseFrequency="0.8" numOctaves="2" seed="7" result="noise"/>
-              <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1   0 0 0 0 1   0 0 0 0 1   0 0 0 0.6 0" result="sparkle"/>
-              <feComposite in="sparkle" in2="SourceAlpha" operator="in" result="clipped"/>
-              <feBlend in="SourceGraphic" in2="clipped" mode="screen"/>
-            </filter>
-            <linearGradient id="colorizerGlitterGoldPink" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FFD700" />
-              <stop offset="100%" stop-color="#FF69B4" />
-            </linearGradient>
-            <linearGradient id="colorizerGlitterSilver" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#cccccc" />
-              <stop offset="100%" stop-color="#ffffff" />
-            </linearGradient>
-            <linearGradient id="colorizerGlitterRainbow" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#ff0000" />
-              <stop offset="25%" stop-color="#ff9900" />
-              <stop offset="50%" stop-color="#33cc33" />
-              <stop offset="75%" stop-color="#3399ff" />
-              <stop offset="100%" stop-color="#9900cc" />
-            </linearGradient>
-            <linearGradient id="colorizerRbGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#ff0040"/>
-              <stop offset="16%" stop-color="#ffa600"/>
-              <stop offset="33%" stop-color="#ffee00"/>
-              <stop offset="50%" stop-color="#00f11d"/>
-              <stop offset="66%" stop-color="#00a2ff"/>
-              <stop offset="83%" stop-color="#6f4dff"/>
-              <stop offset="100%" stop-color="#ff00b1"/>
-              <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="8s" repeatCount="indefinite"/>
-            </linearGradient>
-          </defs>
-          <g id="colorizer-g-body"></g>
-          <g id="colorizer-g-face"></g>
-          <g id="colorizer-g-eyeL"></g>
-          <g id="colorizer-g-eyeR"></g>
-          <g id="colorizer-g-mouth"></g>
-          <g id="colorizer-glitter-layer" pointer-events="none"></g>
-          <path id="colorizer-outline" d="" fill="none" stroke="#0a0a0c" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-        </svg>
+      <div class="colorizer-controls">
+        <button id="colorizerInjectBtn" class="primary" type="button" title="Update home page SVG">Inject to Home</button>
+        <button id="colorizerSaveBtn" class="success" type="button" title="Save SVG to localStorage">Save SVG</button>
+        <button id="colorizerResetBtn" class="neutral" type="button" title="Reset to default Errl">Reset Default</button>
       </div>
-      <button id="colorizerSaveBtn" type="button" title="Save">Save</button>
-      <button id="colorizerRandomBtn" type="button" aria-label="Randomize"><span class="spinFill" aria-hidden="true"></span>Random</button>
-      <div id="colorizerCtx" class="ctx">
-        <div style="font-size:12px;opacity:.8" id="colorizerCtxTitle">Region</div>
-        <label>Enamel color</label>
-        <div class="row"><input id="colorizerCtxColor" type="color" value="#00e5ff"/></div>
-        <label>Finish</label>
-        <div class="row"><select id="colorizerCtxFinish">
-          <option value="solid">Solid</option>
-          <option value="glitter">Glitter</option>
-          <option value="glow">Glow</option>
-          <option value="none">None</option>
-        </select></div>
-        <label>Wire thickness</label>
-        <input id="colorizerCtxWire" type="range" min="0.5" max="6" step="0.5" value="2"/>
-        <label>Glitter Style</label>
-        <div id="colorizerGlitterRow" class="chips" style="display:none">
-          <button class="chip" type="button" data-glitter="colorizerGlitterGoldPink">Gold + Pink</button>
-          <button class="chip" type="button" data-glitter="colorizerGlitterSilver">Silver</button>
-          <button class="chip" type="button" data-glitter="colorizerGlitterRainbow">Rainbow</button>
-        </div>
-        <label>Outline thickness</label>
-        <input id="colorizerCtxOutline" type="range" min="1" max="8" step="0.5" value="3"/>
-        <div class="btns">
-          <button id="colorizerCtxApply" type="button">Apply</button>
-          <button id="colorizerCtxCancel" type="button" class="danger">Close</button>
-        </div>
-      </div>
+      <iframe id="colorizerFrame" src="./apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html" title="Pin Widget Designer"></iframe>
     </div>
   </div>
 
@@ -538,15 +472,341 @@
       var openBtn = document.getElementById('openColorizer');
       var phone = document.getElementById('colorizerPhone');
       var closeBtn = document.getElementById('colorizerClose');
+      var defaultPhoneStyle = null;
+      var onResizeColorizer = null;
+      var dragCleanup = null;
+
+      function captureDefaultPhoneStyle(){
+        if (!phone || defaultPhoneStyle) return;
+        defaultPhoneStyle = {
+          top: phone.style.top,
+          right: phone.style.right,
+          bottom: phone.style.bottom,
+          left: phone.style.left,
+          width: phone.style.width,
+          height: phone.style.height,
+          maxWidth: phone.style.maxWidth,
+          maxHeight: phone.style.maxHeight,
+          borderRadius: phone.style.borderRadius
+        };
+      }
+
+      function restoreDefaultPhoneStyle(){
+        if (!phone || !defaultPhoneStyle) return;
+        phone.style.top = defaultPhoneStyle.top;
+        phone.style.right = defaultPhoneStyle.right;
+        phone.style.bottom = defaultPhoneStyle.bottom;
+        phone.style.left = defaultPhoneStyle.left;
+        phone.style.width = defaultPhoneStyle.width;
+        phone.style.height = defaultPhoneStyle.height;
+        phone.style.maxWidth = defaultPhoneStyle.maxWidth;
+        phone.style.maxHeight = defaultPhoneStyle.maxHeight;
+        phone.style.borderRadius = defaultPhoneStyle.borderRadius;
+      }
+
+      function clamp(n, lo, hi){ return Math.max(lo, Math.min(hi, n)); }
+
+      function centerColorizerFallback(){
+        if (!phone) return;
+        var vh = window.innerHeight || document.documentElement.clientHeight || 800;
+        var vw = window.innerWidth || document.documentElement.clientWidth || 1200;
+        var m = 12;
+        var maxAllowedW = Math.max(0, vw - (m * 2));
+        var maxAllowedH = Math.max(0, vh - (m * 2));
+        // A sane default that fits on desktop, still capped by viewport.
+        var w = Math.min(600, maxAllowedW);
+        var h = Math.min(720, maxAllowedH);
+
+        // Clear any previous positioning state and center with pixels.
+        try { phone.dataset.userMoved = '0'; } catch(_) {}
+        try { phone.style.inset = 'auto'; phone.style.margin = '0'; } catch(_) {}
+        phone.style.width = w + 'px';
+        phone.style.height = h + 'px';
+        phone.style.maxWidth = maxAllowedW + 'px';
+        phone.style.maxHeight = maxAllowedH + 'px';
+        phone.style.borderRadius = (vw < 420 || vh < 640) ? '0' : '12px';
+        phone.style.left = Math.round((vw - w) / 2) + 'px';
+        phone.style.top = Math.round((vh - h) / 2) + 'px';
+        phone.style.right = 'auto';
+        phone.style.bottom = 'auto';
+        // Ensure it can't exceed the viewport even if something else changes later.
+        requestAnimationFrame(function(){ try { enforceColorizerInViewport(m); } catch(_) {} });
+      }
+
+      function enforceColorizerInViewport(margin){
+        if (!phone) return;
+        var m = typeof margin === 'number' ? margin : 12;
+        var vh = window.innerHeight || document.documentElement.clientHeight || 800;
+        var vw = window.innerWidth || document.documentElement.clientWidth || 1200;
+        var maxW = Math.max(0, vw - (m * 2));
+        var maxH = Math.max(0, vh - (m * 2));
+
+        // Always clamp in pixel mode.
+        try { phone.style.inset = 'auto'; phone.style.margin = '0'; } catch(_) {}
+
+        // Read current rect after any other scripts/layout changes.
+        var r = phone.getBoundingClientRect();
+        if (!r || !isFinite(r.width) || !isFinite(r.height)) return;
+
+        // If too large, shrink to fit viewport.
+        if (r.width > maxW && maxW > 0) {
+          phone.style.width = maxW + 'px';
+          phone.style.maxWidth = maxW + 'px';
+        }
+        if (r.height > maxH && maxH > 0) {
+          phone.style.height = maxH + 'px';
+          phone.style.maxHeight = maxH + 'px';
+        }
+
+        // Re-read after size changes.
+        r = phone.getBoundingClientRect();
+        var left = clamp(r.left, m, vw - r.width - m);
+        var top = clamp(r.top, m, vh - r.height - m);
+        phone.style.left = Math.round(left) + 'px';
+        phone.style.top = Math.round(top) + 'px';
+        phone.style.right = 'auto';
+        phone.style.bottom = 'auto';
+      }
+
+      function attachColorizerDrag(){
+        if (!phone || dragCleanup) return;
+        var header = phone.querySelector('.panel-header');
+        if (!header) return;
+
+        var dragging = false;
+        var sx = 0, sy = 0, startLeft = 0, startTop = 0;
+        function px(v){ return Math.round(v); }
+
+        function onDown(e){
+          // Don't start a drag from the close button.
+          try {
+            if (e && e.target && e.target.closest && e.target.closest('#colorizerClose')) return;
+          } catch(_) {}
+          if (!e || e.button !== 0) return; // left click only
+          dragging = true;
+          try { header.setPointerCapture(e.pointerId); } catch(_) {}
+          var r = phone.getBoundingClientRect();
+          try { phone.dataset.userMoved = '1'; } catch(_) {}
+          try { phone.style.inset = 'auto'; phone.style.margin = '0'; } catch(_) {}
+          startLeft = r.left;
+          startTop = r.top;
+          sx = e.clientX;
+          sy = e.clientY;
+          phone.style.left = px(r.left) + 'px';
+          phone.style.top = px(r.top) + 'px';
+          phone.style.right = 'auto';
+          phone.style.bottom = 'auto';
+        }
+
+        function onMove(e){
+          if (!dragging) return;
+          var dx = e.clientX - sx;
+          var dy = e.clientY - sy;
+          phone.style.left = px(startLeft + dx) + 'px';
+          phone.style.top = px(startTop + dy) + 'px';
+          // Keep it within view as you drag.
+          enforceColorizerInViewport(12);
+        }
+
+        function onUp(e){
+          if (!dragging) return;
+          dragging = false;
+          try { header.releasePointerCapture && header.releasePointerCapture(e.pointerId); } catch(_) {}
+          enforceColorizerInViewport(12);
+        }
+
+        header.addEventListener('pointerdown', onDown);
+        header.addEventListener('pointermove', onMove);
+        header.addEventListener('pointerup', onUp);
+        header.addEventListener('pointercancel', onUp);
+        dragCleanup = function(){
+          header.removeEventListener('pointerdown', onDown);
+          header.removeEventListener('pointermove', onMove);
+          header.removeEventListener('pointerup', onUp);
+          header.removeEventListener('pointercancel', onUp);
+          dragCleanup = null;
+        };
+      }
+
+      function closeColorizer(e){
+        try {
+          if (e && e.preventDefault) e.preventDefault();
+          if (e && e.stopPropagation) e.stopPropagation();
+        } catch(_) {}
+        if (!phone) return;
+        phone.style.display = 'none';
+        try { phone.classList.remove('colorizer-floating'); } catch(_) {}
+        try { phone.dataset.userMoved = '0'; } catch(_) {}
+        restoreDefaultPhoneStyle();
+        if (onResizeColorizer) {
+          window.removeEventListener('resize', onResizeColorizer);
+          onResizeColorizer = null;
+        }
+        if (dragCleanup) dragCleanup();
+      }
+
+      // Allow closing even when focus is inside the iframe.
+      window.addEventListener('message', function(event){
+        if (event && event.data && event.data.type === 'colorizerCloseRequest') {
+          closeColorizer();
+        }
+      });
+
+      // Size the customizer to match the *current* on-screen Errl (modal-like).
+      // Returns true if it successfully applied a non-default layout.
+      function sizeColorizerPhoneToErrl(){
+        if (!phone) return;
+        // If the user moved it, never snap it back—just keep it in view.
+        try {
+          if (phone.dataset && phone.dataset.userMoved === '1') {
+            requestAnimationFrame(function(){ enforceColorizerInViewport(12); });
+            return true;
+          }
+        } catch(_) {}
+        var errl = document.getElementById('errlCenter') || document.getElementById('errl');
+        if (!errl || typeof errl.getBoundingClientRect !== 'function') {
+          // Still keep it safely centered even if Errl isn't measurable.
+          centerColorizerFallback();
+          return true;
+        }
+
+        var errlRect = errl.getBoundingClientRect();
+        // If Errl isn't laid out yet, skip (will retry on next tick).
+        if (!errlRect || !isFinite(errlRect.width) || errlRect.width <= 0) {
+          centerColorizerFallback();
+          return true;
+        }
+
+        var vh = window.innerHeight || document.documentElement.clientHeight || 800;
+        var vw = window.innerWidth || document.documentElement.clientWidth || 1200;
+
+        var headerEl = phone.querySelector('.panel-header');
+        var controlsEl = phone.querySelector('#colorizerContent .colorizer-controls');
+        var headerH = headerEl ? headerEl.offsetHeight : 56;
+        var controlsH = controlsEl ? controlsEl.offsetHeight : 72;
+
+        var chromePad = 16; // breathing room for borders/shadows
+        var modalMargin = 12;
+
+        // Mobile-friendly: on small screens, behave like a full-screen sheet.
+        var smallScreen = (vw < 420) || (vh < 640);
+        if (smallScreen) {
+          try { phone.dataset.userMoved = '0'; } catch(_) {}
+          try { phone.style.inset = 'auto'; phone.style.margin = '0'; } catch(_) {}
+          try { phone.classList.remove('colorizer-floating'); } catch(_) {}
+          phone.style.left = '0';
+          phone.style.right = '0';
+          phone.style.top = '0';
+          phone.style.bottom = '0';
+          phone.style.width = '100vw';
+          phone.style.height = '100vh';
+          phone.style.maxWidth = '100vw';
+          phone.style.maxHeight = '100vh';
+          phone.style.borderRadius = '0';
+          // Safety: ensure it stays in viewport even if other code touches it.
+          requestAnimationFrame(function(){ enforceColorizerInViewport(0); });
+          return true;
+        }
+
+        var maxAllowedW = Math.min(600, vw - (modalMargin * 2));
+        var maxAllowedH = vh - (modalMargin * 2);
+        var minAllowedW = Math.min(340, maxAllowedW);
+        var minAllowedH = Math.min(420, maxAllowedH);
+
+        // "Only as big as Errl": cap size based on Errl, not viewport.
+        var targetW = clamp(errlRect.width + 80, minAllowedW, maxAllowedW);
+        var targetH = clamp(errlRect.height + headerH + controlsH + chromePad, minAllowedH, maxAllowedH);
+
+        // Desktop: center in the viewport with pixel positioning (always reachable).
+        try { phone.dataset.userMoved = '0'; } catch(_) {}
+        try { phone.style.inset = 'auto'; phone.style.margin = '0'; } catch(_) {}
+        try { phone.classList.remove('colorizer-floating'); } catch(_) {}
+        phone.style.width = targetW + 'px';
+        phone.style.maxWidth = (vw - (modalMargin * 2)) + 'px';
+        phone.style.height = targetH + 'px';
+        phone.style.maxHeight = (vh - (modalMargin * 2)) + 'px';
+        phone.style.borderRadius = '12px';
+        phone.style.left = Math.round((vw - targetW) / 2) + 'px';
+        phone.style.top = Math.round((vh - targetH) / 2) + 'px';
+        phone.style.right = 'auto';
+        phone.style.bottom = 'auto';
+        // Enforce bounds after layout settles.
+        requestAnimationFrame(function(){ enforceColorizerInViewport(modalMargin); });
+        return true;
+      }
+
       if (openBtn && phone) {
         openBtn.addEventListener('click', function(){ 
-          phone.style.display='block';
+          captureDefaultPhoneStyle();
+          // Must be flex for layout, but keep it JS-controlled (no CSS !important display).
+          phone.style.display='flex';
+          try { phone.dataset.userMoved = '0'; } catch(_) {}
+          try { phone.classList.remove('colorizer-floating'); } catch(_) {}
+          attachColorizerDrag();
+          // Always start from a safe centered modal so header can never be off-screen.
+          centerColorizerFallback();
+          // Extra safety: clamp for a few frames to catch late layout shifts.
+          (function clampFrames(){
+            var n = 0;
+            function step(){
+              n++;
+              try { enforceColorizerInViewport(12); } catch(_) {}
+              if (n < 10) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+          })();
+          // Size immediately, then retry while layout settles (Errl rect can be 0 during startup).
+          (function settleSize(){
+            var tries = 0;
+            function tick(){
+              tries++;
+              var ok = false;
+              try { ok = !!sizeColorizerPhoneToErrl(); } catch(_) {}
+              if (!ok && tries < 20) {
+                requestAnimationFrame(tick);
+              }
+            }
+            tick();
+            // Also retry after a short delay (fonts/images can shift layout).
+            setTimeout(function(){
+              try { sizeColorizerPhoneToErrl(); } catch(_) {}
+              try { enforceColorizerInViewport(12); } catch(_) {}
+            }, 150);
+          })();
+
+          if (!onResizeColorizer) {
+            onResizeColorizer = function(){
+              // Only resize while visible
+              if (phone && phone.style.display !== 'none') sizeColorizerPhoneToErrl();
+            };
+            window.addEventListener('resize', onResizeColorizer);
+          }
           if (window.initColorizerDesigner) {
             window.initColorizerDesigner();
           }
         });
       }
-      if (closeBtn && phone) closeBtn.addEventListener('click', function(){ phone.style.display='none'; });
+      if (closeBtn && phone) {
+        // Prevent any parent drag/handlers from swallowing the click.
+        closeBtn.addEventListener('pointerdown', function(e){
+          try { e.stopPropagation(); } catch(_) {}
+        }, true);
+        closeBtn.addEventListener('click', closeColorizer, true);
+        // Extra safety: capture clicks anywhere inside the panel.
+        phone.addEventListener('click', function(e){
+          var t = e && e.target && e.target.closest ? e.target.closest('#colorizerClose') : null;
+          if (t) closeColorizer(e);
+        }, true);
+        // ESC closes the customizer too.
+        window.addEventListener('keydown', function(e){
+          if (!phone) return;
+          if (e && e.key === 'Escape' && phone.style.display !== 'none') closeColorizer(e);
+          // Extra shortcut: Ctrl+W / Cmd+W closes the customizer (does not close the tab).
+          if (e && (e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W') && phone.style.display !== 'none') {
+            closeColorizer(e);
+          }
+        });
+      }
     });
   </script>
   <script type="module">
@@ -740,35 +1000,162 @@
           .catch(e => console.error('Fetch error', e));
       }
 
-      window.initColorizerDesigner = function(){
-        if (!svg) {
-          svg=$('#colorizerSVG'); gB=$('#colorizer-g-body'); gF=$('#colorizer-g-face'); gL=$('#colorizer-g-eyeL'); gR=$('#colorizer-g-eyeR'); gM=$('#colorizer-g-mouth'); outline=$('#colorizer-outline');
-          saveBtn=$('#colorizerSaveBtn'); randomBtn=$('#colorizerRandomBtn');
-          ctx=$('#colorizerCtx'); ctxColor=$('#colorizerCtxColor'); ctxFinish=$('#colorizerCtxFinish'); ctxWire=$('#colorizerCtxWire'); ctxOutline=$('#colorizerCtxOutline');
-          if(!svg||!outline||!saveBtn||!randomBtn){ console.error('Colorizer init failed: missing nodes'); return; }
-          regionGs = { body:gB, face:gF, eyeL:gL, eyeR:gR, mouth:gM };
-          state.wires = state.wireW;
-          applyPlating(); applyAll();
-          if(saveBtn) saveBtn.addEventListener('click', saveSVG);
-          if(randomBtn) randomBtn.addEventListener('click', function(){ randomizeAll(); this.style.transform='scale(0.96)'; setTimeout(()=>this.style.transform='',120); });
-          svg.addEventListener('dblclick', function(e){ var el=e.target.closest('#colorizer-g-body, #colorizer-g-face, #colorizer-g-eyeL, #colorizer-g-eyeR, #colorizer-g-mouth'); if(!el) return; var reg=idToRegion['#'+el.id]; if(!reg) return; if(reg==='eyeL' || reg==='eyeR'){ var eyeColor=randColor(); state.fill.eyeL.finish='solid'; state.fill.eyeR.finish='solid'; state.fill.eyeL.color=eyeColor; state.fill.eyeR.color=eyeColor; applyRegion('eyeL'); applyRegion('eyeR'); } else { var allowGlow = (reg!=='mouth'); var finish = allowGlow && Math.random()<0.6 ? 'glow' : 'solid'; state.fill[reg].finish = finish; state.fill[reg].color = (finish==='glow') ? 'url(#colorizerRbGrad)' : randColor(); applyRegion(reg); } });
-          svg.addEventListener('contextmenu', function(e){ var el=e.target.closest('#colorizer-g-body, #colorizer-g-face, #colorizer-g-eyeL, #colorizer-g-eyeR, #colorizer-g-mouth'); if(!el) return; e.preventDefault(); var region=idToRegion['#'+el.id]; if(region) openCtx(region, e.clientX, e.clientY); });
-          $('#colorizerCtxApply').addEventListener('click', function(){ var r=ctx.dataset.region; if(!r) return; var finish=ctxFinish.value; state.fill[r].finish=finish; state.fill[r].color = (finish==='glow') ? 'url(#colorizerRbGrad)' : ctxColor.value; state.wireW[r]=parseFloat(ctxWire.value); state.outlineW=parseFloat(ctxOutline.value); outline.setAttribute('stroke-width', state.outlineW); applyRegion(r); closeCtx(); });
-          ctxFinish.addEventListener('change', function(){ try{ var row=$('#colorizerGlitterRow'); if(row) row.style.display = (ctxFinish.value==='glitter') ? 'flex' : 'none'; }catch(e){} });
-          $('#colorizerCtxCancel').addEventListener('click', closeCtx);
-          document.addEventListener('click', function(e){ if(ctx && !ctx.contains(e.target) && e.target!==ctx) closeCtx(); });
-          document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeCtx(); });
-          $$('#colorizerGlitterRow .chip').forEach(function(chip){
-            chip.addEventListener('click', function(){
-              var grad = this.getAttribute('data-glitter');
-              var r = (ctx && ctx.dataset.region) || 'body';
-              state.fill[r].finish = 'glitter';
-              applyRegion(r);
-              applyGlitter('colorizer-g-'+r, grad, 'colorizerGlitterOverlay');
-            });
-          });
+      // Inject SVG to home page
+      function injectSVGToHome(svgString){
+        try {
+          var blob = new Blob([svgString], {type: 'image/svg+xml'});
+          var url = URL.createObjectURL(blob);
+          var errlImg = document.getElementById('errlCenter');
+          if (errlImg) {
+            errlImg.src = url;
+            console.log('SVG injected to home page');
+          }
+          // Also update inline SVG if it exists
+          var inlineSVG = document.getElementById('errlInlineSVG');
+          if (inlineSVG && svgString) {
+            try {
+              var parser = new DOMParser();
+              var svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+              if (svgDoc.documentElement && svgDoc.documentElement.tagName === 'svg') {
+                inlineSVG.innerHTML = svgDoc.documentElement.innerHTML;
+                inlineSVG.setAttribute('viewBox', svgDoc.documentElement.getAttribute('viewBox') || inlineSVG.getAttribute('viewBox'));
+              }
+            } catch(e) { console.warn('Could not update inline SVG', e); }
+          }
+        } catch(e) { console.error('Inject failed', e); }
+      }
+
+      // Save SVG to localStorage
+      function saveSVGToStorage(svgString){
+        try {
+          localStorage.setItem('errlCustomizedSvg', svgString);
+          console.log('SVG saved to localStorage');
+          alert('SVG saved! It will load automatically when you return.');
+        } catch(e) { 
+          console.error('Save to storage failed', e);
+          alert('Could not save to localStorage: ' + e.message);
         }
-        loadHeroSVG();
+      }
+
+      // Load saved SVG on page load
+      function loadSavedSVG(){
+        try {
+          var saved = localStorage.getItem('errlCustomizedSvg');
+          if (saved) {
+            var errlImg = document.getElementById('errlCenter');
+            if (errlImg) {
+              var blob = new Blob([saved], {type: 'image/svg+xml'});
+              var url = URL.createObjectURL(blob);
+              errlImg.src = url;
+            }
+          }
+        } catch(e) { console.warn('Load saved SVG failed', e); }
+      }
+
+      window.initColorizerDesigner = function(){
+        var frame = document.getElementById('colorizerFrame');
+        var injectBtn = document.getElementById('colorizerInjectBtn');
+        var saveBtn = document.getElementById('colorizerSaveBtn');
+        var resetBtn = document.getElementById('colorizerResetBtn');
+
+        if (!frame) { console.error('Colorizer frame not found'); return; }
+        
+        // Ensure iframe is properly sized - remove any fixed dimensions
+        function ensureFrameSizing() {
+          if (frame) {
+            // Remove any inline width/height that might be set
+            frame.removeAttribute('width');
+            frame.removeAttribute('height');
+            frame.style.removeProperty('width');
+            frame.style.removeProperty('height');
+            frame.style.removeProperty('min-width');
+            frame.style.removeProperty('min-height');
+            frame.style.removeProperty('max-width');
+            frame.style.removeProperty('max-height');
+            // Ensure flex properties are applied
+            frame.style.setProperty('flex', '1', 'important');
+            frame.style.setProperty('width', '100%', 'important');
+            frame.style.setProperty('height', '100%', 'important');
+            frame.style.setProperty('min-width', '0', 'important');
+            frame.style.setProperty('min-height', '0', 'important');
+            frame.style.setProperty('max-width', '100%', 'important');
+            frame.style.setProperty('max-height', '100%', 'important');
+            frame.style.setProperty('box-sizing', 'border-box', 'important');
+            frame.style.setProperty('display', 'block', 'important');
+            frame.style.setProperty('border', 'none', 'important');
+            frame.style.setProperty('margin', '0', 'important');
+            frame.style.setProperty('padding', '0', 'important');
+          }
+        }
+        ensureFrameSizing();
+        // Re-check after frame loads and on resize
+        frame.addEventListener('load', function() {
+          ensureFrameSizing();
+          // Also trigger after a short delay to ensure layout is settled
+          setTimeout(ensureFrameSizing, 100);
+        });
+        window.addEventListener('resize', ensureFrameSizing);
+
+        // Wait for iframe to load
+        frame.addEventListener('load', function(){
+          var iframeWindow = frame.contentWindow;
+          if (!iframeWindow) return;
+
+          // Listen for SVG export messages from iframe
+          window.addEventListener('message', function(event){
+            // Verify origin for security (adjust if needed)
+            if (event.data && event.data.type === 'pinWidgetExportSVG') {
+              var svgString = event.data.svg;
+              if (svgString) {
+                if (event.data.action === 'inject') {
+                  injectSVGToHome(svgString);
+                } else if (event.data.action === 'save') {
+                  saveSVGToStorage(svgString);
+                }
+              }
+            }
+          });
+
+          // Inject button handler
+          if (injectBtn) {
+            injectBtn.addEventListener('click', function(){
+              iframeWindow.postMessage({type: 'pinWidgetRequestSVG', action: 'inject'}, '*');
+            });
+          }
+
+          // Save button handler
+          if (saveBtn) {
+            saveBtn.addEventListener('click', function(){
+              iframeWindow.postMessage({type: 'pinWidgetRequestSVG', action: 'save'}, '*');
+            });
+          }
+
+          // Reset-to-default handler (fallback + escape hatch)
+          function resetHomeToDefault(){
+            try { localStorage.removeItem('errlCustomizedSvg'); } catch(_) {}
+            var errlImg = document.getElementById('errlCenter');
+            if (!errlImg) return;
+            // Preserve original default src the first time we touch it.
+            if (!errlImg.dataset.defaultSrc) {
+              errlImg.dataset.defaultSrc = errlImg.getAttribute('src') || '';
+            }
+            var current = errlImg.getAttribute('src') || '';
+            // Revoke any previous blob URL we created.
+            try { if (current && current.indexOf('blob:') === 0) URL.revokeObjectURL(current); } catch(_) {}
+            // Prefer stored default; fallback to canonical path.
+            var fallback = './shared/assets/portal/L4_Central/errl-body-with-limbs.svg';
+            errlImg.src = (errlImg.dataset.defaultSrc && errlImg.dataset.defaultSrc.length) ? errlImg.dataset.defaultSrc : fallback;
+          }
+
+          if (resetBtn) {
+            resetBtn.addEventListener('click', function(){
+              resetHomeToDefault();
+            });
+          }
+        });
+
+        // Load saved SVG on init
+        loadSavedSVG();
       };
     })();
   </script>

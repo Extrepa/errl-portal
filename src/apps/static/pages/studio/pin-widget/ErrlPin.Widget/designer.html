@@ -13,40 +13,198 @@
   --rainbow: conic-gradient(from 0deg,#ff004c,#ffa300,#ffee00,#53f900,#00e5ff,#7b5cff,#ff00b1,#ff004c);
 }
 *{box-sizing:border-box}
-html,body{height:100%;width:100%;margin:0}
-body{background:transparent;overflow:hidden;color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-.card{width:100%;height:100%;position:relative;max-width:none;max-height:none}
-.stage{position:absolute;inset:0 0 52px 0; z-index:0}
-svg{width:100%;height:100%;display:block;touch-action:none}
+html,body{height:100%;width:100%;margin:0;padding:0;overflow:hidden;position:relative}
+body{background:transparent;color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;align-items:stretch;min-height:0;min-width:0;width:100%}
+.card{width:100%;min-height:100%;position:relative !important;max-width:100% !important;max-height:none;display:flex;flex-direction:column;margin:0;padding:0;padding-bottom:36px;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;align-items:stretch}
+@media (min-width:769px){
+  .card{padding-bottom:30px}
+}
+.stage{flex:1;position:relative;min-height:0;z-index:1;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0 auto;padding:4px;box-sizing:border-box;max-width:100%;width:100%}
+/* Clip to viewBox (no drawing outside). viewBox padding is handled in fitToOutline(). */
+svg{max-width:100%;max-height:100%;display:block;touch-action:none;overflow:hidden;width:auto;height:auto;object-fit:contain}
+@media (min-width:1200px){
+  .stage{max-width:800px;margin:0 auto}
+  svg{max-width:800px;max-height:90vh}
+}
+@media (min-width:1600px){
+  .stage{max-width:1000px;margin:0 auto}
+  svg{max-width:1000px;max-height:85vh}
+}
 
 /* Buttons */
 #randomBtn{position:absolute; right:10px; top:10px; height:28px; padding:0 10px; border-radius:10px; border:1px solid var(--line); cursor:pointer; overflow:hidden; z-index:1000; background:rgba(15,22,32,.35); backdrop-filter:saturate(110%) blur(2px); display:grid; place-items:center}
 #randomBtn .spinFill{position:absolute; inset:2px; border-radius:8px; background:var(--rainbow); animation:spin 3.2s linear infinite; opacity:.6; filter:brightness(.95) contrast(.95); pointer-events:none}
 @keyframes spin{to{transform:rotate(1turn)}}
 #loadBtn{position:absolute; left:6px; top:6px; height:28px; padding:0 10px; border-radius:10px; border:1px solid var(--line); background:rgba(15,22,32,.35); color:#dbe2ea; cursor:pointer; z-index:1000}
-#autoLoadBtn{position:absolute; left:70px; top:6px; height:28px; padding:0 10px; border-radius:10px; border:1px solid var(--line); background:rgba(15,22,32,.35); color:#dbe2ea; cursor:pointer; z-index:1000}
 #fileInput{display:none}
 
-/* Context panel */
-.ctx{position:absolute; min-width:180px; padding:10px; border-radius:10px; border:1px solid var(--line); background:rgba(15,22,32,.95); color:#dbe2ea; z-index:50; box-shadow:0 8px 24px rgba(0,0,0,.35); display:none}
-.ctx label{display:block; font-size:11px; opacity:.9; margin:.25rem 0 .15rem}
-.ctx input[type="range"]{width:170px}
-.ctx .row{display:flex; gap:8px; align-items:center}
+/* Context panel - Sidebar */
+.ctx-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:100; display:none; backdrop-filter:blur(2px)}
+.ctx{position:fixed; top:0; right:0; width:100%; max-width:400px; height:100%; background:rgba(15,22,32,.98); color:#dbe2ea; z-index:101; box-shadow:-4px 0 24px rgba(0,0,0,.4); display:none; flex-direction:column; overflow-y:auto; transform:translateX(100%); transition:transform 0.3s ease-out; border-left:1px solid var(--line)}
+.ctx.open{transform:translateX(0)}
+.ctx-header{padding:20px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex-shrink:0}
+.ctx-header h3{margin:0; font-size:18px; font-weight:600; color:#e7ecf5}
+.ctx-close{width:36px; height:36px; border-radius:8px; border:1px solid var(--line); background:rgba(255,255,255,.06); color:#e7ecf5; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:20px; line-height:1; transition:background 0.2s}
+.ctx-close:hover{background:rgba(255,255,255,.12)}
+.ctx-content{padding:20px; flex:1; display:flex; flex-direction:column; gap:20px}
+.ctx label{display:block; font-size:13px; font-weight:500; opacity:.95; margin-bottom:8px; color:#e7ecf5}
+.ctx input[type="color"]{width:100%; height:48px; border-radius:8px; border:1px solid var(--line); background:rgba(255,255,255,.06); cursor:pointer; -webkit-appearance:none; appearance:none}
+.ctx input[type="color"]::-webkit-color-swatch-wrapper{padding:4px}
+.ctx input[type="color"]::-webkit-color-swatch{border-radius:4px; border:1px solid var(--line)}
+.ctx input[type="range"]{width:100%; height:8px; -webkit-appearance:none; appearance:none; background:rgba(255,255,255,.1); border-radius:4px; outline:none}
+.ctx input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%; background:#00e5ff; cursor:pointer; border:2px solid rgba(15,22,32,.8); box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.ctx input[type="range"]::-moz-range-thumb{width:20px; height:20px; border-radius:50%; background:#00e5ff; cursor:pointer; border:2px solid rgba(15,22,32,.8); box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.ctx select{width:100%; height:44px; padding:0 12px; border-radius:8px; border:1px solid var(--line); background:rgba(255,255,255,.06); color:#e7ecf5; font-size:14px; cursor:pointer; -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23e7ecf5' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px}
+.ctx .row{display:flex; gap:12px; align-items:center}
 .ctx .row > *{flex:1}
-.ctx .btns{display:flex; gap:8px; margin-top:8px}
-.ctx button{height:28px; padding:0 10px; border-radius:8px; border:1px solid var(--line); background:rgba(255,255,255,.06); color:#e7ecf5; cursor:pointer}
+.ctx .btns{display:flex; gap:12px; margin-top:8px; flex-shrink:0}
+.ctx button{height:44px; padding:0 20px; border-radius:8px; border:1px solid var(--line); background:rgba(255,255,255,.06); color:#e7ecf5; cursor:pointer; font-size:14px; font-weight:500; transition:background 0.2s; flex:1}
+.ctx button:hover{background:rgba(255,255,255,.12)}
 .ctx .danger{border-color:#ff4d4d44; background:rgba(255,77,77,.08)}
+.ctx .danger:hover{background:rgba(255,77,77,.15)}
+.ctx-value{font-size:12px; opacity:.7; margin-top:4px}
+@media (max-width:640px){
+  .ctx{max-width:100%; border-left:none}
+}
 /* glitter chips */
-.chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:4px}
-.chip{padding:.2rem .4rem; border:1px solid var(--line); background:rgba(255,255,255,.06); border-radius:999px; font-size:11px; cursor:pointer; color:#e7ecf5}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+.chip{padding:10px 16px; border:1px solid var(--line); background:rgba(255,255,255,.06); border-radius:8px; font-size:13px; cursor:pointer; color:#e7ecf5; transition:background 0.2s; min-height:40px; display:flex; align-items:center; justify-content:center}
 .chip:hover{background:rgba(255,255,255,.12)}
+
+/* Hover/focus tooltips (desktop + keyboard). Use data-tip on elements. */
+[data-tip]{ position:relative; }
+[data-tip]::after{
+  content: attr(data-tip);
+  position:absolute;
+  left:50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(2px);
+  max-width: 240px;
+  min-width: 140px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(11,15,24,.92);
+  border: 1px solid rgba(255,255,255,.14);
+  color: rgba(231,236,245,.92);
+  font-size: 11px;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  box-shadow: 0 10px 24px rgba(0,0,0,.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s ease, transform .12s ease;
+  z-index: 99999;
+}
+[data-tip]::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom: calc(100% + 3px);
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(255,255,255,.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s ease;
+  z-index: 99999;
+}
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+[data-tip]:hover::before,
+[data-tip]:focus-visible::before{
+  opacity: 1;
+}
+@media (hover: none){
+  /* Avoid phantom tooltips on touch-only devices */
+  [data-tip]::after, [data-tip]::before{ display:none; }
+}
+/* Tip - 2 rows, subtle, balanced padding */
+#tip{
+  position:absolute !important;
+  bottom:0 !important; left:0 !important; right:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:6px 12px calc(6px + env(safe-area-inset-bottom)) 12px !important;
+  text-align:center !important;
+  z-index:9999 !important;
+  pointer-events:none !important;
+  background:rgba(11,15,24,.82) !important;
+  border-top:1px solid rgba(255,255,255,.10) !important;
+  backdrop-filter:blur(8px) !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  box-shadow:0 -2px 8px rgba(0,0,0,.28) !important;
+  margin:0 !important;
+}
+#tip .tipCols{
+  width:100%;
+  max-width:760px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  align-items:start;
+  justify-content:center;
+  gap:0;
+  /* Vertical divider between columns */
+  background:
+    linear-gradient(
+      to right,
+      transparent calc(50% - 0.5px),
+      rgba(255,255,255,.08) calc(50% - 0.5px),
+      rgba(255,255,255,.08) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+}
+#tip .tipCol{
+  flex:1;
+  min-width:0;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#tip .tipText{
+  display:block;
+  font-size:9px;
+  font-weight:500;
+  color:rgba(219,226,234,.70);
+  letter-spacing:0.15px;
+  line-height:1.25;
+  /* Never cut off text: allow wrapping */
+  white-space:normal;
+  overflow:visible;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
+@media (max-width:768px){
+  #tip{ padding:7px 12px calc(7px + env(safe-area-inset-bottom)) 12px !important; }
+  #tip .tipText{ font-size:10px; }
+}
+@media (min-width:769px){
+  #tip{ padding:6px 12px calc(6px + env(safe-area-inset-bottom)) 12px !important; }
+  #tip .tipText{ font-size:9px; }
+}
+/* If there isn't room for two columns, stack into two rows (no divider). */
+@media (max-width:520px){
+  #tip .tipCols{
+    grid-template-columns: 1fr;
+    background:none;
+  }
+  #tip .tipCol{
+    padding:2px 0;
+  }
+}
 </style>
 </head>
 <body>
-  <a id="backLink" href="/studio.html" style="position:fixed; left:10px; top:10px; z-index:2000; padding:6px 10px; border-radius:999px; border:1px solid #ffffff22; background:rgba(15,22,32,.7); color:#dbe2ea; text-decoration:none; font-weight:600; backdrop-filter:saturate(110%) blur(2px);">← Back to Studio</a>
+  <a id="backLink" href="/studio.html" style="position:fixed; left:10px; top:10px; z-index:2000; padding:6px 10px; border-radius:999px; border:1px solid #ffffff22; background:rgba(15,22,32,.7); color:#dbe2ea; text-decoration:none; font-weight:600; backdrop-filter:saturate(110%) blur(2px); display:none;">← Back to Studio</a>
   <div class="card">
-    <button id="loadBtn" type="button" title="Load custom SVG">Load</button>
-    <button id="autoLoadBtn" type="button" title="Auto-load ERRL SVG">Auto ERRL</button>
+    <button id="loadBtn" type="button" title="Load custom SVG" data-tip="Load your own SVG to customize.">Load</button>
     <input id="fileInput" type="file" accept="image/svg+xml,.svg"/>
 
     <div class="stage" data-stage="1">
@@ -103,6 +261,7 @@ svg{width:100%;height:100%;display:block;touch-action:none}
             <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="8s" repeatCount="indefinite"/>
           </linearGradient>
         </defs>
+        <g id="g-limbs" pointer-events="none"></g>
         <g id="g-body">
           <path data-region="body" d="M65,410 C65,190 240,40 360,60 C510,85 555,210 555,325 C555,510 460,615 345,695 C285,740 210,775 155,740 C110,711 65,630 65,410 Z"/>
         </g>
@@ -117,35 +276,59 @@ svg{width:100%;height:100%;display:block;touch-action:none}
       </svg>
     </div>
 
-    <!-- Context panel -->
+    <!-- Context panel backdrop -->
+    <div id="ctxBackdrop" class="ctx-backdrop"></div>
+    
+    <!-- Context panel sidebar -->
     <div id="ctx" class="ctx">
-      <div style="font-size:12px;opacity:.8" id="ctxTitle">Region</div>
-      <label>Enamel color</label>
-      <div class="row"><input id="ctxColor" type="color" value="#00e5ff"/></div>
-      <label>Finish</label>
-      <div class="row"><select id="ctxFinish">
-        <option value="solid">Solid</option>
-        <option value="glitter">Glitter</option>
-        <option value="glow">Glow</option>
-        <option value="none">None</option>
-      </select></div>
-      <label>Wire thickness</label>
-      <input id="ctxWire" type="range" min="0.5" max="6" step="0.5" value="2"/>
-      <label>Glitter Style</label>
-      <div id="glitterRow" class="chips" style="display:none">
-        <button class="chip" type="button" onclick="setGlitterStyle('glitterGoldPink')">Gold + Pink</button>
-        <button class="chip" type="button" onclick="setGlitterStyle('glitterSilver')">Silver</button>
-        <button class="chip" type="button" onclick="setGlitterStyle('glitterRainbow')">Rainbow</button>
+      <div class="ctx-header">
+        <h3 id="ctxTitle">Customize Region</h3>
+        <button id="ctxClose" class="ctx-close" type="button" aria-label="Close" data-tip="Close this panel.">×</button>
       </div>
-      <label>Outline thickness</label>
-      <input id="ctxOutline" type="range" min="1" max="8" step="0.5" value="3"/>
-      <div class="btns">
-        <button id="ctxApply" type="button">Apply</button>
-        <button id="ctxCancel" type="button" class="danger">Close</button>
+      <div class="ctx-content">
+        <div>
+          <label>Enamel color</label>
+          <input id="ctxColor" type="color" value="#00e5ff"/>
+        </div>
+        <div>
+          <label>Finish</label>
+          <select id="ctxFinish">
+            <option value="solid">Solid</option>
+            <option value="glitter">Glitter</option>
+            <option value="glow">Glow</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div id="glitterRow" style="display:none">
+          <label>Glitter Style</label>
+          <div class="chips">
+            <button class="chip" type="button" onclick="setGlitterStyle('glitterGoldPink')" data-tip="Set glitter style: Gold + Pink.">Gold + Pink</button>
+            <button class="chip" type="button" onclick="setGlitterStyle('glitterSilver')" data-tip="Set glitter style: Silver.">Silver</button>
+            <button class="chip" type="button" onclick="setGlitterStyle('glitterRainbow')" data-tip="Set glitter style: Rainbow.">Rainbow</button>
+          </div>
+        </div>
+        <div>
+          <label>Wire thickness <span id="ctxWireValue" class="ctx-value">2</span></label>
+          <input id="ctxWire" type="range" min="0.5" max="6" step="0.5" value="2"/>
+        </div>
+        <div>
+          <label>Outline thickness <span id="ctxOutlineValue" class="ctx-value">3</span></label>
+          <input id="ctxOutline" type="range" min="1" max="8" step="0.5" value="3"/>
+        </div>
+        <div class="btns">
+          <button id="ctxApply" type="button" data-tip="Apply changes to the selected region.">Apply</button>
+        </div>
       </div>
     </div>
 
-    <button id="randomBtn" type="button" aria-label="Randomize"><span class="spinFill" aria-hidden="true"></span></button>
+    <button id="randomBtn" type="button" aria-label="Randomize" data-tip="Randomize all regions. Tip: double-click a region to randomize just that region."><span class="spinFill" aria-hidden="true"></span></button>
+    
+    <div id="tip" aria-hidden="true">
+      <div class="tipCols">
+        <div class="tipCol"><span class="tipText">Double-click any region to randomize</span></div>
+        <div class="tipCol"><span class="tipText">Right-click any region to customize</span></div>
+      </div>
+    </div>
   </div>
 
 <script>
@@ -157,35 +340,57 @@ svg{width:100%;height:100%;display:block;touch-action:none}
   function parseSVGText(txt){return(new DOMParser()).parseFromString(txt,'image/svg+xml');}
 
   // ===== elements (late-bound) =====
-  var svg,gB,gF,gL,gR,gM,outline,loadBtn,fileInput,ctx,ctxColor,ctxFinish,ctxWire,ctxOutline,randomBtn;
+  var svg,gB,gF,gL,gR,gM,outline,loadBtn,fileInput,ctx,ctxColor,ctxFinish,ctxWire,ctxOutline,randomBtn,ctxBackdrop,ctxClose;
 // importer compatibility vars
 var regionGs = {}, regionElems = {}; 
 
   // ===== ctx helpers =====
   function openCtx(region, clientX, clientY){
-    if(!region) return;
-    var rect=document.body.getBoundingClientRect();
-    var panel=ctx; panel.style.display='block';
+    if(!region || !ctx) return;
+    var backdrop = document.getElementById('ctxBackdrop');
+    var panel=ctx;
+    
     // populate
     var f=state.fill[region]||{finish:'none',color:'#ffffff'};
     // Show a usable color for glow (color input can't display gradients)
-    if(f.finish==='glow') { ctxColor.value = '#ffffff'; } else { ctxColor.value = f.color && /^#/.test(f.color) ? f.color : '#00e5ff'; }
-    ctxFinish.value=f.finish||'none';
-    ctxWire.value=(state.wireW[region]||2);
-    ctxOutline.value=state.outlineW;
-    document.getElementById('ctxTitle').textContent=region.toUpperCase();
+    if(ctxColor) {
+      if(f.finish==='glow') { ctxColor.value = '#ffffff'; } else { ctxColor.value = f.color && /^#/.test(f.color) ? f.color : '#00e5ff'; }
+    }
+    if(ctxFinish) ctxFinish.value=f.finish||'none';
+    if(ctxWire) {
+      ctxWire.value=(state.wireW[region]||2);
+      var wireValueEl = document.getElementById('ctxWireValue');
+      if(wireValueEl) wireValueEl.textContent = ctxWire.value;
+    }
+    if(ctxOutline) {
+      ctxOutline.value=state.outlineW;
+      var outlineValueEl = document.getElementById('ctxOutlineValue');
+      if(outlineValueEl) outlineValueEl.textContent = ctxOutline.value;
+    }
+    var titleEl = document.getElementById('ctxTitle');
+    if(titleEl) titleEl.textContent='Customize ' + region.toUpperCase();
     panel.dataset.region=region;
-    // place and clamp
-    var x=(clientX-rect.left+4), y=(clientY-rect.top+4);
-    var pw=panel.offsetWidth||200, ph=panel.offsetHeight||140;
-    var vw=window.innerWidth, vh=window.innerHeight;
-    x=Math.max(8, Math.min(vw-pw-8, x));
-    y=Math.max(8, Math.min(vh-ph-8, y));
-    panel.style.left=x+'px'; panel.style.top=y+'px';
+    
+    // Show sidebar and backdrop
+    panel.style.display='flex';
+    if(backdrop) backdrop.style.display='block';
+    // Trigger animation
+    setTimeout(function(){ panel.classList.add('open'); }, 10);
+    
     // glitter chips visibility
-    try{ var row=document.getElementById('glitterRow'); if(row) row.style.display = (ctxFinish.value==='glitter') ? 'flex' : 'none'; }catch(err){}
+    try{ var row=document.getElementById('glitterRow'); if(row) row.style.display = (ctxFinish.value==='glitter') ? 'block' : 'none'; }catch(err){}
   }
-  function closeCtx(){ ctx.style.display='none'; delete ctx.dataset.region; }
+  function closeCtx(){ 
+    var backdrop = document.getElementById('ctxBackdrop');
+    if(ctx) { 
+      ctx.classList.remove('open');
+      setTimeout(function(){
+        ctx.style.display='none';
+        if(backdrop) backdrop.style.display='none';
+        delete ctx.dataset.region;
+      }, 300);
+    }
+  }
 
   // ===== state =====
   var regions=['body','face','eyeL','eyeR','mouth'];
@@ -208,7 +413,135 @@ var regionGs = {}, regionElems = {};
   var finishes=['solid','glitter','glow']; // list; randomization will exclude 'glitter' and 'none'
 
   // ===== geometry + paint =====
-  function fitToOutline(){ try{ var b=outline.getBBox(); if(!b||!isFinite(b.width)||b.width===0) return; var pad=Math.max(b.width,b.height)*0.08; svg.setAttribute('viewBox',[b.x-pad,b.y-pad,b.width+2*pad,b.height+2*pad].join(' ')); }catch(e){}}
+  function fitToOutline(){ 
+    try{ 
+      if(!outline || !svg) return;
+      
+      var b;
+      try {
+        b = outline.getBBox(); 
+      } catch(e) {
+        // If getBBox fails, use default viewBox
+        svg.setAttribute('viewBox','0 0 600 820');
+        svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+        return;
+      }
+      
+      if(!b||!isFinite(b.width)||b.width===0 || !isFinite(b.height)||b.height===0) {
+        // Fallback: use default viewBox if outline isn't ready
+        svg.setAttribute('viewBox','0 0 600 820');
+        svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+        return;
+      }
+      
+      // Check for limbs and include them in bounding box
+      var limbsGroup = document.getElementById('g-limbs');
+      if(limbsGroup && limbsGroup.children.length > 0) {
+        try {
+          var limbsBBox = limbsGroup.getBBox();
+          if(limbsBBox && isFinite(limbsBBox.width) && limbsBBox.width > 0 && isFinite(limbsBBox.height) && limbsBBox.height > 0) {
+            // Combine bounding boxes
+            var minX = Math.min(b.x, limbsBBox.x);
+            var minY = Math.min(b.y, limbsBBox.y);
+            var maxX = Math.max(b.x + b.width, limbsBBox.x + limbsBBox.width);
+            var maxY = Math.max(b.y + b.height, limbsBBox.y + limbsBBox.height);
+            b = {x: minX, y: minY, width: maxX - minX, height: maxY - minY};
+          }
+        } catch(e) {}
+      }
+      
+      // Add padding: base pad + extra to include stroke + glow/filters (prevents drawing outside viewBox)
+      var basePad = Math.max(b.width,b.height)*0.08;
+      var outlineStroke = 0;
+      try { outlineStroke = parseFloat(outline.getAttribute('stroke-width') || '0') || 0; } catch(_) {}
+      // Gaussian blur in this widget can be large; use a conservative constant to keep everything in view.
+      var extraPad = Math.max(24, (outlineStroke * 4) + 32);
+      var pad = basePad + extraPad;
+      var viewBox = [b.x-pad,b.y-pad,b.width+2*pad,b.height+2*pad].join(' ');
+      svg.setAttribute('viewBox', viewBox); 
+      svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+      
+      // Ensure SVG is constrained within stage (accounting for tip)
+      var stage = document.querySelector('.stage');
+      var card = document.querySelector('.card');
+      var tip = document.getElementById('tip');
+      
+      if(stage && svg && card) {
+        var stageRect = stage.getBoundingClientRect();
+        var cardRect = card.getBoundingClientRect();
+        var stagePadding = 8; // 4px top + 4px bottom
+        
+        // Get tip height dynamically (responsive)
+        var tipHeight = tip ? Math.max(tip.getBoundingClientRect().height, (window.innerWidth <= 768 ? 70 : 50)) : (window.innerWidth <= 768 ? 70 : 50);
+        
+        // Calculate available space - ensure tip space is always reserved
+        var availableHeight = Math.min(stageRect.height - stagePadding, cardRect.height - tipHeight - stagePadding);
+        var availableWidth = stageRect.width - stagePadding;
+        
+        // Responsive max size limits - prevent excessive scaling in large viewboxes
+        var isMobile = window.innerWidth <= 768;
+        var isLargeScreen = window.innerWidth >= 1600;
+        var isMediumScreen = window.innerWidth >= 1200;
+        
+        // Use responsive maximums based on screen size
+        var absoluteMaxWidth = isLargeScreen ? 1000 : (isMediumScreen ? 800 : 600);
+        var absoluteMaxHeight = isLargeScreen ? 85 * window.innerHeight / 100 : (isMediumScreen ? 90 * window.innerHeight / 100 : 800);
+        
+        var maxWidth = isMobile 
+          ? Math.min(availableWidth, 400)  // Mobile: cap at 400px
+          : Math.min(availableWidth, absoluteMaxWidth); // Desktop: use responsive max
+        var maxHeight = isMobile
+          ? Math.min(availableHeight, 600)  // Mobile: cap at 600px
+          : Math.min(availableHeight, absoluteMaxHeight); // Desktop: use responsive max
+        
+        if(availableHeight > 0 && availableWidth > 0 && maxHeight > 0 && maxWidth > 0) {
+          // Calculate aspect ratio of viewBox
+          var vbParts = viewBox.split(' ');
+          var vbWidth = parseFloat(vbParts[2]);
+          var vbHeight = parseFloat(vbParts[3]);
+          if(!vbWidth || !vbHeight || !isFinite(vbWidth) || !isFinite(vbHeight)) return;
+          
+          var vbAspect = vbWidth / vbHeight;
+          var containerAspect = maxWidth / maxHeight;
+          
+          // Set max dimensions to ensure it fits within constraints
+          var finalWidth, finalHeight;
+          if(vbAspect > containerAspect) {
+            // Width-constrained
+            finalWidth = maxWidth;
+            finalHeight = maxWidth / vbAspect;
+          } else {
+            // Height-constrained
+            finalHeight = maxHeight;
+            finalWidth = maxHeight * vbAspect;
+          }
+          
+          // Ensure we don't exceed available space
+          finalWidth = Math.min(finalWidth, availableWidth);
+          finalHeight = Math.min(finalHeight, availableHeight);
+          
+          // Apply constraints using CSS only (let browser handle scaling)
+          svg.style.setProperty('max-width', finalWidth + 'px', 'important');
+          svg.style.setProperty('max-height', finalHeight + 'px', 'important');
+          svg.style.removeProperty('width');
+          svg.style.removeProperty('height');
+          
+          // Remove fixed width/height attributes to allow responsive scaling
+          svg.removeAttribute('width');
+          svg.removeAttribute('height');
+        }
+      }
+      
+      // Ensure tip is always visible after sizing
+      if(tip) {
+        tip.style.setProperty('display', 'flex', 'important');
+        tip.style.setProperty('visibility', 'visible', 'important');
+        tip.style.setProperty('opacity', '1', 'important');
+        tip.style.setProperty('z-index', '9999', 'important');
+      }
+      
+    }catch(e){console.warn('fitToOutline error',e);}
+  }
   function regionNodes(r){ var map={body:'#g-body *',face:'#g-face *',eyeL:'#g-eyeL *',eyeR:'#g-eyeR *',mouth:'#g-mouth *'}; return svg?Array.prototype.slice.call(svg.querySelectorAll(map[r])):[]; }
   function applyPlating(){ if(!outline) return; outline.setAttribute('stroke',state.plating); ['#g-face *','#g-eyeL *','#g-eyeR *','#g-mouth *'].forEach(function(sel){ $$(sel).forEach(function(n){ n.setAttribute('stroke',state.plating); }); }); }
   function applyRegion(r){ var nodes=regionNodes(r); if(nodes.length===0) return; var f=state.fill[r]; nodes.forEach(function(n){ n.setAttribute('stroke-width', state.wireW[r]||2); n.setAttribute('stroke',state.plating); n.setAttribute('pointer-events','all'); if(f.finish==='none'){ n.setAttribute('fill','none'); n.removeAttribute('filter'); } else if(f.finish==='solid'){ n.setAttribute('fill',f.color); n.removeAttribute('filter'); } else if(f.finish==='glow'){ n.setAttribute('fill', f.color || 'url(#rbGrad)'); n.setAttribute('filter','url(#gitd)'); } else if(f.finish==='glitter'){ n.setAttribute('fill',f.color); n.setAttribute('filter','url(#glitterSparkle)'); try{ if(window.applyGlitter){ window.applyGlitter('g-'+r, 'glitterRainbow', 'glitterOverlay'); } }catch(e){} } }); }
@@ -255,20 +588,118 @@ function fitView(){ fitToOutline(); } // alias to our viewbox fitter
 
 // importer
 function importFromDoc(doc){
+  if(!doc || !doc.documentElement) {
+    console.error('importFromDoc: Invalid document', doc);
+    return;
+  }
+  
   const q = sel => doc.querySelector(sel);
-  const outlinePath = q('[data-region="outline"], #outline, #outline-plating, svg>path');
-  if(outlinePath && outlinePath.getAttribute('d')) outline.setAttribute('d', outlinePath.getAttribute('d'));
+  console.log('importFromDoc: Processing SVG document', doc);
+  
+  // Try to find outline path - check specific IDs first, then look for path with stroke attribute (outline has stroke, limbs don't)
+  const outlinePath = q('[data-region="outline"], #outline, #outline-plating') || 
+                      Array.from(doc.querySelectorAll('svg>path')).find(p => p.getAttribute('stroke') && !p.getAttribute('fill'));
+  if(outlinePath && outlinePath.getAttribute('d')) {
+    outline.setAttribute('d', outlinePath.getAttribute('d'));
+    // Preserve stroke-width if it exists in the source
+    if(outlinePath.getAttribute('stroke-width')) {
+      outline.setAttribute('stroke-width', outlinePath.getAttribute('stroke-width'));
+      state.outlineW = parseFloat(outlinePath.getAttribute('stroke-width')) || state.outlineW;
+    }
+    console.log('importFromDoc: Found and imported outline');
+  } else {
+    console.warn('importFromDoc: No outline path found');
+  }
+  
+  // Import limbs first (so they render below body parts)
+  const limbsGroup = document.getElementById('g-limbs');
+  if(limbsGroup) {
+    limbsGroup.innerHTML = '';
+    const limbIds = ['leftArm', 'leftLeg', 'rightLeg', 'rightArm'];
+    var limbsFound = 0;
+    limbIds.forEach(limbId => {
+      const limbPath = doc.getElementById(limbId);
+      if(limbPath) {
+        const clone = limbPath.cloneNode(true);
+        clone.removeAttribute('id');
+        clone.setAttribute('fill', '#000000');
+        // Remove stroke to avoid visible outlines - limbs should blend with body
+        clone.removeAttribute('stroke');
+        clone.removeAttribute('stroke-width');
+        limbsGroup.appendChild(clone);
+        limbsFound++;
+      }
+    });
+    console.log('importFromDoc: Found', limbsFound, 'limbs out of', limbIds.length);
+  }
+  
+  // Import regions - try multiple selector strategies
   const map = {
-    body:  q('[data-region="body"], #body, #fill-body, path#body-fill'),
-    face:  q('[data-region="face"], #face, #fill-face, path#face-fill'),
-    eyeL:  q('[data-region="eyeL"], #eyeL, #left-eye, #fill-eyeL, path#eyeL-fill'),
-    eyeR:  q('[data-region="eyeR"], #eyeR, #right-eye, #fill-eyeR, path#eyeR-fill'),
-    mouth: q('[data-region="mouth"], #mouth, #fill-mouth, path#mouth-fill')
+    body:  [
+      q('#region-body path'),
+      q('[data-region="body"]'),
+      q('#body'),
+      q('#fill-body'),
+      q('path#body-fill')
+    ],
+    face:  [
+      q('#region-face path'),
+      q('[data-region="face"]'),
+      q('#face'),
+      q('#fill-face'),
+      q('path#face-fill')
+    ],
+    eyeL:  [
+      q('#region-eyeL path'),
+      q('[data-region="eyeL"]'),
+      q('#eyeL'),
+      q('#left-eye'),
+      q('#fill-eyeL'),
+      q('path#eyeL-fill')
+    ],
+    eyeR:  [
+      q('#region-eyeR path'),
+      q('[data-region="eyeR"]'),
+      q('#eyeR'),
+      q('#right-eye'),
+      q('#fill-eyeR'),
+      q('path#eyeR-fill')
+    ],
+    mouth: [
+      q('#region-mouth path'),
+      q('[data-region="mouth"]'),
+      q('#mouth'),
+      q('#fill-mouth'),
+      q('path#mouth-fill')
+    ]
   };
+  
   Object.keys(map).forEach(k=>{
-    const g=regionGs[k]; if(!g) return; g.innerHTML='';
-    const src=map[k]; if(!src){ regionElems[k]=null; return; }
-    const clone=src.cloneNode(true); clone.removeAttribute('id'); g.appendChild(clone);
+    const g=regionGs[k]; 
+    if(!g) {
+      console.warn('importFromDoc: Missing group for region:', k);
+      return;
+    }
+    g.innerHTML='';
+    
+    // Try each selector until we find a match
+    var src = null;
+    for(var i = 0; i < map[k].length && !src; i++) {
+      if(map[k][i]) {
+        src = map[k][i];
+        console.log('importFromDoc: Found', k, 'using selector', i);
+      }
+    }
+    
+    if(!src){ 
+      console.warn('importFromDoc: No source found for region:', k);
+      regionElems[k]=null; 
+      return; 
+    }
+    
+    const clone=src.cloneNode(true); 
+    clone.removeAttribute('id'); 
+    g.appendChild(clone);
     const target=clone.querySelector('path,ellipse,circle,polygon,rect')||clone;
     regionElems[k]=target;
     (clone.querySelectorAll('*').length?clone.querySelectorAll('*'):[clone]).forEach(el=>{
@@ -279,7 +710,21 @@ function importFromDoc(doc){
       el.setAttribute('stroke-linecap','round');
     });
   });
-  applyAll(); fitView();
+  
+  // Update viewBox from source SVG if available
+  var sourceSVG = doc.querySelector('svg');
+  if(sourceSVG && sourceSVG.getAttribute('viewBox')) {
+    svg.setAttribute('viewBox', sourceSVG.getAttribute('viewBox'));
+    console.log('importFromDoc: Updated viewBox to', sourceSVG.getAttribute('viewBox'));
+  }
+  
+  applyAll(); 
+  // Delay fitView to ensure SVG is rendered
+  setTimeout(function(){ fitView(); }, 100);
+  // Also fit on next frame
+  requestAnimationFrame(function(){ fitView(); });
+  
+  console.log('importFromDoc: Import complete');
 }
 
   // ===== bind after DOM ready =====
@@ -288,6 +733,7 @@ function importFromDoc(doc){
     svg=$('#pinSVG'); gB=$('#g-body'); gF=$('#g-face'); gL=$('#g-eyeL'); gR=$('#g-eyeR'); gM=$('#g-mouth'); outline=$('#outline');
     loadBtn=$('#loadBtn'); fileInput=$('#fileInput'); randomBtn=$('#randomBtn');
     ctx=$('#ctx'); ctxColor=$('#ctxColor'); ctxFinish=$('#ctxFinish'); ctxWire=$('#ctxWire'); ctxOutline=$('#ctxOutline');
+    ctxBackdrop=$('#ctxBackdrop'); ctxClose=$('#ctxClose');
     if(!svg||!outline||!loadBtn||!fileInput||!randomBtn){ console.error('Init failed: missing nodes'); return; }
 
     // fill importer maps
@@ -296,7 +742,70 @@ function importFromDoc(doc){
     state.wires = state.wireW;
 
     // init paint
-    applyPlating(); applyAll(); fitToOutline();
+    applyPlating(); applyAll(); 
+    // Ensure tip is visible - do this immediately and after delays
+    function ensureTipVisible() {
+      var tip = document.getElementById('tip');
+      if(tip) {
+        tip.style.setProperty('display', 'flex', 'important');
+        tip.style.setProperty('visibility', 'visible', 'important');
+        tip.style.setProperty('opacity', '1', 'important');
+        tip.style.setProperty('z-index', '9999', 'important');
+        tip.style.setProperty('position', 'absolute', 'important');
+        tip.style.setProperty('bottom', '0', 'important');
+        tip.style.setProperty('left', '0', 'important');
+        tip.style.setProperty('right', '0', 'important');
+        tip.style.setProperty('background', 'rgba(11,15,24,1)', 'important');
+        // Ensure it's in the DOM and visible
+        if(tip.offsetParent === null && tip.parentElement) {
+          tip.parentElement.style.position = 'relative';
+        }
+      }
+    }
+    ensureTipVisible();
+    // Fit viewBox after a short delay to ensure SVG is rendered
+    setTimeout(function(){ 
+      fitToOutline(); 
+      ensureTipVisible();
+    }, 50);
+    requestAnimationFrame(function(){ 
+      fitToOutline(); 
+      ensureTipVisible();
+    });
+    
+    // Fit on window resize and container resize
+    var resizeTimer;
+    function handleResize(){
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function(){ 
+        fitToOutline(); 
+        ensureTipVisible();
+        // Update card padding based on tip size
+        var tip = document.getElementById('tip');
+        var card = document.querySelector('.card');
+        if(tip && card) {
+          var tipHeight = tip.getBoundingClientRect().height || (window.innerWidth <= 768 ? 60 : 40);
+          card.style.paddingBottom = tipHeight + 'px';
+        }
+      }, 150);
+    }
+    window.addEventListener('resize', handleResize);
+    
+    // Observe stage container for size changes
+    var stage = document.querySelector('.stage');
+    var card = document.querySelector('.card');
+    if(stage && window.ResizeObserver) {
+      var resizeObserver = new ResizeObserver(function(entries){
+        handleResize();
+      });
+      resizeObserver.observe(stage);
+      if(card && window.ResizeObserver) {
+        var cardObserver = new ResizeObserver(function(entries){
+          handleResize();
+        });
+        cardObserver.observe(card);
+      }
+    }
 
     // buttons
     loadBtn.addEventListener('click', function(){ fileInput.click(); });
@@ -304,36 +813,189 @@ function importFromDoc(doc){
     // Hide back link when embedded inside another page (iframe)
     try { var bl=document.getElementById('backLink'); if (bl && window.top !== window.self) { bl.style.display='none'; } } catch(_) {}
     // Auto-load built-in ERRL SVGs (loads full body with limbs SVG)
-    (function(){ var btn=document.getElementById('autoLoadBtn'); if(!btn) return; btn.addEventListener('click', async function(){
-      try{
-        btn.disabled=true; var urls=['/shared/assets/portal/L4_Central/errl-body-with-limbs.svg']; var ok=false;
-        for(var i=0;i<urls.length && !ok;i++){
-          try{
-            var res = await fetch(urls[i], { cache:'no-cache' });
-            if(res && res.ok){ var txt = await res.text(); var doc = parseSVGText(txt); importFromDoc(doc); ok=true; }
-          }catch(e){ /* try next */ }
+    (function(){ 
+      async function autoLoadSVG(){
+        try{
+          // Try multiple path variations to ensure we find the SVG
+          // Calculate correct relative path from designer.html location
+          var currentPath = window.location.pathname;
+          var basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+          // designer.html is at: apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html
+          // Need to go up 6 levels to reach root, then to shared/assets/portal/L4_Central/
+          // Try multiple path strategies - prioritize absolute paths
+          var origin = window.location.origin;
+          // Try iframe parent origin first if in iframe
+          var parentOrigin = (window.top !== window.self && window.top.location.origin) ? window.top.location.origin : null;
+          var urls=[
+            // Try parent origin first if in iframe
+            parentOrigin ? parentOrigin + '/shared/assets/portal/L4_Central/errl-body-with-limbs.svg' : null,
+            origin + '/shared/assets/portal/L4_Central/errl-body-with-limbs.svg',
+            '/shared/assets/portal/L4_Central/errl-body-with-limbs.svg',
+            './shared/assets/portal/L4_Central/errl-body-with-limbs.svg',
+            '../../../../../../shared/assets/portal/L4_Central/errl-body-with-limbs.svg',
+            basePath + '/../../../../../../shared/assets/portal/L4_Central/errl-body-with-limbs.svg'
+          ].filter(Boolean); // Remove null entries 
+          var ok=false;
+          for(var i=0;i<urls.length && !ok;i++){
+            try{
+              console.log('Attempting to load SVG from:', urls[i]);
+              var res = await fetch(urls[i], { cache:'no-cache' });
+              if(res && res.ok){ 
+                var txt = await res.text();
+                console.log('SVG fetched successfully, length:', txt.length);
+                if(!txt || txt.length < 100) {
+                  console.warn('SVG content seems too short, skipping');
+                  continue;
+                }
+                var doc = parseSVGText(txt);
+                if(!doc || !doc.documentElement) {
+                  console.error('Failed to parse SVG document');
+                  continue;
+                }
+                // Verify we have the expected elements
+                var hasRegions = doc.querySelector('#region-body') || doc.querySelector('[data-region="body"]');
+                var hasLimbs = doc.getElementById('leftArm') || doc.getElementById('leftLeg');
+                console.log('SVG parsed - has regions:', !!hasRegions, 'has limbs:', !!hasLimbs);
+                if(hasRegions || hasLimbs) {
+                  importFromDoc(doc); 
+                  console.log('Successfully loaded and imported SVG from:', urls[i]);
+                  ok=true;
+                } else {
+                  console.warn('SVG loaded but missing expected elements (regions/limbs)');
+                }
+              } else {
+                console.warn('Fetch failed for', urls[i], '- status:', res ? res.status : 'no response');
+              }
+            }catch(e){ 
+              console.error('Failed to load from:', urls[i], e);
+              /* try next */ 
+            }
+          }
+          if(!ok) {
+            console.error('Failed to load SVG from all attempted URLs:', urls);
+            // Try one more time with a direct path relative to current location
+            try {
+              var directPath = new URL('/shared/assets/portal/L4_Central/errl-body-with-limbs.svg', window.location.origin).href;
+              console.log('Trying final fallback URL:', directPath);
+              var res = await fetch(directPath, { cache:'no-cache' });
+              if(res && res.ok) {
+                var txt = await res.text();
+                if(txt && txt.length > 100) {
+                  var doc = parseSVGText(txt);
+                  if(doc && doc.documentElement) {
+                    importFromDoc(doc);
+                    console.log('Successfully loaded SVG using absolute URL:', directPath);
+                    ok = true;
+                  }
+                }
+              }
+            } catch(e) {
+              console.error('Final SVG load attempt failed:', e);
+            }
+          }
+          
+          if(!ok) {
+            console.error('CRITICAL: Failed to load Errl SVG from all sources. Check console for details.');
+          }
+        }catch(e){ 
+          console.error('Auto-load failed with error:', e);
+          console.error('Stack:', e.stack);
         }
-        btn.textContent = ok ? 'Loaded' : 'Not found';
-        setTimeout(function(){ btn.textContent='Auto ERRL'; btn.disabled=false; }, 1400);
-      }catch(e){ console.warn('Auto-load failed', e); btn.disabled=false; }
-    });
-    // auto-run once to populate with the bundled SVG
-    setTimeout(function(){ try{ btn.click(); }catch(_){} }, 0);
+      }
+      // Wait for DOM to be ready before loading SVG
+      if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          setTimeout(function(){ try{ autoLoadSVG(); }catch(e){ console.error('Auto-load error:', e); } }, 100);
+        });
+      } else {
+        // DOM already ready, but wait a bit for everything to initialize
+        setTimeout(function(){ try{ autoLoadSVG(); }catch(e){ console.error('Auto-load error:', e); } }, 100);
+      }
     })();
     randomBtn.addEventListener('click', function(){ randomizeAll(); this.style.transform='scale(0.96)'; setTimeout(()=>this.style.transform='',120); });
 
     // per‑region interactions
     svg.addEventListener('dblclick', function(e){ var el=e.target.closest('#g-body, #g-face, #g-eyeL, #g-eyeR, #g-mouth'); if(!el) return; var reg=idToRegion['#'+el.id]; randomizeRegion(reg); });
     svg.addEventListener('contextmenu', function(e){ var el=e.target.closest('#g-body, #g-face, #g-eyeL, #g-eyeR, #g-mouth'); if(!el) return; e.preventDefault(); var region=idToRegion['#'+el.id]; openCtx(region, e.clientX, e.clientY); });
-    $('#ctxApply').addEventListener('click', function(){ var r=ctx.dataset.region; if(!r) return; var finish=ctxFinish.value; state.fill[r].finish=finish; state.fill[r].color = (finish==='glow') ? 'url(#rbGrad)' : ctxColor.value; state.wireW[r]=parseFloat(ctxWire.value); state.outlineW=parseFloat(ctxOutline.value); outline.setAttribute('stroke-width', state.outlineW); applyRegion(r); closeCtx(); });
+    var ctxApply = $('#ctxApply');
+    if(ctxApply && ctx && ctxColor && ctxFinish && ctxWire && ctxOutline && outline) {
+      ctxApply.addEventListener('click', function(){ var r=ctx.dataset.region; if(!r) return; var finish=ctxFinish.value; state.fill[r].finish=finish; state.fill[r].color = (finish==='glow') ? 'url(#rbGrad)' : ctxColor.value; state.wireW[r]=parseFloat(ctxWire.value); state.outlineW=parseFloat(ctxOutline.value); outline.setAttribute('stroke-width', state.outlineW); applyRegion(r); closeCtx(); });
+    }
     // toggle glitter chips visibility when finish changes
-    ctxFinish.addEventListener('change', function(){ try{ var row=document.getElementById('glitterRow'); if(row) row.style.display = (ctxFinish.value==='glitter') ? 'flex' : 'none'; }catch(e){} });
-    $('#ctxCancel').addEventListener('click', function(){ closeCtx(); });
-    document.addEventListener('click', function(e){ if(!ctx.contains(e.target) && e.target!==ctx) { closeCtx(); } });
+    if(ctxFinish) {
+      ctxFinish.addEventListener('change', function(){ try{ var row=document.getElementById('glitterRow'); if(row) row.style.display = (ctxFinish.value==='glitter') ? 'block' : 'none'; }catch(e){} });
+    }
+    // Close button
+    if(ctxClose) {
+      ctxClose.addEventListener('click', function(){ closeCtx(); });
+    }
+    // Backdrop click to close (but not when clicking inside sidebar)
+    if(ctxBackdrop) {
+      ctxBackdrop.addEventListener('click', function(e){ 
+        if(e.target === ctxBackdrop) { closeCtx(); }
+      });
+    }
+    // Escape key to close
     document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeCtx(); });
+    // Update range value displays
+    if(ctxWire) {
+      ctxWire.addEventListener('input', function(){
+        var wireValueEl = document.getElementById('ctxWireValue');
+        if(wireValueEl) wireValueEl.textContent = this.value;
+      });
+    }
+    if(ctxOutline) {
+      ctxOutline.addEventListener('input', function(){
+        var outlineValueEl = document.getElementById('ctxOutlineValue');
+        if(outlineValueEl) outlineValueEl.textContent = this.value;
+      });
+    }
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+
+  // Export SVG function for parent window communication
+  function exportSVG(){
+    try {
+      if(!svg) return null;
+      var serializer = new XMLSerializer();
+      var svgString = serializer.serializeToString(svg);
+      return svgString;
+    } catch(e) {
+      console.error('Export SVG failed', e);
+      return null;
+    }
+  }
+
+  // Listen for messages from parent window
+  window.addEventListener('message', function(event){
+    if(event.data && event.data.type === 'pinWidgetRequestSVG'){
+      var svgString = exportSVG();
+      if(svgString && event.source){
+        event.source.postMessage({
+          type: 'pinWidgetExportSVG',
+          action: event.data.action || 'export',
+          svg: svgString
+        }, '*');
+      }
+    }
+  });
+
+  // Expose export function globally for debugging
+  window.exportPinWidgetSVG = exportSVG;
+
+  // Allow ESC to close the parent modal when embedded in an iframe.
+  (function(){
+    try{
+      if (window.top === window.self) return;
+      window.addEventListener('keydown', function(e){
+        if (!e) return;
+        if (e.key === 'Escape') {
+          try { window.parent.postMessage({ type: 'colorizerCloseRequest' }, '*'); } catch(_) {}
+        }
+      });
+    }catch(_){}
+  })();
 
   // ===== basic self‑tests (console) =====
   (function tests(){ try{ randomizeAll(); var ok1=['body','face','eyeL','eyeR','mouth'].every(r=>state.fill[r].finish!=='none'); if(!ok1) console.warn('Test fail: finish none after randomizeAll'); randomizeRegion('face'); if(state.fill.face.finish==='none') console.warn('Test fail: face none after randomizeRegion'); }catch(e){ console.warn('Self-tests error',e); } })();
