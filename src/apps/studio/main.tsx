@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import App from './src/app/App';
 import '../../shared/styles/tailwind.css';
-import '@errl-design-system/styles/errlDesignSystem.css';
+import '../../shared/styles/errlDesignSystem.css';
 import { ThemeProvider } from '@errl-design-system';
 
 const rootElement = document.getElementById('root');
