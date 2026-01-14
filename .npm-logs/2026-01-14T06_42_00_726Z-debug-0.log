@@ -5,15 +5,15 @@
 4 silly config load:file:/Users/extrepa/Projects/errl-portal/.npmrc
 5 silly config load:file:/Users/extrepa/.npmrc
 6 silly config load:file:/opt/homebrew/etc/npmrc
-7 verbose title npm run portal:build
-8 verbose argv "run" "portal:build"
-9 verbose logfile logs-max:10 dir:/Users/extrepa/Projects/errl-portal/.npm-logs/2026-01-14T06_23_54_369Z-
-10 verbose logfile /Users/extrepa/Projects/errl-portal/.npm-logs/2026-01-14T06_23_54_369Z-debug-0.log
+7 verbose title npm run typecheck
+8 verbose argv "run" "typecheck"
+9 verbose logfile logs-max:10 dir:/Users/extrepa/Projects/errl-portal/.npm-logs/2026-01-14T06_42_00_726Z-
+10 verbose logfile /Users/extrepa/Projects/errl-portal/.npm-logs/2026-01-14T06_42_00_726Z-debug-0.log
 11 silly logfile start cleaning logs, removing 1 files
 12 silly logfile done cleaning log files
 13 verbose cwd /Users/extrepa/Projects/errl-portal
 14 verbose os Darwin 25.2.0
 15 verbose node v25.2.1
 16 verbose npm  v11.7.0
-17 verbose exit 0
-18 info ok
+17 verbose exit 2
+18 verbose code 2

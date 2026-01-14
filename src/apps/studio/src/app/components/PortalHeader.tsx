@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { resolvePortalPageUrl } from '../utils/portalPaths';
 import './portal-header.css';
 
-type NavItemKey = 'about' | 'gallery' | 'assets' | 'studio' | 'multitool' | 'events' | 'merch';
+type NavItemKey = 'about' | 'gallery' | 'assets' | 'studio' | 'multitool';
 
 export type PortalNavKey = NavItemKey | 'code-lab';
 
@@ -48,8 +48,6 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
 
     if (normalizedHref.includes('/pages/assets/')) return 'assets';
     if (normalizedHref.includes('/pages/gallery/')) return 'gallery';
-    if (normalizedHref.includes('/pages/events/')) return 'events';
-    if (normalizedHref.includes('/pages/merch/')) return 'merch';
     if (normalizedHref.includes('/pages/about/')) return 'about';
     if (normalizedPath.includes('/designer') || normalizedHref.includes('/designer')) return 'multitool';
     if (
@@ -80,8 +78,6 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
       href: multitoolUrl, 
       type: 'external' 
     },
-    { key: 'events', label: 'Events', href: resolvePortalPageUrl('pages/events/index.html'), type: 'external' },
-    { key: 'merch', label: 'Merch', href: resolvePortalPageUrl('pages/merch/index.html'), type: 'external' },
   ];
 
   return (

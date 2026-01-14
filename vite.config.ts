@@ -45,7 +45,7 @@ const portalPagesRewritePlugin = () => ({
       if (req.url && req.method === 'GET') {
         // Rewrite root-level portal pages to source location
         // Match paths like /about/, /gallery/, /assets/errl-head-coin/, etc.
-        if (req.url.match(/^\/(about|gallery|assets|events|merch|games|studio|pin-designer)(\/|$)/)) {
+        if (req.url.match(/^\/(about|gallery|assets|games|studio)(\/|$)/)) {
           req.url = `/apps/static/pages${req.url}`;
         }
         // Rewrite /chat to chatbot app
@@ -358,15 +358,9 @@ export default defineConfig(({ command }) => ({
         'assets/walking-errl/index': resolve(process.cwd(), 'src/apps/static/pages/assets/walking-errl/index.html'),
         'assets/errl-loader-original-parts/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-loader-original-parts/index.html'),
         'studio/index': resolve(process.cwd(), 'src/apps/static/pages/studio/index.html'),
-        'studio/math-lab/index': resolve(process.cwd(), 'src/apps/static/pages/studio/math-lab/index.html'),
-        'studio/shape-madness/index': resolve(process.cwd(), 'src/apps/static/pages/studio/shape-madness/index.html'),
-        'pin-designer/index': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/index.html'),
-        'pin-designer/pin-designer': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/pin-designer.html'),
         'studio/pin-widget/ErrlPin.Widget/designer': resolve(process.cwd(), 'src/apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html'),
         'studio/svg-colorer/index': resolve(process.cwd(), 'src/apps/static/pages/studio/svg-colorer/index.html'),
         'games/index': resolve(process.cwd(), 'src/apps/static/pages/games/index.html'),
-        'events/index': resolve(process.cwd(), 'src/apps/static/pages/events/index.html'),
-        'merch/index': resolve(process.cwd(), 'src/apps/static/pages/merch/index.html'),
         'chat': resolve(process.cwd(), 'src/apps/chatbot/index.html'),
         'fx/hue-examples': resolve(process.cwd(), 'src/apps/landing/fx/hue-examples.html'),
       },

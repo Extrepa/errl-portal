@@ -12,50 +12,35 @@ type ToolLink = {
   external?: boolean;
 };
 
-const PIN_DESIGNER_URL = resolvePortalPageUrl('pages/pin-designer/index.html');
-
 const tools: ToolLink[] = [
   {
     id: 'projects',
     title: 'Projects',
-    description: 'Standalone visual effects (HTML/CSS/JS) wrapped for Studio: Gravity, Ripple, Sparkle, Trails.',
+    description: 'Interactive visual effects built as React components: drag-and-drop sticker physics (Gravity Sticker Field), ripple interactions (Ripple Face), sparkle animations, mouse trails, and holographic effects. All effects are framework-free, accessible, and performance-optimized.',
     badge: 'available',
     to: 'projects',
   },
   {
     id: 'code-lab',
     title: 'Code Lab',
-    description: 'Full Errl Live Studio editor with HTML/CSS/JS preview, Monaco, asset manager, and SVG tooling.',
+    description: 'Full-featured live coding environment with split-pane HTML/CSS/JS editors, Monaco code editor with syntax highlighting, live preview pane with mirrored console, asset manager for drag-and-drop uploads, SVG tooling, and export/zip functionality. Includes presets for quick starts.',
     badge: 'available',
     to: 'code-lab',
   },
   {
     id: 'component-library',
     title: 'Component Library',
-    description: 'Browse 182+ visual components, effects, and UI elements. Search, filter, preview, and export components.',
+    description: 'Browse and search 182+ visual components, effects, and UI elements. Filter by category, preview components in real-time, view code snippets, and export individual components. All components are production-ready and documented.',
     badge: 'available',
     to: 'component-library',
   },
   {
-    id: 'math-lab',
-    title: 'Psychedelic Math Lab',
-    description: '100+ interactive math toys and shaders. Legacy experience; opens inside the React shell.',
-    badge: 'legacy',
-    to: 'math-lab',
-  },
-  {
-    id: 'shape-madness',
-    title: 'Shape Madness',
-    description: '38+ generative shape experiments. Legacy iframe, now routed through the React hub.',
-    badge: 'legacy',
-    to: 'shape-madness',
-  },
-  {
-    id: 'pin-designer',
-    title: 'Pin Designer',
-    description: 'Design and export Errl pins. We\'ll merge this into the shared asset pipeline next.',
-    badge: 'legacy',
-    to: 'pin-designer',
+    id: 'designer',
+    title: 'Designer',
+    description: 'Complete multi-tool design suite for creating vector graphics, scenes, and interactive components. Features include SVG path editing with node manipulation, vibe effects engine for animations, asset library management, scene composition tools, and export to multiple formats (SVG, PNG, Flash bundles). Perfect for creating Errl assets and visual effects.',
+    badge: 'available',
+    to: '/designer.html',
+    external: true,
   },
 ];
 
@@ -77,15 +62,15 @@ export default function StudioPage() {
             <div className="studio-header__copy">
               <h1 className="studio-header__title">Choose your Errl Lab</h1>
               <p className="studio-header__subtitle">
-                Launch the live code playground, explore legacy experiments, or prep assets for the next show. Everything
-                here shares the same project storage and asset pipeline as we finish the merge.
+                Launch the live code playground, build interactive effects, browse components, or design vector graphics. Everything
+                here shares the same project storage and asset pipeline.
               </p>
             </div>
             <aside className="studio-header__meta">
-              <p className="studio-header__meta-title">In Progress</p>
+              <p className="studio-header__meta-title">Unified Experience</p>
               <p>
-                Code Lab already uses the shared asset store. We\'re wiring Math Lab, Shape Madness, and the Pin Designer to
-                the same backbone next.
+                All Studio tools share the same asset store and export pipeline. Projects, Code Lab, Component Library, and Designer
+                work together seamlessly.
               </p>
             </aside>
           </div>
@@ -98,11 +83,12 @@ export default function StudioPage() {
         </section>
 
         <section className="studio-roadmap">
-          <h2 className="studio-roadmap__title">Roadmap</h2>
+          <h2 className="studio-roadmap__title">What's Possible</h2>
           <ul>
-            <li>Unified asset browser so every tool can open, edit, and export the same files.</li>
-            <li>Bridge Math Lab and Shape Madness into native React surfaces without losing legacy flair.</li>
-            <li>One set of keyboard shortcuts, panels, and history across all Studio experiences.</li>
+            <li>Create interactive visual effects with drag-and-drop physics and real-time previews.</li>
+            <li>Build HTML/CSS/JS experiments with live editing, asset management, and instant export.</li>
+            <li>Browse 182+ production-ready components with search, filters, and code snippets.</li>
+            <li>Design vector graphics with advanced SVG editing, animations, and multi-format export.</li>
           </ul>
         </section>
       </div>
