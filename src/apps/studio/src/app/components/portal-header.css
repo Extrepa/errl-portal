@@ -19,12 +19,19 @@
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: -0.02em;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.errl-header-content::-webkit-scrollbar {
+  display: none;
 }
 
 .errl-home-btn {
@@ -83,7 +90,7 @@
   min-width: 6.2rem;
   padding: 0.6rem 0.9rem;
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: clamp(0.65rem, 0.8rem, 0.9rem);
   font-weight: 600;
   line-height: 1.05;
   text-align: center;
@@ -100,6 +107,7 @@
       0 1px 0 rgba(255, 255, 255, 0.18) inset,
       0 -1px 0 rgba(0, 0, 0, 0.24) inset;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
 }
 
 .errl-bubble-btn::before {
@@ -151,7 +159,7 @@
 
 @media (max-width: 900px) {
   .errl-header-content {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.5rem;
   }
 
@@ -171,7 +179,8 @@
     min-width: 5.5rem;
     max-width: 8rem;
     padding: 0.5rem 0.75rem 0.6rem;
-    font-size: 0.75rem;
+    font-size: clamp(0.6rem, 0.75rem, 0.85rem);
+    border-radius: 999px;
   }
 }
 
@@ -182,6 +191,7 @@
 
   .errl-header-content {
     gap: 0.4rem;
+    flex-wrap: nowrap;
   }
 
   .errl-home-btn {
@@ -193,6 +203,7 @@
     place-items: center;
     overflow: hidden;
     font-size: 0;
+    flex-shrink: 0;
   }
 
   .errl-home-btn .chevron {
@@ -210,7 +221,10 @@
     min-width: 4rem;
     max-width: 6.5rem;
     padding: 0.4rem 0.55rem 0.5rem;
-    font-size: 0.65rem;
+    font-size: clamp(0.55rem, 0.65rem, 0.75rem);
+    border-radius: 999px;
+    /* More circular as buttons get smaller */
+    aspect-ratio: 1.2;
   }
 }
 
@@ -223,7 +237,10 @@
     min-width: 3.5rem;
     max-width: 6rem;
     padding: 0.35rem 0.5rem 0.45rem;
-    font-size: 0.6rem;
+    font-size: clamp(0.5rem, 0.6rem, 0.7rem);
+    border-radius: 999px;
+    /* Even more circular on very small screens */
+    aspect-ratio: 1.1;
   }
 }
 

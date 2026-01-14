@@ -29,7 +29,9 @@
 
     /* ===== HEADER SHELL ===== */
     .errl-header { position: sticky; top: 0; width: 100%; background: linear-gradient(135deg, rgba(220,220,240,0.95) 0%, rgba(180,180,200,0.9) 25%, rgba(160,160,180,0.9) 50%, rgba(180,180,200,0.9) 75%, rgba(220,220,240,0.95) 100%), linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.3) 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.4) inset, 0 -1px 0 rgba(0,0,0,0.2) inset; border-bottom: 1px solid rgba(120,120,140,0.6); padding: 0.75rem 1rem; z-index: 999; letter-spacing: -0.03em; }
-    .errl-nav { max-width: 75rem; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; row-gap: 0.75rem; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+    .errl-header-content{ display:flex; align-items:center; justify-content:space-between; max-width: 1200px; margin: 0 auto; flex-wrap: nowrap; gap: 0.75rem; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+    .errl-header-content::-webkit-scrollbar { display: none; }
+    .errl-nav { display: flex; flex-wrap: nowrap; align-items: center; gap: 0.6rem; list-style: none; margin: 0; padding: 0; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
     .errl-nav::-webkit-scrollbar { display: none; }
     .errl-home-btn { display: inline-flex; align-items: center; gap: 0.5rem; color: #fff; background: linear-gradient(135deg, #ff0080 0%, #8000ff 25%, #0080ff 50%, #00ff80 75%, #ff8000 100%); background-size: 200% 200%; border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; font-size: 0.8rem; font-weight: 600; line-height: 1; padding: 0.55rem 0.9rem 0.6rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.3) inset; text-decoration: none; position: relative; text-shadow: 0 1px 2px rgba(0,0,0,0.8); animation: rainbow-flow 3s linear infinite; }
     @keyframes rainbow-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -40,11 +42,11 @@
     .errl-home-btn:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.4) inset; transform: translateY(-1px); transition: all .2s ease; }
 
     .errl-links { display: flex; flex-wrap: wrap; gap: 0.6rem 0.6rem; list-style: none; margin: 0 0 0 clamp(12px,3vw,48px); padding: 0; }
-    @media (max-width: 900px){ .errl-bubble-btn{ min-width:5.2rem; padding:.5rem .7rem .6rem; } }
-    @media (max-width: 640px){ .errl-bubble-btn{ min-width:3.6rem; font-size:.72rem; } }
-    @media (max-width: 460px){ .errl-bubble-btn{ width:38px; height:38px; padding:0; font-size:0; display:inline-grid; place-items:center; } }
+    @media (max-width: 900px){ .errl-header-content{ flex-wrap: nowrap; gap: 0.5rem; } .errl-bubble-btn{ min-width:5.2rem; padding:.5rem .7rem .6rem; font-size: clamp(0.6rem, 0.75rem, 0.85rem); border-radius: 999px; } }
+    @media (max-width: 640px){ .errl-header-content{ flex-wrap: nowrap; gap: 0.4rem; } .errl-bubble-btn{ min-width:3.6rem; font-size: clamp(0.55rem, 0.65rem, 0.75rem); border-radius: 999px; aspect-ratio: 1.2; } }
+    @media (max-width: 460px){ .errl-header-content{ flex-wrap: nowrap; } .errl-bubble-btn{ width:38px; height:38px; padding:0; font-size:0; display:inline-grid; place-items:center; border-radius: 999px; aspect-ratio: 1; } }
 
-    .errl-bubble-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 6.5rem; max-width: 10rem; padding: 0.6rem 0.9rem 0.7rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; line-height: 1.1; text-align: center; color: #e8e8e8; text-decoration: none; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.8); background: linear-gradient(135deg, rgba(100,100,120,0.9) 0%, rgba(60,60,80,0.9) 25%, rgba(40,40,60,0.9) 50%, rgba(60,60,80,0.9) 75%, rgba(100,100,120,0.9) 100%), linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.1) 100%); border: 2px solid transparent; background-clip: padding-box; box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 0 rgba(0,0,0,0.3) inset; }
+    .errl-bubble-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 6.5rem; max-width: 10rem; padding: 0.6rem 0.9rem 0.7rem; border-radius: 999px; font-size: clamp(0.65rem, 0.8rem, 0.9rem); font-weight: 600; line-height: 1.1; text-align: center; color: #e8e8e8; text-decoration: none; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.8); background: linear-gradient(135deg, rgba(100,100,120,0.9) 0%, rgba(60,60,80,0.9) 25%, rgba(40,40,60,0.9) 50%, rgba(60,60,80,0.9) 75%, rgba(100,100,120,0.9) 100%), linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.1) 100%); border: 2px solid transparent; background-clip: padding-box; box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 0 rgba(0,0,0,0.3) inset; flex-shrink: 0; }
     .errl-bubble-btn::before { content: ""; position: absolute; inset: -2px; border-radius: 999px; padding: 2px; background: linear-gradient(90deg, rgba(0,255,255,0.6) 0%, rgba(255,0,255,0.6) 25%, rgba(255,255,0,0.6) 50%, rgba(0,255,0,0.6) 75%, rgba(0,255,255,0.6) 100%); background-size: 200% 100%; mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite: xor; -webkit-mask-composite: xor; animation: led-flow 2s linear infinite; opacity: 0.7; }
     @keyframes led-flow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
     .errl-bubble-btn.active { background: linear-gradient(135deg, rgba(140,140,160,0.95) 0%, rgba(100,100,130,0.95) 25%, rgba(80,80,110,0.95) 50%, rgba(100,100,130,0.95) 75%, rgba(140,140,160,0.95) 100%), linear-gradient(45deg, rgba(255,255,255,0.2) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.2) 100%); color: #fff; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.9); box-shadow: 0 6px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.3) inset, 0 -1px 0 rgba(0,0,0,0.4) inset; }
@@ -72,7 +74,7 @@
         <a class="errl-bubble-btn" href="/gallery/" data-portal-link="gallery/">Gallery</a>
         <a class="errl-bubble-btn" href="/assets/" data-portal-link="assets/">Assets</a>
         <a class="errl-bubble-btn" href="/studio.html">Studio</a>
-        <a class="errl-bubble-btn" href="#" data-multitool-link>Multitool</a>
+        <a class="errl-bubble-btn" href="/designer.html" data-multitool-link>Designer</a>
         <a class="errl-bubble-btn active" href="/games/" data-portal-link="games/">Games</a>
       </nav>
     </div>

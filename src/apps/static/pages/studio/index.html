@@ -56,8 +56,15 @@
         justify-content: space-between;
         max-width: 1200px;
         margin: 0 auto;
-        gap: 1rem;
-        flex-wrap: wrap;
+        gap: 0.75rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      .errl-header-content::-webkit-scrollbar {
+        display: none;
       }
 
       .errl-home-btn {
@@ -115,7 +122,7 @@
         display: flex;
         gap: 0.5rem;
         align-items: center;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         overflow-x: auto;
         scrollbar-width: none;
         -ms-overflow-style: none;
@@ -132,7 +139,7 @@
         min-width: 6.5rem;
         padding: 0.6rem 0.9rem 0.7rem;
         border-radius: 999px;
-        font-size: 0.8rem;
+        font-size: clamp(0.65rem, 0.8rem, 0.9rem);
         font-weight: 600;
         text-align: center;
         color: #e8e8e8;
@@ -472,7 +479,7 @@
           <a class="errl-bubble-btn" data-portal-link="gallery/" href="/gallery/">Gallery</a>
           <a class="errl-bubble-btn" data-portal-link="assets/" href="/assets/">Assets</a>
           <a class="errl-bubble-btn active" href="#studio">Studio</a>
-          <a class="errl-bubble-btn" href="#" data-multitool-link>Multitool</a>
+          <a class="errl-bubble-btn" href="/designer.html" data-multitool-link>Designer</a>
         </nav>
       </div>
     </header>
