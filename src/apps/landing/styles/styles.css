@@ -149,10 +149,6 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   z-index: 1; /* Errl above goo aura, below bubbles */
   animation: floaty 4s ease-in-out infinite;
   animation-duration: calc(4s * var(--motionMultiplier, 1));
-  filter:
-    drop-shadow(0 0 4px rgba(255,255,255,0.9))
-    drop-shadow(0 0 20px rgba(255,100,255,0.6))
-    drop-shadow(0 0 60px rgba(80,200,255,0.4));
   pointer-events: none;
 }
 @keyframes floaty {
@@ -164,6 +160,30 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* Apply glow filter to body only - use pseudo-element on image to layer filtered body over unfiltered image */
+#errlCenter {
+  position: relative;
+}
+
+#errlCenter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../../shared/assets/portal/L4_Central/errl-body-with-limbs.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter:
+    drop-shadow(0 0 4px rgba(255,255,255,0.9))
+    drop-shadow(0 0 20px rgba(255,100,255,0.6))
+    drop-shadow(0 0 60px rgba(80,200,255,0.4));
+  clip-path: inset(0 0 46.5% 0); /* Only show top 53.5% (body portion with glow) */
+  -webkit-clip-path: inset(0 0 46.5% 0);
+  pointer-events: none;
+  z-index: 1; /* Above base image */
+  mix-blend-mode: normal;
 }
 
 /* Remove glow from limbs - use mask to hide outline-plating stroke below body (limbs start around y=1227, SVG height ~2292) */
@@ -501,6 +521,7 @@ body.perf-safe *::after {
   z-index: 10;
   display: flex;
   flex-direction: column;
+  filter: none; /* Ensure sharp rendering, no blur */
 }
 /* Minimize to a small floating icon - Errl Club style */
 .errl-panel.minimized {
@@ -522,6 +543,7 @@ body.perf-safe *::after {
     0 0 15px rgba(var(--errl-neon-purple-rgb), 0.8),
     0 0 30px rgba(var(--errl-neon-purple-rgb), 0.4),
     inset 0 0 10px rgba(var(--errl-text-rgb), 0.2) !important;
+  filter: none !important; /* Ensure sharp rendering when minimized */
 }
 .errl-panel.minimized::after{
   content: "";
