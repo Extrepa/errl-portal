@@ -52,6 +52,10 @@ const portalPagesRewritePlugin = () => ({
         if (req.url === '/chat' || req.url.startsWith('/chat/')) {
           req.url = '/apps/chatbot/index.html';
         }
+        // Rewrite /designer.html or /designer to designer app
+        if (req.url === '/designer.html' || req.url === '/designer' || req.url === '/designer/') {
+          req.url = '/apps/designer/index.html';
+        }
       }
       next();
     });
