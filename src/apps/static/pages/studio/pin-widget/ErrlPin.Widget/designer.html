@@ -303,10 +303,10 @@ function importFromDoc(doc){
     fileInput.addEventListener('change', function(e){ var f=e.target.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(){ try{ var doc=parseSVGText(rd.result); importFromDoc(doc); }catch(err){ console.error('SVG load error',err); } }; rd.readAsText(f); });
     // Hide back link when embedded inside another page (iframe)
     try { var bl=document.getElementById('backLink'); if (bl && window.top !== window.self) { bl.style.display='none'; } } catch(_) {}
-    // Auto-load built-in ERRL SVGs (tries local errl_fixed.svg first)
+    // Auto-load built-in ERRL SVGs (loads full body with limbs SVG)
     (function(){ var btn=document.getElementById('autoLoadBtn'); if(!btn) return; btn.addEventListener('click', async function(){
       try{
-        btn.disabled=true; var urls=['errl_fixed.svg','errl-painted-2.svg','errl-painted.svg']; var ok=false;
+        btn.disabled=true; var urls=['/shared/assets/portal/L4_Central/errl-body-with-limbs.svg']; var ok=false;
         for(var i=0;i<urls.length && !ok;i++){
           try{
             var res = await fetch(urls[i], { cache:'no-cache' });
