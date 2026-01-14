@@ -1,0 +1,50 @@
+/* Chatbot Theme - Adapted to Portal Design System */
+
+/* Use Portal's design system variables with chatbot-specific overrides */
+.chat-interface {
+  --chatbot-bg: var(--errl-bg);
+  --chatbot-surface: var(--errl-surface);
+  --chatbot-surface-light: var(--errl-panel);
+  --chatbot-text: var(--errl-text);
+  --chatbot-text-muted: var(--errl-muted);
+  --chatbot-border: var(--errl-border);
+  --chatbot-cyan: var(--errl-neon-cyan);
+  --chatbot-magenta: var(--errl-neon-magenta);
+  --chatbot-accent: var(--errl-accent);
+  --chatbot-accent-2: var(--errl-accent-2);
+  --chatbot-success: #00f5a0;
+  --chatbot-error: #ff34f5;
+}
+
+/* Text gradient utility */
+.errl-text-gradient {
+  background: linear-gradient(135deg, var(--errl-neon-cyan), var(--errl-neon-magenta));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Fade-in animation */
+.errl-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.7; 
+  }
+}

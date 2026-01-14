@@ -1,0 +1,75 @@
+.input-bar {
+  padding: var(--chatbot-spacing-md);
+  background: var(--errl-surface);
+  border-top: 1px solid var(--errl-border);
+}
+
+.input-container {
+  display: flex;
+  gap: var(--chatbot-spacing-md);
+  align-items: flex-end;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.input-field {
+  flex: 1;
+  padding: var(--chatbot-spacing-md);
+  background: var(--errl-panel);
+  border: 1px solid var(--errl-border);
+  border-radius: var(--chatbot-radius-lg);
+  color: var(--errl-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: var(--chatbot-font-size-base);
+  resize: none;
+  min-height: 44px;
+  max-height: 200px;
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--errl-neon-cyan);
+  box-shadow: 0 0 10px rgba(var(--errl-neon-cyan-rgb), 0.3);
+}
+
+.input-field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.send-button {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--chatbot-radius-lg);
+  background: linear-gradient(135deg, var(--errl-neon-cyan), var(--errl-neon-magenta));
+  border: none;
+  color: var(--errl-bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.send-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(var(--errl-neon-cyan-rgb), 0.5), 0 0 30px rgba(var(--errl-neon-magenta-rgb), 0.3);
+}
+
+.send-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input-hint {
+  text-align: center;
+  color: var(--errl-muted);
+  font-size: var(--chatbot-font-size-xs);
+  margin-top: var(--chatbot-spacing-sm);
+}

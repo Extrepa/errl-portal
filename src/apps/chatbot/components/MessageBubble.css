@@ -1,0 +1,100 @@
+.message-bubble {
+  display: flex;
+  gap: var(--chatbot-spacing-md);
+  margin-bottom: var(--chatbot-spacing-lg);
+  align-items: flex-start;
+  max-width: 85%;
+}
+
+.message-user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  margin-left: auto;
+}
+
+.message-assistant {
+  align-self: flex-start;
+}
+
+.message-avatar {
+  flex-shrink: 0;
+}
+
+.message-avatar-user {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--chatbot-radius-full);
+  background: linear-gradient(135deg, var(--errl-neon-cyan), var(--errl-neon-magenta));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--chatbot-font-size-sm);
+  font-weight: 600;
+  color: var(--errl-bg);
+}
+
+.message-content {
+  padding: var(--chatbot-spacing-md) var(--chatbot-spacing-lg);
+  border-radius: var(--chatbot-radius-lg);
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
+.message-content-user {
+  background: linear-gradient(135deg, var(--errl-panel), var(--errl-surface));
+  border: 1px solid var(--errl-border);
+  color: var(--errl-text);
+}
+
+.message-content-assistant {
+  background: linear-gradient(135deg, rgba(var(--errl-neon-cyan-rgb), 0.1), rgba(var(--errl-neon-magenta-rgb), 0.1));
+  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.3);
+  color: var(--errl-text);
+  box-shadow: 0 0 10px rgba(var(--errl-neon-cyan-rgb), 0.2);
+}
+
+.message-text-assistant {
+  color: var(--errl-text);
+}
+
+.message-text-assistant p {
+  margin: 0 0 var(--chatbot-spacing-sm) 0;
+}
+
+.message-text-assistant p:last-child {
+  margin-bottom: 0;
+}
+
+.message-text-assistant code {
+  background: rgba(var(--errl-bg-rgb), 0.3);
+  padding: 2px 6px;
+  border-radius: var(--chatbot-radius-sm);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9em;
+}
+
+.message-text-assistant pre {
+  background: rgba(var(--errl-bg-rgb), 0.3);
+  padding: var(--chatbot-spacing-md);
+  border-radius: var(--chatbot-radius-md);
+  overflow-x: auto;
+  margin: var(--chatbot-spacing-sm) 0;
+}
+
+.message-text-user {
+  color: var(--errl-text);
+}
+
+.streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--errl-neon-cyan);
+  margin-left: 2px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
