@@ -151,8 +151,12 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   animation-duration: calc(4s * var(--motionMultiplier, 1));
   pointer-events: none;
   /* Ensure crisp rendering */
-  image-rendering: auto;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
   will-change: transform;
+  /* Prevent subpixel blurring */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 @keyframes floaty {
   0%   { transform: translate(-50%, calc(-50% - 8px)) scale(var(--errlScale, 1)); }
@@ -164,7 +168,11 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   height: 100%;
   display: block;
   /* SVG scales crisply with parent zoom */
-  image-rendering: auto;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  /* Force GPU acceleration for smoother rendering */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Apply glow filter to body only - use pseudo-element on image to layer filtered body over unfiltered image */

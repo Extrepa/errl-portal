@@ -42,6 +42,14 @@ const tools: ToolLink[] = [
     to: '/designer.html',
     external: true,
   },
+  {
+    id: 'pin-designer',
+    title: 'Pin Designer',
+    description: 'Interactive enamel pin mockup designer. Create custom pin designs with multiple finish options (glow, glitter, matte), color customization, and real-time preview. Perfect for visualizing pin concepts before production.',
+    badge: 'available',
+    to: '/pin-designer/',
+    external: true,
+  },
 ];
 
 const badgeCopy: Record<NonNullable<ToolLink['badge']>, { label: string }> = {

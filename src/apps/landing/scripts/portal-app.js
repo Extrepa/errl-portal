@@ -557,6 +557,8 @@
     let lastTs = 0;
     let pointerBoost = 0;
     let pointerDecayRaf = null;
+    let pointerMoveRaf = null;
+    let pendingPointerEvent = null;
 
     function toggleClass(on){
       if (errlImg) errlImg.classList.toggle('goo', on);
@@ -713,25 +715,42 @@
 
     function pointerMoveHandler(event){
       if (!mouseReactive?.checked || !enabled?.checked) return;
-      const target = errlImg || aura;
-      if (!target) return;
-      const rect = target.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = event.clientX - cx;
-      const dy = event.clientY - cy;
-      const maxDim = Math.max(rect.width, rect.height) || 1;
-      const dist = Math.min(Math.hypot(dx, dy) / maxDim, 1);
-      // Invert: closer to center (dist closer to 0) = higher normalization factor
-      // This will reduce goo effects when mouse is close to center
-      const normalizationFactor = 1 - dist;
-      setPointerBoost(normalizationFactor);
-      if (pointerDecayRaf) cancelAnimationFrame(pointerDecayRaf);
-      pointerDecayRaf = null;
+      // Store the latest event for processing in the next frame
+      pendingPointerEvent = event;
+      // Throttle updates to requestAnimationFrame for smooth rendering
+      if (!pointerMoveRaf) {
+        pointerMoveRaf = requestAnimationFrame(() => {
+          pointerMoveRaf = null;
+          if (!pendingPointerEvent) return;
+          const evt = pendingPointerEvent;
+          pendingPointerEvent = null;
+          const target = errlImg || aura;
+          if (!target) return;
+          const rect = target.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = evt.clientX - cx;
+          const dy = evt.clientY - cy;
+          const maxDim = Math.max(rect.width, rect.height) || 1;
+          const dist = Math.min(Math.hypot(dx, dy) / maxDim, 1);
+          // Invert: closer to center (dist closer to 0) = higher normalization factor
+          // This will reduce goo effects when mouse is close to center
+          const normalizationFactor = 1 - dist;
+          setPointerBoost(normalizationFactor);
+          if (pointerDecayRaf) cancelAnimationFrame(pointerDecayRaf);
+          pointerDecayRaf = null;
+        });
+      }
     }
 
     function pointerLeaveHandler(){
+      // Cancel any pending pointer move updates
+      if (pointerMoveRaf) {
+        cancelAnimationFrame(pointerMoveRaf);
+        pointerMoveRaf = null;
+      }
+      pendingPointerEvent = null;
       if (pointerDecayRaf) cancelAnimationFrame(pointerDecayRaf);
       const decay = () => {
         // Decay normalization factor back to 0 (normal goo state)

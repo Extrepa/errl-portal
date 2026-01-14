@@ -6,6 +6,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: 'src',
+  server: {
+    proxy: {
+      '/api/component-library': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/component-library/, ''),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': resolve(process.cwd(), 'src'),

@@ -17,7 +17,7 @@ function App() {
 
   // Load sample project on mount
   useEffect(() => {
-    fetch('./public/sample-project.json')
+    fetch('/sample-project.json')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to load sample project');
         return res.json();

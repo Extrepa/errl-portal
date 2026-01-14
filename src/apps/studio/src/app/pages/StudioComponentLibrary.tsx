@@ -26,8 +26,13 @@ interface Component {
   };
 }
 
-const REGISTRY_URL = 'http://localhost:8080/data/master-component-registry.json';
-const PREVIEW_SERVER = 'http://localhost:8080';
+// Use proxy path in development, fallback to direct URL if proxy not available
+const REGISTRY_URL = import.meta.env.DEV 
+  ? '/api/component-library/data/master-component-registry.json'
+  : 'http://localhost:8080/data/master-component-registry.json';
+const PREVIEW_SERVER = import.meta.env.DEV
+  ? '/api/component-library'
+  : 'http://localhost:8080';
 
 export default function StudioComponentLibrary() {
   const [components, setComponents] = useState<Component[]>([]);
