@@ -2,7 +2,9 @@
 # This file should be copied to dist/ during build
 
 # Studio app SPA routing - redirect /studio/* to /studio.html
-# But preserve actual file requests (with extensions)
+# Note: Cloudflare Pages serves existing files first, so HTML files like
+# /studio/svg-colorer/index.html and /studio/pin-widget/... will be served directly
+# This redirect only applies to paths that don't match existing files
 /studio/*  /studio.html  200
 
 # Portal pages routing - these are static HTML files, no redirect needed
