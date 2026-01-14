@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { resolvePortalPageUrl } from '../utils/portalPaths';
-import { ThemeControls } from '@errl-design-system';
 import './portal-header.css';
 
 type NavItemKey = 'about' | 'gallery' | 'assets' | 'studio' | 'pin-designer' | 'events' | 'merch';
@@ -98,7 +97,6 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
             );
           })}
         </nav>
-        <ThemeControls compact={true} />
       </div>
     </header>
   );
