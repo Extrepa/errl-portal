@@ -1421,10 +1421,25 @@
       // Collect all settings
       try {
         const H = window.ErrlHueController;
-        if (H) settings.hue = H.layers;
+        if (H && H.layers) {
+          settings.hue = H.layers;
+        } else {
+          // Fallback: use persisted hue layers if controller isn't ready
+          settings.hue = JSON.parse(localStorage.getItem('errl_hue_layers') || '{}');
+        }
       } catch(e) {}
       
       try {
+        // Keep a raw bundle of the keys that map to "defaults" easiest.
+        settings._storage = {
+          errl_hue_layers: localStorage.getItem('errl_hue_layers'),
+          errl_gl_overlay: localStorage.getItem('errl_gl_overlay'),
+          errl_gl_bubbles: localStorage.getItem('errl_gl_bubbles'),
+          errl_nav_goo_cfg: localStorage.getItem('errl_nav_goo_cfg'),
+          errl_rb_settings: localStorage.getItem('errl_rb_settings'),
+          errl_goo_cfg: localStorage.getItem('errl_goo_cfg'),
+          errlCustomizedSvg: localStorage.getItem('errlCustomizedSvg')
+        };
         settings.overlay = JSON.parse(localStorage.getItem('errl_gl_overlay') || '{}');
         settings.bubbles = JSON.parse(localStorage.getItem('errl_gl_bubbles') || '{}');
         settings.nav = JSON.parse(localStorage.getItem('errl_nav_goo_cfg') || '{}');
@@ -1461,6 +1476,19 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+
+      // Also export a JSON bundle (easier to paste into defaults in code).
+      try {
+        const jblob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+        const jurl = URL.createObjectURL(jblob);
+        const ja = document.createElement('a');
+        ja.href = jurl;
+        ja.download = `errl-portal-snapshot_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+        document.body.appendChild(ja);
+        ja.click();
+        document.body.removeChild(ja);
+        URL.revokeObjectURL(jurl);
+      } catch(_) {}
     } catch(e) {
       console.warn('HTML snapshot failed', e);
       alert('Export failed. Please check console for details.');
