@@ -8,5 +8,5 @@
 # Portal pages routing - these are static HTML files, no redirect needed
 # They're built at root level (e.g., /about/, /gallery/, /assets/)
 
-# Fallback for any other routes to index
-/*  /index.html  200
+# Fallback for SPA routes - exclude index.html and files with extensions to prevent infinite loops
+# Cloudflare Pages will only apply this to paths that don't match existing files
