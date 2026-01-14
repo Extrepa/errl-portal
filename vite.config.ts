@@ -128,42 +128,52 @@ const copyRedirectsPlugin = () => ({
 const replaceBaseUrlPlugin = () => ({
   name: 'replace-base-url',
   apply: 'build',
-  generateBundle(options, bundle) {
-    // Replace %BASE_URL% with / in all HTML files
+  generateBundle(_options, bundle) {
+    // Replace %BASE_URL% with / in all HTML files during bundle generation
     for (const fileName in bundle) {
       const chunk = bundle[fileName];
-      if (chunk.type === 'asset' && fileName.endsWith('.html')) {
-        chunk.source = (chunk.source as string).replace(/%BASE_URL%/g, '/');
+      if (chunk.type === 'asset' && fileName.endsWith('.html') && typeof chunk.source === 'string') {
+        chunk.source = chunk.source.replace(/%BASE_URL%/g, '/');
       }
     }
   },
   writeBundle() {
-    // Also replace in files that might be written after generateBundle
+    // Replace %BASE_URL% in all HTML files after write
     const distDir = resolve(process.cwd(), 'dist');
     const replaceInFile = (filePath: string) => {
       if (!existsSync(filePath)) return;
-      const fs = require('fs');
-      let content = fs.readFileSync(filePath, 'utf-8');
+      const { readFileSync, writeFileSync } = require('fs');
+      let content = readFileSync(filePath, 'utf-8');
       if (content.includes('%BASE_URL%')) {
         content = content.replace(/%BASE_URL%/g, '/');
-        fs.writeFileSync(filePath, content, 'utf-8');
+        writeFileSync(filePath, content, 'utf-8');
       }
     };
     
-    // Replace in all HTML files in dist
+    // Replace in all HTML files in dist recursively
     const findHtmlFiles = (dir: string) => {
-      const entries = readdirSync(dir);
-      for (const entry of entries) {
-        const fullPath = resolve(dir, entry);
-        const stats = statSync(fullPath);
-        if (stats.isDirectory()) {
-          findHtmlFiles(fullPath);
-        } else if (entry.endsWith('.html')) {
-          replaceInFile(fullPath);
+      try {
+        const entries = readdirSync(dir);
+        for (const entry of entries) {
+          const fullPath = resolve(dir, entry);
+          try {
+            const stats = statSync(fullPath);
+            if (stats.isDirectory()) {
+              findHtmlFiles(fullPath);
+            } else if (entry.endsWith('.html')) {
+              replaceInFile(fullPath);
+            }
+          } catch (e) {
+            // Skip files we can't access
+          }
         }
+      } catch (e) {
+        // Skip directories we can't access
       }
     };
-    findHtmlFiles(distDir);
+    if (existsSync(distDir)) {
+      findHtmlFiles(distDir);
+    }
   },
 });
 
