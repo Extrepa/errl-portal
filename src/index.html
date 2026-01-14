@@ -136,6 +136,7 @@
     <div class="panel-tabs" id="panelTabs">
       <button data-tab="hud" class="tab tab-icon active" title="HUD" aria-label="HUD"><span class="label">HUD</span></button>
       <button data-tab="errl" class="tab tab-icon" title="Errl" aria-label="Errl"><span class="label">Errl</span></button>
+      <button data-tab="pin" class="tab tab-icon" title="Pin Widget" aria-label="Pin Widget"><span class="label">Pin</span></button>
       <button data-tab="nav" class="tab tab-icon" title="Nav" aria-label="Nav"><span class="label">Nav</span></button>
       <button data-tab="rb" class="tab tab-icon" title="Rising Bubbles" aria-label="Rising Bubbles"><span class="label">RB</span></button>
       <button data-tab="glb" class="tab tab-icon" title="GL Bubbles" aria-label="GL Bubbles"><span class="label">GLB</span></button>
@@ -149,6 +150,22 @@
     <div class="panel-section" data-tab="bg">
       <div class="sectionLabel" title="Background decorations">Background</div>
       <!-- Shimmer, Vignette, and GL Overlay removed -->
+    </div>
+
+    <div class="panel-section" data-tab="pin">
+      <div class="sectionLabel" title="Pin widget controls">Pin Widget</div>
+      <div class="sliderRow pin-controls" style="justify-content:flex-end; gap:6px; flex-wrap:wrap;">
+        <button type="button" data-colorizer-action="inject" title="Update home page SVG">Inject to Home</button>
+        <button type="button" data-colorizer-action="save" title="Save SVG to localStorage">Save SVG</button>
+        <button type="button" data-colorizer-action="reset" title="Reset to default Errl">Reset Default</button>
+        <button type="button" data-pin-modal-open title="Open larger view">Open Larger View</button>
+      </div>
+      <iframe
+        class="pin-widget-frame"
+        src="./apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html"
+        title="Errl Pin Widget"
+        loading="lazy"
+      ></iframe>
     </div>
 
     <!-- Rising Bubbles (Canvas) -->
@@ -342,8 +359,8 @@
     </div>
     <div class="panel-section" data-tab="dev">
       <div class="sectionLabel">Developer Tools</div>
-      <div class="sliderRow" title="Open the color customizer in a second phone" style="display:flex; gap:6px; flex-wrap:wrap;">
-        <button id="openColorizer" style="font-size:7px; padding:3px 6px;">Open Customizer</button>
+      <div class="sliderRow" title="Open the pin widget in a larger modal" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button data-pin-modal-open style="font-size:7px; padding:3px 6px;">Open Pin Widget</button>
       </div>
       <div class="sliderRow" title="Save a PNG screenshot" style="display:flex; gap:6px; flex-wrap:wrap;">
         <button id="snapshotPngBtn" aria-label="Save PNG" title="Save PNG" style="font-size:7px; padding:3px 6px;">📷 PNG</button>
@@ -418,7 +435,7 @@
       }
     </style>
     <div class="panel-header" style="cursor:move;">
-      <div class="panel-title">ERRL COLOR</div>
+      <div class="panel-title">ERRL PIN</div>
       <div class="panel-mode"><button id="colorizerClose" title="Close">×</button></div>
     </div>
     <div id="colorizerContent" style="flex:1; background:#0b0f18; position:relative; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; min-height:0; width:100%; max-width:100%; box-sizing:border-box;">
@@ -433,6 +450,7 @@
         #colorizerContent .colorizer-controls button.success:hover{background:rgba(83,249,0,.25)}
         #colorizerContent .colorizer-controls button.neutral{background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.16); color:#cfd6df}
         #colorizerContent .colorizer-controls button.neutral:hover{background:rgba(255,255,255,.10)}
+        #colorizerContent .colorizer-controls button:disabled{opacity:0.45; cursor:not-allowed; background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.08)}
         @media (max-width:520px){
           #colorizerContent .colorizer-controls{gap:8px; padding:10px 12px}
           #colorizerContent .colorizer-controls button{padding:8px 10px; font-size:12px}
@@ -444,7 +462,7 @@
         <button id="colorizerSaveBtn" class="success" type="button" title="Save SVG to localStorage">Save SVG</button>
         <button id="colorizerResetBtn" class="neutral" type="button" title="Reset to default Errl">Reset Default</button>
       </div>
-      <iframe id="colorizerFrame" src="./apps/static/pages/studio/svg-colorer/index.html" title="Errl Color Customizer"></iframe>
+      <iframe id="colorizerFrame" src="./apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html" title="Errl Pin Widget"></iframe>
     </div>
   </div>
 
@@ -471,13 +489,14 @@
         }
       } catch (e) { console.warn('Shimmer mount skipped:', e); }
 
-      // Wire colorizer overlay
-      var openBtn = document.getElementById('openColorizer');
+      // Wire pin widget overlay
+      var openButtons = Array.from(document.querySelectorAll('[data-pin-modal-open]'));
       var phone = document.getElementById('colorizerPhone');
       var closeBtn = document.getElementById('colorizerClose');
       var defaultPhoneStyle = null;
       var onResizeColorizer = null;
       var dragCleanup = null;
+      var followCleanup = null;
 
       function captureDefaultPhoneStyle(){
         if (!phone || defaultPhoneStyle) return;
@@ -645,6 +664,7 @@
           window.removeEventListener('resize', onResizeColorizer);
           onResizeColorizer = null;
         }
+        if (followCleanup) followCleanup();
         if (dragCleanup) dragCleanup();
       }
 
@@ -655,38 +675,30 @@
         }
       });
 
-      // Size the customizer to match the *current* on-screen Errl (modal-like).
+      // Size the pin widget modal to align with the Errl phone.
       // Returns true if it successfully applied a non-default layout.
       function sizeColorizerPhoneToErrl(){
         if (!phone) return;
-        // If the user moved it, never snap it back—just keep it in view.
-        try {
-          if (phone.dataset && phone.dataset.userMoved === '1') {
-            requestAnimationFrame(function(){ enforceColorizerInViewport(12); });
-            return true;
-          }
-        } catch(_) {}
-        var errl = document.getElementById('errlCenter') || document.getElementById('errl');
-        if (!errl || typeof errl.getBoundingClientRect !== 'function') {
+        var errlPanel = document.getElementById('errlPanel');
+        if (!errlPanel || typeof errlPanel.getBoundingClientRect !== 'function') {
           // Still keep it safely centered even if Errl isn't measurable.
           centerColorizerFallback();
           return true;
         }
+        if (errlPanel.classList.contains('minimized')) {
+          centerColorizerFallback();
+          return true;
+        }
 
-        var errlRect = errl.getBoundingClientRect();
-        // If Errl isn't laid out yet, skip (will retry on next tick).
-        if (!errlRect || !isFinite(errlRect.width) || errlRect.width <= 0) {
+        var panelRect = errlPanel.getBoundingClientRect();
+        // If the phone isn't laid out yet, skip (will retry on next tick).
+        if (!panelRect || !isFinite(panelRect.width) || panelRect.width <= 0) {
           centerColorizerFallback();
           return true;
         }
 
         var vh = window.innerHeight || document.documentElement.clientHeight || 800;
         var vw = window.innerWidth || document.documentElement.clientWidth || 1200;
-
-        var headerEl = phone.querySelector('.panel-header');
-        var controlsEl = phone.querySelector('#colorizerContent .colorizer-controls');
-        var headerH = headerEl ? headerEl.offsetHeight : 56;
-        var controlsH = controlsEl ? controlsEl.offsetHeight : 72;
 
         var chromePad = 16; // breathing room for borders/shadows
         var modalMargin = 12;
@@ -711,41 +723,57 @@
           return true;
         }
 
-        var maxAllowedW = Math.min(600, vw - (modalMargin * 2));
+        var maxAllowedW = Math.min(900, vw - (modalMargin * 2));
         var maxAllowedH = vh - (modalMargin * 2);
-        var minAllowedW = Math.min(340, maxAllowedW);
+        var minAllowedW = Math.min(360, maxAllowedW);
         var minAllowedH = Math.min(420, maxAllowedH);
 
-        // "Only as big as Errl": cap size based on Errl, not viewport.
-        var targetW = clamp(errlRect.width + 80, minAllowedW, maxAllowedW);
-        var targetH = clamp(errlRect.height + headerH + controlsH + chromePad, minAllowedH, maxAllowedH);
+        // Size to the phone, then grow for desktop.
+        var baseW = panelRect.width * 1.6;
+        var targetW = clamp(baseW, minAllowedW, maxAllowedW);
+        var targetH = clamp(panelRect.height + chromePad, minAllowedH, maxAllowedH);
+        var availableLeft = panelRect.left - modalMargin;
 
-        // Desktop: center in the viewport with pixel positioning (always reachable).
+        // Desktop: dock to the left side of the phone when possible.
         try { phone.dataset.userMoved = '0'; } catch(_) {}
         try { phone.style.inset = 'auto'; phone.style.margin = '0'; } catch(_) {}
         try { phone.classList.remove('colorizer-floating'); } catch(_) {}
-        phone.style.width = targetW + 'px';
-        phone.style.maxWidth = (vw - (modalMargin * 2)) + 'px';
-        phone.style.height = targetH + 'px';
-        phone.style.maxHeight = (vh - (modalMargin * 2)) + 'px';
-        phone.style.borderRadius = '12px';
-        phone.style.left = Math.round((vw - targetW) / 2) + 'px';
-        phone.style.top = Math.round((vh - targetH) / 2) + 'px';
-        phone.style.right = 'auto';
-        phone.style.bottom = 'auto';
+        if (availableLeft >= minAllowedW) {
+          targetW = Math.min(targetW, availableLeft);
+          phone.style.width = targetW + 'px';
+          phone.style.maxWidth = (vw - (modalMargin * 2)) + 'px';
+          phone.style.height = targetH + 'px';
+          phone.style.maxHeight = (vh - (modalMargin * 2)) + 'px';
+          phone.style.borderRadius = '12px';
+          phone.style.left = Math.round(panelRect.left - targetW - modalMargin) + 'px';
+          phone.style.top = Math.round(panelRect.top) + 'px';
+          phone.style.right = 'auto';
+          phone.style.bottom = 'auto';
+        } else {
+          phone.style.width = targetW + 'px';
+          phone.style.maxWidth = (vw - (modalMargin * 2)) + 'px';
+          phone.style.height = targetH + 'px';
+          phone.style.maxHeight = (vh - (modalMargin * 2)) + 'px';
+          phone.style.borderRadius = '12px';
+          phone.style.left = Math.round((vw - targetW) / 2) + 'px';
+          phone.style.top = Math.round((vh - targetH) / 2) + 'px';
+          phone.style.right = 'auto';
+          phone.style.bottom = 'auto';
+        }
+        enforceColorizerInViewport(modalMargin);
         // Enforce bounds after layout settles.
         requestAnimationFrame(function(){ enforceColorizerInViewport(modalMargin); });
         return true;
       }
 
-      if (openBtn && phone) {
-        openBtn.addEventListener('click', function(){ 
+      if (openButtons.length && phone) {
+        openButtons.forEach(function(btn){
+          btn.addEventListener('click', function(){ 
           captureDefaultPhoneStyle();
           // Must be flex for layout, but keep it JS-controlled (no CSS !important display).
           phone.style.display='flex';
           try { phone.dataset.userMoved = '0'; } catch(_) {}
           try { phone.classList.remove('colorizer-floating'); } catch(_) {}
-          attachColorizerDrag();
           // Always start from a safe centered modal so header can never be off-screen.
           centerColorizerFallback();
           // Extra safety: clamp for a few frames to catch late layout shifts.
@@ -784,9 +812,20 @@
             };
             window.addEventListener('resize', onResizeColorizer);
           }
+          if (!followCleanup) {
+            var followHandler = function(){
+              if (phone && phone.style.display !== 'none') sizeColorizerPhoneToErrl();
+            };
+            document.addEventListener('pointerup', followHandler, true);
+            followCleanup = function(){
+              document.removeEventListener('pointerup', followHandler, true);
+              followCleanup = null;
+            };
+          }
           if (window.initColorizerDesigner) {
             window.initColorizerDesigner();
           }
+          });
         });
       }
       if (closeBtn && phone) {
@@ -1117,6 +1156,12 @@
         var injectBtn = document.getElementById('colorizerInjectBtn');
         var saveBtn = document.getElementById('colorizerSaveBtn');
         var resetBtn = document.getElementById('colorizerResetBtn');
+        var extraInject = Array.from(document.querySelectorAll('[data-colorizer-action="inject"]'));
+        var extraSave = Array.from(document.querySelectorAll('[data-colorizer-action="save"]'));
+        var extraReset = Array.from(document.querySelectorAll('[data-colorizer-action="reset"]'));
+        var injectButtons = [injectBtn].concat(extraInject);
+        var saveButtons = [saveBtn].concat(extraSave);
+        var resetButtons = [resetBtn].concat(extraReset);
 
         if (!frame) { console.error('Colorizer frame not found'); return; }
         
@@ -1175,6 +1220,11 @@
           frame.dataset.sizingBound = '1';
         }
 
+        function isPinWidgetFrame(){
+          var frameSrc = frame.getAttribute('src') || '';
+          return frameSrc.indexOf('pin-widget/ErrlPin.Widget/designer.html') !== -1;
+        }
+
         function getCustomizerSvg(){
           try {
             var f = document.getElementById('colorizerFrame');
@@ -1189,6 +1239,10 @@
         }
 
         function handleCustomizerAction(action){
+          if (isPinWidgetFrame()) {
+            alert('These controls are available in colorizer mode. Switch the modal to the colorizer to use inject/save/reset.');
+            return;
+          }
           var svgString = getCustomizerSvg();
           if (!svgString) {
             alert('Customizer is still loading. Please wait a moment and try again.');
@@ -1199,18 +1253,21 @@
         }
 
         // Bind click handlers once (never inside iframe load)
-        if (injectBtn && !injectBtn.dataset.bound) {
-          injectBtn.addEventListener('click', function(){ handleCustomizerAction('inject'); });
-          injectBtn.dataset.bound = '1';
-        }
-        if (saveBtn && !saveBtn.dataset.bound) {
-          saveBtn.addEventListener('click', function(){ handleCustomizerAction('save'); });
-          saveBtn.dataset.bound = '1';
-        }
-        if (resetBtn && !resetBtn.dataset.bound) {
-          resetBtn.addEventListener('click', function(){ resetHomeToDefault(); });
-          resetBtn.dataset.bound = '1';
-        }
+        injectButtons.forEach(function(btn){
+          if (!btn || btn.dataset.bound) return;
+          btn.addEventListener('click', function(){ handleCustomizerAction('inject'); });
+          btn.dataset.bound = '1';
+        });
+        saveButtons.forEach(function(btn){
+          if (!btn || btn.dataset.bound) return;
+          btn.addEventListener('click', function(){ handleCustomizerAction('save'); });
+          btn.dataset.bound = '1';
+        });
+        resetButtons.forEach(function(btn){
+          if (!btn || btn.dataset.bound) return;
+          btn.addEventListener('click', function(){ resetHomeToDefault(); });
+          btn.dataset.bound = '1';
+        });
 
         // Load saved SVG on init
         loadSavedSVG();

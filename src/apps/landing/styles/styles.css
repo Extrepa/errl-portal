@@ -150,9 +150,6 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   animation: floaty 4s ease-in-out infinite;
   animation-duration: calc(4s * var(--motionMultiplier, 1));
   pointer-events: none;
-  /* Ensure crisp rendering */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
   will-change: transform;
   /* Prevent subpixel blurring */
   transform: translateZ(0);
@@ -167,9 +164,6 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   width: 100%;
   height: 100%;
   display: block;
-  /* SVG scales crisply with parent zoom */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
   /* Force GPU acceleration for smoother rendering */
   transform: translateZ(0);
   will-change: transform;
@@ -510,25 +504,26 @@ body.perf-safe *::after {
 
 /* 7. Control Panel ("Errl Phone") - Errl Club Style */
 .errl-panel {
+  --panel-scale: 1;
   position: fixed;
   bottom: 10px;
   right: 10px;
   top: auto;
-  width: 180px;
-  height: 280px;
+  width: calc(180px * var(--panel-scale));
+  height: calc(280px * var(--panel-scale));
   overflow: hidden; /* let content wrapper handle scrolling */
   background: var(--errl-panel-gradient);
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: rgba(var(--errl-neon-cyan-rgb), 0.3) transparent;
-  border-radius: 12px;
-  padding: 10px;
+  border-radius: calc(12px * var(--panel-scale));
+  padding: calc(10px * var(--panel-scale));
   box-shadow: 
     0 0 10px rgba(var(--errl-neon-cyan-rgb), 0.5),
     0 5px 20px rgba(0, 0, 0, 0.8),
     inset 0 0 10px rgba(var(--errl-neon-cyan-rgb), 0.1);
   border: 1px solid var(--errl-neon-cyan);
   color: var(--errl-text);
-  font-size: 9px;
+  font-size: calc(9px * var(--panel-scale));
   line-height: 1.4;
   font-family: 'Inter', system-ui, sans-serif;
   z-index: 10;
@@ -574,30 +569,30 @@ body.perf-safe *::after {
 .errl-panel.minimized #phone-close-button { display:none !important; }
 .errl-panel.minimized .panel-mode button, .errl-panel.minimized .panel-title { display:none !important; }
 .errl-panel.dragging { cursor:grabbing; }
-.hud-icons{ display:flex; gap:10px; margin:10px 0 6px; }
-.hud-icon{ width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; position:relative; outline:none; background:
+.hud-icons{ display:flex; gap:calc(10px * var(--panel-scale)); margin:calc(10px * var(--panel-scale)) 0 calc(6px * var(--panel-scale)); }
+.hud-icon{ width:calc(28px * var(--panel-scale)); height:calc(28px * var(--panel-scale)); border-radius:50%; border:none; cursor:pointer; position:relative; outline:none; background:
   radial-gradient(circle at 28% 28%, rgba(255,255,255,0.85), rgba(255,255,255,0) 60%),
   conic-gradient(from var(--h,0deg), #ff52ff, #00e5ff, #ffd560, #ff52ff);
   box-shadow: 0 0 10px rgba(0,0,0,0.4), 0 0 16px rgba(0,200,255,0.35);
   animation: iconShift 3.2s linear infinite;
   animation-duration: calc(3.2s * var(--motionMultiplier, 1));
 }
-.hud-icon::after{ content:""; position:absolute; inset:-3px; border-radius:inherit; box-shadow: inset 0 0 10px rgba(255,255,255,0.22); pointer-events:none; }
+.hud-icon::after{ content:""; position:absolute; inset:calc(-3px * var(--panel-scale)); border-radius:inherit; box-shadow: inset 0 0 10px rgba(255,255,255,0.22); pointer-events:none; }
 @keyframes iconShift{ 0%{ --h: 0deg; } 100%{ --h: 360deg; } }
 
 /* Compact slider for per-control animation speed */
-.mini-slider{ width: 70px; min-width: 70px; }
+.mini-slider{ width: calc(70px * var(--panel-scale)); min-width: calc(70px * var(--panel-scale)); }
 /* Compact number box for animation speed */
-.mini-number{ width:45px; min-width:45px; padding:2px 3px; font-size:7px; }
+.mini-number{ width:calc(45px * var(--panel-scale)); min-width:calc(45px * var(--panel-scale)); padding:calc(2px * var(--panel-scale)) calc(3px * var(--panel-scale)); font-size:calc(7px * var(--panel-scale)); }
 /* wider for speed boxes */
-.speed-number{ width:55px; min-width:55px; }
+.speed-number{ width:calc(55px * var(--panel-scale)); min-width:calc(55px * var(--panel-scale)); }
 /* remove native number spinners */
 .mini-number::-webkit-inner-spin-button, .mini-number::-webkit-outer-spin-button{ -webkit-appearance: none; margin:0; }
 .mini-number{ -moz-appearance: textfield; }
 
 /* Vibe bar at top - Errl Club style */
 #phone-vibe-bar {
-  height: 3px;
+  height: calc(3px * var(--panel-scale));
   width: 100%;
   background: linear-gradient(
     90deg,
@@ -613,7 +608,7 @@ body.perf-safe *::after {
   background-size: 200% 100%;
   background-position: 0% 0%;
   animation: rainbowFlow 3s linear infinite;
-  box-shadow: 0 0 4px rgba(0, 255, 255, 0.6);
+  box-shadow: 0 0 calc(4px * var(--panel-scale)) rgba(0, 255, 255, 0.6);
   margin-bottom: 0;
   flex-shrink: 0;
 }
@@ -626,14 +621,14 @@ body.perf-safe *::after {
 /* Close button - Errl Club style */
 #phone-close-button {
   position: absolute;
-  right: 4px;
-  top: 4px;
-  width: 20px;
-  height: 20px;
+  right: calc(4px * var(--panel-scale));
+  top: calc(4px * var(--panel-scale));
+  width: calc(20px * var(--panel-scale));
+  height: calc(20px * var(--panel-scale));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: calc(20px * var(--panel-scale));
   color: rgba(var(--errl-text-rgb), 0.9);
   cursor: pointer;
   z-index: 100;
@@ -661,15 +656,15 @@ body.perf-safe *::after {
 /* Tabs at top - Errl Club style */
 .panel-tabs{ 
   display: grid !important;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   width: 100%; 
   height: auto;
-  min-height: 32px;
+  min-height: calc(80px * var(--panel-scale));
   border-bottom: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.3);
   background: rgba(var(--errl-bg-rgb), 0.5);
-  padding: 4px 2px;
-  gap: 4px;
+  padding: calc(4px * var(--panel-scale)) calc(2px * var(--panel-scale));
+  gap: calc(4px * var(--panel-scale));
   margin: 0;
   box-sizing: border-box;
 }
@@ -677,13 +672,13 @@ body.perf-safe *::after {
   background: rgba(var(--errl-surface-rgb), 0.3); 
   color: rgba(var(--errl-neon-cyan-rgb), 0.5); 
   border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.2);
-  border-radius: 4px;
+  border-radius: calc(4px * var(--panel-scale));
   padding: 0; 
   font-size: 0; 
   cursor: pointer; 
-  height: 24px !important;
-  min-height: 24px !important;
-  max-height: 24px !important;
+  height: calc(24px * var(--panel-scale)) !important;
+  min-height: calc(24px * var(--panel-scale)) !important;
+  max-height: calc(24px * var(--panel-scale)) !important;
   width: auto !important;
   min-width: auto !important;
   max-width: none !important;
@@ -717,7 +712,7 @@ body.perf-safe *::after {
   transform: none;
   display: block;
   width: 100%;
-  font-size: 7px;
+  font-size: calc(7px * var(--panel-scale));
   text-transform: uppercase;
   opacity: 0.8;
   text-align: center;
@@ -742,7 +737,7 @@ body.perf-safe *::after {
 .btn-animate{ 
   position:relative; 
   overflow:hidden; 
-  border-radius:6px; 
+  border-radius:calc(6px * var(--panel-scale)); 
 }
 .btn-animate.animating::before{
   content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px;
@@ -755,7 +750,7 @@ body.perf-safe *::after {
 }
 /* little circle indicator when animating */
 .btn-animate.animating::after{
-  content:""; position:absolute; right:-6px; top:-6px; width:10px; height:10px; border-radius:50%;
+  content:""; position:absolute; right:calc(-6px * var(--panel-scale)); top:calc(-6px * var(--panel-scale)); width:calc(10px * var(--panel-scale)); height:calc(10px * var(--panel-scale)); border-radius:50%;
   background: radial-gradient(circle, var(--errl-text), rgba(var(--errl-text-rgb), 0.2)); box-shadow: 0 0 10px rgba(var(--errl-accent-rgb), 0.8);
   pointer-events:none;
 }
@@ -763,16 +758,16 @@ body.perf-safe *::after {
 
 /* Bump buttons */
 .mini-bump{ 
-  width:16px; 
-  height:16px; 
+  width:calc(16px * var(--panel-scale)); 
+  height:calc(16px * var(--panel-scale)); 
   border:1px solid var(--errl-border); 
   background:var(--errl-surface); 
   color:var(--errl-text); 
-  border-radius:3px; 
-  line-height:14px; 
+  border-radius:calc(3px * var(--panel-scale)); 
+  line-height:calc(14px * var(--panel-scale)); 
   text-align:center; 
   cursor:pointer; 
-  font-size:9px; 
+  font-size:calc(9px * var(--panel-scale)); 
   transition: all 0.2s ease;
 }
 .mini-bump:hover{ 
@@ -786,10 +781,10 @@ body.perf-safe *::after {
 }
 
 /* Fancy rainbow scrollbar for the phone content */
-.errl-panel .panel-content-wrapper::-webkit-scrollbar{ width: 6px; }
+.errl-panel .panel-content-wrapper::-webkit-scrollbar{ width: calc(6px * var(--panel-scale)); }
 .errl-panel .panel-content-wrapper::-webkit-scrollbar-track{ background: transparent; }
 .errl-panel .panel-content-wrapper::-webkit-scrollbar-thumb{
-  border-radius: 3px;
+  border-radius: calc(3px * var(--panel-scale));
   background: conic-gradient(from var(--h,0deg), var(--errl-neon-pink), var(--errl-neon-blue), var(--errl-neon-yellow), var(--errl-neon-pink));
   border: 1px solid rgba(0,0,0,0); /* hollow center */
   background-clip: padding-box;
@@ -807,9 +802,9 @@ body.perf-safe *::after {
 .panel-tabs .tab-icon{ 
   /* Tab icon class - icons are now handled via ::after pseudo-element */
   /* Width/height removed as tabs are now horizontal with fixed dimensions */
-  height: 24px !important;
-  min-height: 24px !important;
-  max-height: 24px !important;
+  height: calc(24px * var(--panel-scale)) !important;
+  min-height: calc(24px * var(--panel-scale)) !important;
+  max-height: calc(24px * var(--panel-scale)) !important;
   width: auto !important;
   min-width: auto !important;
   max-width: none !important;
@@ -820,9 +815,9 @@ body.perf-safe *::after {
   background: rgba(var(--errl-text-rgb), 0.08);
   color: var(--errl-text);
   border: 1px solid var(--errl-border);
-  border-radius: 6px;
-  font-size: 10px;
-  padding: 4px 8px;
+  border-radius: calc(6px * var(--panel-scale));
+  font-size: calc(10px * var(--panel-scale));
+  padding: calc(4px * var(--panel-scale)) calc(8px * var(--panel-scale));
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -830,29 +825,29 @@ body.perf-safe *::after {
   background: rgba(var(--errl-accent-rgb), 0.15);
   border-color: var(--errl-accent);
 }
-#phoneMinToggle { font-weight:800; width:24px; height:22px; padding:0; }
+#phoneMinToggle { font-weight:800; width:calc(24px * var(--panel-scale)); height:calc(22px * var(--panel-scale)); padding:0; }
 /* Content area - scrollable */
 .errl-panel > .panel-content-wrapper {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 10px 0;
+  padding: calc(10px * var(--panel-scale)) 0;
   min-height: 0;
 }
 
 .panel-section {
   display: none;
-  margin-bottom: 8px;
+  margin-bottom: calc(8px * var(--panel-scale));
   border-top: 1px solid rgba(var(--errl-text-rgb), 0.1);
-  padding-top: 8px;
+  padding-top: calc(8px * var(--panel-scale));
 }
 .sectionLabel {
-  font-size: 7px;
+  font-size: calc(7px * var(--panel-scale));
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--errl-neon-cyan);
   opacity: 0.9;
-  margin-bottom: 5px;
+  margin-bottom: calc(5px * var(--panel-scale));
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -864,17 +859,17 @@ body.perf-safe *::after {
 /* Thin divider used to separate control groups - scaled for compact phone */
 .sectionDivider {
   width: 100%;
-  height: 1px;
+  height: calc(1px * var(--panel-scale));
   background: linear-gradient(90deg, rgba(var(--errl-text-rgb), 0.08), var(--errl-neon-cyan), rgba(var(--errl-text-rgb), 0.08));
   border: 0;
-  margin: 6px 0;
+  margin: calc(6px * var(--panel-scale)) 0;
 }
 .sliderRow {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin: 4px 0 5px;
-  font-size: 7px;
+  gap: calc(5px * var(--panel-scale));
+  margin: calc(4px * var(--panel-scale)) 0 calc(5px * var(--panel-scale));
+  font-size: calc(7px * var(--panel-scale));
   flex-wrap: wrap; /* allow wrapping in narrow phone */
 }
 /* helpers for compact layout */
@@ -886,21 +881,21 @@ body.perf-safe *::after {
   background: var(--errl-surface);
   color: var(--errl-text);
   border: 1px solid var(--errl-border);
-  border-radius: 4px;
-  padding: 3px 5px;
-  font-size: 7px;
+  border-radius: calc(4px * var(--panel-scale));
+  padding: calc(3px * var(--panel-scale)) calc(5px * var(--panel-scale));
+  font-size: calc(7px * var(--panel-scale));
 }
 .sliderRow input[type="range"] { flex: 1 1 140px; }
-.mini-select{ width:140px; max-width:140px; }
+.mini-select{ width:calc(140px * var(--panel-scale)); max-width:calc(140px * var(--panel-scale)); }
 .sliderRow input[type="number"] { 
-  width: 38px; 
-  flex: 0 0 38px;
+  width: calc(38px * var(--panel-scale)); 
+  flex: 0 0 calc(38px * var(--panel-scale));
   background: var(--errl-surface);
   color: var(--errl-text);
   border: 1px solid var(--errl-border);
-  border-radius: 4px;
-  padding: 2px 3px;
-  font-size: 7px;
+  border-radius: calc(4px * var(--panel-scale));
+  padding: calc(2px * var(--panel-scale)) calc(3px * var(--panel-scale));
+  font-size: calc(7px * var(--panel-scale));
 }
 .sliderRow input[type="checkbox"] {
   accent-color: var(--errl-accent);
@@ -908,11 +903,11 @@ body.perf-safe *::after {
 }
 .sliderRow button { flex: 0 0 auto; }
 .sliderRow label {
-  width: 40px;
+  width: calc(40px * var(--panel-scale));
   flex-shrink: 0;
   opacity: 0.75;
   text-align: right;
-  font-size: 6px;
+  font-size: calc(6px * var(--panel-scale));
   color: var(--errl-text);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -921,15 +916,15 @@ body.perf-safe *::after {
 .sliderRow input[type="range"] {
   flex: 1;
   appearance: none;
-  height: 4px;
+  height: calc(4px * var(--panel-scale));
   border-radius: 999px;
   background: linear-gradient(90deg, var(--errl-neon-pink), var(--errl-neon-blue), var(--errl-neon-yellow));
   outline: none;
 }
 .sliderRow input[type="range"]::-webkit-slider-thumb {
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: calc(14px * var(--panel-scale));
+  height: calc(14px * var(--panel-scale));
   border-radius: 50%;
   background: var(--errl-text);
   box-shadow: 0 0 10px rgba(var(--errl-accent-rgb), 0.8);
@@ -942,9 +937,9 @@ body.perf-safe *::after {
 .panel-section button {
   background: var(--errl-surface);
   border: 1px solid var(--errl-border);
-  border-radius: 4px;
-  font-size: 7px;
-  padding: 3px 5px;
+  border-radius: calc(4px * var(--panel-scale));
+  font-size: calc(7px * var(--panel-scale));
+  padding: calc(3px * var(--panel-scale)) calc(5px * var(--panel-scale));
   color: var(--errl-text);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -965,7 +960,7 @@ body.perf-safe *::after {
   transform: scale(0.95);
 }
 /* Wider labels in Errl tab so text fits - scaled for compact phone */
-.panel-section[data-tab="errl"] .sliderRow label { width: 55px; }
+.panel-section[data-tab="errl"] .sliderRow label { width: calc(55px * var(--panel-scale)); }
 /* Make HUD buttons show disabled state - scaled for compact phone */
 .panel-section[data-tab="hud"] .moodBtn2[disabled]{ opacity:0.5; cursor:not-allowed; }
 .panel-section[data-tab="hud"] .moodBtn2{
@@ -973,29 +968,47 @@ body.perf-safe *::after {
   min-width: calc(25% - 5px);
   max-width: calc(25% - 5px);
   text-align:center;
-  padding:3px 0;
-  font-size:6px;
+  padding:calc(3px * var(--panel-scale)) 0;
+  font-size:calc(6px * var(--panel-scale));
+}
+.panel-section[data-tab="pin"] .pin-widget-frame{
+  width: 100%;
+  height: calc(220px * var(--panel-scale));
+  border: 1px solid rgba(var(--errl-text-rgb), 0.1);
+  border-radius: calc(8px * var(--panel-scale));
+  background: #0b0f18;
+}
+.panel-section[data-tab="pin"] .pin-controls{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(var(--errl-bg-rgb), 0.7);
+  padding: calc(4px * var(--panel-scale)) 0;
+}
+.panel-section[data-tab="pin"] .pin-controls button{
+  font-size: calc(8px * var(--panel-scale));
+  padding: calc(4px * var(--panel-scale)) calc(6px * var(--panel-scale));
 }
 
 /* Scroll to top button - positioned in content wrapper */
 #panelScrollTop {
   position: sticky;
-  left: 6px;
-  bottom: 6px;
-  width: 14px;
-  height: 14px;
+  left: calc(6px * var(--panel-scale));
+  bottom: calc(6px * var(--panel-scale));
+  width: calc(14px * var(--panel-scale));
+  height: calc(14px * var(--panel-scale));
   border-radius: 50%;
   border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.3);
   background: rgba(0, 0, 0, 0.5);
   color: var(--errl-neon-cyan);
-  font-size: 9px;
-  line-height: 12px;
+  font-size: calc(9px * var(--panel-scale));
+  line-height: calc(12px * var(--panel-scale));
   text-align: center;
   cursor: pointer;
   display: none;
   transition: all 0.2s ease;
   float: right;
-  margin-top: 4px;
+  margin-top: calc(4px * var(--panel-scale));
   z-index: 10;
 }
 #panelScrollTop:hover {
@@ -1009,31 +1022,19 @@ body.perf-safe *::after {
 /* Tablet and up: Scale panel proportionally */
 @media (min-width: 768px) {
   .errl-panel:not(.minimized) {
-    transform: scale(1.5);
-    transform-origin: bottom right;
-    /* Adjust positioning to account for scaled size */
-    bottom: calc(10px + (280px * 0.5 * 0.5));
-    right: calc(10px + (180px * 0.5 * 0.5));
+    --panel-scale: 1.5;
   }
 }
 
 @media (min-width: 1024px) {
   .errl-panel:not(.minimized) {
-    transform: scale(1.75);
-    transform-origin: bottom right;
-    /* Adjust positioning to account for scaled size */
-    bottom: calc(10px + (280px * 0.75 * 0.5));
-    right: calc(10px + (180px * 0.75 * 0.5));
+    --panel-scale: 1.75;
   }
 }
 
 @media (min-width: 1440px) {
   .errl-panel:not(.minimized) {
-    transform: scale(2);
-    transform-origin: bottom right;
-    /* Adjust positioning to account for scaled size */
-    bottom: calc(10px + (280px * 1 * 0.5));
-    right: calc(10px + (180px * 1 * 0.5));
+    --panel-scale: 2;
   }
 }
 
