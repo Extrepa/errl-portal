@@ -226,6 +226,11 @@ const reorganizeBuildOutputPlugin = () => ({
       
       const entries = readdirSync(pagesSourceDir);
       for (const entry of entries) {
+        // Don't overwrite main index.html - it's the portal entry point
+        if (entry === 'index.html' && existsSync(resolve(distDir, 'index.html'))) {
+          // Skip - keep the main portal index.html
+          continue;
+        }
         moveRecursive(resolve(pagesSourceDir, entry), resolve(distDir, entry));
       }
       
