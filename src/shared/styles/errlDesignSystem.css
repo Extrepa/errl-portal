@@ -1,0 +1,141 @@
+:root {
+  /* Errl Design System CSS Variables */
+  --errl-bg: #02070a;
+  --errl-bg-alt: #041017;
+  --errl-surface: #071b25;
+  --errl-panel: rgba(7, 27, 37, 0.9);
+  --errl-border: #163a4a;
+  --errl-text: #ecf9ff;
+  --errl-muted: #8eb7c7;
+  --errl-accent: #34e1ff;
+  --errl-accent-2: #ff34f5;
+  --errl-accent-3: #f5ffb7;
+  --errl-accent-soft: #0d3344;
+  
+  /* Neon colors */
+  --errl-neon-cyan: #00ffff;
+  --errl-neon-blue: #34e1ff;
+  --errl-neon-purple: #7b5cff;
+  --errl-neon-magenta: #ff34f5;
+  --errl-neon-pink: #ff00ff;
+  --errl-neon-green: #00f5a0;
+  --errl-neon-yellow: #f5ffb7;
+  
+  /* RGB variants for opacity support */
+  --errl-text-rgb: 236, 249, 255;
+  --errl-muted-rgb: 142, 183, 199;
+  --errl-accent-rgb: 52, 225, 255;
+  --errl-accent-2-rgb: 255, 52, 245;
+  --errl-accent-3-rgb: 245, 255, 183;
+  --errl-neon-cyan-rgb: 0, 255, 255;
+  --errl-neon-blue-rgb: 52, 225, 255;
+  --errl-neon-purple-rgb: 123, 92, 255;
+  --errl-neon-magenta-rgb: 255, 52, 245;
+  --errl-neon-pink-rgb: 255, 0, 255;
+  --errl-neon-green-rgb: 0, 245, 160;
+  --errl-neon-yellow-rgb: 245, 255, 183;
+  --errl-bg-rgb: 2, 7, 10;
+  --errl-surface-rgb: 7, 27, 37;
+  
+  /* Commonly used glow utilities */
+  --errl-glow-teal: rgba(var(--errl-neon-cyan-rgb), 0.4);
+  --errl-glow-violet: rgba(var(--errl-neon-purple-rgb), 0.4);
+  --errl-glow-cyan: rgba(var(--errl-neon-cyan-rgb), 0.5);
+  --errl-glow-purple: rgba(var(--errl-neon-purple-rgb), 0.5);
+  --errl-text-soft: rgba(var(--errl-text-rgb), 0.7);
+  
+  /* Gradient utilities */
+  --errl-bg-gradient: radial-gradient(circle at 30% 20%, rgba(34, 255, 255, 0.08) 0%, rgba(140, 0, 255, 0.04) 60%, rgba(0, 0, 0, 0) 80%);
+  --errl-panel-gradient: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 0, 40, 0.98) 100%);
+}
+
+/* Light theme overrides */
+.app.light {
+  --errl-bg: #fefaf5;
+  --errl-bg-alt: #f5f0eb;
+  --errl-surface: #ffffff;
+  --errl-panel: rgba(255, 255, 255, 0.9);
+  --errl-border: #e0d5c7;
+  --errl-text: #1a1a1a;
+  --errl-muted: #6b7280;
+  --errl-accent: #34e1ff;
+  --errl-accent-2: #ff34f5;
+  --errl-accent-3: #f5ffb7;
+  --errl-accent-soft: #f0f9ff;
+}
+
+/* Errl Design System Animations */
+@keyframes rainbowFlow {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    opacity: 0; 
+    transform: scale(0) rotate(0deg); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1) rotate(180deg); 
+  }
+}
+
+@keyframes fade {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    box-shadow: 0 0 10px var(--errl-glow-cyan), 0 0 20px rgba(var(--errl-neon-cyan-rgb), 0.3); 
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(var(--errl-neon-cyan-rgb), 0.8), 0 0 30px rgba(var(--errl-neon-cyan-rgb), 0.4), 0 0 40px rgba(var(--errl-neon-cyan-rgb), 0.2); 
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Utility Classes */
+.rainbow-border {
+  border: 2px solid;
+  border-image: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3) 1;
+  animation: rainbowFlow 3s linear infinite;
+  background-size: 200% 100%;
+}
+
+.sparkle::before {
+  content: '✨';
+  position: absolute;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.neon-glow {
+  box-shadow: 0 0 10px var(--errl-glow-cyan), 0 0 20px rgba(var(--errl-neon-cyan-rgb), 0.3);
+  animation: glow 2s ease-in-out infinite;
+}
+
+.neon-glow-purple {
+  box-shadow: 0 0 10px var(--errl-glow-purple), 0 0 20px rgba(var(--errl-neon-purple-rgb), 0.3);
+  animation: glow 2s ease-in-out infinite;
+}
+
+.neon-glow-blue {
+  box-shadow: 0 0 10px rgba(var(--errl-neon-blue-rgb), 0.5), 0 0 20px rgba(var(--errl-neon-blue-rgb), 0.3);
+  animation: glow 2s ease-in-out infinite;
+}
+
+.fade-effect {
+  animation: fade 2s ease-in-out infinite;
+}
+
+.shimmer-effect {
+  background: linear-gradient(90deg, transparent, rgba(var(--errl-text-rgb), 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
