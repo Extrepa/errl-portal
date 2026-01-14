@@ -261,7 +261,7 @@ export default defineConfig(({ command }) => ({
       '@shared': resolve(__dirname, 'src/shared'),
       '@studio': resolve(__dirname, 'src/apps/studio'),
       '@legacy': resolve(__dirname, 'src/legacy'),
-      '@errl-design-system': resolve(__dirname, '../all-components/errl-design-system/src'),
+      // Removed @errl-design-system alias - no longer used, external dependency not available in CI
     },
     dedupe: ['react', 'react-dom'],
   },
