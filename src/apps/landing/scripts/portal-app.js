@@ -660,8 +660,13 @@
         stopAnimation();
         return;
       }
-      if (!lastTs) lastTs = timestamp;
-      const deltaSeconds = (timestamp - lastTs) / 1000;
+      if (!lastTs) {
+        lastTs = timestamp;
+        raf = requestAnimationFrame(step);
+        return;
+      }
+      // Use fixed timestep for smoother animation (cap at 60fps equivalent)
+      const deltaSeconds = Math.min((timestamp - lastTs) / 1000, 1/60);
       lastTs = timestamp;
       const rate = clamp(parseFloat(autoSpeed?.value || '0.05'), 0.01, 0.5);
       const delta = Math.max(0.0002, rate) * deltaSeconds;
@@ -846,7 +851,10 @@
     };
     
     loadAutoConfig();
-    apply();
+    // Ensure goo is enabled by default if checkbox is checked (even before loadPersisted runs)
+    if (enabled && enabled.checked) {
+      apply();
+    }
     syncAnimationState();
     updateAutoPlayPauseButton();
     window.addEventListener('pointermove', pointerMoveHandler, { passive: true });
@@ -1172,6 +1180,14 @@
       }
       const cg = JSON.parse(localStorage.getItem('errl_goo_cfg')||'null');
       if (cg){ const c=(id,v)=>{ const el=document.getElementById(id); if(el){ el.checked=!!v; el.dispatchEvent(new Event('input')); } }; const e=(id,v)=>{ const el=document.getElementById(id); if(el){ el.value=String(v); el.dispatchEvent(new Event('input')); } }; c('classicGooEnabled', cg.enabled); e('classicGooStrength', cg.mult); e('classicGooWobble', cg.wobble); e('classicGooSpeed', cg.speed); }
+      else {
+        // Ensure goo is enabled by default if no saved config
+        const gooEnabledEl = document.getElementById('classicGooEnabled');
+        if (gooEnabledEl && !gooEnabledEl.checked) {
+          gooEnabledEl.checked = true;
+          gooEnabledEl.dispatchEvent(new Event('input'));
+        }
+      }
     }catch(e){}
     // Always apply current UI values once on load (acts as baked defaults when nothing persisted)
     const kick = (id) => { const el = document.getElementById(id); if (el) el.dispatchEvent(new Event('input')); };
