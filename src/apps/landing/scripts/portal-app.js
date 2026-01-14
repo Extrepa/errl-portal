@@ -147,7 +147,7 @@
     gamesVisible = !!next;
     if (hiddenBubble) hiddenBubble.style.display = gamesVisible ? 'block' : 'none';
     if (!skipListenerReset){
-      bubbles = Array.from(document.querySelectorAll('.bubble'));
+      bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
       bubbles.forEach((b, i)=> {
         if (b && b.dataset){
           b.dataset.orbIndex = String(i);
@@ -196,7 +196,7 @@
       return false;
     }
     
-    bubbles = Array.from(document.querySelectorAll('.bubble:not(.hidden-bubble)'));
+    bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble:not(.hidden-bubble)'));
     hiddenBubble = document.getElementById('gamesBubble');
     navOrbitSpeedInput = $("navOrbitSpeed");
     navRadiusInput = $("navRadius");
@@ -257,15 +257,19 @@
     lastOrbitUpdate = ts;
 
     const rect = errl.getBoundingClientRect();
+    // Ensure we have valid dimensions before calculating center
+    if (rect.width === 0 || rect.height === 0) {
+      return requestAnimationFrame(updateBubbles);
+    }
     const cx = rect.left + rect.width/2;
     const cy = rect.top + rect.height/2;
     const minViewport = Math.min(window.innerWidth, window.innerHeight);
     const viewportScale = clamp(minViewport / 900, 0.55, 1.05);
 
     // Refresh bubble list only if count changed (e.g., toggled games bubble)
-    const currentCount = document.querySelectorAll('.bubble').length;
+    const currentCount = document.querySelectorAll('.nav-orbit .bubble').length;
     if (currentCount !== bubbles.length){
-      bubbles = Array.from(document.querySelectorAll('.bubble'));
+      bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
     }
 
     // Track visible index separately to maintain alternating orbit direction
@@ -280,9 +284,12 @@
       const rad = ang * Math.PI/180;
       const x = cx + Math.cos(rad)*dist;
       const y = cy + Math.sin(rad)*dist;
+      // Ensure bubbles are properly centered using translate
+      el.style.position = 'absolute';
       el.style.left = x + 'px';
       el.style.top = y + 'px';
       el.style.transform = `translate(-50%, -50%) scale(${navOrbScale})`;
+      el.style.transformOrigin = 'center center';
       const isBehind = Math.sin(rad) < 0;
       if (isBehind) {
         el.classList.add('bubble--behind');
@@ -316,7 +323,7 @@
 
   // Hover → GL orb squish + audio + background color glow
   function attachBubbleListeners(){
-    bubbles = Array.from(document.querySelectorAll('.bubble'));
+    bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
     bubbles.forEach((b,i)=>{
       // Skip if listeners already attached
       if (b.dataset.listenersAttached) return;
@@ -1181,14 +1188,30 @@
       syncPlayButton(H);
     });
 
-    on(target,'change', ()=> withHue(H=> H.setTarget(target.value)));
-    on(onEl,'change', ()=> withHue(H=> H.setEnabled(!!onEl.checked)));
-    on(h,'input', ()=> withHue(H=> H.setHue(+h.value)));
-    on(s,'input', ()=> withHue(H=> H.setSaturation(+s.value)));
-    on(i,'input', ()=> withHue(H=> H.setIntensity(+i.value)));
+    on(target,'change', ()=> withHue(H=> { H.setTarget(target.value); H.applyLayerCSS(target.value); }));
+    on(onEl,'change', ()=> withHue(H=> { 
+      const layer = target?.value || H.currentTarget;
+      H.setEnabled(!!onEl.checked, layer);
+      H.applyLayerCSS(layer);
+    }));
+    on(h,'input', ()=> withHue(H=> { 
+      const layer = target?.value || H.currentTarget;
+      H.setHue(+h.value, layer);
+      H.applyLayerCSS(layer);
+    }));
+    on(s,'input', ()=> withHue(H=> { 
+      const layer = target?.value || H.currentTarget;
+      H.setSaturation(+s.value, layer);
+      H.applyLayerCSS(layer);
+    }));
+    on(i,'input', ()=> withHue(H=> { 
+      const layer = target?.value || H.currentTarget;
+      H.setIntensity(+i.value, layer);
+      H.applyLayerCSS(layer);
+    }));
     // Global timeline controls (fixed speed)
-    on(timeline,'input', ()=> withHue(H=> H.setTimeline(+timeline.value)));
-    on(playBtn,'click', ()=> withHue(H=> { H.toggleTimeline(); syncPlayButton(H); }));
+    on(timeline,'input', ()=> withHue(H=> { H.setTimeline(+timeline.value); H.applyAllCSS(); }));
+    on(playBtn,'click', ()=> withHue(H=> { H.toggleTimeline(); syncPlayButton(H); H.applyAllCSS(); }));
   })();
 
   // Background vignette, shimmer removed
@@ -1581,10 +1604,13 @@
       // Show content again (CSS handles layout)
       const headerEl = panel.querySelector('.panel-header');
       const tabsEl = panel.querySelector('.panel-tabs');
-      const sectionsEl = panel.querySelectorAll('.panel-section');
       if (headerEl) headerEl.style.display = '';
       if (tabsEl) tabsEl.style.display = '';
-      sectionsEl.forEach(s => s.style.display = '');
+      // Activate default tab to show content immediately (this will handle section visibility)
+      // Use setTimeout to ensure CSS has updated after removing minimized class
+      setTimeout(() => {
+        activateTab('hud');
+      }, 0);
       try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
     }
 
@@ -1616,7 +1642,7 @@
     panel.addEventListener('click', (e)=>{
       if (panel.classList.contains('minimized')) {
         // Only expand if clicking the panel itself (not child elements)
-        if (e.target === panel || e.target.classList.contains('errl-panel')) {
+        if (e.target === panel || e.target.classList.contains('errl-panel') || e.target.id === 'phone-vibe-bar') {
           restorePanel();
         }
       }

@@ -11,8 +11,8 @@
     let bubbles = [];
     // Count actual navigation bubbles (8 total: 7 visible + 1 hidden)
     function countNavBubbles() {
-      const navBubbles = document.querySelectorAll('.bubble:not(.hidden-bubble)');
-      const hidden = document.querySelector('.bubble.hidden-bubble');
+      const navBubbles = document.querySelectorAll('.nav-orbit .bubble:not(.hidden-bubble)');
+      const hidden = document.querySelector('.nav-orbit .bubble.hidden-bubble');
       return navBubbles.length + (hidden && hidden.style.display !== 'none' ? 1 : 0);
     }
 
@@ -113,7 +113,7 @@
       });
 
       // Get nav bubble orbital data from actual DOM elements
-      const navBubbles = Array.from(document.querySelectorAll('.bubble:not(.hidden-bubble)'));
+      const navBubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble:not(.hidden-bubble)'));
       const navAngles = navBubbles.map(b => parseFloat(b.dataset.angle || '0'));
       const navDists = navBubbles.map(b => parseFloat(b.dataset.dist || '180'));
       
@@ -208,7 +208,7 @@
 
     function resetBubble(bubble, index) {
       // Reset bubble to bottom maintaining its layer and nav association
-      const navBubbles = Array.from(document.querySelectorAll('.bubble:not(.hidden-bubble)'));
+      const navBubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble:not(.hidden-bubble)'));
       const navAngles = navBubbles.map(b => parseFloat(b.dataset.angle || '0'));
       const navDists = navBubbles.map(b => parseFloat(b.dataset.dist || '180'));
       const bubblesPerNav = Math.ceil(bubbleCount / Math.max(navAngles.length, 1));

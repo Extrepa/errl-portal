@@ -538,7 +538,7 @@
 
   function buildOrbs(tex){
     // create one orb per DOM bubble
-    const doms = Array.from(document.querySelectorAll('.bubble'));
+    const doms = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
     orbs.forEach(s=>s.destroy({texture:false, baseTexture:false}));
     orbs = doms.map((_b,i)=>{
       const s = new PIXI.Sprite(tex);
@@ -556,7 +556,7 @@
 
   function syncOrbsPositions(){
     if (!orbs.length) return;
-    const doms = Array.from(document.querySelectorAll('.bubble'));
+    const doms = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
     doms.forEach((b,i)=>{
       const r = b.getBoundingClientRect();
       const x = r.left + r.width/2;
