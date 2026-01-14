@@ -1,0 +1,30 @@
+{
+  "name": "Prism Refraction Map Module",
+  "slug": "spinning-rainbow-blackhole-module",
+  "category": "module",
+  "status": "normalized",
+  "description": "Interactive prism lens effect with rainbow background. Drag to move the prism lens, scroll to adjust refraction strength. Creates realistic lens distortion effect on animated rainbow circles.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/SpinningRainbowBlackHole_Module.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "module",
+    "canvas",
+    "prism",
+    "refraction",
+    "lens",
+    "interactive",
+    "rainbow"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with lens refraction effects. Scroll wheel interaction to adjust strength. No media playback. Safe for all contexts."
+  },
+  "controls": [],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

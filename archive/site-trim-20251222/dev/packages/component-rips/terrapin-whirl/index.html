@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Terrapin Whirl — Background</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="stage">
+      <section class="panel">
+        <header>
+          <h1>Terrapin Whirl</h1>
+          <p>Spherical vector field rendered on 2D canvas. Use mouse or touch to modulate swirl velocity.</p>
+        </header>
+        <canvas id="background"></canvas>
+        <footer>
+          <label>
+            Speed
+            <input id="speed" type="range" min="0" max="1" step="0.01" value="0.55" />
+          </label>
+          <label>
+            Trail
+            <input id="trail" type="range" min="0.5" max="0.98" step="0.01" value="0.88" />
+          </label>
+        </footer>
+      </section>
+    </main>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

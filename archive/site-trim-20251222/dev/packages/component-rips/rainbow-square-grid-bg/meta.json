@@ -1,0 +1,28 @@
+{
+  "name": "Rainbow Square Grid Background",
+  "slug": "rainbow-square-grid-bg",
+  "category": "background",
+  "status": "normalized",
+  "description": "Animated rainbow-colored square grid pattern. Colors cycle through the spectrum based on position and time, creating a vibrant grid effect.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowSquareGrid_BG.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "background",
+    "canvas",
+    "grid",
+    "rainbow",
+    "animated"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation. No media playback. Safe for all contexts."
+  },
+  "controls": [],
+  "displayMode": "full-window",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

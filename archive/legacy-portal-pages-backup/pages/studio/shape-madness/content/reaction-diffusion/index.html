@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reaction Diffusion Lab - Errl Shape Madness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030711;
+      --panel: #0c1424;
+      --ink: #dff0ff;
+      --muted: #8ca3c7;
+      --accent: #78f6ff;
+      --accent2: #ff7edb;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: radial-gradient(circle at 20% 20%, rgba(120,246,255,0.12), transparent 45%),
+                  radial-gradient(circle at 80% 0%, rgba(255,126,219,0.08), transparent 55%),
+                  var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont;
+      min-height: 100vh;
+    }
+    .wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: clamp(1rem, 4vw, 3rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      letter-spacing: -0.02em;
+      background: linear-gradient(120deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      margin: 0.6rem 0 0;
+      max-width: 580px;
+      color: var(--muted);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) 1fr;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    @media (max-width: 900px) {
+      .lab { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: rgba(12, 20, 36, 0.85);
+      border: 1px solid rgba(120, 246, 255, 0.12);
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      box-shadow: 0 20px 60px rgba(3, 7, 17, 0.5);
+      backdrop-filter: blur(12px);
+    }
+    canvas {
+      width: min(70vw, 560px);
+      max-width: 560px;
+      aspect-ratio: 1;
+      border-radius: 18px;
+      background: #040812;
+      border: 1px solid rgba(120,246,255,0.08);
+      box-shadow: 0 25px 80px rgba(9, 20, 40, 0.65);
+      display: block;
+      margin-inline: auto;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+    .control-group label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .control-group span {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(120deg, var(--accent), var(--accent2));
+      border: 2px solid #030712;
+      box-shadow: 0 0 10px rgba(120,246,255,0.4);
+      cursor: pointer;
+    }
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      background: linear-gradient(120deg, var(--accent2), var(--accent));
+      color: #030711;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(120,246,255,0.35);
+    }
+    .legend {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="hero">
+      <h1>Reaction-Diffusion Lab</h1>
+      <p>Fake Gray-Scott vibes without shaders. Seed the canvas, let the blur feedback loops breathe, and balance the high-pass + threshold to coax stripes or leopard spots.</p>
+    </div>
+    <div class="lab">
+      <div class="panel">
+        <div class="control-group">
+          <label>Seed Density <span data-label="seed">25%</span></label>
+          <input type="range" min="5" max="60" value="25" step="1" data-param="seed">
+        </div>
+        <div class="control-group">
+          <label>Blur Passes <span data-label="blur">3</span></label>
+          <input type="range" min="1" max="6" value="3" step="1" data-param="blur">
+        </div>
+        <div class="control-group">
+          <label>High-Pass <span data-label="highpass">0.038</span></label>
+          <input type="range" min="10" max="90" value="38" step="1" data-param="highpass">
+        </div>
+        <div class="control-group">
+          <label>Threshold <span data-label="threshold">0.062</span></label>
+          <input type="range" min="10" max="90" value="62" step="1" data-param="threshold">
+        </div>
+        <div class="control-group">
+          <label>Decay <span data-label="decay">0.08</span></label>
+          <input type="range" min="0" max="70" value="8" step="1" data-param="decay">
+        </div>
+        <button id="reseedBtn">Reseed Pattern</button>
+        <p class="legend">
+          - "Blur" controls how many simulation passes we run each frame.<br>
+          - High-pass/Threshold map to feed & kill rates in the Gray-Scott model.<br>
+          - Decay toggles how aggressively trails fade into the neon palette.
+        </p>
+      </div>
+      <canvas id="rdCanvas" width="640" height="640"></canvas>
+    </div>
+  </div>
+  <script>
+    const canvas = document.getElementById('rdCanvas');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+
+    function resizeCanvas() {
+      const size = canvas.clientWidth || 520;
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+    });
+
+    const GRID = 232;
+    const diffA = 1.0;
+    const diffB = 0.5;
+    const dt = 1.0;
+
+    let a = new Float32Array(GRID * GRID);
+    let b = new Float32Array(GRID * GRID);
+    let aNext = new Float32Array(GRID * GRID);
+    let bNext = new Float32Array(GRID * GRID);
+
+    const simCanvas = document.createElement('canvas');
+    simCanvas.width = simCanvas.height = GRID;
+    const simCtx = simCanvas.getContext('2d');
+    let imageData = simCtx.createImageData(GRID, GRID);
+
+    const params = {
+      seed: 25,
+      blur: 3,
+      highpass: 38,
+      threshold: 62,
+      decay: 8
+    };
+
+    const inputs = document.querySelectorAll('[data-param]');
+    inputs.forEach((input) => {
+      const key = input.dataset.param;
+      input.addEventListener('input', () => {
+        params[key] = parseFloat(input.value);
+        updateLabel(key);
+        if (key === 'seed') reseed();
+      });
+    });
+
+    function updateLabel(key) {
+      const label = document.querySelector(`[data-label="${key}"]`);
+      if (!label) return;
+      let value = params[key];
+      switch (key) {
+        case 'highpass':
+          label.textContent = feedRate().toFixed(3);
+          break;
+        case 'threshold':
+          label.textContent = killRate().toFixed(3);
+          break;
+        case 'decay':
+          label.textContent = (params.decay / 100).toFixed(2);
+          break;
+        case 'blur':
+          label.textContent = Math.round(params.blur).toString();
+          break;
+        case 'seed':
+          label.textContent = `${Math.round(params.seed)}%`;
+          break;
+        default:
+          label.textContent = value;
+      }
+    }
+    ['seed','blur','highpass','threshold','decay'].forEach(updateLabel);
+
+    document.getElementById('reseedBtn').addEventListener('click', reseed);
+
+    function feedRate() {
+      return 0.01 + (params.highpass / 1000);
+    }
+    function killRate() {
+      return 0.03 + (params.threshold / 800);
+    }
+
+    function reseed() {
+      a.fill(1);
+      b.fill(0);
+      const count = Math.floor((params.seed / 100) * GRID * 4);
+      for (let i = 0; i < count; i++) {
+        const x = Math.floor(Math.random() * GRID);
+        const y = Math.floor(Math.random() * GRID);
+        dropCircle(x, y, 6);
+      }
+    }
+
+    function dropCircle(cx, cy, radius) {
+      for (let y = -radius; y <= radius; y++) {
+        for (let x = -radius; x <= radius; x++) {
+          const dx = cx + x;
+          const dy = cy + y;
+          if (dx < 0 || dy < 0 || dx >= GRID || dy >= GRID) continue;
+          if (x * x + y * y <= radius * radius) {
+            const idx = dx + dy * GRID;
+            b[idx] = 1;
+          }
+        }
+      }
+    }
+
+    function iterate() {
+      const f = feedRate();
+      const k = killRate();
+      const passes = Math.max(1, Math.round(params.blur));
+
+      for (let pass = 0; pass < passes; pass++) {
+        for (let y = 1; y < GRID - 1; y++) {
+          for (let x = 1; x < GRID - 1; x++) {
+            const idx = x + y * GRID;
+            const aVal = a[idx];
+            const bVal = b[idx];
+
+            const lapA =
+              a[idx] * -1 +
+              0.2 * (a[idx - 1] + a[idx + 1] + a[idx - GRID] + a[idx + GRID]) +
+              0.05 * (a[idx - GRID - 1] + a[idx - GRID + 1] + a[idx + GRID - 1] + a[idx + GRID + 1]);
+            const lapB =
+              b[idx] * -1 +
+              0.2 * (b[idx - 1] + b[idx + 1] + b[idx - GRID] + b[idx + GRID]) +
+              0.05 * (b[idx - GRID - 1] + b[idx - GRID + 1] + b[idx + GRID - 1] + b[idx + GRID + 1]);
+
+            const reaction = aVal * bVal * bVal;
+            aNext[idx] = clamp(aVal + (diffA * lapA - reaction + f * (1 - aVal)) * dt);
+            bNext[idx] = clamp(bVal + (diffB * lapB + reaction - (k + f) * bVal) * dt);
+          }
+        }
+        swap();
+      }
+    }
+
+    function clamp(value) {
+      return value < 0 ? 0 : value > 1 ? 1 : value;
+    }
+
+    function swap() {
+      [a, aNext] = [aNext, a];
+      [b, bNext] = [bNext, b];
+    }
+
+    const palette = [
+      { stop: 0.0, color: [6, 11, 18] },
+      { stop: 0.35, color: [57, 111, 255] },
+      { stop: 0.63, color: [255, 118, 220] },
+      { stop: 1.0, color: [255, 240, 164] }
+    ];
+
+    function samplePalette(t) {
+      for (let i = 0; i < palette.length - 1; i++) {
+        const left = palette[i];
+        const right = palette[i + 1];
+        if (t >= left.stop && t <= right.stop) {
+          const f = (t - left.stop) / (right.stop - left.stop);
+          return [
+            lerp(left.color[0], right.color[0], f),
+            lerp(left.color[1], right.color[1], f),
+            lerp(left.color[2], right.color[2], f)
+          ];
+        }
+      }
+      return palette[palette.length - 1].color;
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function drawField() {
+      const data = imageData.data;
+      const thresholdShift = (params.threshold - 50) / 100;
+      for (let i = 0; i < a.length; i++) {
+        const v = clamp(a[i] - b[i] * 0.9 + thresholdShift);
+        const color = samplePalette(v);
+        const idx = i * 4;
+        data[idx] = color[0];
+        data[idx + 1] = color[1];
+        data[idx + 2] = color[2];
+        data[idx + 3] = 255;
+      }
+      simCtx.putImageData(imageData, 0, 0);
+      ctx.save();
+      ctx.globalAlpha = 1 - params.decay / 110;
+      ctx.drawImage(simCanvas, 0, 0, canvas.width / dpr, canvas.height / dpr);
+      ctx.restore();
+    }
+
+    function loop() {
+      iterate();
+      drawField();
+      requestAnimationFrame(loop);
+    }
+
+    reseed();
+    loop();
+  </script>
+</body>
+</html>

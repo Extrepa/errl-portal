@@ -1,0 +1,50 @@
+{
+  "name": "Rainbow Spinning Button",
+  "slug": "rainbow-spinning-button",
+  "category": "button",
+  "status": "normalized",
+  "description": "Circular button with spinning conic gradient background and goo-filtered SVG mask. Includes parallax pointer tracking and adjustable spin speed.",
+  "source": "archive/component-rips-20251112/Component_Rips/Buttons/RainbowSpinningBlackMiddle_Button_Box.html",
+  "convertedAt": "2025-11-13T00:25:05.404Z",
+  "tags": [
+    "button",
+    "svg",
+    "goo",
+    "parallax",
+    "animation"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure CSS/SVG animation with pointer tracking. Respects prefers-reduced-motion."
+  },
+  "controls": [
+    {
+      "id": "textInput",
+      "label": "Text",
+      "type": "text"
+    },
+    {
+      "id": "par",
+      "label": "Parallax",
+      "type": "range",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "id": "spd",
+      "label": "Spin Speed",
+      "type": "range",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    }
+  ],
+  "displayMode": "small-playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

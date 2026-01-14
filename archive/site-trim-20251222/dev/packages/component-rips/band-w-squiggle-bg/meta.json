@@ -1,0 +1,48 @@
+{
+  "name": "Time-Crystal Trails Background",
+  "slug": "band-w-squiggle-bg",
+  "category": "background",
+  "status": "normalized",
+  "description": "Time-crystal particle trails with difference blending mode. Particles move in circular patterns creating glowing trails that fade over time. Adjustable decay and speed controls.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/BandWSquiggle_BG.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "background",
+    "canvas",
+    "particles",
+    "trails",
+    "difference",
+    "crystal"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with particle physics and blend modes. No media playback. Safe for all contexts."
+  },
+  "controls": [
+    {
+      "id": "dec",
+      "label": "Decay",
+      "type": "range",
+      "min": 0.8,
+      "max": 0.99,
+      "step": 0.005,
+      "default": 0.9
+    },
+    {
+      "id": "spd",
+      "label": "Speed",
+      "type": "range",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.6
+    }
+  ],
+  "displayMode": "full-window",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

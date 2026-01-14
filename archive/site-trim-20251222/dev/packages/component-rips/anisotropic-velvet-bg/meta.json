@@ -1,0 +1,29 @@
+{
+  "name": "Anisotropic Velvet Background",
+  "slug": "anisotropic-velvet-bg",
+  "category": "background",
+  "status": "normalized",
+  "description": "Interactive velvet texture background with anisotropic lighting. Drag pointer to comb the velvet and change the lighting direction. Uses oriented noise sampling to create a realistic velvet texture effect.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/AnisotropicVelvet_BG.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "background",
+    "canvas",
+    "texture",
+    "interactive",
+    "velvet",
+    "anisotropic"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with procedural texture generation. No media playback. Safe for all contexts."
+  },
+  "controls": [],
+  "displayMode": "full-window",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "name": "Rainbow String Particles",
+  "slug": "rainbow-string-particles",
+  "category": "background",
+  "status": "normalized",
+  "description": "Canvas-based particle system with rainbow-colored particles connected by strings when within proximity. Adjustable particle count, connection distance, and speed. Could replace hero orbit background.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowStringParticles_BG.html",
+  "convertedAt": "2025-11-13T00:32:33.927Z",
+  "tags": [
+    "canvas",
+    "background",
+    "particles",
+    "network",
+    "rainbow"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation. No media playback. Safe for all contexts."
+  },
+  "controls": [
+    {
+      "id": "particleCount",
+      "label": "Particle Count",
+      "type": "range",
+      "min": 20,
+      "max": 100,
+      "step": 5
+    },
+    {
+      "id": "connectionDistance",
+      "label": "Connection Distance",
+      "type": "range",
+      "min": 50,
+      "max": 200,
+      "step": 10
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "type": "range",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.1
+    }
+  ],
+  "displayMode": "full-window",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

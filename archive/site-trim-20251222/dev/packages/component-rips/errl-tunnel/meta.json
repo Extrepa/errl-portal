@@ -1,0 +1,45 @@
+{
+  "name": "Errl Tunnel",
+  "slug": "errl-tunnel",
+  "category": "prop",
+  "status": "normalized",
+  "description": "Tunnel effect overlay with multiple concentric rings that zoom inward, creating a depth illusion. Useful for hero transitions and portal effects.",
+  "source": "archive/component-rips-20251112/Component_Rips/Props/Errl_Tunnel_PropSwapSVG.html",
+  "convertedAt": "2025-11-13T00:29:34.098Z",
+  "tags": [
+    "prop",
+    "svg",
+    "tunnel",
+    "overlay",
+    "transition"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure CSS animation with SVG rings. Respects prefers-reduced-motion."
+  },
+  "controls": [
+    {
+      "id": "speed",
+      "label": "Speed",
+      "type": "range",
+      "min": 2,
+      "max": 16,
+      "step": 0.5
+    },
+    {
+      "id": "ringCount",
+      "label": "Ring Count",
+      "type": "range",
+      "min": 3,
+      "max": 8,
+      "step": 1
+    }
+  ],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

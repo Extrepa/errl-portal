@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rainbow Tunnel — Background</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="controls-bar">
+          <label>
+            Outer Spin (s)
+            <input id="outerSpeed" type="range" min="10" max="80" step="1" value="40" />
+          </label>
+          <label>
+            Inner Spin (s)
+            <input id="innerSpeed" type="range" min="6" max="40" step="1" value="20" />
+          </label>
+          <label class="checkbox">
+            <input id="innerCounter" type="checkbox" checked />
+            Counter-rotate inner layer
+          </label>
+          <label>
+            Mask
+            <select id="maskSelect">
+              <option value="errl">Errl Silhouette</option>
+              <option value="circle">Circle Window</option>
+              <option value="none">Full Gradient</option>
+            </select>
+          </label>
+          <label class="checkbox">
+            <input id="tipToggle" type="checkbox" checked />
+            Show tip
+          </label>
+    </div>
+    <div class="tunnel" aria-label="Animated rainbow tunnel preview">
+      <div class="layer bg" id="layer-outer"></div>
+      <div class="layer fg" id="layer-inner"></div>
+      <div class="mask">
+        <div class="hole" id="mask-hole" aria-hidden="true"></div>
+      </div>
+      <div class="tip" id="tip" role="note">Errl becomes a counter-rotating window.</div>
+    </div>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

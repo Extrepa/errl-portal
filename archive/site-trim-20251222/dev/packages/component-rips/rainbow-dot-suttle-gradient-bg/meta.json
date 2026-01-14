@@ -1,0 +1,28 @@
+{
+  "name": "Rainbow Dot Suttle Gradient Background",
+  "slug": "rainbow-dot-suttle-gradient-bg",
+  "category": "background",
+  "status": "normalized",
+  "description": "Animated background with hexagonal dot pattern overlay and subtle rainbow gradient layers. Multiple radial gradients create depth with gentle movement.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/RainbowDotSuttleGradient_BG.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "background",
+    "gradient",
+    "dots",
+    "rainbow",
+    "animated"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure CSS background animation. No media playback. Safe for all contexts."
+  },
+  "controls": [],
+  "displayMode": "full-window",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

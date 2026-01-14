@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<!--
+  This version of the Errl loader integrates the official limb and face
+  outlines provided in the `ErrlParts.zip` archive.  The body and head
+  silhouette still come from the original loader, but the arms and legs
+  have been swapped for the authentic droopy limbs.  Likewise, the
+  simplified eyes and mouth have been replaced by the detailed eye and
+  mouth paths from the original Errl face SVG.  To position the
+  features correctly on the head, the eye and mouth paths are grouped
+  together and scaled down to fit inside the dark circular face patch.
+  A small translation centres the features within the patch.  Strokes
+  and fills have been harmonised with the rest of the loader so the
+  upgraded pieces blend in seamlessly.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Errl Loader with Original Parts</title>
+  <style>
+    /* Global background and typography */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      /* deep violet night sky with a dark horizon */
+      background: radial-gradient(circle at 30% 30%, #0a0012 0%, #fffffff 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #cfd0ff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+    }
+
+    /* Main loader container: provides relative positioning for all parts */
+    .errl-loader {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      /* Position the loader up slightly and scale it down a bit */
+      transform: translateY(-20px) scale(0.9);
+    }
+
+    /* Head: floats above the body and gently bobs */
+    .errl-head {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      left: 40%;
+      top: 20px;
+      transform-origin: 50% 70%;
+      translate: -72px 0;
+      z-index: 5;
+      animation: headBob 1s infinite ease-in-out;
+      /* Subtle glow around the head */
+      /filter: drop-shadow(0 0 10px rgba(255,255,255,0.9))
+              drop-shadow(0 0 20px rgba(171,94,255,0.6));
+    }
+
+    /* Body: simplified ellipse approximating Errl's torso. A dark fill and subtle stroke create volume. */
+.errl-body {
+      position: absolute;
+      width: 150px;
+      height: 250px;
+      left: 48%;
+      top: 40px;              /* slight lift to keep proportions */
+      translate: -75px 0;     /* half of width to remain centered */
+      z-index: 4;
+      transform-origin: 50% 20%;
+      animation: bodyBob 1s infinite ease-in-out;
+      animation-delay: 0.1s;
+      /filter: drop-shadow(0 8px 12px rgba(255,255,255,0.9))
+              drop-shadow(0 16px 32px rgba(171,94,255,0.6));
+    }
+
+    /* Arms: hang off the body and swing opposite the legs */
+    .errl-arm-left,
+    .errl-arm-right {
+      position: absolute;
+      width: 32px;
+      height: 180px;
+      top: 70px;
+      z-index: 3;
+      transform-origin: 10px 20px;
+      animation: armSwing 2.0s infinite ease-in-out;
+      filter: drop-shadow(0 4px 4px rgba(0,0,0,0.6));
+    }
+.errl-arm-left {
+      left: 47px;
+      /* left arm swings opposite left leg = offset the phase */
+      transform-origin: 10px 15px;
+      animation-delay: 1.0s;
+      height: 200px;
+      z-index: 3; /* bring viewer-left arm in front of body, under head */
+    }
+.errl-arm-right {
+      right: 50px;
+      transform-origin: 20px 20px;
+      z-index: 3; /* bring viewer-right arm in front of body, under head */
+    }
+    /* ensure limb SVGs scale to the container */
+    .errl-arm-left svg,
+    .errl-arm-right svg,
+    .errl-leg-left svg,
+    .errl-leg-right svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Legs: lower on canvas and move with a step cycle */
+    .errl-leg-left,
+    .errl-leg-right {
+      position: absolute;
+      width: 42px;
+      height: 100px;
+      top: 142px;
+      z-index: 2;
+      transform-origin: 20px 15px;
+      filter: drop-shadow(0 4px 4px rgba(0,0,0,0.8));
+    }
+    .errl-leg-left {
+      left: 55px;
+      animation: legStepL 1s infinite ease-in;
+    }
+    .errl-leg-right {
+      right: 55px;
+      animation: legStepR 1s infinite ease-in;
+      animation-delay: 0.5s;
+    }
+
+    /* Keyframes for movement */
+    @keyframes headBob {
+      0%   { transform: translateY(0px) rotate(3deg); }
+      25%  { transform: translateY(2px) rotate(0deg); }
+      50%  { transform: translateY(0px) rotate(-3deg); }
+      75%  { transform: translateY(4px) rotate(0deg); }
+      100% { transform: translateY(0px) rotate(3deg); }
+    }
+    @keyframes bodyBob {
+      0%   { transform: translateY(0px) rotate(1deg); }
+      25%  { transform: translateY(3px) rotate(0deg); }
+      50%  { transform: translateY(0px) rotate(-1deg); }
+      75%  { transform: translateY(3px) rotate(0deg); }
+      100% { transform: translateY(0px) rotate(1deg); }
+    }
+    @keyframes armSwing {
+      0%   { transform: rotate(20deg) translateY(0px); }
+      25%  { transform: rotate(0deg) translateY(-4px); }
+      50%  { transform: rotate(-10deg) translateY(0px); }
+      75%  { transform: rotate(-20deg) translateY(2px); }
+      100% { transform: rotate(20deg) translateY(0px); }
+    }
+    @keyframes legStepL {
+      0%   { transform: rotate(-10deg) translate(0px,0px); }
+      20%  { transform: rotate(25deg) translate(10px,-12px); }
+      40%  { transform: rotate(0deg) translate(5px,0px); }
+      60%  { transform: rotate(-20deg) translate(-5px,2px); }
+      100% { transform: rotate(-10deg) translate(0px,0px); }
+    }
+    @keyframes legStepR {
+      0%   { transform: rotate(10deg) translate(0px,0px); }
+      20%  { transform: rotate(-25deg) translate(-10px,-10px); }
+      40%  { transform: rotate(0deg) translate(-5px,0px); }
+      60%  { transform: rotate(20deg) translate(5px,2px); }
+      100% { transform: rotate(10deg) translate(0px,0px); }
+    }
+    @keyframes groundScroll {
+      0%   { transform: translate(30px,20px) scale(1);   opacity: 0;   }
+      10%  { opacity: 0.25; }
+      50%  { opacity: 0.25; }
+      100% { transform: translate(-80px,-60px) scale(1); opacity: 0;   }
+    }
+  </style>
+</head>
+<body>
+  <div class="errl-loader">
+    <!-- Head: white skull silhouette with dark face patch and authentic facial features -->
+    <div class="errl-head">
+      <svg viewBox="0 0 135 135" xmlns="http://www.w3.org/2000/svg">
+        <!-- Skull silhouette: proper circle for round head -->
+        <circle cx="67.5" cy="67.5" r="35" fill="#ffffff" stroke="#000000" stroke-width="2" />
+        <!-- Face patch: dark circular area within the head -->
+        <circle cx="67.5" cy="67.5" r="32" fill="#ffffff" stroke="#000000" stroke-width="0" />
+        <!-- Insert authentic eyes and mouth from the original face SVG -->
+        <!-- Outer translate nudges features within the 135x135 head space (px-like units) -->
+        <g transform="translate(7,11)">
+          <g transform="translate(26,10.1079) scale(0.065776)" fill="#000000" stroke="#e5eef7" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round">
+          <!-- Left eye path -->
+          <path d="M318 405 L317 406 L313 406 L312 407 L310 407 L309 408 L307 408 L306 409 L304 409 L303 410 L302 410 L301 411 L299 411 L298 412 L297 412 L295 414 L294 414 L293 415 L292 415 L291 416 L290 416 L287 419 L286 419 L284 421 L283 421 L281 423 L280 423 L276 427 L275 427 L270 432 L269 432 L257 444 L257 445 L252 450 L252 451 L249 454 L249 455 L246 458 L246 459 L244 461 L244 462 L242 464 L242 465 L240 467 L240 468 L238 470 L238 471 L237 472 L237 473 L236 474 L236 475 L235 476 L235 477 L233 479 L233 480 L232 481 L232 482 L231 483 L231 485 L230 486 L230 487 L229 488 L229 489 L228 490 L228 492 L227 493 L227 494 L226 495 L226 497 L225 498 L225 499 L224 500 L224 502 L223 503 L223 505 L222 506 L222 509 L221 510 L221 512 L220 513 L220 516 L219 517 L219 520 L218 521 L218 525 L217 526 L217 531 L216 532 L216 540 L215 541 L215 563 L216 564 L216 572 L217 573 L217 578 L218 579 L218 582 L219 583 L219 586 L220 587 L220 589 L221 590 L221 593 L222 594 L222 595 L223 596 L223 598 L224 599 L224 601 L225 602 L225 603 L226 604 L226 605 L227 606 L227 608 L228 609 L228 610 L229 611 L229 612 L230 613 L230 614 L231 615 L231 616 L232 617 L232 618 L233 619 L233 620 L234 621 L234 622 L235 623 L235 624 L236 625 L236 626 L237 627 L237 628 L239 630 L239 631 L240 632 L240 633 L242 635 L242 636 L244 638 L244 639 L246 641 L246 642 L248 644 L248 645 L250 647 L250 648 L253 651 L253 652 L256 655 L256 656 L260 660 L260 661 L271 672 L271 673 L276 678 L277 678 L284 685 L285 685 L288 688 L289 688 L292 691 L293 691 L296 694 L297 694 L299 696 L300 696 L301 697 L302 697 L304 699 L305 699 L306 700 L307 700 L308 701 L309 701 L310 702 L311 702 L312 703 L314 703 L315 704 L316 704 L317 705 L319 705 L320 706 L322 706 L323 707 L326 707 L327 708 L332 708 L333 709 L345 709 L346 708 L348 708 L349 707 L351 707 L352 706 L353 706 L354 705 L355 705 L356 704 L357 704 L359 702 L360 702 L369 693 L369 692 L372 689 L372 688 L375 685 L375 684 L376 683 L376 682 L377 681 L377 680 L379 678 L379 677 L380 676 L380 675 L381 674 L381 673 L382 672 L382 670 L383 669 L383 668 L384 667 L384 666 L385 665 L385 663 L386 662 L386 661 L387 660 L387 658 L388 657 L388 655 L389 654 L389 653 L390 652 L390 650 L391 649 L391 646 L392 645 L392 643 L393 642 L393 639 L394 638 L394 636 L395 635 L395 632 L396 631 L396 627 L397 626 L397 622 L398 621 L398 617 L399 616 L399 610 L400 609 L400 603 L401 602 L401 595 L402 594 L402 584 L403 583 L403 570 L404 569 L404 527 L403 526 L403 514 L402 513 L402 505 L401 504 L401 498 L400 497 L400 492 L399 491 L399 486 L398 485 L398 482 L397 481 L397 478 L396 477 L396 474 L395 473 L395 471 L394 470 L394 468 L393 467 L393 465 L392 464 L392 462 L391 461 L391 460 L390 459 L390 457 L389 456 L389 455 L388 454 L388 453 L387 452 L387 450 L386 449 L386 448 L385 447 L385 446 L384 445 L384 444 L382 442 L382 441 L381 440 L381 439 L379 437 L379 436 L378 435 L378 434 L375 431 L375 430 L369 424 L369 423 L367 421 L366 421 L361 416 L360 416 L357 413 L356 413 L355 412 L354 412 L352 410 L351 410 L350 409 L348 409 L347 408 L346 408 L345 407 L342 407 L341 406 L338 406 L337 405 Z" />
+          <!-- Right eye path -->
+          <path d="M726 396 L725 397 L719 397 L718 398 L715 398 L714 399 L711 399 L710 400 L708 400 L707 401 L706 401 L705 402 L704 402 L703 403 L702 403 L701 404 L699 404 L697 406 L696 406 L695 407 L694 407 L693 408 L692 408 L690 410 L689 410 L687 412 L686 412 L682 416 L681 416 L677 420 L676 420 L668 428 L667 428 L663 432 L663 433 L654 442 L654 443 L650 447 L650 448 L647 451 L647 452 L644 455 L644 456 L643 457 L643 458 L640 461 L640 462 L639 463 L639 464 L637 466 L637 467 L635 469 L635 470 L634 471 L634 472 L633 473 L633 474 L631 476 L631 477 L630 478 L630 479 L629 480 L629 481 L628 482 L628 483 L627 484 L627 485 L626 486 L626 487 L625 488 L625 490 L624 491 L624 492 L623 493 L623 495 L622 496 L622 497 L621 498 L621 500 L620 501 L620 503 L619 504 L619 505 L618 506 L618 508 L617 509 L617 512 L616 513 L616 515 L615 516 L615 518 L614 519 L614 522 L613 523 L613 526 L612 527 L612 531 L611 532 L611 537 L610 538 L610 544 L609 545 L609 558 L608 559 L608 566 L609 567 L609 579 L610 580 L610 586 L611 587 L611 591 L612 592 L612 595 L613 596 L613 598 L614 599 L614 602 L615 603 L615 605 L616 606 L616 608 L617 609 L617 611 L618 612 L618 613 L619 614 L619 616 L620 617 L620 618 L621 619 L621 621 L622 622 L622 623 L623 624 L623 625 L624 626 L624 627 L625 628 L625 629 L626 630 L626 632 L628 634 L628 635 L629 636 L629 637 L630 638 L630 639 L632 641 L632 642 L633 643 L633 644 L635 646 L635 647 L637 649 L637 650 L639 652 L639 653 L642 656 L642 657 L645 660 L645 661 L649 665 L649 666 L664 681 L665 681 L670 686 L671 686 L674 689 L675 689 L678 692 L679 692 L681 694 L682 694 L683 695 L684 695 L686 697 L687 697 L688 698 L689 698 L690 699 L691 699 L692 700 L693 700 L694 701 L695 701 L696 702 L697 702 L698 703 L700 703 L701 704 L703 704 L704 705 L706 705 L707 706 L710 706 L711 707 L714 707 L715 708 L720 708 L721 709 L736 709 L737 708 L740 708 L741 707 L743 707 L744 706 L746 706 L747 705 L748 705 L749 704 L750 704 L751 703 L752 703 L753 702 L754 702 L757 699 L758 699 L771 686 L771 685 L774 682 L774 681 L776 679 L776 678 L778 676 L778 675 L779 674 L779 673 L780 672 L780 671 L782 669 L782 668 L783 667 L783 666 L784 665 L784 664 L785 663 L785 662 L786 661 L786 660 L787 659 L787 658 L788 657 L788 655 L789 654 L789 653 L790 652 L790 650 L791 649 L791 647 L792 646 L792 644 L793 643 L793 642 L794 641 L794 638 L795 637 L795 635 L796 634 L796 631 L797 630 L797 628 L798 627 L798 624 L799 623 L799 620 L800 619 L800 616 L801 615 L801 611 L802 610 L802 606 L803 605 L803 600 L804 599 L804 593 L805 592 L805 585 L806 584 L806 575 L807 574 L807 557 L808 556 L808 531 L807 530 L807 514 L806 513 L806 504 L805 503 L805 497 L804 496 L804 491 L803 490 L803 486 L802 485 L802 481 L801 480 L801 477 L800 476 L800 473 L799 472 L799 469 L798 468 L798 466 L797 465 L797 463 L796 462 L796 459 L795 458 L795 457 L794 456 L794 454 L793 453 L793 451 L792 450 L792 449 L791 448 L791 446 L790 445 L790 444 L789 443 L789 442 L788 441 L788 440 L787 439 L787 438 L786 437 L786 436 L785 435 L785 434 L783 432 L783 431 L782 430 L782 429 L779 426 L779 425 L777 423 L777 422 L772 417 L772 416 L767 411 L766 411 L762 407 L761 407 L759 405 L758 405 L757 404 L756 404 L754 402 L753 402 L752 401 L750 401 L749 400 L748 400 L747 399 L745 399 L744 398 L741 398 L740 397 L734 397 L733 396 Z" />
+          <!-- Mouth path -->
+          <path d="M467 932 L466 933 L454 933 L453 934 L445 934 L444 935 L438 935 L437 936 L432 936 L431 937 L427 937 L426 938 L422 938 L421 939 L418 939 L417 940 L414 940 L413 941 L411 941 L410 942 L408 942 L407 943 L404 943 L403 944 L402 944 L401 945 L399 945 L398 946 L396 946 L395 947 L394 947 L393 948 L391 948 L390 949 L389 949 L388 950 L387 950 L386 951 L385 951 L384 952 L383 952 L382 953 L381 953 L379 955 L378 955 L376 957 L375 957 L373 959 L372 959 L361 970 L361 971 L359 973 L359 974 L358 975 L358 976 L357 977 L357 979 L356 980 L356 982 L355 983 L355 997 L356 998 L356 1001 L357 1002 L357 1003 L358 1004 L358 1006 L359 1007 L359 1008 L360 1009 L360 1010 L362 1012 L362 1013 L363 1014 L363 1015 L368 1020 L368 1021 L372 1025 L373 1025 L377 1029 L378 1029 L380 1031 L381 1031 L383 1033 L384 1033 L386 1035 L387 1035 L388 1036 L389 1036 L391 1038 L392 1038 L393 1039 L394 1039 L395 1040 L397 1040 L398 1041 L399 1041 L400 1042 L401 1042 L402 1043 L404 1043 L405 1044 L406 1044 L407 1045 L409 1045 L410 1046 L412 1046 L413 1047 L415 1047 L416 1048 L418 1048 L419 1049 L422 1049 L423 1050 L426 1050 L427 1051 L431 1051 L432 1052 L437 1052 L438 1053 L444 1053 L445 1054 L455 1054 L456 1055 L486 1055 L487 1054 L497 1054 L498 1053 L505 1053 L506 1052 L511 1052 L512 1051 L517 1051 L518 1050 L522 1050 L523 1049 L527 1049 L528 1048 L531 1048 L532 1047 L536 1047 L537 1046 L539 1046 L540 1045 L543 1045 L544 1044 L547 1044 L548 1043 L550 1043 L551 1042 L554 1042 L555 1041 L557 1041 L558 1040 L560 1040 L561 1039 L563 1039 L564 1038 L566 1038 L567 1037 L568 1037 L569 1036 L571 1036 L572 1035 L574 1035 L575 1034 L577 1034 L578 1033 L579 1033 L580 1032 L582 1032 L583 1031 L584 1031 L585 1030 L586 1030 L587 1029 L589 1029 L590 1028 L591 1028 L592 1027 L593 1027 L594 1026 L595 1026 L596 1025 L597 1025 L598 1024 L599 1024 L600 1023 L601 1023 L602 1022 L603 1022 L605 1020 L606 1020 L607 1019 L608 1019 L610 1017 L611 1017 L612 1016 L613 1016 L615 1014 L616 1014 L619 1011 L620 1011 L623 1008 L624 1008 L633 999 L633 998 L636 995 L636 994 L637 993 L637 992 L638 991 L638 990 L639 989 L639 986 L640 985 L640 980 L639 979 L639 976 L638 975 L638 974 L636 972 L636 971 L630 965 L629 965 L626 962 L625 962 L623 960 L622 960 L620 958 L619 958 L618 957 L617 957 L616 956 L615 956 L614 955 L613 955 L612 954 L611 954 L610 953 L608 953 L607 952 L606 952 L605 951 L603 951 L602 950 L600 950 L599 949 L597 949 L596 948 L594 948 L593 947 L591 947 L590 946 L587 946 L586 945 L584 945 L583 944 L580 944 L579 943 L576 943 L575 942 L572 942 L571 941 L567 941 L566 940 L562 940 L561 939 L557 939 L556 938 L551 938 L550 937 L545 937 L544 936 L537 936 L536 935 L528 935 L527 934 L517 934 L516 933 L501 933 L500 932 Z" />
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Body: uses an ellipse and small drip to capture Errl's drippy torso. -->
+    <div class="errl-body">
+      <svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+        <!-- Clean belly ellipse without the knot -->
+        <ellipse cx="65" cy="65" rx="60" ry=62 fill="#8427F5" stroke="#000000" stroke-width="2
+        " />
+      </svg>
+    </div>
+
+    <!-- Left Arm: authentic droopy limb from original SVG -->
+    <div class="errl-arm-left">
+      <svg viewBox="103.6 1227.3039073806078 149.48 395.2836468885673" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 103.60 1227.30 L103.60 1555.97 L106.56 1570.77 L119.88 1595.94 L140.60 1613.70 L165.76 1622.59 L190.92 1622.59 L210.16 1616.67 L227.92 1604.82 L239.76 1592.98 L251.60 1564.85 L253.08 1227.30 Z"
+              fill="#8427F5" stroke="#0b0d1a" stroke-width="13" stroke-linejoin="round" stroke-linecap="" />
+      </svg>
+    </div>
+
+    <!-- Right Arm: authentic droopy limb from original SVG -->
+    <div class="errl-arm-right">
+      <svg viewBox="1136.6399999999999 1227.3039073806078 127.2800000000002 485.5918958031839" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 1136.64 1227.30 L1136.64 1578.17 L1139.60 1664.04 L1142.56 1674.40 L1149.96 1686.25 L1166.24 1702.53 L1179.56 1709.93 L1207.68 1712.90 L1221.00 1709.93 L1235.80 1702.53 L1253.56 1683.29 L1260.96 1668.48 L1262.44 1658.12 L1263.92 1227.30 Z"
+              fill="#8427F5" stroke="#0b0d1a" stroke-width="13" stroke-linejoin="round" stroke-linecap="" />
+      </svg>
+    </div>
+
+    <!-- Left Leg: authentic droopy appendage stepping forward/back -->
+    <div class="errl-leg-left">
+      <svg viewBox="293.04 1227.3039073806078 281.2 787.6063675832129" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 293.04 1227.30 L293.04 1561.89 L298.96 1894.99 L301.92 1917.20 L319.68 1954.21 L328.56 1966.05 L353.72 1989.74 L390.72 2008.99 L418.84 2014.91 L452.88 2014.91 L467.68 2011.95 L489.88 2004.55 L516.52 1989.74 L541.68 1966.05 L560.92 1937.93 L572.76 1900.91 L574.24 1227.30 Z"
+              fill="#8427F5" stroke="#0b0d1a" stroke-width="15" stroke-linejoin="round" stroke-linecap="" />
+      </svg>
+    </div>
+
+    <!-- Right Leg: authentic droopy appendage stepping forward/back -->
+    <div class="errl-leg-right">
+      <svg viewBox="871.72 1227.3039073806078 227.92000000000007 818.6960926193922" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 871.72 1227.30 L871.72 1678.85 L874.68 1766.19 L874.68 1912.76 L877.64 1967.54 L883.56 1985.30 L890.96 1998.63 L905.76 2016.39 L922.04 2029.71 L939.80 2038.60 L962.00 2044.52 L1031.56 2046.00 L1058.20 2032.68 L1075.96 2013.43 L1090.76 1982.34 L1096.68 1958.65 L1099.64 1769.15 L1099.64 1227.30 Z"
+              fill="#8427F5" stroke="#0b0d1a" stroke-width="15" stroke-linejoin="round" stroke-linecap="" />
+            </svg>
+        </div>
+    </div>
+</body>
+</html>

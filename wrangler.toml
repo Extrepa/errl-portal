@@ -1,0 +1,22 @@
+# Cloudflare Pages / Wrangler configuration
+# This file is optional - Cloudflare Pages can be configured via dashboard
+# Use this if deploying via Wrangler CLI or GitHub Actions
+
+name = "errl-portal"
+compatibility_date = "2024-01-01"
+
+[env.production]
+name = "errl-portal"
+
+# Pages configuration
+pages_build_output_dir = "dist"
+
+# Build configuration (if using Wrangler for builds)
+# Note: Cloudflare Pages typically handles builds via dashboard settings
+[build]
+command = "npm run portal:build"
+cwd = "."
+
+# Environment variables (set in Cloudflare dashboard or via CLI)
+# [vars]
+# EXAMPLE_VAR = "value"

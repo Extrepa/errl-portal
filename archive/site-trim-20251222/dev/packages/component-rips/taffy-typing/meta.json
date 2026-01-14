@@ -1,0 +1,41 @@
+{
+  "name": "Taffy Typing",
+  "slug": "taffy-typing",
+  "category": "text",
+  "status": "normalized",
+  "description": "SVG text path with draggable control handles for taffy-stretching effects. Includes goo filter and gradient fill.",
+  "source": "archive/component-rips-20251112/Component_Rips/Text/TaffyTyping_Text.html",
+  "convertedAt": "2025-11-12T22:01:07.421Z",
+  "tags": [
+    "text",
+    "svg",
+    "interactive",
+    "goo"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure SVG manipulation. No media or external dependencies."
+  },
+  "controls": [
+    {
+      "id": "textInput",
+      "label": "Text",
+      "type": "text"
+    },
+    {
+      "id": "fontSize",
+      "label": "Font Size",
+      "type": "range",
+      "min": 60,
+      "max": 150,
+      "step": 1
+    }
+  ],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Purple Smile Hover Confetti Button",
+  "slug": "purple-smile-hover-confetti-button",
+  "category": "button",
+  "status": "normalized",
+  "description": "Purple smile button that emits rainbow confetti particles on hover. Confetti particles spawn from button center with physics-based movement. Continuous confetti stream while hovering.",
+  "source": "archive/component-rips-20251112/Component_Rips/Buttons/PurpleSmileHoverConfetti_Button.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "button",
+    "canvas",
+    "confetti",
+    "hover",
+    "interactive",
+    "particles"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with confetti particles. No media playback. Safe for all contexts."
+  },
+  "controls": [],
+  "displayMode": "small-playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

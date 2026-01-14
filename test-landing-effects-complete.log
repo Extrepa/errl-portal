@@ -1,0 +1,29 @@
+[WebServer] 
+[WebServer]   VITE v7.3.1  ready in 78 ms
+[WebServer] 
+[WebServer]   ➜  Local:   http://127.0.0.1:5173/
+[WebServer] [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+Running 15 tests using 1 worker
+
+(node:30188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/landing-effects.spec.ts:165:3 › Landing Page Effects Tests › Page loads and initial state is correct (5.4s)
+  ✓   2 tests/landing-effects.spec.ts:200:3 › Landing Page Effects Tests › Control panel UI positioning is correct (3.4s)
+  ✓   3 tests/landing-effects.spec.ts:257:3 › Landing Page Effects Tests › Tab navigation works correctly (6.2s)
+  ✓   4 tests/landing-effects.spec.ts:283:3 › Landing Page Effects Tests › Rising Bubbles (RB) basic controls work (5.9s)
+  ✓   5 tests/landing-effects.spec.ts:315:3 › Landing Page Effects Tests › Rising Bubbles (RB) advanced controls work (6.7s)
+  ✓   6 tests/landing-effects.spec.ts:357:3 › Landing Page Effects Tests › GL Particles (GLB) controls work (4.9s)
+  ✓   7 tests/landing-effects.spec.ts:391:3 › Landing Page Effects Tests › Errl controls work (7.3s)
+  ✓   8 tests/landing-effects.spec.ts:427:3 › Landing Page Effects Tests › Navigation Bubbles (Nav) controls work (7.5s)
+  ✓   9 tests/landing-effects.spec.ts:477:3 › Landing Page Effects Tests › HUD controls work (4.6s)
+  ✓  10 tests/landing-effects.spec.ts:498:3 › Landing Page Effects Tests › Hue controls work (6.5s)
+  ✓  11 tests/landing-effects.spec.ts:533:3 › Landing Page Effects Tests › Viewport and positioning edge cases (5.5s)
+  ✓  12 tests/landing-effects.spec.ts:620:3 › Landing Page Effects Tests › Interactive functionality - sliders (3.9s)
+  ✓  13 tests/landing-effects.spec.ts:644:3 › Landing Page Effects Tests › Interactive functionality - checkboxes (4.0s)
+  ✓  14 tests/landing-effects.spec.ts:661:3 › Landing Page Effects Tests › Interactive functionality - buttons (5.0s)
+  ✓  15 tests/landing-effects.spec.ts:680:3 › Landing Page Effects Tests › Performance and visual stability (6.2s)
+
+  15 passed (1.4m)

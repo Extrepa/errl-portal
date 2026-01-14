@@ -1,0 +1,4 @@
+<!doctype html><meta charset="utf-8"><title>SVG Moiré Kaleido</title>
+<style>html,body{height:100%;margin:0;background:#050816;display:grid;place-items:center}</style>
+<svg viewBox="-200 -200 400 400" width="90%" style="max-width:780px"><defs><pattern id=grid width=16 height=16 patternUnits=userSpaceOnUse><path d="M0 0 H16 M0 0 V16" fill=none stroke="#7cf0ff33"/></pattern></defs><g id=a><rect x=-200 y=-200 width=400 height=400 fill="url(#grid)"/></g><g id=b><rect x=-200 y=-200 width=400 height=400 fill="url(#grid)"/></g></svg>
+<script>const A=document.getElementById('a'),B=document.getElementById('b');let t=0;(function loop(){t+=.016;A.setAttribute('transform','rotate('+(t*50)+') scale(1)');B.setAttribute('transform','rotate('+(-t*40)+') scale(1.03)');requestAnimationFrame(loop)})()</script>

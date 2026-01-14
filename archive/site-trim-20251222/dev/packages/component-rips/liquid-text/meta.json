@@ -1,0 +1,29 @@
+{
+  "name": "Liquid Text",
+  "slug": "liquid-text",
+  "category": "text",
+  "status": "normalized",
+  "description": "Liquid headline animation with adjustable amplitude, velocity, drift, and color for hero typography experiments.",
+  "source": "archive/component-rips-20251112/Component_Rips/Text/LiquidText_Text.html",
+  "convertedAt": "2025-11-12T19:50:51.708Z",
+  "tags": ["text", "animation", "hero"],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "CSS + JS animation only. Respects prefers-reduced-motion (animation pauses when enabled)."
+  },
+  "controls": [
+    { "id": "textInput", "label": "Text", "type": "text" },
+    { "id": "amplitude", "label": "Amplitude", "type": "range", "min": 0, "max": 60, "step": 1 },
+    { "id": "velocity", "label": "Velocity", "type": "range", "min": 0.4, "max": 3, "step": 0.1 },
+    { "id": "drift", "label": "Drift", "type": "range", "min": 0, "max": 18, "step": 1 },
+    { "id": "color", "label": "Color", "type": "color" },
+    { "id": "randomize", "label": "Randomize", "type": "button" }
+  ],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

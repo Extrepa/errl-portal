@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bubbling Rainbow Rings — Cursor FX</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="controls-bar">
+      <label>
+        Density
+        <input id="density" type="range" min="5" max="40" value="18" />
+      </label>
+      <label>
+        Trail Fade
+        <input id="fade" type="range" min="0.7" max="0.98" step="0.01" value="0.9" />
+      </label>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div class="hint-overlay">
+      <p>Move cursor or touch to paint rainbow rings</p>
+    </div>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

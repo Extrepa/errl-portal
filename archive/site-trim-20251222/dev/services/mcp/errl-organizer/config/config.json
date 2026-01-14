@@ -1,0 +1,50 @@
+{
+  "brand": "Errl Organizer",
+  "local_only": true,
+  "paths": {
+    "obsidian_vault": "/Users/extrepa/Documents/Errl-Vault",
+    "inbox": "/Users/extrepa/Downloads/Errl-Inbox",
+    "site_src": "/Users/extrepa/Projects/errl-portal",
+    "trash": "/Users/extrepa/Errl/Trash",
+    "quarantine": "/Users/extrepa/Errl/Quarantine",
+    "logs": "/Users/extrepa/Errl/Logs",
+    "library": "/Users/extrepa/Errl/Library",
+    "snapshots": "/Users/extrepa/Errl/Snapshots"
+  },
+  "services": {
+    "meilisearch_url": "http://127.0.0.1:7700",
+    "meilisearch_master_key": "ERRL_MEILI_DEV_CHANGE_ME",
+    "qdrant_url": "http://127.0.0.1:6333",
+    "tei_url": "http://127.0.0.1:8080",
+    "clip_url": "http://127.0.0.1:9090",
+    "ocr_worker_url": "http://127.0.0.1:8070",
+    "playwright_base_url": "http://127.0.0.1:8099"
+  },
+  "privacy": {
+    "allow_external": false
+  },
+  "rename": {
+    "style": "kebab-case",
+    "stem_prefix": "errl",
+    "hash_suffix_bytes": 4
+  },
+  "organize": {
+    "layout": "type/year/month",
+    "dedupe": {
+      "strategy": "phash",
+      "prefer_newer": true,
+      "exact_action": "quarantine",
+      "phash_distance_threshold": 8
+    },
+    "tag_sidecar": "json"
+  },
+  "watchers": {
+    "enabled": true,
+    "debounce_ms": 500
+  },
+  "openai": {
+    "enabled": true,
+    "model": "gpt-4o-mini",
+    "api_key_env": "OPENAI_API_KEY"
+  }
+}

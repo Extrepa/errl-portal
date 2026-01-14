@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Moire Melt Prop</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div id="component-root">
+      <div class="layer">
+        <img id="A" src="../../../../archive/component-rips-20251112/Component_Rips/errl.png" alt="Errl" />
+      </div>
+      <div class="layer">
+        <img id="B" src="../../../../archive/component-rips-20251112/Component_Rips/errl.png" alt="Errl" style="mix-blend-mode: difference" />
+      </div>
+    </div>
+    <div class="controls" id="controls">
+      <label>
+        <span>Offset:</span>
+        <input id="off" type="range" min="-40" max="40" value="12" />
+      </label>
+      <label>
+        <span>Rotate:</span>
+        <input id="rot" type="range" min="-10" max="10" value="3" />
+      </label>
+      <label>
+        <span>Pulse:</span>
+        <input id="pul" type="range" min="0" max="1" step="0.01" value="0.6" />
+      </label>
+    </div>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
+

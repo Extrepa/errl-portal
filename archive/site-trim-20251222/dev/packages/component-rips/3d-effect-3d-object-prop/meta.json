@@ -1,0 +1,27 @@
+{
+  "name": "3d Effect 3d Object Prop",
+  "slug": "3d-effect-3d-object-prop",
+  "category": "module",
+  "status": "extracted",
+  "description": "Component extracted from Framer export using browser automation. Code extracted from Framer scripts.",
+  "source": "archive/component-rips-20251112/Component_Rips/Props/3DEffect_3DObject_Prop.html",
+  "convertedAt": "2025-11-13T06:54:00.320Z",
+  "tags": [
+    "module",
+    "canvas",
+    "framer-export",
+    "browser-extracted"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Code extracted via browser automation. Review for dependencies."
+  },
+  "controls": [],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

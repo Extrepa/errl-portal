@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystery Mansion Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #e6e6e6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(10, 15, 30, 0.85);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 2px solid #4cc9f0;
+            margin-top: 20px;
+        }
+        
+        header {
+            background: linear-gradient(to right, #0f3460, #1a1a2e);
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 2px solid #4cc9f0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #f72585;
+            text-shadow: 0 0 10px rgba(247, 37, 133, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .room-container {
+            position: relative;
+            height: 400px;
+            background: #0d1b2a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 2px solid #4cc9f0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .room-image {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .room-image:hover {
+            transform: scale(1.02);
+        }
+        
+        .room-name {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            border: 1px solid #4cc9f0;
+        }
+        
+        .inventory {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(20, 30, 50, 0.7);
+            border-radius: 10px;
+            border: 1px solid #4cc9f0;
+        }
+        
+        .inventory-item {
+            background: #0f3460;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #4cc9f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .inventory-item:hover {
+            background: #4cc9f0;
+            color: #0d1b2a;
+            transform: translateY(-3px);
+        }
+        
+        .inventory-item.used {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(to right, #f72585, #b5179e);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            text-align: center;
+            border: 2px solid #f72585;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .story-text {
+            background: rgba(20, 30, 50, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #4cc9f0;
+            min-height: 120px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .story-text p {
+            margin-bottom: 15px;
+        }
+        
+        .story-text p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .instructions {
+            background: rgba(20, 30, 50, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #4cc9f0;
+            font-size: 0.9rem;
+        }
+        
+        .instructions h3 {
+            color: #4cc9f0;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            color: #f72585;
+            font-weight: bold;
+        }
+        
+        .object {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 5px;
+        }
+        
+        .object:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        
+        .object.interactive {
+            border: 2px solid #f72585;
+            box-shadow: 0 0 10px rgba(247, 37, 133, 0.7);
+        }
+        
+        .object.locked {
+            border: 2px dashed #f72585;
+        }
+        
+        .object.taken {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .object.taken:hover {
+            transform: none;
+        }
+        
+        .object-name {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        
+        .object:hover .object-name {
+            display: block;
+        }
+        
+        .object:not(:hover) .object-name {
+            display: none;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: rgba(10, 15, 30, 0.9);
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid #4cc9f0;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-icon {
+            color: #4cc9f0;
+        }
+        
+        .win-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .win-screen h2 {
+            font-size: 3rem;
+            color: #f72585;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(247, 37, 133, 0.7);
+        }
+        
+        .win-screen p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        .restart-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, #4cc9f0, #4361ee);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(67, 97, 238, 0.7);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .room-container {
+                height: 300px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>Mystery Mansion Adventure</h1>
+            <p class="subtitle">A point-and-click adventure game</p>
+        </header>
+        
+        <div class="game-content">
+            <div class="story-text" id="storyText">
+                <p>You wake up in a dimly lit mansion. The door behind you is locked, and you can't remember how you got here. You must explore the mansion to find clues and solve puzzles to escape.</p>
+                <p>You are in the <span class="highlight">Entrance Hall</span>. The room is filled with old furniture and mysterious artifacts. There's a <span class="highlight">door</span> to the left, a <span class="highlight">painting</span> on the wall, and a <span class="highlight">key</span> on the table.</p>
+            </div>
+            
+            <div class="room-container">
+                <div class="room-image" id="roomImage" style="background-image: url('https://images.unsplash.com/photo-1592194996040-0a514412c52e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80');">
+                    <div class="room-name">Entrance Hall</div>
+                    <div class="object interactive" style="top: 30%; left: 20%; width: 80px; height: 120px;" data-id="door">
+                        <div class="object-name">Door</div>
+                    </div>
+                    <div class="object interactive" style="top: 20%; left: 60%; width: 100px; height: 150px;" data-id="painting">
+                        <div class="object-name">Painting</div>
+                    </div>
+                    <div class="object interactive" style="top: 60%; left: 40%; width: 40px; height: 40px;" data-id="key">
+                        <div class="object-name">Key</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="inventory">
+                <div class="inventory-item" id="inventoryKey">Key (not taken)</div>
+                <div class="inventory-item" id="inventoryBook">Book (not taken)</div>
+                <div class="inventory-item" id="inventoryCandle">Candle (not taken)</div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" id="lookBtn">Look Around</button>
+                <button class="btn" id="takeBtn">Take Item</button>
+                <button class="btn" id="useBtn">Use Item</button>
+                <button class="btn" id="helpBtn">Help</button>
+            </div>
+            
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-icon">🔑</span>
+                    <span>Items: <span id="itemCount">0</span>/3</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">🔍</span>
+                    <span>Room: <span id="currentRoom">Entrance Hall</span></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">🧩</span>
+                    <span>Puzzles: <span id="puzzleCount">0</span>/3</span>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3>How to Play</h3>
+                <ul>
+                    <li><span class="highlight">Click on objects</span> to examine them</li>
+                    <li><span class="highlight">Take items</span> to add them to your inventory</li>
+                    <li><span class="highlight">Use items</span> to solve puzzles</li>
+                    <li>Find the <span class="highlight">key</span> to unlock the door</li>
+                    <li>Collect all items to escape the mansion</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="win-screen hidden" id="winScreen">
+        <h2>Congratulations!</h2>
+        <p>You've successfully escaped the mysterious mansion! You collected all the items and solved the puzzles. Your adventure is complete.</p>
+        <button class="restart-btn" id="restartBtn">Play Again</button>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            currentRoom: 'entrance',
+            inventory: [],
+            puzzles: {
+                door: false,
+                painting: false,
+                key: false
+            },
+            items: {
+                key: { taken: false, description: "A rusty old key" },
+                book: { taken: false, description: "An ancient book with strange symbols" },
+                candle: { taken: false, description: "A wax candle with mysterious markings" }
+            },
+            roomDescriptions: {
+                entrance: {
+                    name: "Entrance Hall",
+                    description: "You are in the entrance hall of a mysterious mansion. The room is filled with old furniture and mysterious artifacts. There's a door to the left, a painting on the wall, and a key on the table.",
+                    objects: {
+                        door: { name: "Door", description: "A heavy wooden door. It's locked." },
+                        painting: { name: "Painting", description: "A large painting of a landscape. There seems to be something hidden behind it." },
+                        key: { name: "Key", description: "A rusty old key on the table." }
+                    }
+                },
+                library: {
+                    name: "Library",
+                    description: "You've entered a dusty library filled with ancient books. There's a bookshelf, a reading table, and a candle on the desk.",
+                    objects: {
+                        bookshelf: { name: "Bookshelf", description: "A tall bookshelf filled with old books. One book seems to glow faintly." },
+                        table: { name: "Table", description: "A wooden table with a candle on it." },
+                        candle: { name: "Candle", description: "A wax candle with mysterious markings." }
+                    }
+                },
+                study: {
+                    name: "Study",
+                    description: "This is a study with a large desk, a chair, and a locked drawer. There's a book on the desk.",
+                    objects: {
+                        desk: { name: "Desk", description: "A large wooden desk with a drawer." },
+                        drawer: { name: "Drawer", description: "A locked drawer. It requires a key to open." },
+                        book: { name: "Book", description: "A book with a strange symbol on the cover." }
+                    }
+                }
+            }
+        };
+
+        // DOM Elements
+        const storyText = document.getElementById('storyText');
+        const roomImage = document.getElementById('roomImage');
+        const inventoryItems = document.querySelectorAll('.inventory-item');
+        const lookBtn = document.getElementById('lookBtn');
+        const takeBtn = document.getElementById('takeBtn');
+        const useBtn = document.getElementById('useBtn');
+        const helpBtn = document.getElementById('helpBtn');
+        const winScreen = document.getElementById('winScreen');
+        const restartBtn = document.getElementById('restartBtn');
+        const itemCount = document.getElementById('itemCount');
+        const currentRoom = document.getElementById('currentRoom');
+        const puzzleCount = document.getElementById('puzzleCount');
+
+        // Initialize game
+        function initGame() {
+            updateUI();
+            setupEventListeners();
+        }
+
+        // Update UI based on game state
+        function updateUI() {
+            const room = gameState.roomDescriptions[gameState.currentRoom];
+            currentRoom.textContent = room.name;
+            itemCount.textContent = gameState.inventory.length;
+            
+            // Update inventory display
+            inventoryItems.forEach(item => {
+                const itemId = item.id.replace('inventory', '').toLowerCase();
+                if (gameState.inventory.includes(itemId)) {
+                    item.textContent = itemId.charAt(0).toUpperCase() + itemId.slice(1) + ' (taken)';
+                    item.style.backgroundColor = '#4CAF50';
+                } else {
+                    item.textContent = itemId.charAt(0).toUpperCase() + itemId.slice(1) + ' (not taken)';
+                    item.style.backgroundColor = '#f1f1f1';
+                }
+            });
+            
+            // Update story text
+            storyText.innerHTML = `<p>${room.description}</p>`;
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Object click events
+            document.querySelectorAll('.object').forEach(obj => {
+                obj.addEventListener('click', function() {
+                    const objId = this.getAttribute('data-id');
+                    handleObjectClick(objId);
+                });
+            });
+            
+            // Button events
+            lookBtn.addEventListener('click', handleLook);
+            takeBtn.addEventListener('click', handleTake);
+            useBtn.addEventListener('click', handleUse);
+            helpBtn.addEventListener('click', showHelp);
+            restartBtn.addEventListener('click', restartGame);
+        }
+
+        // Handle object click
+        function handleObjectClick(objId) {
+            const room = gameState.roomDescriptions[gameState.currentRoom];
+            const obj = room.objects[objId];
+            
+            if (obj) {
+                storyText.innerHTML = `<p>You examine the ${obj.name}. ${obj.description}</p>`;
+                
+                if (objId === 'door' && !gameState.puzzles.door) {
+                    if (gameState.inventory.includes('key')) {
+                        storyText.innerHTML += `<p>You use the key to unlock the door! You escaped the mansion!</p>`;
+                        gameState.puzzles.door = true;
+                        checkWinCondition();
+                    } else {
+                        storyText.innerHTML += `<p>The door is locked. You need a key to open it.</p>`;
+                    }
+                }
+            }
+        }
+
+        // Handle look around
+        function handleLook() {
+            const room = gameState.roomDescriptions[gameState.currentRoom];
+            storyText.innerHTML = `<p>You look around the ${room.name}. ${room.description}</p>`;
+        }
+
+        // Handle take item
+        function handleTake() {
+            const room = gameState.roomDescriptions[gameState.currentRoom];
+            const obj = room.objects.key; // For demo, we'll just take the key
+            
+            if (obj && obj.name === 'Key') {
+                if (!gameState.inventory.includes('key')) {
+                    gameState.inventory.push('key');
+                    gameState.items.key.taken = true;
+                    storyText.innerHTML = `<p>You take the key. It's now in your inventory.</p>`;
+                    updateUI();
+                } else {
+                    storyText.innerHTML = `<p>You already have the key.</p>`;
+                }
+            } else {
+                storyText.innerHTML = `<p>There's nothing to take here.</p>`;
+            }
+        }
+
+        // Handle use item
+        function handleUse() {
+            if (gameState.inventory.length === 0) {
+                storyText.innerHTML = `<p>You have no items to use.</p>`;
+                return;
+            }
+            
+            if (gameState.inventory.includes('key') && !gameState.puzzles.door) {
+                storyText.innerHTML = `<p>You use the key to unlock the door! You escaped the mansion!</p>`;
+                gameState.puzzles.door = true;
+                checkWinCondition();
+            } else {
+                storyText.innerHTML = `<p>You use an item, but nothing happens.</p>`;
+            }
+        }
+
+        // Show help
+        function showHelp() {
+            storyText.innerHTML = `<p><strong>How to Play:</strong></p>
+            <p>• Click on objects to examine them</p>
+            <p>• Take items to add them to your inventory</p>
+            <p>• Use items to solve puzzles</p>
+            <p>• Find the key to unlock the door</p>
+            <p>• Collect all items to escape the mansion</p>`;
+        }
+
+        // Check win condition
+        function checkWinCondition() {
+            if (gameState.puzzles.door) {
+                setTimeout(() => {
+                    winScreen.classList.remove('hidden');
+                }, 1000);
+            }
+        }
+
+        // Restart game
+        function restartGame() {
+            gameState.currentRoom = 'entrance';
+            gameState.inventory = [];
+            gameState.puzzles = {
+                door: false,
+                painting: false,
+                key: false
+            };
+            gameState.items = {
+                key: { taken: false, description: "A rusty old key" },
+                book: { taken: false, description: "An ancient book with strange symbols" },
+                candle: { taken: false, description: "A wax candle with mysterious markings" }
+            };
+            
+            winScreen.classList.add('hidden');
+            updateUI();
+        }
+
+        // Initialize the game when the page loads
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

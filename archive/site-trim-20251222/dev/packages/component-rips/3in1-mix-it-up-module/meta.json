@@ -1,0 +1,57 @@
+{
+  "name": "3in1 Mix It Up Module",
+  "slug": "3in1-mix-it-up-module",
+  "category": "module",
+  "status": "normalized",
+  "description": "Three-in-one interactive module featuring Ripple (height-field water simulation), Kaleido (kaleidoscope pattern generator), and Moiré (rotating pattern effect). Switch between modes with buttons or keyboard shortcuts (1/2/3). Press G for glow effect, R to reset.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/3in1MixItUp_Module.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "module",
+    "canvas",
+    "svg",
+    "ripple",
+    "kaleidoscope",
+    "moire",
+    "interactive",
+    "multi-mode"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas and SVG animations. No media playback. Safe for all contexts. Ripple effect responds to pointer interaction."
+  },
+  "controls": [
+    {
+      "id": "tab-ripple",
+      "label": "Ripple Mode",
+      "type": "button",
+      "description": "Switch to ripple water simulation mode"
+    },
+    {
+      "id": "tab-kaleido",
+      "label": "Kaleido Mode",
+      "type": "button",
+      "description": "Switch to kaleidoscope pattern mode"
+    },
+    {
+      "id": "tab-moire",
+      "label": "Moiré Mode",
+      "type": "button",
+      "description": "Switch to moiré pattern mode"
+    }
+  ],
+  "keyboard": {
+    "1": "Switch to Ripple mode",
+    "2": "Switch to Kaleido mode",
+    "3": "Switch to Moiré mode",
+    "G": "Toggle glow effect",
+    "R": "Reload page"
+  },
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

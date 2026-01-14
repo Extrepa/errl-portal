@@ -1,0 +1,29 @@
+{
+  "name": "Chrono-Quilt",
+  "slug": "chrono-rainbow-trip-slink-module",
+  "category": "module",
+  "status": "normalized",
+  "description": "Temporal quilt effect showing different moments of the same animated scene. The canvas is divided into a grid where each tile displays a different frame from a time buffer, creating a mesmerizing quilt pattern of rainbow circles.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/ChronoRainbowTripSlink_Module_Prop.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "module",
+    "canvas",
+    "temporal",
+    "quilt",
+    "time-buffer",
+    "rainbow"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with temporal buffer effects. Respects prefers-reduced-motion."
+  },
+  "controls": [],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

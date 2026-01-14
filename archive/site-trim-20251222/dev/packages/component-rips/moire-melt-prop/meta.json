@@ -1,0 +1,56 @@
+{
+  "name": "Moire Melt Prop",
+  "slug": "moire-melt-prop",
+  "category": "prop",
+  "status": "normalized",
+  "description": "Moire pattern effect using two overlapping images with difference blend mode. Adjustable offset, rotation, and pulse intensity create dynamic moire interference patterns.",
+  "source": "archive/component-rips-20251112/Component_Rips/Props/MoireMeltProp_Meh.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "prop",
+    "image",
+    "moire",
+    "blend-mode",
+    "interference"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure CSS animation with blend modes and transforms. No media playback. Safe for all contexts."
+  },
+  "controls": [
+    {
+      "id": "off",
+      "label": "Offset",
+      "type": "range",
+      "min": -40,
+      "max": 40,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "id": "rot",
+      "label": "Rotate",
+      "type": "range",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "id": "pul",
+      "label": "Pulse",
+      "type": "range",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.6
+    }
+  ],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

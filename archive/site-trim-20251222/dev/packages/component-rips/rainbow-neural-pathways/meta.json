@@ -1,0 +1,48 @@
+{
+  "name": "Rainbow Neural Pathways",
+  "slug": "rainbow-neural-pathways",
+  "category": "module",
+  "status": "normalized",
+  "description": "Interactive particle network with rainbow gradients, pointer attraction, gravity drift, and controllable edge density.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/RainbowNeuralPathways_Module.html",
+  "convertedAt": "2025-11-12T18:45:57.897Z",
+  "tags": [
+    "particles",
+    "interactive",
+    "module"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Canvas animation only. Pointer/touch interactions gated by standard pointer events."
+  },
+  "controls": [
+    {
+      "id": "frequency",
+      "label": "Spark Frequency",
+      "type": "range",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "id": "radius",
+      "label": "Connection Range",
+      "type": "range",
+      "min": 80,
+      "max": 220,
+      "step": 5
+    },
+    {
+      "id": "gravity",
+      "label": "Enable Gravity Drift",
+      "type": "checkbox"
+    }
+  ],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

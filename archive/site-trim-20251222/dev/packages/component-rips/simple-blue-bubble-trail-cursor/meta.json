@@ -1,0 +1,53 @@
+{
+  "name": "Simple Blue Bubble Trail Cursor",
+  "slug": "simple-blue-bubble-trail-cursor",
+  "category": "cursor",
+  "status": "normalized",
+  "description": "Simple blue-to-cyan bubble trail cursor effect with spring physics. Beads follow pointer movement with adjustable count, drag, and size. Rebuilt from Framer export as standalone canvas implementation.",
+  "source": "archive/component-rips-20251112/Component_Rips/Cursors/SimpleBlueBubbleTrail_Cursor.html",
+  "convertedAt": "2025-11-13T01:27:19.532Z",
+  "tags": [
+    "cursor",
+    "canvas",
+    "physics",
+    "spring",
+    "blue"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with spring physics. No media playback. Safe for all contexts."
+  },
+  "controls": [
+    {
+      "id": "count",
+      "label": "Beads",
+      "type": "range",
+      "min": 12,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "id": "drag",
+      "label": "Drag",
+      "type": "range",
+      "min": 0.75,
+      "max": 0.995,
+      "step": 0.001
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "type": "range",
+      "min": 3,
+      "max": 12,
+      "step": 1
+    }
+  ],
+  "displayMode": "full-window",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

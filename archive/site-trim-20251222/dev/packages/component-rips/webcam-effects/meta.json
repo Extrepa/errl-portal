@@ -1,0 +1,47 @@
+{
+  "name": "WebCam Effects",
+  "slug": "webcam-effects",
+  "category": "module",
+  "status": "normalized",
+  "description": "Permission-gated webcam playground with RGB split, glitch trails, and monochrome bloom effects. Includes capture gallery.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/WebCam_Effects_Module.html",
+  "convertedAt": "2025-11-12T18:46:01.273Z",
+  "tags": [
+    "webcam",
+    "effects",
+    "module"
+  ],
+  "safety": {
+    "audio": false,
+    "video": true,
+    "camera": true,
+    "notes": "Camera access only requested after explicit button press. Video remains muted."
+  },
+  "controls": [
+    {
+      "id": "toggle",
+      "label": "Enable Webcam",
+      "type": "button"
+    },
+    {
+      "id": "mode",
+      "label": "Effect Mode",
+      "type": "select",
+      "options": [
+        "RGB Split",
+        "Glitch Trails",
+        "Monochrome Bloom"
+      ]
+    },
+    {
+      "id": "snapshot",
+      "label": "Capture Frame",
+      "type": "button"
+    }
+  ],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

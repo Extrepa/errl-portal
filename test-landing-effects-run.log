@@ -1,0 +1,16 @@
+[WebServer] 
+[WebServer] > errl-portal@0.0.1 dev
+[WebServer] > npm run portal:dev
+[WebServer] 
+[WebServer] 
+[WebServer] > errl-portal@0.0.1 portal:dev
+[WebServer] > vite
+[WebServer] 
+[WebServer] Port 5173 is in use, trying another one...
+[WebServer] Port 5174 is in use, trying another one...
+[WebServer] 
+[WebServer]   VITE v7.3.1  ready in 79 ms
+[WebServer] 
+[WebServer]   ➜  Local:   http://localhost:5175/
+[WebServer]   ➜  Network: use --host to expose
+[WebServer] [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`

@@ -1,0 +1,1 @@
+import{UOJVvh195_default as e,__FramerMetadata__$2 as t,init_UOJVvh195 as n}from"./shared-lib.BrWrSzBp.mjs";n();export{t as __FramerMetadata__,e as default};

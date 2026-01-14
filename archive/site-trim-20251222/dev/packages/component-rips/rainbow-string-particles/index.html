@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rainbow String Particles</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div id="component-root">
+      <canvas id="canvas"></canvas>
+    </div>
+    <div class="controls" id="controls">
+      <label>
+        <span>Particle Count:</span>
+        <input type="range" id="particleCount" min="20" max="100" step="5" value="50" />
+      </label>
+      <label>
+        <span>Connection Distance:</span>
+        <input type="range" id="connectionDistance" min="50" max="200" step="10" value="120" />
+      </label>
+      <label>
+        <span>Speed:</span>
+        <input type="range" id="speed" min="0.1" max="2" step="0.1" value="0.8" />
+      </label>
+    </div>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Errl Tunnel</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div id="component-root" class="stage">
+      <div class="ring" style="animation-delay: 0s">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="200" cy="200" r="180" fill="none" stroke="url(#grad)" stroke-width="8" />
+          <circle cx="200" cy="200" r="120" fill="none" stroke="url(#grad)" stroke-width="6" />
+          <circle cx="200" cy="200" r="60" fill="none" stroke="url(#grad)" stroke-width="4" />
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff0066;stop-opacity:1" />
+              <stop offset="25%" style="stop-color:#ffa400;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffee00;stop-opacity:1" />
+              <stop offset="75%" style="stop-color:#00e5ff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7b5cff;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="ring" style="animation-delay: -1s">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="200" cy="200" r="180" fill="none" stroke="url(#grad)" stroke-width="8" />
+          <circle cx="200" cy="200" r="120" fill="none" stroke="url(#grad)" stroke-width="6" />
+          <circle cx="200" cy="200" r="60" fill="none" stroke="url(#grad)" stroke-width="4" />
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff0066;stop-opacity:1" />
+              <stop offset="25%" style="stop-color:#ffa400;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffee00;stop-opacity:1" />
+              <stop offset="75%" style="stop-color:#00e5ff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7b5cff;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="ring" style="animation-delay: -2s">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="200" cy="200" r="180" fill="none" stroke="url(#grad)" stroke-width="8" />
+          <circle cx="200" cy="200" r="120" fill="none" stroke="url(#grad)" stroke-width="6" />
+          <circle cx="200" cy="200" r="60" fill="none" stroke="url(#grad)" stroke-width="4" />
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff0066;stop-opacity:1" />
+              <stop offset="25%" style="stop-color:#ffa400;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffee00;stop-opacity:1" />
+              <stop offset="75%" style="stop-color:#00e5ff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7b5cff;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="ring" style="animation-delay: -3s">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="200" cy="200" r="180" fill="none" stroke="url(#grad)" stroke-width="8" />
+          <circle cx="200" cy="200" r="120" fill="none" stroke="url(#grad)" stroke-width="6" />
+          <circle cx="200" cy="200" r="60" fill="none" stroke="url(#grad)" stroke-width="4" />
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff0066;stop-opacity:1" />
+              <stop offset="25%" style="stop-color:#ffa400;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffee00;stop-opacity:1" />
+              <stop offset="75%" style="stop-color:#00e5ff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7b5cff;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="ring" style="animation-delay: -4s">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="200" cy="200" r="180" fill="none" stroke="url(#grad)" stroke-width="8" />
+          <circle cx="200" cy="200" r="120" fill="none" stroke="url(#grad)" stroke-width="6" />
+          <circle cx="200" cy="200" r="60" fill="none" stroke="url(#grad)" stroke-width="4" />
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff0066;stop-opacity:1" />
+              <stop offset="25%" style="stop-color:#ffa400;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffee00;stop-opacity:1" />
+              <stop offset="75%" style="stop-color:#00e5ff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7b5cff;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+    <div class="controls" id="controls">
+      <label>
+        <span>Speed:</span>
+        <input type="range" id="speed" min="2" max="16" step="0.5" value="8" />
+      </label>
+      <label>
+        <span>Ring Count:</span>
+        <input type="range" id="ringCount" min="3" max="8" step="1" value="5" />
+      </label>
+    </div>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

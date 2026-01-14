@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Terrapin Whirl — Module</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div id="component-root" class="component">
+      <canvas id="background"></canvas>
+      <div class="controls">
+        <label>
+          <span>Speed</span>
+          <input id="speed" type="range" min="0" max="1" step="0.01" value="0.55" />
+        </label>
+        <label>
+          <span>Trail</span>
+          <input id="trail" type="range" min="0.5" max="0.98" step="0.01" value="0.88" />
+        </label>
+      </div>
+    </div>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

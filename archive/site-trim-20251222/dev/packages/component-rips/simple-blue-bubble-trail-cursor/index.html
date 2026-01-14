@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simple Blue Bubble Trail Cursor</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div id="component-root">
+      <canvas id="canvas"></canvas>
+    </div>
+    <div class="controls" id="controls">
+      <label>
+        <span>Beads:</span>
+        <input id="count" type="range" min="12" max="48" step="2" value="24" />
+      </label>
+      <label>
+        <span>Drag:</span>
+        <input id="drag" type="range" min="0.75" max="0.995" step="0.001" value="0.92" />
+      </label>
+      <label>
+        <span>Size:</span>
+        <input id="size" type="range" min="3" max="12" step="1" value="6" />
+      </label>
+    </div>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

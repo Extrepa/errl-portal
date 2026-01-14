@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebCam Effects — Module</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="stage">
+      <section class="panel">
+        <header>
+          <h1>WebCam Effects</h1>
+          <p>
+            Click <strong>Enable Webcam</strong> to start. Streams remain muted and paused until you grant permission. Choose
+            an effect mode and capture frames for local previews.
+          </p>
+        </header>
+        <div class="viewer">
+          <video id="video" playsinline muted></video>
+          <canvas id="canvas" aria-label="Webcam effect canvas"></canvas>
+          <div class="controls">
+            <button id="toggle">Enable Webcam</button>
+            <select id="mode" aria-label="Effect Mode">
+              <option value="rgb">RGB Split</option>
+              <option value="glitch">Glitch Trails</option>
+              <option value="mono">Monochrome Bloom</option>
+              <option value="fisheye">Fisheye</option>
+              <option value="kaleidoscope">Kaleidoscope</option>
+              <option value="mirror">Mirror Flip</option>
+              <option value="pinch">Pinch Distortion</option>
+              <option value="tunnel">Tunnel Vision</option>
+              <option value="wave">Wave Distortion</option>
+            </select>
+            <button id="snapshot">Capture Frame</button>
+          </div>
+        </div>
+        <aside class="note">
+          <p>Captured frames appear below. Images stay local to your browser session.</p>
+        </aside>
+        <div class="gallery" id="gallery" aria-live="polite"></div>
+      </section>
+    </main>
+    <script src="../../_shared/preview-mode.js"></script>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

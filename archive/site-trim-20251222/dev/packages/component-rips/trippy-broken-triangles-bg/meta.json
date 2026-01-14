@@ -1,0 +1,29 @@
+{
+  "name": "IsoBubble Voronoi Background",
+  "slug": "trippy-broken-triangles-bg",
+  "category": "background",
+  "status": "normalized",
+  "description": "Interactive Voronoi diagram with pulsing bubble cells. Cells are colored based on proximity to animated points. Press P to add new points. Cells pulse and animate creating a dynamic cellular pattern.",
+  "source": "archive/component-rips-20251112/Component_Rips/BG/TrippyBrokenTriangles_BG.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "background",
+    "canvas",
+    "voronoi",
+    "interactive",
+    "cells",
+    "pulse"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with Voronoi diagram generation. Keyboard interaction (P key) to add points. No media playback. Safe for all contexts."
+  },
+  "controls": [],
+  "displayMode": "full-window",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

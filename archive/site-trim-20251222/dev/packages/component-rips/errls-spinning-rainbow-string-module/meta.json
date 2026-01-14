@@ -1,0 +1,30 @@
+{
+  "name": "Errl's Dream Compiler",
+  "slug": "errls-spinning-rainbow-string-module",
+  "category": "module",
+  "status": "normalized",
+  "description": "Interactive particle network that responds to keyboard input. Each keypress rewrites the geometry rules using a seeded random number generator, creating dynamic rainbow particle layers with connective filaments.",
+  "source": "archive/component-rips-20251112/Component_Rips/Modules/ErrlsSpinningRainbowString_Module_Prop.html",
+  "convertedAt": "2025-11-13T00:00:00.000Z",
+  "tags": [
+    "module",
+    "canvas",
+    "particles",
+    "interactive",
+    "keyboard",
+    "rainbow",
+    "network"
+  ],
+  "safety": {
+    "audio": false,
+    "video": false,
+    "camera": false,
+    "notes": "Pure canvas animation with keyboard interaction. Respects prefers-reduced-motion."
+  },
+  "controls": [],
+  "displayMode": "playground",
+  "playgroundSize": {
+    "width": "auto",
+    "height": "auto"
+  }
+}

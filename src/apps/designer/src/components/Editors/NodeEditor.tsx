@@ -88,6 +88,13 @@ export const NodeEditor: React.FC<NodeEditorProps> = ({
     if (!svgRef.current || !viewBox) return { x: screenX, y: screenY };
     
     const rect = svgRef.current.getBoundingClientRect();
+    
+    // Guard against zero width/height to prevent Infinity results
+    if (rect.width === 0 || rect.height === 0) {
+      // Return screen coordinates as fallback when SVG is not laid out yet
+      return { x: screenX, y: screenY };
+    }
+    
     const scaleX = viewBox.width / rect.width;
     const scaleY = viewBox.height / rect.height;
     
