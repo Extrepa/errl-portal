@@ -27,6 +27,8 @@
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
     "test:ui": "playwright test -g @ui",
+    "test:visual": "playwright test tests/visual-regression.spec.ts",
+    "test:visual:update": "playwright test tests/visual-regression.spec.ts --update-snapshots",
     "agent:browser": "tsx tools/browser-control/server.ts",
     "agent:browsers": "playwright install",
     "catalog:component-rips": "node tools/portal/generate-component-rips-manifest.mjs",

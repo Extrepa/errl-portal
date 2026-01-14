@@ -45,6 +45,12 @@ npm test -- tests/pages-comprehensive.spec.ts --headed
 
 # Run visual tests
 npm test -- tests/visual-comprehensive.spec.ts --headed
+
+# Run visual regression (snapshots)
+npm run test:visual
+
+# Update visual regression baselines
+npm run test:visual:update
 ```
 
 ## All Available Test Suites
@@ -60,6 +66,7 @@ npm test -- tests/visual-comprehensive.spec.ts --headed
 9. **responsive.spec.ts** - Responsive design tests
 10. **performance.spec.ts** - Performance tests
 11. **visual-comprehensive.spec.ts** - Visual testing with screenshots (NEW)
+12. **visual-regression.spec.ts** - Visual regression with snapshot comparisons
 
 ## Test Execution Summary
 

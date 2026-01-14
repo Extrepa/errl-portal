@@ -444,7 +444,7 @@
         <button id="colorizerSaveBtn" class="success" type="button" title="Save SVG to localStorage">Save SVG</button>
         <button id="colorizerResetBtn" class="neutral" type="button" title="Reset to default Errl">Reset Default</button>
       </div>
-      <iframe id="colorizerFrame" src="./apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html" title="Pin Widget Designer"></iframe>
+      <iframe id="colorizerFrame" src="./apps/static/pages/studio/svg-colorer/index.html" title="Errl Color Customizer"></iframe>
     </div>
   </div>
 
@@ -1175,43 +1175,36 @@
           frame.dataset.sizingBound = '1';
         }
 
-        // Listen for SVG export messages from iframe (bind once)
-        if (!window.__errlPinWidgetMessageBound) {
-          window.addEventListener('message', function(event){
+        function getCustomizerSvg(){
+          try {
             var f = document.getElementById('colorizerFrame');
-            if (!f || !f.contentWindow) return;
-
-            // Only accept messages from our iframe (ignore unrelated postMessage traffic).
-            if (event.source !== f.contentWindow) return;
-
-            if (event.data && event.data.type === 'pinWidgetExportSVG') {
-              var svgString = event.data.svg;
-              if (svgString) {
-                if (event.data.action === 'inject') {
-                  injectSVGToHome(svgString);
-                } else if (event.data.action === 'save') {
-                  saveSVGToStorage(svgString);
-                }
-              }
-            }
-          });
-          window.__errlPinWidgetMessageBound = true;
+            var doc = f && f.contentDocument;
+            if (!doc) return null;
+            var svg = doc.getElementById('errlSVG') || doc.querySelector('svg');
+            if (!svg) return null;
+            return new XMLSerializer().serializeToString(svg);
+          } catch(e) {
+            return null;
+          }
         }
 
-        function requestSvgFromIframe(action){
-          var f = document.getElementById('colorizerFrame');
-          var w = f && f.contentWindow;
-          if (!w) return;
-          w.postMessage({type: 'pinWidgetRequestSVG', action: action}, '*');
+        function handleCustomizerAction(action){
+          var svgString = getCustomizerSvg();
+          if (!svgString) {
+            alert('Customizer is still loading. Please wait a moment and try again.');
+            return;
+          }
+          if (action === 'inject') injectSVGToHome(svgString);
+          if (action === 'save') saveSVGToStorage(svgString);
         }
 
         // Bind click handlers once (never inside iframe load)
         if (injectBtn && !injectBtn.dataset.bound) {
-          injectBtn.addEventListener('click', function(){ requestSvgFromIframe('inject'); });
+          injectBtn.addEventListener('click', function(){ handleCustomizerAction('inject'); });
           injectBtn.dataset.bound = '1';
         }
         if (saveBtn && !saveBtn.dataset.bound) {
-          saveBtn.addEventListener('click', function(){ requestSvgFromIframe('save'); });
+          saveBtn.addEventListener('click', function(){ handleCustomizerAction('save'); });
           saveBtn.dataset.bound = '1';
         }
         if (resetBtn && !resetBtn.dataset.bound) {
