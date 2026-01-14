@@ -162,7 +162,7 @@
       </div>
       <iframe
         class="pin-widget-frame"
-        src="./apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html"
+        src="/studio/pin-widget/ErrlPin.Widget/designer.html"
         title="Errl Pin Widget"
         loading="lazy"
       ></iframe>
@@ -462,7 +462,7 @@
         <button id="colorizerSaveBtn" class="success" type="button" title="Save SVG to localStorage">Save SVG</button>
         <button id="colorizerResetBtn" class="neutral" type="button" title="Reset to default Errl">Reset Default</button>
       </div>
-      <iframe id="colorizerFrame" src="./apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html" title="Errl Pin Widget"></iframe>
+      <iframe id="colorizerFrame" src="/studio/pin-widget/ErrlPin.Widget/designer.html" title="Errl Pin Widget"></iframe>
     </div>
   </div>
 
@@ -1222,7 +1222,7 @@
 
         function isPinWidgetFrame(){
           var frameSrc = frame.getAttribute('src') || '';
-          return frameSrc.indexOf('pin-widget/ErrlPin.Widget/designer.html') !== -1;
+          return frameSrc.indexOf('/studio/pin-widget/ErrlPin.Widget/designer.html') !== -1;
         }
 
         function getCustomizerSvg(){
