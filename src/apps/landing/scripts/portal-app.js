@@ -9,6 +9,169 @@
     return Math.min(max, Math.max(min, value));
   }
 
+  // ===== Unified settings bundle (single JSON) =====
+  // Source of truth key (everything in one place)
+  const SETTINGS_KEY = 'errl_portal_settings_v1';
+  // Repo defaults (served from public/)
+  const DEFAULTS_URL = './apps/landing/config/errl-defaults.json';
+
+  function normalizeBundle(bundle){
+    const b = (bundle && typeof bundle === 'object') ? bundle : {};
+    if (typeof b.version !== 'number') b.version = 1;
+    if (!b.ui || typeof b.ui !== 'object') b.ui = {};
+    if (!b.hue || typeof b.hue !== 'object') b.hue = {};
+    if (!b.hue.layers || typeof b.hue.layers !== 'object') b.hue.layers = {};
+    return b;
+  }
+
+  function readJson(key){
+    try{
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    }catch(_){
+      return null;
+    }
+  }
+  function writeJson(key, value){
+    try{
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    }catch(_){
+      return false;
+    }
+  }
+
+  function getBundle(){
+    return normalizeBundle(readJson(SETTINGS_KEY));
+  }
+  function setBundle(bundle){
+    return writeJson(SETTINGS_KEY, normalizeBundle(bundle));
+  }
+  function updateBundle(mutator){
+    const bundle = getBundle();
+    try{ mutator && mutator(bundle); }catch(_){}
+    bundle.version = 1;
+    setBundle(bundle);
+    return bundle;
+  }
+  function deepMerge(base, override){
+    if (!override || typeof override !== 'object') return base;
+    if (!base || typeof base !== 'object') base = Array.isArray(override) ? [] : {};
+    const out = Array.isArray(base) ? base.slice() : { ...base };
+    Object.keys(override).forEach((k) => {
+      const bv = out[k];
+      const ov = override[k];
+      if (ov && typeof ov === 'object' && !Array.isArray(ov) && bv && typeof bv === 'object' && !Array.isArray(bv)) {
+        out[k] = deepMerge(bv, ov);
+      } else {
+        out[k] = ov;
+      }
+    });
+    return out;
+  }
+
+  function snapshotUiControls(){
+    const ui = {};
+    const root = document.getElementById('errlPanel') || document;
+    const inputs = root.querySelectorAll('input[id], select[id], textarea[id]');
+    inputs.forEach((el) => {
+      if (!el || !el.id) return;
+      if (el.tagName === 'INPUT' && el.type === 'button') return;
+      if (el.type === 'checkbox') ui[el.id] = !!el.checked;
+      else ui[el.id] = el.value;
+    });
+    return ui;
+  }
+
+  function buildBundleFromLegacy(){
+    // If any legacy key exists, bundle it.
+    const legacy = {
+      hue_layers: readJson('errl_hue_layers'),
+      gl_overlay: readJson('errl_gl_overlay'),
+      gl_bubbles: readJson('errl_gl_bubbles'),
+      nav_goo_cfg: readJson('errl_nav_goo_cfg'),
+      rb_settings: readJson('errl_rb_settings'),
+      goo_cfg: readJson('errl_goo_cfg'),
+      ui: readJson('errl_ui_defaults')
+    };
+    const hasAny =
+      legacy.hue_layers || legacy.gl_overlay || legacy.gl_bubbles || legacy.nav_goo_cfg ||
+      legacy.rb_settings || legacy.goo_cfg || legacy.ui;
+    if (!hasAny) return null;
+    return {
+      version: 1,
+      ui: legacy.ui || {},
+      hue: { layers: legacy.hue_layers || {} },
+      gl: { overlay: legacy.gl_overlay || {}, bubbles: legacy.gl_bubbles || {} },
+      nav: { goo: legacy.nav_goo_cfg || {} },
+      rb: legacy.rb_settings || {},
+      goo: legacy.goo_cfg || {}
+    };
+  }
+
+  async function loadRepoDefaults(){
+    try{
+      const res = await fetch(DEFAULTS_URL, { cache: 'no-cache' });
+      if (!res.ok) return null;
+      return await res.json();
+    }catch(_){
+      return null;
+    }
+  }
+
+  function bundleFromRepoDefaults(repo){
+    if (!repo || typeof repo !== 'object') return null;
+    const ui = (repo.ui && typeof repo.ui === 'object') ? repo.ui : {};
+    return {
+      version: 1,
+      ui,
+      hue: { layers: {} },
+      gl: { overlay: {}, bubbles: {} },
+      nav: { goo: {} },
+      rb: {},
+      goo: {}
+    };
+  }
+
+  function applyUiSnapshot(ui){
+    if (!ui || typeof ui !== 'object') return;
+    Object.keys(ui).forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const v = ui[id];
+      if (el.type === 'checkbox') {
+        el.checked = !!v;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        el.value = String(v);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+  }
+
+  // Bootstrap: ensure we have a unified bundle, and keep legacy keys in sync so the rest of the code continues working.
+  // This runs early (before most bindings) so existing per-feature loaders still pick up values.
+  const settingsReady = (async function bootstrapSettingsBundle(){
+    try{
+      let bundle = readJson(SETTINGS_KEY);
+      if (!bundle) {
+        bundle = buildBundleFromLegacy();
+        if (!bundle) {
+          const repo = await loadRepoDefaults();
+          bundle = bundleFromRepoDefaults(repo);
+        }
+        if (bundle) setBundle(bundle);
+
+        // Now that we've migrated into the unified key, clear legacy keys so we don't drift.
+        [
+          'errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings',
+          'errl_goo_cfg','errl_ui_defaults','errl_a11y'
+        ].forEach((k)=>{ try{ localStorage.removeItem(k); }catch(_){} });
+      }
+    }catch(_){}
+  })();
+
   // Lightweight audio engine for nav bubble hover pings
   const audioEngine = (function(){
     const Ctor = window.AudioContext || window.webkitAudioContext;
@@ -98,7 +261,10 @@
   function setBubs(p){ window.errlGLSetBubbles && window.errlGLSetBubbles(p); }
   function persistBubs(){
     const obj = { speed: parseFloat($("bgSpeed")?.value||'1'), density: parseFloat($("bgDensity")?.value||'1'), alpha: parseFloat($("glAlpha")?.value||'0.9') };
-    try{ localStorage.setItem('errl_gl_bubbles', JSON.stringify(obj)); }catch(e){}
+    updateBundle((b)=> {
+      b.gl = b.gl || {};
+      b.gl.bubbles = obj;
+    });
   }
   on($("bgSpeed"), 'input', ()=> { setBubs({ speed: parseFloat($("bgSpeed").value) }); persistBubs(); });
   on($("bgDensity"), 'input', ()=> { setBubs({ density: parseFloat($("bgDensity").value) }); persistBubs(); });
@@ -529,7 +695,6 @@
 
   // Classic SVG goo controls (Errl tab)
   (function classicGooControls(){
-    const CFG_KEY = 'errl_goo_cfg';
     const enabled = $("classicGooEnabled");
     const strength = $("classicGooStrength");
     const wobble = $("classicGooWobble");
@@ -668,7 +833,7 @@
       // Use fixed timestep for smoother animation (cap at 60fps equivalent)
       const deltaSeconds = Math.min((timestamp - lastTs) / 1000, 1/60);
       lastTs = timestamp;
-      const rate = clamp(parseFloat(autoSpeed?.value || '0.05'), 0.01, 0.5);
+      const rate = clamp(parseFloat(autoSpeed?.value || '0.05'), 0.005, 0.25);
       const delta = Math.max(0.0002, rate) * deltaSeconds;
       autoDescriptors.forEach((descriptor) => {
         const { toggle } = descriptor;
@@ -682,33 +847,24 @@
     }
 
     function saveAutoConfig(){
+      // Persistence is handled by the unified bundle auto-sync (and Save Defaults).
+      // Keep this function for wiring, but only update the bundle's semantic goo section best-effort.
       try{
-        const cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
-        cfg.auto = {
-          rate: parseFloat(autoSpeed?.value || '0.05'),
-          strength: !!strengthAuto?.checked,
-          wobble: !!wobbleAuto?.checked,
-          speed: !!speedAuto?.checked,
-        };
-        cfg.mouseReactive = !!mouseReactive?.checked;
-        localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-      }catch(e){}
+        updateBundle((b)=>{
+          b.goo = b.goo || {};
+          b.goo.auto = {
+            rate: parseFloat(autoSpeed?.value || '0.05'),
+            strength: !!strengthAuto?.checked,
+            wobble: !!wobbleAuto?.checked,
+            speed: !!speedAuto?.checked,
+          };
+          b.goo.mouseReactive = !!mouseReactive?.checked;
+        });
+      }catch(_){}
     }
 
     function loadAutoConfig(){
-      try{
-        const cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
-        const auto = cfg.auto || {};
-        if (autoSpeed && typeof auto.rate === 'number') {
-          autoSpeed.value = String(auto.rate);
-        }
-        if (strengthAuto && typeof auto.strength === 'boolean') strengthAuto.checked = auto.strength;
-        if (wobbleAuto && typeof auto.wobble === 'boolean') wobbleAuto.checked = auto.wobble;
-        if (speedAuto && typeof auto.speed === 'boolean') speedAuto.checked = auto.speed;
-        if (mouseReactive && typeof cfg.mouseReactive === 'boolean') {
-          mouseReactive.checked = cfg.mouseReactive;
-        }
-      }catch(e){}
+      // Inputs are restored via bundle.ui snapshot in loadPersisted(). Nothing to do here.
     }
 
     function setPointerBoost(value){
@@ -850,6 +1006,15 @@
       stopAnimation();
     };
     
+    // Defer bundle-based restoration until settings are ready.
+    settingsReady.then(()=>{
+      const bundle = getBundle();
+      if (bundle && bundle.ui) {
+        // Apply UI snapshot (includes auto speed + toggles). This will dispatch events and sync animation state.
+        applyUiSnapshot(bundle.ui);
+      }
+    }).catch(()=>{});
+
     loadAutoConfig();
     // Ensure goo is enabled by default if checkbox is checked (even before loadPersisted runs)
     if (enabled && enabled.checked) {
@@ -1020,7 +1185,7 @@
           ripples: !!ripples?.checked,
           rippleIntensity: parseFloat(rippleIntensity?.value || '1.2')
         };
-        localStorage.setItem('errl_rb_settings', JSON.stringify(obj));
+        updateBundle((b)=> { b.rb = obj; });
       }catch(e){}
     }
 
@@ -1161,39 +1326,28 @@
     }
   })();
 
-  // Apply persisted defaults on load (overlay + gl bubbles + nav goo + RB + Goo)
-  (function loadPersisted(){
+  function applyDefaultsFromBundleOrRepo(){
+    // Try bundle first. If empty, try repo defaults JSON. If that fails, no-op.
     try{
-      // Do not auto-apply GL bubbles on load to avoid initializing WebGL implicitly
-      const ng = JSON.parse(localStorage.getItem('errl_nav_goo_cfg')||'null');
-      if (ng){ const e=(id,v)=>{ const el=document.getElementById(id); if(el){ el.value = String(v); el.dispatchEvent(new Event('input')); } }; const c=(id,v)=>{ const el=document.getElementById(id); if(el){ el.checked=!!v; el.dispatchEvent(new Event('input')); } }; c('navGooEnabled', ng.enabled); e('navGooBlur', ng.blur); e('navGooMult', ng.mult); e('navGooThresh', ng.thresh); }
-      const rb = JSON.parse(localStorage.getItem('errl_rb_settings')||'null');
-      if (rb){ 
-        const e=(id,v)=>{ const el=document.getElementById(id); if(el){ el.value=String(v); el.dispatchEvent(new Event('input')); } }; 
-        const c=(id,v)=>{ const el=document.getElementById(id); if(el){ el.checked=!!v; el.dispatchEvent(new Event('change')); } }; 
-        e('rbSpeed', rb.speed); e('rbDensity', rb.density); e('rbAlpha', rb.alpha); e('rbWobble', rb.wobble); e('rbFreq', rb.freq); 
-        e('rbMin', rb.min); e('rbMax', rb.max); e('rbSizeHz', rb.sizeHz); e('rbJumboPct', rb.jumboPct); e('rbJumboScale', rb.jumboScale);
-        if (rb.attract !== undefined) c('rbAttract', rb.attract);
-        if (rb.attractIntensity !== undefined) e('rbAttractIntensity', rb.attractIntensity);
-        if (rb.ripples !== undefined) c('rbRipples', rb.ripples);
-        if (rb.rippleIntensity !== undefined) e('rbRippleIntensity', rb.rippleIntensity);
+      const bundle = getBundle();
+      if (bundle && bundle.ui && Object.keys(bundle.ui).length) {
+        applyUiSnapshot(bundle.ui);
+        return;
       }
-      const cg = JSON.parse(localStorage.getItem('errl_goo_cfg')||'null');
-      if (cg){ const c=(id,v)=>{ const el=document.getElementById(id); if(el){ el.checked=!!v; el.dispatchEvent(new Event('input')); } }; const e=(id,v)=>{ const el=document.getElementById(id); if(el){ el.value=String(v); el.dispatchEvent(new Event('input')); } }; c('classicGooEnabled', cg.enabled); e('classicGooStrength', cg.mult); e('classicGooWobble', cg.wobble); e('classicGooSpeed', cg.speed); }
-      else {
-        // Ensure goo is enabled by default if no saved config
-        const gooEnabledEl = document.getElementById('classicGooEnabled');
-        if (gooEnabledEl && !gooEnabledEl.checked) {
-          gooEnabledEl.checked = true;
-          gooEnabledEl.dispatchEvent(new Event('input'));
-        }
-      }
-    }catch(e){}
-    // Always apply current UI values once on load (acts as baked defaults when nothing persisted)
-    const kick = (id) => { const el = document.getElementById(id); if (el) el.dispatchEvent(new Event('input')); };
-    kick('bgSpeed'); kick('bgDensity'); kick('glAlpha');
-    kick('navOrbitSpeed');
-    kick('errlSize');
+    }catch(_){}
+    // If bundle had nothing, fall back to repo defaults (async) and apply.
+    loadRepoDefaults().then((repo)=>{
+      try{
+        if (repo && repo.ui) applyUiSnapshot(repo.ui);
+      }catch(_){}
+    }).catch(()=>{});
+  }
+
+  // Apply persisted defaults on load (prefer unified bundle UI snapshot)
+  (function loadPersisted(){
+    settingsReady.then(()=>{
+      applyDefaultsFromBundleOrRepo();
+    }).catch(()=>{ applyDefaultsFromBundleOrRepo(); });
   })();
 
   // Hue Controller bindings
@@ -1286,24 +1440,9 @@
       setMotionMultiplier(rm ? MOTION.reduced : MOTION.base);
       body.classList.toggle('high-contrast', !!contrast?.checked);
       body.classList.toggle('invert-colors', !!invert?.checked);
-      const st={ reduce: !!reduce?.checked, contrast: !!contrast?.checked, invert: !!invert?.checked };
-      try{ localStorage.setItem('errl_a11y', JSON.stringify(st)); }catch(e){}
     }
     
     [reduce,contrast,invert].forEach(el=> el && el.addEventListener('change', apply));
-    try{ 
-      const st=JSON.parse(localStorage.getItem('errl_a11y')||'null'); 
-      if(st){
-        if(reduce){ reduce.checked=!!st.reduce; }
-        if(contrast){ contrast.checked=!!st.contrast; } 
-        if(invert){ invert.checked=!!st.invert; } 
-      } else {
-        // Default: reduced motion OFF, but baseline motion multiplier stays gentle
-        if(reduce) reduce.checked = false;
-        if(contrast) contrast.checked = false;
-        if(invert) invert.checked = false;
-      }
-    }catch(e){}
     apply();
   })();
   
@@ -1415,6 +1554,7 @@
         nav: {},
         rb: {},
         goo: {},
+        bundle: {},
         timestamp: new Date().toISOString()
       };
       
@@ -1424,27 +1564,18 @@
         if (H && H.layers) {
           settings.hue = H.layers;
         } else {
-          // Fallback: use persisted hue layers if controller isn't ready
-          settings.hue = JSON.parse(localStorage.getItem('errl_hue_layers') || '{}');
+          // Fallback: use unified bundle hue layers if controller isn't ready
+          settings.hue = (getBundle().hue && getBundle().hue.layers) ? getBundle().hue.layers : {};
         }
       } catch(e) {}
       
       try {
         // Keep a raw bundle of the keys that map to "defaults" easiest.
         settings._storage = {
-          errl_hue_layers: localStorage.getItem('errl_hue_layers'),
-          errl_gl_overlay: localStorage.getItem('errl_gl_overlay'),
-          errl_gl_bubbles: localStorage.getItem('errl_gl_bubbles'),
-          errl_nav_goo_cfg: localStorage.getItem('errl_nav_goo_cfg'),
-          errl_rb_settings: localStorage.getItem('errl_rb_settings'),
-          errl_goo_cfg: localStorage.getItem('errl_goo_cfg'),
+          errl_portal_settings_v1: localStorage.getItem(SETTINGS_KEY),
           errlCustomizedSvg: localStorage.getItem('errlCustomizedSvg')
         };
-        settings.overlay = JSON.parse(localStorage.getItem('errl_gl_overlay') || '{}');
-        settings.bubbles = JSON.parse(localStorage.getItem('errl_gl_bubbles') || '{}');
-        settings.nav = JSON.parse(localStorage.getItem('errl_nav_goo_cfg') || '{}');
-        settings.rb = JSON.parse(localStorage.getItem('errl_rb_settings') || '{}');
-        settings.goo = JSON.parse(localStorage.getItem('errl_goo_cfg') || '{}');
+        settings.bundle = getBundle();
       } catch(e) {}
       
       const html = `<!doctype html>
@@ -1499,33 +1630,14 @@
   // Save/Reset defaults buttons and quick-save
   function saveDefaults(){
     try{
-      const H = window.ErrlHueController; if (H) localStorage.setItem('errl_hue_layers', JSON.stringify(H.layers));
-      // overlay/bubbles saved on change already
-      const ng={ enabled: document.getElementById('navGooEnabled')?.checked, blur:+(document.getElementById('navGooBlur')?.value||6), mult:+(document.getElementById('navGooMult')?.value||24), thresh:+(document.getElementById('navGooThresh')?.value||-14) };
-      localStorage.setItem('errl_nav_goo_cfg', JSON.stringify(ng));
-      const rb={ 
-        speed:+(document.getElementById('rbSpeed')?.value||1), 
-        density:+(document.getElementById('rbDensity')?.value||1), 
-        alpha:+(document.getElementById('rbAlpha')?.value||0.95), 
-        wobble:+(document.getElementById('rbWobble')?.value||1), 
-        freq:+(document.getElementById('rbFreq')?.value||1), 
-        min:+(document.getElementById('rbMin')?.value||14), 
-        max:+(document.getElementById('rbMax')?.value||36), 
-        sizeHz:+(document.getElementById('rbSizeHz')?.value||0), 
-        jumboPct:+(document.getElementById('rbJumboPct')?.value||0.1), 
-        jumboScale:+(document.getElementById('rbJumboScale')?.value||1.6),
-        attract:!!(document.getElementById('rbAttract')?.checked),
-        attractIntensity:+(document.getElementById('rbAttractIntensity')?.value||1.0),
-        ripples:!!(document.getElementById('rbRipples')?.checked),
-        rippleIntensity:+(document.getElementById('rbRippleIntensity')?.value||1.2)
-      };
-      localStorage.setItem('errl_rb_settings', JSON.stringify(rb));
-      const cg={ enabled: document.getElementById('classicGooEnabled')?.checked, mult:+(document.getElementById('classicGooStrength')?.value||1), wobble:+(document.getElementById('classicGooWobble')?.value||1), speed:+(document.getElementById('classicGooSpeed')?.value||1) };
-      localStorage.setItem('errl_goo_cfg', JSON.stringify(cg));
+      const bundle = buildBundleFromCurrent();
+      bundle.meta = bundle.meta || {};
+      bundle.meta.savedAt = new Date().toISOString();
+      setBundle(bundle);
       alert('Defaults saved.');
     }catch(e){ alert('Could not save defaults.'); }
   }
-  function resetDefaults(){
+  async function resetDefaults(){
     try {
       // Stop all animations first
       // Stop RB advanced animation
@@ -1545,9 +1657,9 @@
         window.ErrlHueController.pauseTimeline();
       }
       
-      // Clear all stored settings
-      ['errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings','errl_goo_cfg','errl_a11y'].forEach(k=>{ 
-        try{ localStorage.removeItem(k); }catch(e){} 
+      // Clear unified settings + any legacy keys (best-effort)
+      ['errl_portal_settings_v1','errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings','errl_goo_cfg','errl_a11y','errl_ui_defaults'].forEach(k=>{
+        try{ localStorage.removeItem(k); }catch(e){}
       });
       
       // Reset hue controller
@@ -1555,32 +1667,39 @@
         window.ErrlHueController.reset();
       }
       
-      // Reset UI to defaults
-      const defaults = {
-        // RB defaults
-        rbSpeed: '1', rbDensity: '1', rbAlpha: '0.95', rbWobble: '1', rbFreq: '1',
-        rbMin: '14', rbMax: '36', rbSizeHz: '0', rbJumboPct: '0.1', rbJumboScale: '1.6',
-        rbAttract: true, rbAttractIntensity: '1.0',
-        rbRipples: false, rbRippleIntensity: '1.2',
-        // Goo defaults
-        classicGooEnabled: true, classicGooStrength: '0.35', classicGooWobble: '0.55', classicGooSpeed: '0.45',
-        classicGooStrengthAuto: false, classicGooWobbleAuto: false, classicGooSpeedAuto: true,
-        classicGooAutoSpeed: '0.05', classicGooMouseReact: true,
-        // Nav defaults
-        navOrbitSpeed: '1.0', navRadius: '1.2', navOrbSize: '1.05',
-        navWiggle: '0.4', navFlow: '0.8', navGrip: '0.5', navDrip: '-0.5', navVisc: '0.9',
-        glOrbsToggle: true,
-        // GLB defaults
-        bgSpeed: '0.9', bgDensity: '1.2', glAlpha: '0.85',
-        // Errl defaults
-        errlSize: '1.0',
-        // Hue defaults
-        hueEnabled: false, hueShift: '0', hueSat: '1', hueInt: '1', hueTimeline: '0',
-        // Audio defaults
-        audioEnabled: true, audioMaster: '0.4', audioBass: '0.2',
-        // A11y defaults
-        prefReduce: false, prefContrast: false, prefInvert: false
-      };
+      // Reset UI to repo defaults (JSON) when available; fall back to baked defaults
+      let defaults = null;
+      try{
+        const repo = await loadRepoDefaults();
+        defaults = repo && repo.ui ? repo.ui : null;
+      }catch(_){}
+      if (!defaults){
+        defaults = {
+          // RB defaults
+          rbSpeed: '1', rbDensity: '1', rbAlpha: '0.95', rbWobble: '1', rbFreq: '1',
+          rbMin: '14', rbMax: '36', rbSizeHz: '0', rbJumboPct: '0.1', rbJumboScale: '1.6',
+          rbAttract: true, rbAttractIntensity: '1.0',
+          rbRipples: false, rbRippleIntensity: '1.2',
+          // Goo defaults
+          classicGooEnabled: true, classicGooStrength: '0.35', classicGooWobble: '0.55', classicGooSpeed: '0.45',
+          classicGooStrengthAuto: false, classicGooWobbleAuto: false, classicGooSpeedAuto: true,
+          classicGooAutoSpeed: '0.05', classicGooMouseReact: true,
+          // Nav defaults
+          navOrbitSpeed: '1.0', navRadius: '1.2', navOrbSize: '1.05',
+          navWiggle: '0.4', navFlow: '0.8', navGrip: '0.5', navDrip: '-0.5', navVisc: '0.9',
+          glOrbsToggle: true,
+          // GLB defaults
+          bgSpeed: '0.9', bgDensity: '1.2', glAlpha: '0.85',
+          // Errl defaults
+          errlSize: '1.0',
+          // Hue defaults
+          hueEnabled: false, hueShift: '0', hueSat: '1', hueInt: '1', hueTimeline: '0',
+          // Audio defaults
+          audioEnabled: true, audioMaster: '0.4', audioBass: '0.2',
+          // A11y defaults
+          prefReduce: false, prefContrast: false, prefInvert: false
+        };
+      }
       
       // Apply defaults
       Object.keys(defaults).forEach(id => {
@@ -1613,6 +1732,12 @@
         if (rbAdvModePing) rbAdvModePing.classList.remove('active');
         // RB, Nav, and Errl play/pause buttons will update via their own update functions
       }, 100);
+
+      // Persist bundle so Reset behaves like a clean baseline.
+      try{
+        const ui = (defaults && typeof defaults === 'object') ? defaults : {};
+        setBundle({ version: 1, ui, hue: { layers: {} } });
+      }catch(_){}
       
       alert('Defaults reset. All settings restored to stock values.');
     } catch(e) {
@@ -1621,7 +1746,130 @@
     }
   }
   const saveBtn=document.getElementById('saveDefaultsBtn'); if (saveBtn) saveBtn.addEventListener('click', saveDefaults);
-  const rstBtn=document.getElementById('resetDefaultsBtn'); if (rstBtn) rstBtn.addEventListener('click', resetDefaults);
+  const rstBtn=document.getElementById('resetDefaultsBtn'); if (rstBtn) rstBtn.addEventListener('click', ()=>{ resetDefaults(); });
+  const exportBtn = document.getElementById('exportSettingsBtn');
+  const importBtn = document.getElementById('importSettingsBtn');
+  const importFile = document.getElementById('importSettingsFile');
+
+  function buildBundleFromCurrent(){
+    const existing = getBundle();
+    const ui = snapshotUiControls();
+    const H = window.ErrlHueController;
+    const hueLayers = (H && H.layers) ? H.layers : (existing.hue && existing.hue.layers ? existing.hue.layers : {});
+    existing.version = 1;
+    existing.ui = ui;
+    existing.hue = existing.hue || {};
+    existing.hue.layers = hueLayers || {};
+    // Keep best-effort semantic copies for export/import readability.
+    existing.gl = existing.gl || {};
+    existing.gl.bubbles = existing.gl.bubbles || {};
+    existing.rb = existing.rb || {};
+    existing.goo = existing.goo || {};
+    existing.nav = existing.nav || {};
+    existing.nav.goo = existing.nav.goo || {};
+    return existing;
+  }
+
+  function applyBundle(bundle){
+    if (!bundle || typeof bundle !== 'object') return;
+    // Persist unified bundle
+    setBundle(bundle);
+    // Apply UI immediately
+    if (bundle.ui) applyUiSnapshot(bundle.ui);
+    // Re-apply derived effects from current inputs
+    const kick = (id) => { const el = document.getElementById(id); if (el) el.dispatchEvent(new Event('input')); };
+    kick('bgSpeed'); kick('bgDensity'); kick('glAlpha');
+    kick('navOrbitSpeed');
+    kick('errlSize');
+  }
+
+  function exportSettings(){
+    try{
+      const bundle = buildBundleFromCurrent();
+      const payload = {
+        ...bundle,
+        meta: {
+          exportedAt: new Date().toISOString()
+        }
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `errl-portal-settings_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }catch(e){
+      console.warn('Export settings failed', e);
+      alert('Export failed. Please check console for details.');
+    }
+  }
+
+  function requestImport(){
+    if (importFile) importFile.click();
+  }
+
+  async function handleImportFile(){
+    if (!importFile || !importFile.files || !importFile.files[0]) return;
+    const file = importFile.files[0];
+    try{
+      const text = await file.text();
+      const obj = JSON.parse(text);
+      if (!obj || typeof obj !== 'object') throw new Error('Invalid JSON');
+      const v = (typeof obj.version === 'number') ? obj.version : 1;
+      if (v !== 1) throw new Error('Unsupported settings version: ' + v);
+      const bundle = {
+        version: 1,
+        ui: (obj.ui && typeof obj.ui === 'object') ? obj.ui : {},
+        hue: (obj.hue && typeof obj.hue === 'object') ? obj.hue : { layers: {} },
+        gl: (obj.gl && typeof obj.gl === 'object') ? obj.gl : { overlay: {}, bubbles: {} },
+        nav: (obj.nav && typeof obj.nav === 'object') ? obj.nav : { goo: {} },
+        rb: (obj.rb && typeof obj.rb === 'object') ? obj.rb : {},
+        goo: (obj.goo && typeof obj.goo === 'object') ? obj.goo : {}
+      };
+      applyBundle(bundle);
+      alert('Settings imported.');
+    }catch(e){
+      console.warn('Import settings failed', e);
+      alert('Import failed: ' + (e.message || 'Unknown error'));
+    } finally {
+      try { importFile.value = ''; } catch(_) {}
+    }
+  }
+
+  if (exportBtn) exportBtn.addEventListener('click', exportSettings);
+  if (importBtn) importBtn.addEventListener('click', requestImport);
+  if (importFile) importFile.addEventListener('change', handleImportFile);
+
+  // Keep the unified bundle "fresh" as you tweak sliders (no need to click Save Defaults).
+  (function autoSyncBundle(){
+    const panel = document.getElementById('errlPanel');
+    if (!panel) return;
+    let t = null;
+    function schedule(){
+      if (t) clearTimeout(t);
+      t = setTimeout(()=>{
+        try{
+          const existing = getBundle();
+          existing.ui = snapshotUiControls();
+          // Keep hue layers updated when available (best-effort)
+          try{
+            const H = window.ErrlHueController;
+            if (H && H.layers){
+              existing.hue = existing.hue || {};
+              existing.hue.layers = H.layers;
+            }
+          }catch(_){}
+          setBundle(existing);
+        }catch(_){}
+      }, 250);
+    }
+    panel.addEventListener('input', schedule, true);
+    panel.addEventListener('change', schedule, true);
+  })();
+
   window.addEventListener('keydown', (e)=>{
     if (e.key === 'S' && e.shiftKey){ saveDefaults(); }
   });

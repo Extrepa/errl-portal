@@ -233,7 +233,7 @@
       </div>
       <div class="sliderRow">
         <label for="classicGooAutoSpeed" title="Speed of the auto fade sweep">Auto Speed</label>
-        <input id="classicGooAutoSpeed" type="range" min="0.01" max="0.5" step="0.01" value="0.05">
+        <input id="classicGooAutoSpeed" type="range" min="0.005" max="0.25" step="0.001" value="0.05">
       </div>
       <div class="sliderRow" style="justify-content:space-between; align-items:center; gap:8px">
         <label style="font-size:11px; opacity:0.9;">Animation</label>
@@ -355,6 +355,9 @@
       <div class="sliderRow" title="Save all current settings as defaults (local)" style="display:flex; gap:6px; flex-wrap:wrap;">
         <button id="saveDefaultsBtn" style="font-size:7px; padding:3px 6px;">Save Defaults</button>
         <button id="resetDefaultsBtn" style="font-size:7px; padding:3px 6px;">Reset Defaults</button>
+        <button id="exportSettingsBtn" style="font-size:7px; padding:3px 6px;">Export Settings</button>
+        <button id="importSettingsBtn" style="font-size:7px; padding:3px 6px;">Import Settings</button>
+        <input id="importSettingsFile" type="file" accept="application/json" style="display:none" />
         <span style="opacity:.8; font-size:7px; align-self:center;">(stored in local)</span>
       </div>
     </div>

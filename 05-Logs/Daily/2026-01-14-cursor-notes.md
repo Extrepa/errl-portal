@@ -14,6 +14,10 @@
 - Improved Snapshot export to also download a JSON bundle (and include persisted `errl_hue_layers` as a fallback), making it easier to convert a good local state into code defaults.
 - Removed the (non-working) tab icon textures and made tabs text-only with perfectly centered labels.
 - Fixed listener accumulation in `src/index.html` by registering the iframe `message` handler and the Inject/Save/Reset click handlers **once** (not inside the iframe `load` callback), preventing duplicate actions after iframe reloads.
+- Fixed `Save Defaults` to persist **all tab control positions** (not just a subset) by saving/loading a unified UI defaults blob, and preserved classic-goo auto settings instead of overwriting them.
+- Reduced Errl Goo **Auto Speed** sensitivity by tightening the range and increasing precision (smaller step), plus clamping any older persisted values into the new range on load.
+- Added a **single settings bundle** (`localStorage.errl_portal_settings_v1`) with **Export/Import** buttons, plus a repo-backed defaults file at `public/apps/landing/config/errl-defaults.json`. The app bootstraps by migrating legacy scattered keys into the bundle and keeps legacy keys mirrored for backward compatibility.
+- Switched to **bundle-only persistence** (legacy `errl_*` keys are now one-time migrated then removed), and updated the Hue controller to persist/load from the bundle instead of `errl_hue_layers`.
 
 ### Detailed notes (what/why + where)
 

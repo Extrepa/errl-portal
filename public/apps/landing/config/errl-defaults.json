@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "ui": {
+    "rbSpeed": "1",
+    "rbDensity": "1",
+    "rbAlpha": "0.95",
+    "rbWobble": "1",
+    "rbFreq": "1",
+    "rbMin": "14",
+    "rbMax": "36",
+    "rbSizeHz": "0",
+    "rbJumboPct": "0.1",
+    "rbJumboScale": "1.6",
+    "rbAttract": true,
+    "rbAttractIntensity": "1.0",
+    "rbRipples": false,
+    "rbRippleIntensity": "1.2",
+
+    "classicGooEnabled": true,
+    "classicGooStrength": "0.35",
+    "classicGooWobble": "0.55",
+    "classicGooSpeed": "0.45",
+    "classicGooStrengthAuto": false,
+    "classicGooWobbleAuto": false,
+    "classicGooSpeedAuto": true,
+    "classicGooAutoSpeed": "0.05",
+    "classicGooMouseReact": true,
+
+    "navOrbitSpeed": "1.0",
+    "navRadius": "1.2",
+    "navOrbSize": "1.05",
+    "navWiggle": "0.4",
+    "navFlow": "0.8",
+    "navGrip": "0.5",
+    "navDrip": "-0.5",
+    "navVisc": "0.9",
+    "glOrbsToggle": true,
+
+    "bgSpeed": "0.9",
+    "bgDensity": "1.2",
+    "glAlpha": "0.85",
+
+    "errlSize": "1.0",
+
+    "hueEnabled": false,
+    "hueShift": "0",
+    "hueSat": "1",
+    "hueInt": "1",
+    "hueTimeline": "0",
+
+    "audioEnabled": true,
+    "audioMaster": "0.4",
+    "audioBass": "0.2",
+
+    "prefReduce": false,
+    "prefContrast": false,
+    "prefInvert": false
+  }
+}

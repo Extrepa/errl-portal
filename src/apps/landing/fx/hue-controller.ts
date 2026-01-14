@@ -10,6 +10,23 @@ const LAYERS: Record<string, { label: string; selectors?: string[]; type?: strin
 
 const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: false };
 
+  const SETTINGS_KEY = 'errl_portal_settings_v1';
+  const LEGACY_KEY = 'errl_hue_layers';
+  function readBundle(): any {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+  function writeBundle(bundle: any) {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(bundle));
+    } catch (e) {}
+  }
+
   const HueController: any = {
     layers: Object.keys(LAYERS).reduce((acc: any, k) => {
       acc[k] = { ...DEFAULT_LAYER_STATE };
@@ -253,19 +270,45 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
 
     persist() {
       try {
-        localStorage.setItem('errl_hue_layers', JSON.stringify(this.layers));
+        const bundle = readBundle() || { version: 1, ui: {}, hue: { layers: {} } };
+        bundle.version = 1;
+        bundle.hue = bundle.hue || {};
+        bundle.hue.layers = this.layers;
+        writeBundle(bundle);
       } catch (e) {}
     },
     loadSettings() {
       try {
-        const raw = localStorage.getItem('errl_hue_layers');
-        if (raw) {
-          const obj = JSON.parse(raw);
+        const bundle = readBundle();
+        const obj = bundle && bundle.hue && bundle.hue.layers ? bundle.hue.layers : null;
+        if (obj && typeof obj === 'object') {
           for (const k of Object.keys(this.layers)) {
-            if (obj[k]) {
-              this.layers[k] = Object.assign({}, DEFAULT_LAYER_STATE, obj[k]);
+            if ((obj as any)[k]) {
+              this.layers[k] = Object.assign({}, DEFAULT_LAYER_STATE, (obj as any)[k]);
               this.layers[k].enabled = false;
             }
+          }
+          return;
+        }
+
+        // Legacy fallback (one-time migration)
+        const rawLegacy = localStorage.getItem(LEGACY_KEY);
+        if (rawLegacy) {
+          const legacyObj = JSON.parse(rawLegacy);
+          if (legacyObj && typeof legacyObj === 'object') {
+            for (const k of Object.keys(this.layers)) {
+              if ((legacyObj as any)[k]) {
+                this.layers[k] = Object.assign({}, DEFAULT_LAYER_STATE, (legacyObj as any)[k]);
+                this.layers[k].enabled = false;
+              }
+            }
+            // Persist into unified bundle + clear legacy
+            const nextBundle = readBundle() || { version: 1, ui: {}, hue: { layers: {} } };
+            nextBundle.version = 1;
+            nextBundle.hue = nextBundle.hue || {};
+            nextBundle.hue.layers = this.layers;
+            writeBundle(nextBundle);
+            try { localStorage.removeItem(LEGACY_KEY); } catch (e) {}
           }
         }
       } catch (e) {}
