@@ -7,11 +7,13 @@
 # This redirect only applies to paths that don't match existing files
 /studio/svg-colorer/*  /studio/svg-colorer/:splat  200
 /studio/pin-widget/ErrlPin.Widget/*  /studio/pin-widget/ErrlPin.Widget/:splat  200
+/studio/  /studio/index.html  200
 /studio/*  /studio.html  200
 
 # Designer app
-/designer  https://designer.errl.wtf  302
-/designer/  https://designer.errl.wtf  302
+/designer  /design/  302
+/designer/  /design/  302
+/designer.html  /design/  302
 
 # Portal pages routing - these are static HTML files, no redirect needed
 # They're built at root level (e.g., /about/, /gallery/, /assets/)

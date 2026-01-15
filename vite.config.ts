@@ -29,6 +29,8 @@ function shouldRewriteStudio(url: string) {
   if (!url.startsWith('/studio')) return false;
   // Don't rewrite if it's already studio.html
   if (url === '/studio.html' || url.startsWith('/studio.html/')) return false;
+  // Serve the Studio hub index directly.
+  if (url === '/studio/' || url === '/studio/index.html') return false;
   // Don't rewrite specific HTML pages that should be served directly
   if (url.includes('/svg-colorer/') || url.includes('/pin-widget/')) return false;
   // Don't rewrite if it's a file with extension (like .js, .css, .png, etc.)
@@ -45,7 +47,7 @@ const portalPagesRewritePlugin = () => ({
       if (req.url && req.method === 'GET') {
         // Rewrite root-level portal pages to source location
         // Match paths like /about/, /gallery/, /assets/errl-head-coin/, etc.
-        if (req.url.match(/^\/(about|gallery|assets|games|studio)(\/|$)/)) {
+        if (req.url.match(/^\/(about|gallery|assets|games|studio|design|pin-designer)(\/|$)/)) {
           req.url = `/apps/static/pages${req.url}`;
         }
         // Rewrite /chat to chatbot app
@@ -362,6 +364,7 @@ export default defineConfig(({ command }) => ({
         'assets/errl-face-popout/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-face-popout/index.html'),
         'assets/walking-errl/index': resolve(process.cwd(), 'src/apps/static/pages/assets/walking-errl/index.html'),
         'assets/errl-loader-original-parts/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-loader-original-parts/index.html'),
+        'design/index': resolve(process.cwd(), 'src/apps/static/pages/design/index.html'),
         'studio/index': resolve(process.cwd(), 'src/apps/static/pages/studio/index.html'),
         'studio/pin-widget/ErrlPin.Widget/designer': resolve(process.cwd(), 'src/apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html'),
         'studio/svg-colorer/index': resolve(process.cwd(), 'src/apps/static/pages/studio/svg-colorer/index.html'),
