@@ -7,6 +7,7 @@
 # This redirect only applies to paths that don't match existing files
 /studio/svg-colorer/*  /studio/svg-colorer/:splat  200
 /studio/pin-widget/ErrlPin.Widget/*  /studio/pin-widget/ErrlPin.Widget/:splat  200
+/studio  /studio/index.html  200
 /studio/  /studio/index.html  200
 /studio/*  /studio.html  200
 

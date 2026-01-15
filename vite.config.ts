@@ -29,8 +29,7 @@ function shouldRewriteStudio(url: string) {
   if (!url.startsWith('/studio')) return false;
   // Don't rewrite if it's already studio.html
   if (url === '/studio.html' || url.startsWith('/studio.html/')) return false;
-  // Serve the Studio hub index directly.
-  if (url === '/studio/' || url === '/studio/index.html') return false;
+  if (url === '/studio' || url === '/studio/' || url === '/studio/index.html') return false;
   // Don't rewrite specific HTML pages that should be served directly
   if (url.includes('/svg-colorer/') || url.includes('/pin-widget/')) return false;
   // Don't rewrite if it's a file with extension (like .js, .css, .png, etc.)
