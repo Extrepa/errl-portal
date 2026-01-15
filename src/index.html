@@ -169,6 +169,7 @@
       </div>
       <iframe
         class="pin-widget-frame"
+        id="pinWidgetFrame"
         src="/studio/pin-widget/ErrlPin.Widget/designer.html"
         title="Errl Pin Widget"
         loading="lazy"
@@ -611,7 +612,7 @@
           try {
             if (e && e.target && e.target.closest && e.target.closest('#colorizerClose')) return;
           } catch(_) {}
-          if (!e || e.button !== 0) return; // left click only
+          if (e && typeof e.button === 'number' && e.button !== 0) return; // allow touch/pen
           dragging = true;
           try { header.setPointerCapture(e.pointerId); } catch(_) {}
           var r = phone.getBoundingClientRect();
@@ -781,6 +782,7 @@
           phone.style.display='flex';
           try { phone.dataset.userMoved = '0'; } catch(_) {}
           try { phone.classList.remove('colorizer-floating'); } catch(_) {}
+          attachColorizerDrag();
           // Always start from a safe centered modal so header can never be off-screen.
           centerColorizerFallback();
           // Extra safety: clamp for a few frames to catch late layout shifts.
@@ -1227,17 +1229,24 @@
           frame.dataset.sizingBound = '1';
         }
 
-        function isPinWidgetFrame(){
-          var frameSrc = frame.getAttribute('src') || '';
-          return frameSrc.indexOf('/studio/pin-widget/ErrlPin.Widget/designer.html') !== -1;
+        function getFrameKind(frameEl){
+          var frameSrc = (frameEl && frameEl.getAttribute && frameEl.getAttribute('src')) ? frameEl.getAttribute('src') : '';
+          if (frameSrc.indexOf('/studio/svg-colorer/index.html') !== -1) return 'colorizer';
+          if (frameSrc.indexOf('/studio/pin-widget/ErrlPin.Widget/designer.html') !== -1) return 'pin';
+          return 'unknown';
         }
 
-        function getCustomizerSvg(){
+        function getCustomizerSvg(frameEl){
           try {
-            var f = document.getElementById('colorizerFrame');
-            var doc = f && f.contentDocument;
+            var doc = frameEl && frameEl.contentDocument;
             if (!doc) return null;
-            var svg = doc.getElementById('errlSVG') || doc.querySelector('svg');
+            var kind = getFrameKind(frameEl);
+            var svg = null;
+            if (kind === 'pin') {
+              svg = doc.getElementById('pinSVG') || doc.querySelector('svg');
+            } else if (kind === 'colorizer') {
+              svg = doc.getElementById('errlSVG') || doc.querySelector('svg');
+            }
             if (!svg) return null;
             return new XMLSerializer().serializeToString(svg);
           } catch(e) {
@@ -1245,12 +1254,8 @@
           }
         }
 
-        function handleCustomizerAction(action){
-          if (isPinWidgetFrame()) {
-            alert('These controls are available in colorizer mode. Switch the modal to the colorizer to use inject/save/reset.');
-            return;
-          }
-          var svgString = getCustomizerSvg();
+        function handleCustomizerAction(action, frameEl){
+          var svgString = getCustomizerSvg(frameEl);
           if (!svgString) {
             alert('Customizer is still loading. Please wait a moment and try again.');
             return;
@@ -1260,14 +1265,21 @@
         }
 
         // Bind click handlers once (never inside iframe load)
+        var pinFrame = document.getElementById('pinWidgetFrame');
         injectButtons.forEach(function(btn){
           if (!btn || btn.dataset.bound) return;
-          btn.addEventListener('click', function(){ handleCustomizerAction('inject'); });
+          btn.addEventListener('click', function(){
+            var targetFrame = (btn === injectBtn) ? frame : pinFrame;
+            handleCustomizerAction('inject', targetFrame);
+          });
           btn.dataset.bound = '1';
         });
         saveButtons.forEach(function(btn){
           if (!btn || btn.dataset.bound) return;
-          btn.addEventListener('click', function(){ handleCustomizerAction('save'); });
+          btn.addEventListener('click', function(){
+            var targetFrame = (btn === saveBtn) ? frame : pinFrame;
+            handleCustomizerAction('save', targetFrame);
+          });
           btn.dataset.bound = '1';
         });
         resetButtons.forEach(function(btn){
