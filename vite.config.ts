@@ -5,38 +5,6 @@ import { cpSync, existsSync, mkdirSync, rmSync, renameSync, readdirSync, statSyn
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const studioRewritePlugin = () => ({
-  name: 'errl-studio-rewrite',
-  configureServer(server: import('vite').ViteDevServer) {
-    server.middlewares.use((req, _res, next) => {
-      if (req.url && req.method === 'GET' && shouldRewriteStudio(req.url)) {
-        req.url = '/studio.html';
-      }
-      next();
-    });
-  },
-  configurePreviewServer(server: import('vite').PreviewServer) {
-    server.middlewares.use((req, _res, next) => {
-      if (req.url && req.method === 'GET' && shouldRewriteStudio(req.url)) {
-        req.url = '/studio.html';
-      }
-      next();
-    });
-  },
-});
-
-function shouldRewriteStudio(url: string) {
-  if (!url.startsWith('/studio')) return false;
-  // Don't rewrite if it's already studio.html
-  if (url === '/studio.html' || url.startsWith('/studio.html/')) return false;
-  if (url === '/studio' || url === '/studio/' || url === '/studio/index.html') return false;
-  // Don't rewrite specific HTML pages that should be served directly
-  if (url.includes('/svg-colorer/') || url.includes('/pin-widget/')) return false;
-  // Don't rewrite if it's a file with extension (like .js, .css, .png, etc.)
-  const hasFileExtension = /\.[a-zA-Z0-9]+($|[?#])/.test(url);
-  return !hasFileExtension;
-}
-
 const portalPagesRewritePlugin = () => ({
   name: 'errl-portal-pages-rewrite',
   configureServer(server: import('vite').ViteDevServer) {
@@ -250,22 +218,6 @@ const reorganizeBuildOutputPlugin = () => ({
       // Ignore errors
     }
     
-    // Move studio.html from apps/studio/index.html to root
-    const studioSource = resolve(appsDir, 'studio/index.html');
-    const studioDest = resolve(distDir, 'studio.html');
-    if (existsSync(studioSource)) {
-      if (existsSync(studioDest)) {
-        rmSync(studioDest, { force: true });
-      }
-      renameSync(studioSource, studioDest);
-      // Clean up empty studio directory
-      try {
-        rmSync(resolve(appsDir, 'studio'), { recursive: true, force: true });
-      } catch (e) {
-        // Ignore errors
-      }
-    }
-    
     // Move chat from apps/chatbot/index.html to chat/index.html
     const chatSource = resolve(appsDir, 'chatbot');
     const chatDest = resolve(distDir, 'chat');
@@ -308,9 +260,8 @@ const reorganizeBuildOutputPlugin = () => ({
 export default defineConfig(({ command }) => ({
   root: 'src',
   plugins: [
-    studioRewritePlugin(), 
     portalPagesRewritePlugin(), 
-    copyShapeMadnessContentPlugin(), 
+    copyShapeMadnessContentPlugin(),
     copySharedAssetsPlugin(), 
     copySharedStylesPlugin(), 
     copyRedirectsPlugin(), 
@@ -349,7 +300,6 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       input: {
         main: resolve(process.cwd(), 'src/index.html'),
-        'studio.html': resolve(process.cwd(), 'src/apps/studio/index.html'),
         // 'designer.html': resolve(process.cwd(), 'src/apps/designer/index.html'), // Built separately via vite.designer.config.ts
         // Portal pages at root level - remove portal/pages/ prefix
         'index': resolve(process.cwd(), 'src/apps/static/pages/index.html'),
