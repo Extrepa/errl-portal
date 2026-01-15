@@ -94,13 +94,13 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   max-height: 100vh;
   z-index: 3; /* L3: above rising canvas */
   pointer-events: none; /* bubbles will override this individually */
-  isolation: isolate; /* Create new stacking context */
+  /* Removed isolation: isolate to allow bubbles to layer in front/behind Errl */
 }
 .nav-orbit { 
   position: fixed; 
   inset: 0; 
   pointer-events: none;
-  z-index: 0; /* Base layer for nav orbit */
+  z-index: 0; /* Base layer for nav orbit - bubbles will override individually */
 }
 
 /* 4. Goo aura behind Errl (CSS version) */
@@ -285,7 +285,7 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   user-select: none;
   cursor: pointer;
   pointer-events: auto;
-  z-index: 5; /* Above scene layer (L3), below phone panel (L10) */
+  /* z-index set dynamically by JS to layer bubbles in front/behind Errl */
   animation: wobble 3s ease-in-out infinite, bubbleShine 8s ease-in-out infinite;
   animation-duration: calc(3s * var(--motionMultiplier, 1)), calc(8s * var(--motionMultiplier, 1));
   font-family: 'Baloo 2', 'Fredoka', 'Poppins', 'Inter', sans-serif;

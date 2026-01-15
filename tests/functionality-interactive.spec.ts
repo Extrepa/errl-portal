@@ -146,20 +146,34 @@ test.describe('Interactive Controls Tests', () => {
       await page.goto(baseURL! + '/pin-designer/pin-designer.html');
       await page.waitForLoadState('networkidle');
       await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Wait for page to fully initialize
+      await page.waitForTimeout(1000);
+
+      // Region buttons are in #bubbleRow
+      const bubbleRow = page.locator('#bubbleRow');
+      await expect(bubbleRow).toBeVisible({ timeout: 5000 });
 
       const regions = ['body', 'face', 'eyeL', 'eyeR', 'mouth'];
 
       for (const region of regions) {
-        const regionBtn = page.locator(`.bubble[data-region="${region}"]`);
-        if (await regionBtn.count() > 0) {
-          await regionBtn.click();
-          await page.waitForTimeout(200);
+        // Scope to bubbleRow to avoid duplicates
+        const regionBtn = bubbleRow.locator(`.bubble[data-region="${region}"]`);
+        const count = await regionBtn.count();
+        
+        if (count > 0) {
+          await expect(regionBtn.first()).toBeVisible({ timeout: 3000 });
+          await regionBtn.first().click({ force: true });
+          await page.waitForTimeout(300);
 
-          // Verify region is selected (has active class)
-          const isActive = await regionBtn.evaluate((el) => {
-            return el.classList.contains('active');
+          // Verify region is selected (has active or selected class)
+          const isActive = await regionBtn.first().evaluate((el) => {
+            return el.classList.contains('active') || el.classList.contains('selected');
           });
           expect(isActive).toBeTruthy();
+        } else {
+          // If button not found, skip this region
+          console.log(`Region button for "${region}" not found, skipping`);
         }
       }
     });
@@ -168,21 +182,34 @@ test.describe('Interactive Controls Tests', () => {
       await page.goto(baseURL! + '/pin-designer/pin-designer.html');
       await page.waitForLoadState('networkidle');
       await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Wait for page to fully initialize
+      await page.waitForTimeout(1000);
+
+      // Finish buttons are in #finishRow
+      const finishRow = page.locator('#finishRow');
+      await expect(finishRow).toBeVisible({ timeout: 5000 });
 
       const finishes = ['solid', 'glitter', 'glow', 'none'];
 
       for (const finish of finishes) {
         // Use the finish row context to avoid context menu duplicates
-        const finishBtn = page.locator(`#finishRow .finish[data-finish="${finish}"]`).first();
-        if (await finishBtn.count() > 0) {
-          await finishBtn.click();
-          await page.waitForTimeout(200);
+        const finishBtn = finishRow.locator(`.finish[data-finish="${finish}"]`).first();
+        const count = await finishBtn.count();
+        
+        if (count > 0) {
+          await expect(finishBtn).toBeVisible({ timeout: 3000 });
+          await finishBtn.click({ force: true });
+          await page.waitForTimeout(300);
 
-          // Verify finish is selected
+          // Verify finish is selected (has active or selected class)
           const isActive = await finishBtn.evaluate((el) => {
-            return el.classList.contains('active');
+            return el.classList.contains('active') || el.classList.contains('selected');
           });
           expect(isActive).toBeTruthy();
+        } else {
+          // If button not found, skip this finish
+          console.log(`Finish button for "${finish}" not found, skipping`);
         }
       }
     });
@@ -191,34 +218,53 @@ test.describe('Interactive Controls Tests', () => {
       await page.goto(baseURL! + '/pin-designer/pin-designer.html');
       await page.waitForLoadState('networkidle');
       await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Wait for page to fully initialize
+      await page.waitForTimeout(1000);
 
       // Test zoom in
       const zoomInBtn = page.locator('#zoomIn');
       if (await zoomInBtn.count() > 0) {
-        await zoomInBtn.click();
+        await expect(zoomInBtn).toBeVisible({ timeout: 3000 });
+        await zoomInBtn.click({ force: true });
         await page.waitForTimeout(300);
+      } else {
+        console.log('Zoom in button not found');
       }
 
       // Test zoom out
       const zoomOutBtn = page.locator('#zoomOut');
       if (await zoomOutBtn.count() > 0) {
-        await zoomOutBtn.click();
+        await expect(zoomOutBtn).toBeVisible({ timeout: 3000 });
+        await zoomOutBtn.click({ force: true });
         await page.waitForTimeout(300);
+      } else {
+        console.log('Zoom out button not found');
       }
 
       // Test fit
       const fitBtn = page.locator('#fitBtn');
       if (await fitBtn.count() > 0) {
-        await fitBtn.click();
+        await expect(fitBtn).toBeVisible({ timeout: 3000 });
+        await fitBtn.click({ force: true });
         await page.waitForTimeout(300);
+      } else {
+        console.log('Fit button not found');
       }
 
       // Test reset view
       const resetViewBtn = page.locator('#resetView');
       if (await resetViewBtn.count() > 0) {
-        await resetViewBtn.click();
+        await expect(resetViewBtn).toBeVisible({ timeout: 3000 });
+        await resetViewBtn.click({ force: true });
         await page.waitForTimeout(300);
+      } else {
+        console.log('Reset view button not found');
       }
+      
+      // Verify page is still functional after zoom operations
+      const pinSVG = page.locator('#pinSVG');
+      await expect(pinSVG).toBeVisible();
     });
 
     test('@ui panel toggle works', async ({ page, baseURL }) => {

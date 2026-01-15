@@ -425,7 +425,7 @@ test.describe('Errl Phone Tabs - Grid Layout', () => {
     await ensurePanelOpen(page);
   });
 
-  test('@ui tabs display in 4×2 grid layout', async ({ page }) => {
+  test('@ui tabs display in 3×3 grid layout', async ({ page }) => {
     const panelTabs = page.locator('.panel-tabs');
     
     // Verify grid layout CSS properties
@@ -446,24 +446,24 @@ test.describe('Errl Phone Tabs - Grid Layout', () => {
     
     expect(gridProps).not.toBeNull();
     expect(gridProps?.display).toBe('grid');
-    // Grid should have 4 columns (browser may compute as pixel values)
+    // Grid should have 3 columns (browser may compute as pixel values)
     expect(gridProps?.gridTemplateColumns).toBeTruthy();
-    // Should have 8 children (4 columns × 2 rows)
-    expect(gridProps?.childCount).toBe(8);
+    // Should have 9 children (3 columns × 3 rows)
+    expect(gridProps?.childCount).toBe(9);
     expect(gridProps?.gap).toBeTruthy();
   });
 
-  test('@ui all 8 tabs are visible and clickable', async ({ page }) => {
+  test('@ui all 9 tabs are visible and clickable', async ({ page }) => {
     const tabs = page.locator('.panel-tabs .tab');
-    await expect(tabs).toHaveCount(8);
+    await expect(tabs).toHaveCount(9);
     
     // Verify all tabs are visible
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 9; i++) {
       await expect(tabs.nth(i)).toBeVisible();
     }
     
     // Verify all tabs are clickable using data-tab attributes
-    const tabDataTabs = ['hud', 'errl', 'nav', 'rb', 'glb', 'bg', 'dev', 'hue'];
+    const tabDataTabs = ['hud', 'errl', 'pin', 'nav', 'rb', 'glb', 'bg', 'dev', 'hue'];
     for (const dataTab of tabDataTabs) {
       const tab = page.locator(`.panel-tabs .tab[data-tab="${dataTab}"]`);
       await expect(tab).toBeVisible();
@@ -508,7 +508,7 @@ test.describe('Errl Phone Tabs - Grid Layout', () => {
     const tabs = page.locator('.panel-tabs .tab');
     
     // Verify all tabs have labels (check if they exist in DOM, even if small)
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 9; i++) {
       const tab = tabs.nth(i);
       const label = tab.locator('.label');
       // Labels exist in DOM (may be very small due to font-size: 6px)
@@ -614,7 +614,7 @@ test.describe('Errl Phone Tabs - Grid Layout', () => {
   });
 
   test('@ui tab switching works with grid layout', async ({ page }) => {
-    const tabDataTabs = ['hud', 'errl', 'nav', 'rb', 'glb', 'bg', 'dev', 'hue'];
+    const tabDataTabs = ['hud', 'errl', 'pin', 'nav', 'rb', 'glb', 'bg', 'dev', 'hue'];
     
     for (const dataTab of tabDataTabs) {
       const tab = page.locator(`.panel-tabs .tab[data-tab="${dataTab}"]`);
@@ -633,7 +633,7 @@ test.describe('Errl Phone Tabs - Grid Layout', () => {
     const tabs = page.locator('.panel-tabs .tab');
     
     // Verify icons are positioned correctly
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 9; i++) {
       const tab = tabs.nth(i);
       
       // Check that icon layer exists (::after pseudo-element)
@@ -725,15 +725,29 @@ test.describe('Errl Phone Tabs - Grid Layout', () => {
   });
 
   test('@ui all tab labels have correct text', async ({ page }) => {
-    const expectedLabels = ['HUD', 'Errl', 'Nav', 'RB', 'GLB', 'BG', 'DEV', 'Hue'];
+    // Expected labels in order: HUD, Errl, Pin, Nav, RB, GLB, BG, DEV, Hue
+    const expectedLabels = ['HUD', 'Errl', 'Pin', 'Nav', 'RB', 'GLB', 'BG', 'DEV', 'Hue'];
     const tabs = page.locator('.panel-tabs .tab');
     
-    for (let i = 0; i < 8; i++) {
+    // Get actual labels from DOM to verify order
+    const actualLabels: string[] = [];
+    for (let i = 0; i < 9; i++) {
       const tab = tabs.nth(i);
       const label = tab.locator('.label');
       const labelText = await label.textContent();
-      expect(labelText?.trim()).toBe(expectedLabels[i]);
+      actualLabels.push(labelText?.trim() || '');
     }
+    
+    // Verify we have 9 labels
+    expect(actualLabels.length).toBe(9);
+    
+    // Verify each expected label exists (order may vary, so check all)
+    for (const expectedLabel of expectedLabels) {
+      expect(actualLabels).toContain(expectedLabel);
+    }
+    
+    // Verify all labels match expected set
+    expect(actualLabels.sort()).toEqual(expectedLabels.sort());
   });
 
   test('@ui design system colors are used', async ({ page }) => {

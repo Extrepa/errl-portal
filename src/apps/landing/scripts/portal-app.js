@@ -456,13 +456,15 @@
       el.style.top = y + 'px';
       el.style.transform = `translate(-50%, -50%) scale(${navOrbScale})`;
       el.style.transformOrigin = 'center center';
-      const isBehind = Math.sin(rad) < 0;
+      // Determine if bubble is behind Errl based on Y position relative to center
+      // Bubbles below center (positive sin) appear behind, bubbles above appear in front
+      const isBehind = Math.sin(rad) > 0; // Positive sin = below center = behind Errl
       if (isBehind) {
         el.classList.add('bubble--behind');
-        el.style.zIndex = '0';
+        el.style.zIndex = '0'; // Behind Errl (z-index 1)
       } else {
         el.classList.remove('bubble--behind');
-        el.style.zIndex = '5';
+        el.style.zIndex = '2'; // In front of Errl (z-index 1)
       }
       visibleIndex++;
     });

@@ -1,0 +1,64 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic:
+    - generic:
+      - img "Errl — full body with limbs"
+    - generic:
+      - link "About" [ref=e2] [cursor=pointer]:
+        - /url: /about/
+        - generic: About
+      - link "Gallery" [ref=e3] [cursor=pointer]:
+        - /url: /gallery/
+        - generic: Gallery
+      - link "Assets" [ref=e4] [cursor=pointer]:
+        - /url: /assets/
+        - generic: Assets
+      - link "Studio" [ref=e5] [cursor=pointer]:
+        - /url: /studio/
+        - generic: Studio
+      - link "Design" [ref=e6] [cursor=pointer]:
+        - /url: /design/
+        - generic: Design
+      - link "Chat" [ref=e7] [cursor=pointer]:
+        - /url: /chat
+        - generic: Chat
+  - img
+  - complementary [ref=e8]:
+    - generic "Close" [ref=e10] [cursor=pointer]: ×
+    - generic [ref=e11]:
+      - button "HUD" [ref=e12] [cursor=pointer]:
+        - generic [ref=e13]: HUD
+      - button "Errl" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: Errl
+      - button "Pin Widget" [ref=e16] [cursor=pointer]:
+        - generic [ref=e17]: Pin
+      - button "Nav" [ref=e18] [cursor=pointer]:
+        - generic [ref=e19]: Nav
+      - button "Rising Bubbles" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: RB
+      - button "GL Bubbles" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]: GLB
+      - button "Background" [ref=e24] [cursor=pointer]:
+        - generic [ref=e25]: BG
+      - button "Developer" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: DEV
+      - button "Hue" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]: Hue
+    - generic [ref=e31]:
+      - generic [ref=e32]: Developer Tools
+      - generic "Open the pin widget in a larger modal" [ref=e33]:
+        - button "Open Pin Widget" [ref=e34] [cursor=pointer]
+      - generic "Save a PNG screenshot" [ref=e35]:
+        - button "Save PNG" [ref=e36] [cursor=pointer]: 📷 PNG
+      - generic "Export HTML/CSS/JS with current panel settings applied on load" [ref=e37]:
+        - button "Snapshot" [ref=e38] [cursor=pointer]
+        - generic [ref=e39]: HTML/CSS/JS
+      - generic "Save all current settings as defaults (local)" [ref=e40]:
+        - button "Save Defaults" [active] [ref=e41] [cursor=pointer]
+        - button "Reset Defaults" [ref=e42] [cursor=pointer]
+        - button "Export Settings" [ref=e43] [cursor=pointer]
+        - button "Import Settings" [ref=e44] [cursor=pointer]
+        - generic [ref=e45]: (stored in local)
+```

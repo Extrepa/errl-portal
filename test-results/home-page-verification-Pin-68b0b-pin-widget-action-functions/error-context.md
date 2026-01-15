@@ -1,0 +1,68 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic:
+    - generic:
+      - img "Errl — full body with limbs"
+    - generic:
+      - link "About" [ref=e2] [cursor=pointer]:
+        - /url: /about/
+        - generic: About
+      - link "Gallery" [ref=e3] [cursor=pointer]:
+        - /url: /gallery/
+        - generic: Gallery
+      - link "Assets" [ref=e4] [cursor=pointer]:
+        - /url: /assets/
+        - generic: Assets
+      - link "Studio" [ref=e5] [cursor=pointer]:
+        - /url: /studio/
+        - generic: Studio
+      - link "Design" [ref=e6] [cursor=pointer]:
+        - /url: /design/
+        - generic: Design
+      - link "Chat" [ref=e7] [cursor=pointer]:
+        - /url: /chat
+        - generic: Chat
+  - img
+  - complementary [ref=e8]:
+    - generic "Close" [ref=e10] [cursor=pointer]: ×
+    - generic [ref=e11]:
+      - button "HUD" [ref=e12] [cursor=pointer]:
+        - generic [ref=e13]: HUD
+      - button "Errl" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: Errl
+      - button "Pin Widget" [active] [ref=e16] [cursor=pointer]:
+        - generic [ref=e17]: Pin
+      - button "Nav" [ref=e18] [cursor=pointer]:
+        - generic [ref=e19]: Nav
+      - button "Rising Bubbles" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: RB
+      - button "GL Bubbles" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]: GLB
+      - button "Background" [ref=e24] [cursor=pointer]:
+        - generic [ref=e25]: BG
+      - button "Developer" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: DEV
+      - button "Hue" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]: Hue
+    - generic [ref=e31]:
+      - generic "Pin widget controls" [ref=e32]: Pin Widget
+      - generic [ref=e33]:
+        - button "Inject to Home" [ref=e34] [cursor=pointer]
+        - button "Save SVG" [ref=e35] [cursor=pointer]
+        - button "Reset Default" [ref=e36] [cursor=pointer]
+        - button "Open Larger View" [ref=e37] [cursor=pointer]
+      - iframe [ref=e38]:
+        - generic [ref=f1e2]:
+          - button "Load Load your own SVG to customize." [ref=f1e3] [cursor=pointer]
+          - img [ref=f1e5]
+          - text: "Close this panel. Set glitter style: Gold + Pink. Set glitter style: Silver. Set glitter style: Rainbow. Apply changes to the selected region."
+          - button "Randomize" [ref=f1e17] [cursor=pointer]: "Randomize all regions. Tip: double-click a region to randomize just that region."
+          - generic:
+            - generic:
+              - generic:
+                - generic: Double-click any region to randomize
+              - generic:
+                - generic: Right-click any region to customize
+```

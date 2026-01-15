@@ -1,0 +1,100 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic:
+    - generic:
+      - img "Errl — full body with limbs"
+    - generic:
+      - link "About" [ref=e2] [cursor=pointer]:
+        - /url: /about/
+        - generic: About
+      - link "Gallery" [ref=e3] [cursor=pointer]:
+        - /url: /gallery/
+        - generic: Gallery
+      - link "Assets" [ref=e4] [cursor=pointer]:
+        - /url: /assets/
+        - generic: Assets
+      - link "Studio" [ref=e5] [cursor=pointer]:
+        - /url: /studio/
+        - generic: Studio
+      - link "Design" [ref=e6] [cursor=pointer]:
+        - /url: /design/
+        - generic: Design
+      - link "Chat" [ref=e7] [cursor=pointer]:
+        - /url: /chat
+        - generic: Chat
+  - img
+  - complementary [ref=e8]:
+    - generic "Close" [ref=e10] [cursor=pointer]: ×
+    - generic [ref=e11]:
+      - button "HUD" [ref=e12] [cursor=pointer]:
+        - generic [ref=e13]: HUD
+      - button "Errl" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: Errl
+      - button "Pin Widget" [ref=e16] [cursor=pointer]:
+        - generic [ref=e17]: Pin
+      - button "Nav" [ref=e18] [cursor=pointer]:
+        - generic [ref=e19]: Nav
+      - button "Rising Bubbles" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: RB
+      - button "GL Bubbles" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]: GLB
+      - button "Background" [ref=e24] [cursor=pointer]:
+        - generic [ref=e25]: BG
+      - button "Developer" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: DEV
+      - button "Hue" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]: Hue
+    - generic [ref=e30]:
+      - generic [ref=e31]:
+        - generic "Canvas particle bubbles rising behind the scene" [ref=e32]: Rising Bubbles (Canvas)
+        - generic [ref=e33]:
+          - generic "Pointer attracts/repels bubbles" [ref=e34]: Attract
+          - checkbox "Attract" [checked] [ref=e35] [cursor=pointer]
+          - generic "Attract effect intensity" [ref=e36]: Intensity
+          - slider "Intensity" [ref=e37]: "1"
+        - generic [ref=e38]:
+          - generic "Show water-like ripples on click" [ref=e39]: Ripples
+          - checkbox "Ripples" [ref=e40] [cursor=pointer]
+          - generic "Ripple effect intensity" [ref=e41]: Intensity
+          - slider "Intensity" [ref=e42]: "1.2"
+        - generic [ref=e43]:
+          - generic "How fast bubbles rise" [ref=e44]: Speed
+          - slider "Speed" [ref=e45]: "1.5"
+        - generic [ref=e46]:
+          - generic "How many bubbles appear" [ref=e47]: Density
+          - slider "Density" [ref=e48]: "1.2"
+        - generic [ref=e49]:
+          - generic "Opacity of the bubbles" [ref=e50]: Alpha
+          - slider "Alpha" [active] [ref=e51]: "0.9"
+      - generic [ref=e52]:
+        - generic [ref=e53]: RB Bubbles Advanced
+        - generic [ref=e54]:
+          - generic "Side-to-side wiggle of bubbles as they rise" [ref=e55]: Wobble
+          - slider "Wobble" [ref=e56]: "1"
+        - generic [ref=e57]:
+          - generic "How quickly wobble oscillates" [ref=e58]: Frequency
+          - slider "Frequency" [ref=e59]: "1"
+        - generic [ref=e60]:
+          - generic "Smallest bubble size" [ref=e61]: Min size
+          - spinbutton "Min size" [ref=e62]: "14"
+          - generic "Largest bubble size" [ref=e63]: Max
+          - spinbutton "Max" [ref=e64]: "36"
+        - generic [ref=e65]:
+          - generic "Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles." [ref=e66]: Jumbo Percent
+          - slider "Jumbo Percent" [ref=e67]: "0.1"
+        - generic [ref=e68]:
+          - generic "Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size." [ref=e69]: Jumbo Scale
+          - slider "Jumbo Scale" [ref=e70]: "1.6"
+        - generic [ref=e71]:
+          - generic "Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing." [ref=e72]: Size Hertz
+          - slider "Size Hertz" [ref=e73]: "0"
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - button "⟲" [ref=e77] [cursor=pointer]
+            - button "↔︎" [ref=e78] [cursor=pointer]
+          - generic [ref=e79]: Speed
+          - spinbutton "Animation Speed" [ref=e80]: "0.10"
+          - button "Play" [ref=e81] [cursor=pointer]
+```

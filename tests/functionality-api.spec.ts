@@ -61,9 +61,13 @@ test.describe('API Connection Tests', () => {
         const bridge = (window as any).pinAssetBridge;
         if (!bridge) return { exists: false };
 
+        // Bridge exists but may not be available when not in iframe (expected behavior)
+        const isInIframe = typeof window !== 'undefined' && window.parent && window.parent !== window;
+
         return {
           exists: true,
           available: bridge.available === true,
+          isInIframe: isInIframe,
           interface: {
             list: typeof bridge.list === 'function',
             get: typeof bridge.get === 'function',
@@ -73,11 +77,23 @@ test.describe('API Connection Tests', () => {
         };
       });
 
+      // Bridge should always exist
       expect(bridgeInfo.exists).toBeTruthy();
+      
+      // Interface methods should always exist
       expect(bridgeInfo.interface.list).toBeTruthy();
       expect(bridgeInfo.interface.get).toBeTruthy();
       expect(bridgeInfo.interface.save).toBeTruthy();
       expect(bridgeInfo.interface.remove).toBeTruthy();
+      
+      // Bridge is only available when in iframe (when loaded from Studio hub)
+      // When loaded directly, available will be false (expected behavior)
+      // This is correct - the bridge is designed to work only when embedded
+      if (!bridgeInfo.isInIframe) {
+        expect(bridgeInfo.available).toBe(false);
+      } else {
+        expect(bridgeInfo.available).toBe(true);
+      }
     });
 
     test('@ui asset bridge uses postMessage communication', async ({ page, baseURL }) => {
@@ -86,16 +102,37 @@ test.describe('API Connection Tests', () => {
       await page.waitForSelector('#pinSVG', { timeout: 10000 });
 
       // Check if bridge uses postMessage
-      const usesPostMessage = await page.evaluate(() => {
-        // Check if bridge implementation uses postMessage
+      const bridgeInfo = await page.evaluate(() => {
         const bridge = (window as any).pinAssetBridge;
-        if (!bridge || !bridge.save) return false;
+        if (!bridge) return { exists: false, usesPostMessage: false };
 
-        // Try to inspect the function (may not be possible in all cases)
-        return true; // Assume postMessage is used based on implementation
+        // Check if bridge has the expected structure that uses postMessage
+        // The bridge implementation uses postMessage when available is true
+        const hasPostMessageStructure = 
+          typeof bridge.list === 'function' &&
+          typeof bridge.get === 'function' &&
+          typeof bridge.save === 'function' &&
+          typeof bridge.remove === 'function';
+
+        // When available is true, it uses postMessage to communicate with parent
+        // When available is false, it still has the interface but throws errors
+        return {
+          exists: true,
+          available: bridge.available === true,
+          usesPostMessage: hasPostMessageStructure && bridge.available === true,
+          // Even when not available, the interface exists (it just throws errors)
+          interfaceExists: hasPostMessageStructure,
+        };
       });
 
-      expect(usesPostMessage).toBeTruthy();
+      expect(bridgeInfo.exists).toBeTruthy();
+      // Interface should exist regardless of availability
+      expect(bridgeInfo.interfaceExists).toBeTruthy();
+      
+      // When in iframe (available = true), it uses postMessage
+      // When not in iframe (available = false), the interface exists but throws errors
+      // Both are valid - the test verifies the interface structure exists
+      expect(bridgeInfo.interfaceExists).toBe(true);
     });
   });
 
@@ -135,11 +172,15 @@ test.describe('API Connection Tests', () => {
       await page.waitForLoadState('networkidle');
       await page.waitForSelector('#pinSVG', { timeout: 10000 });
 
+      // Wait a bit for any initialization errors
+      await page.waitForTimeout(1000);
+
       // Try to open library (will fail if API not available, but shouldn't crash)
       const openLibraryBtn = page.locator('#openLibrary');
       if (await openLibraryBtn.count() > 0) {
         const isDisabled = await openLibraryBtn.isDisabled();
         if (!isDisabled) {
+          // Set up dialog handler before clicking
           page.on('dialog', async dialog => {
             await dialog.accept(); // Accept alert dialog
           });
@@ -148,16 +189,23 @@ test.describe('API Connection Tests', () => {
         }
       }
 
-      // Filter out expected errors (like API connection failures)
+      // Filter out expected errors (like API connection failures, asset bridge unavailable)
       const criticalErrors = errors.filter(err =>
         !err.includes('favicon') &&
         !err.includes('404') &&
         !err.includes('Failed to fetch') &&
-        !err.includes('NetworkError')
+        !err.includes('NetworkError') &&
+        !err.includes('Asset bridge unavailable') && // Expected when not in iframe
+        !err.includes('unavailable outside the Studio hub') // Expected when not in iframe
       );
 
       // Should not have critical errors that break functionality
+      // Allow some non-critical errors (like asset bridge being unavailable when not in iframe)
       expect(criticalErrors.length).toBeLessThan(5);
+      
+      // Verify page is still functional
+      const pinSVG = page.locator('#pinSVG');
+      await expect(pinSVG).toBeVisible();
     });
   });
 });

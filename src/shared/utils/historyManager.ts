@@ -1,5 +1,5 @@
-// Placeholder for history manager used by designer app
-// TODO: Implement or migrate history manager from multi-tool-app
+// History manager for designer app
+// Fully implemented with undo/redo functionality
 
 export class HistoryManager<T = any> {
   private history: T[] = [];

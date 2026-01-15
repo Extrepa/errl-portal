@@ -6,22 +6,24 @@
 ## Directory Structure
 ```
 errl-portal/
-- `05-Logs/`
-  - `Daily/`
-- `ADDITIONAL_FIXES_COMPLETED.md`
-- `COMPREHENSIVE_FIXES_SUMMARY.md`
-- `DESIGN_SYSTEM_MIGRATION_NOTES.md`
-- `FINAL_VERIFICATION.md`
-- `FIXES_VERIFICATION.md`
-- `GRID_LAYOUT_VERIFICATION_COMPLETE.md`
-- `IMPLEMENTATION_COMPLETE.md`
-- `IMPLEMENTATION_SUMMARY.md`
-- `IMPLEMENTATION_VERIFICATION_COMPLETE.md`
-- `INDEX.md`
-- `NAV_BUBBLES_AND_TABS_VERIFICATION.md`
-- `PROJECT_STATUS.md`
-- `README.md`
-  ... (28 more items)
+├── README.md              # Main project documentation
+├── PURPOSE.md             # Project purpose
+├── package.json           # Dependencies and scripts
+├── src/                   # Source code
+│   ├── apps/             # Multi-app structure
+│   ├── shared/           # Shared utilities
+│   └── components/        # Portal components
+├── docs/                  # Documentation
+│   ├── internal/         # Internal development docs
+│   │   ├── verification/ # Verification reports
+│   │   ├── deployment/   # Deployment logs
+│   │   ├── testing/      # Testing summaries
+│   │   └── implementation/ # Implementation logs
+│   ├── architecture.md   # Technical architecture
+│   ├── project-structure.md # This file
+│   └── effects-master-reference.md # Effects reference
+├── tests/                 # Test files
+└── tools/                 # Development tools
 ```
 
 ## File Organization
@@ -34,9 +36,11 @@ errl-portal/
 
 ### Documentation
 
-- Root documentation files
-- docs/ directory (this directory)
-- README.md
+- `README.md` - Main project documentation (root)
+- `PURPOSE.md` - Project purpose (root)
+- `docs/` - Organized documentation
+  - Public docs: architecture, project structure, effects reference
+  - Internal docs: verification, deployment, testing, implementation logs
 
 ### Build and Distribution
 
