@@ -1891,6 +1891,13 @@
     const sections = Array.from(panel.querySelectorAll('.panel-section'));
     const toTop = document.getElementById('panelScrollTop');
 
+    function lockPanelToCorner() {
+      panel.style.left = 'auto';
+      panel.style.top = 'auto';
+      panel.style.right = '10px';
+      panel.style.bottom = '10px';
+    }
+
     function activateTab(key){
       // toggle buttons
       if (tabsWrap){
@@ -1927,6 +1934,7 @@
     function minimizePanel() {
       panel.classList.add('minimized');
       clearMinimizedInlineStyles();
+      lockPanelToCorner();
       try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
     }
 
@@ -1934,6 +1942,7 @@
     function restorePanel() {
       panel.classList.remove('minimized');
       clearMinimizedInlineStyles();
+      lockPanelToCorner();
       // Show content again (CSS handles layout)
       const headerEl = panel.querySelector('.panel-header');
       const tabsEl = panel.querySelector('.panel-tabs');
@@ -1981,29 +1990,9 @@
       }
     });
 
-    // drag move (fixed positioning)
-    if (header){
-      let dragging=false, sx=0, sy=0, startLeft=0, startTop=0;
-      function px(v){ return Math.max(0, Math.round(v)); }
-      header.addEventListener('pointerdown', (e)=>{
-        dragging = true; panel.classList.add('dragging'); header.setPointerCapture(e.pointerId);
-        const r = panel.getBoundingClientRect();
-        // switch to left/top for free movement
-        panel.style.left = px(r.left) + 'px';
-        panel.style.top = px(r.top) + 'px';
-        panel.style.right = 'auto';
-        sx = e.clientX; sy = e.clientY; startLeft = r.left; startTop = r.top;
-      });
-      header.addEventListener('pointermove', (e)=>{
-        if (!dragging) return;
-        const dx = e.clientX - sx; const dy = e.clientY - sy;
-        panel.style.left = px(startLeft + dx) + 'px';
-        panel.style.top = px(startTop + dy) + 'px';
-      });
-      const end = (e)=>{ if (!dragging) return; dragging=false; panel.classList.remove('dragging'); header.releasePointerCapture?.(e.pointerId); };
-      header.addEventListener('pointerup', end);
-      header.addEventListener('pointercancel', end);
-    }
+    // Keep the main phone panel locked to the corner.
+    lockPanelToCorner();
+    window.addEventListener('resize', lockPanelToCorner);
 
     // scroll-to-top button - use content wrapper for scrolling
     const contentWrapper = panel.querySelector('.panel-content-wrapper');

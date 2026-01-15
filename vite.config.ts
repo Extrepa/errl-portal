@@ -192,60 +192,61 @@ const reorganizeBuildOutputPlugin = () => ({
     
     if (!existsSync(appsDir)) return;
     
-    // Move pages from apps/static/pages/ to root
-    const pagesSourceDir = resolve(appsDir, 'static/pages');
-    if (existsSync(pagesSourceDir)) {
-      // Move each file/directory from pagesSourceDir to dist root
-      const moveRecursive = (source: string, dest: string) => {
-        if (!existsSync(source)) return;
-        
-        const stats = statSync(source);
-        if (stats.isDirectory()) {
-          // Create destination directory if it doesn't exist
-          if (!existsSync(dest)) {
-            mkdirSync(dest, { recursive: true });
-          }
-          // Move contents
-          const entries = readdirSync(source);
-          for (const entry of entries) {
-            moveRecursive(resolve(source, entry), resolve(dest, entry));
-          }
-          // Remove empty source directory
-          try {
-            rmSync(source, { recursive: true, force: true });
-          } catch (e) {
-            // Ignore errors if directory not empty or already removed
-          }
-        } else {
-          // Create parent directory if needed
-          const destParent = pathDirname(dest);
-          if (!existsSync(destParent)) {
-            mkdirSync(destParent, { recursive: true });
-          }
-          // Move file
-          if (existsSync(dest)) {
-            rmSync(dest, { force: true });
-          }
-          renameSync(source, dest);
+    const moveRecursive = (source: string, dest: string) => {
+      if (!existsSync(source)) return;
+
+      const stats = statSync(source);
+      if (stats.isDirectory()) {
+        if (!existsSync(dest)) {
+          mkdirSync(dest, { recursive: true });
         }
-      };
-      
+        const entries = readdirSync(source);
+        for (const entry of entries) {
+          moveRecursive(resolve(source, entry), resolve(dest, entry));
+        }
+        try {
+          rmSync(source, { recursive: true, force: true });
+        } catch (e) {
+          // Ignore errors if directory not empty or already removed
+        }
+      } else {
+        const destParent = pathDirname(dest);
+        if (!existsSync(destParent)) {
+          mkdirSync(destParent, { recursive: true });
+        }
+        if (existsSync(dest)) {
+          rmSync(dest, { force: true });
+        }
+        renameSync(source, dest);
+      }
+    };
+
+    const pagesSourceDirs = [
+      resolve(appsDir, 'static/pages'),
+      resolve(distDir, 'portal/pages'),
+    ];
+
+    for (const pagesSourceDir of pagesSourceDirs) {
+      if (!existsSync(pagesSourceDir)) continue;
       const entries = readdirSync(pagesSourceDir);
       for (const entry of entries) {
-        // Don't overwrite main index.html - it's the portal entry point
         if (entry === 'index.html' && existsSync(resolve(distDir, 'index.html'))) {
-          // Skip - keep the main portal index.html
           continue;
         }
         moveRecursive(resolve(pagesSourceDir, entry), resolve(distDir, entry));
       }
-      
-      // Clean up empty directories
-      try {
-        rmSync(resolve(appsDir, 'static'), { recursive: true, force: true });
-      } catch (e) {
-        // Ignore errors
-      }
+    }
+
+    // Clean up empty directories
+    try {
+      rmSync(resolve(appsDir, 'static'), { recursive: true, force: true });
+    } catch (e) {
+      // Ignore errors
+    }
+    try {
+      rmSync(resolve(distDir, 'portal'), { recursive: true, force: true });
+    } catch (e) {
+      // Ignore errors
     }
     
     // Move studio.html from apps/studio/index.html to root

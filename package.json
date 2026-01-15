@@ -7,7 +7,7 @@
   "scripts": {
     "start": "npm run portal:dev",
     "portal:dev": "vite",
-    "portal:build": "vite build",
+    "portal:build": "vite build && npm run designer:build",
     "portal:preview": "electron electron/main.js",
     "portal:preview:dev": "NODE_ENV=development electron electron/main.js",
     "portal:backup": "bash tools/portal/backup-dist.sh",

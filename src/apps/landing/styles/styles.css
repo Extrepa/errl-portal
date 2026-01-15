@@ -1017,26 +1017,7 @@ body.perf-safe *::after {
   box-shadow: 0 0 10px rgba(var(--errl-accent-rgb), 0.3);
 }
 
-/* Responsive panel scaling for larger viewports */
-/* Mobile (default): 1x scale (180px x 280px) - perfect as is */
-/* Tablet and up: Scale panel proportionally */
-@media (min-width: 768px) {
-  .errl-panel:not(.minimized) {
-    --panel-scale: 1.5;
-  }
-}
-
-@media (min-width: 1024px) {
-  .errl-panel:not(.minimized) {
-    --panel-scale: 1.75;
-  }
-}
-
-@media (min-width: 1440px) {
-  .errl-panel:not(.minimized) {
-    --panel-scale: 2;
-  }
-}
+/* Keep the Errl panel scale consistent across viewports to avoid stretching. */
 
 /* Ensure minimized state is never scaled */
 .errl-panel.minimized {
