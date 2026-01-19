@@ -263,3 +263,88 @@ All automated checks pass. Manual testing recommended for:
 - DEV tab render path uses `viewLogs` and displays only `log.message` (no timestamps).
 - Export path uses `archiveLogs` and formats `time` + `level` + `message`.
 - Lints: `src/index.html` clean.
+
+---
+
+## Final Verification: Commits & Repository Cleanup (2026-01-18)
+
+### Commits Created (4 total)
+
+1. **`0b27ac4`** - Restore nav bubble orbit with dynamic front/behind layering
+   - Files: `portal-app.js`, `styles.css`, `index.html`, `2026-01-19-cursor-notes.md`
+   - Changes: 784 insertions, 105 deletions
+   - ✅ Circular orbit restored using `data-angle`/`data-dist` with `Math.cos`/`Math.sin`
+   - ✅ Dynamic layering: bubbles move between `#navOrbitBehind` (z-index 0) and `#navOrbit` (z-index 2) based on orbital Y position
+   - ✅ Hysteresis band (10px) prevents jitter near centerline
+   - ✅ `pointer-events: auto` maintained on bubbles for clickability
+   - ✅ Dev tools: Outlines slider + Dev log viewer with persistence
+
+2. **`f68c241`** - Update baseline-browser-mapping to 2.9.15
+   - Files: `package.json`, `package-lock.json`
+   - Changes: 9 insertions, 7 deletions
+   - ✅ Dependency updated from `^2.8.26` to `^2.9.15`
+   - ✅ Resolves build warning about outdated baseline data
+
+3. **`62e126f`** - studio: add LimeWire simulator entry
+   - Files: `studio/index.html`, `Studio.tsx`, `vite.config.ts`, `limewire-simulator/index.html`, integration log
+   - Changes: 1124 insertions, 9 deletions
+   - ✅ Studio routing + entry point added
+
+4. **`9e5acbe`** - Ignore .npm-cache and debug helpers
+   - Files: `.gitignore`
+   - Changes: 3 insertions
+   - ✅ Added `.npm-cache/` to ignore list
+   - ✅ Added `debug-bubbles.js` to ignore list
+
+### Code Verification
+
+#### Nav Bubble Orbit (`portal-app.js`)
+- ✅ **Function name**: `placeBubble` (not `placeRow`) - correct
+- ✅ **Orbit calculation**: Uses `Math.cos(rad) * dist` and `Math.sin(rad) * dist` around Errl center (`cx`, `cy`)
+- ✅ **Dynamic layering**: `shouldBeBehind = y >= cy + hysteresis` logic correctly implemented
+- ✅ **Container switching**: `targetParent.appendChild(el)` moves bubbles between containers
+- ✅ **NaN guard**: Validation `if (!Number.isFinite(x) || !Number.isFinite(y)) return;` occurs BEFORE DOM writes
+- ✅ **Z-index enforcement**: Inline styles set for `orbitFront` (z-index 2), `orbitBehind` (z-index 0), `errl` (z-index 1)
+- ✅ **Nav controls**: `navOrbitSpeed`, `navRadius`, `navOrbSize` inputs still queried and functional
+
+#### CSS Layering (`styles.css`)
+- ✅ **Base rule**: `.nav-orbit` has `position: fixed`, `inset: 0`, `pointer-events: none`
+- ✅ **Behind layer**: `.nav-orbit--behind { z-index: 0 !important; }`
+- ✅ **Front layer**: `.nav-orbit--front { z-index: 2 !important; }`
+- ✅ **Errl z-index**: Errl wrapper should have z-index 1 (verified in HTML/JS)
+
+#### HTML Structure (`index.html`)
+- ✅ **Container order**: `#navOrbitBehind` (line 63) → `#errl` (line 66) → `#navOrbit` (line 83)
+- ✅ **Classes**: Both containers have `nav-orbit` base class + modifier (`nav-orbit--behind` / `nav-orbit--front`)
+- ✅ **Bubbles**: All bubbles initially in `#navOrbit` (front), dynamically moved by JS
+- ✅ **Dev tools**: Outlines slider (line ~231) and Dev log viewer (lines 385-396, 404-536) present
+
+#### Dev Log Viewer Safety
+- ✅ **Console originals**: `window.__errlConsoleOriginals` exposed (line 484)
+- ✅ **Outlines slider**: Uses originals + `errlDevLog.add()` to avoid double-logging (lines 1195-1197)
+
+### Repository Status
+
+- ✅ **Working tree**: Clean (`git status` shows "nothing to commit")
+- ✅ **Untracked files**: `.npm-cache/` and `debug-bubbles.js` are now ignored (won't show in `git status`)
+- ✅ **Branch status**: `main` is ahead of `origin/main` by 5 commits (includes previous `e323e29` NaN fix)
+- ✅ **Total changes**: 1920 insertions, 121 deletions across 12 files
+
+### Verification Checklist
+
+- [x] All commits have descriptive messages
+- [x] Commits are logically separated (orbit, baseline, studio, gitignore)
+- [x] No debug code committed (`debug-bubbles.js` ignored, not committed)
+- [x] No cache churn committed (`.npm-cache/` ignored)
+- [x] Code changes verified:
+  - [x] Orbit logic uses circular motion (cos/sin)
+  - [x] Dynamic layering switches containers based on Y position
+  - [x] Z-index rules enforce stacking order
+  - [x] Nav controls remain functional
+  - [x] Dev tools integrated safely
+- [x] Build artifacts not committed
+- [x] Working tree clean
+
+### Status: ✅ All Verification Complete
+
+All commits are clean, properly separated, and verified. Repository is ready for push (when user chooses).
