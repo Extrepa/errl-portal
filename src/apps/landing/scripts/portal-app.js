@@ -255,7 +255,105 @@
   on(audioMasterSlider, 'input', ()=> audioEngine.setMaster(parseFloat(audioMasterSlider.value || '0')));
   on(audioBassSlider, 'input', ()=> audioEngine.setBass(parseFloat(audioBassSlider.value || '0')));
 
-  // GL Overlay controls removed
+  // Shimmer toggle control (BG tab)
+  (function shimmerControl(){
+    const toggle = $("shimmerToggle");
+    if (!toggle) return;
+
+    function ensureBackgroundMounted(){
+      if (document.querySelector('.errl-bg')) return true;
+      if (window.ErrlBG && typeof window.ErrlBG.mount === 'function') {
+        try{
+          // Mount with shimmer present so we can hide/show it.
+          window.ErrlBG.mount({ headerVariant: 2, shimmer: true, parallax: true, hud: false, basePath: '.' });
+          return true;
+        }catch(e){
+          console.warn('Shimmer mount failed:', e);
+          return false;
+        }
+      }
+      return false;
+    }
+
+    function apply(){
+      // Only mount when enabling (avoid creating background just to disable).
+      if (toggle.checked) ensureBackgroundMounted();
+      const shimmer = document.querySelector('.errl-bg .shimmer');
+      if (shimmer && shimmer.style) shimmer.style.display = toggle.checked ? '' : 'none';
+    }
+
+    on(toggle, 'change', apply);
+    // Apply once on load (covers default checked state even before persistence runs).
+    apply();
+  })();
+
+  // Vignette toggle control (BG tab)
+  (function vignetteControl(){
+    const toggle = $("vignetteToggle");
+    if (!toggle) return;
+
+    function ensureBackgroundMounted(){
+      if (document.querySelector('.errl-bg')) return true;
+      if (window.ErrlBG && typeof window.ErrlBG.mount === 'function') {
+        try{
+          // Mount with shimmer present so controls can hide/show layers independently.
+          window.ErrlBG.mount({ headerVariant: 2, shimmer: true, parallax: true, hud: false, basePath: '.' });
+          // Respect current shimmer toggle if present.
+          const shimmerToggle = document.getElementById('shimmerToggle');
+          if (shimmerToggle && shimmerToggle.type === 'checkbox' && !shimmerToggle.checked) {
+            const shimmer = document.querySelector('.errl-bg .shimmer');
+            if (shimmer && shimmer.style) shimmer.style.display = 'none';
+          }
+          return true;
+        }catch(e){
+          console.warn('Vignette mount failed:', e);
+          return false;
+        }
+      }
+      return false;
+    }
+
+    function apply(){
+      if (toggle.checked) ensureBackgroundMounted();
+      const bgVig = document.querySelector('.errl-bg .vignette');
+      if (bgVig && bgVig.style) bgVig.style.display = toggle.checked ? '' : 'none';
+      document.querySelectorAll('.vignette-frame').forEach((el) => {
+        if (el && el.style) el.style.display = toggle.checked ? '' : 'none';
+      });
+    }
+
+    on(toggle, 'change', apply);
+    apply();
+  })();
+
+  // GL Overlay controls (BG tab)
+  (function glOverlayControls(){
+    const alpha = $("glOverlayAlpha");
+    const dx = $("glOverlayDX");
+    const dy = $("glOverlayDY");
+    if (!alpha || !dx || !dy) return;
+
+    function withOverlay(fn, attempt = 0){
+      if (typeof window.errlGLSetOverlay === 'function') {
+        try{ fn(); }catch(_){}
+        return;
+      }
+      if (attempt > 40) return;
+      setTimeout(() => withOverlay(fn, attempt + 1), 250);
+    }
+
+    function apply(){
+      const a = parseFloat(alpha.value || '0.28');
+      const x = parseFloat(dx.value || '24');
+      const y = parseFloat(dy.value || '18');
+      withOverlay(() => {
+        window.errlGLSetOverlay({ alpha: a, dx: x, dy: y });
+      });
+    }
+
+    ;[alpha, dx, dy].forEach((el) => on(el, 'input', apply));
+    apply();
+  })();
 
   // GL background bubbles + persist minimal defaults
   function setBubs(p){ window.errlGLSetBubbles && window.errlGLSetBubbles(p); }
@@ -772,12 +870,16 @@
     const g = document.getElementById('navGrip');
     const d = document.getElementById('navDrip');
     const v = document.getElementById('navVisc');
+    function gradientAnimating(){
+      return !!window.__errlNavGradientAnimating;
+    }
     function apply(){
       // Only apply if WebGL goo setter exists; do NOT auto-initialize GL
       if (!window.errlGLSetGoo) return;
       const params = {};
       if (w) params.wiggle = parseFloat(w.value);
-      if (f) params.speed = parseFloat(f.value);
+      // Keep goo static unless Slow Gradient is active.
+      if (f) params.speed = gradientAnimating() ? parseFloat(f.value) : 0;
       // Grip affects viscosity - higher grip = more resistance = more visible animation
       // Use grip if available, otherwise fall back to viscosity
       if (g) {
@@ -1168,6 +1270,8 @@
     let gradientRaf = null;
     const slowGradientBtn = $("navSlowGradient");
     const gradientPlayPause = $("navGradientPlayPause");
+    // Global flag used by Nav Goo+ controls to gate animation.
+    window.__errlNavGradientAnimating = false;
     
     // Expose stop function for reset
     window.__errlStopNavGradient = function() {
@@ -1177,6 +1281,7 @@
     function startGradientAnimation(){
       if (gradientAnimating || !window.errlGLSetGoo) return;
       gradientAnimating = true;
+      window.__errlNavGradientAnimating = true;
       const startTime = Date.now();
       const period = 8000; // 8 second cycle
       
@@ -1202,9 +1307,30 @@
     
     function stopGradientAnimation(){
       gradientAnimating = false;
+      window.__errlNavGradientAnimating = false;
       if (gradientRaf) {
         cancelAnimationFrame(gradientRaf);
         gradientRaf = null;
+      }
+      // Immediately stop motion by forcing speed to 0 (keep other params).
+      if (typeof window.errlGLSetGoo === 'function') {
+        const w = $("navWiggle");
+        const g = $("navGrip");
+        const d = $("navDrip");
+        const params = { speed: 0 };
+        if (w) {
+          const wig = parseFloat(w.value || '0');
+          if (Number.isFinite(wig)) params.wiggle = wig;
+        }
+        if (g) {
+          const vis = parseFloat(g.value || '0');
+          if (Number.isFinite(vis)) params.viscosity = vis;
+        }
+        if (d) {
+          const dr = (parseFloat(d.value || '0') + 1) / 2;
+          if (Number.isFinite(dr)) params.drip = dr;
+        }
+        window.errlGLSetGoo(params);
       }
       updateGradientButton();
     }
@@ -1232,7 +1358,8 @@
         const f = $("navFlow"); if (f) f.value = 0.3;
         const w = $("navWiggle"); if (w) w.value = 0.2;
         const g = $("navGrip"); if (g) g.value = 0.7;
-        const d = $("navDrip"); if (d) d.value = 0.1;
+        // navDrip slider is -1..1 mapped to 0..1 drip; 0.1 => -0.8
+        const d = $("navDrip"); if (d) d.value = -0.8;
         // Start animation
         startGradientAnimation();
       });
@@ -1826,6 +1953,9 @@
           glOrbsToggle: true,
           // GLB defaults
           bgSpeed: '0.9', bgDensity: '1.2', glAlpha: '0.85',
+          // BG defaults
+          shimmerToggle: true, vignetteToggle: true,
+          glOverlayAlpha: '0.28', glOverlayDX: '24', glOverlayDY: '18',
           // Errl defaults
           errlSize: '1.0',
           // Hue defaults

@@ -101,3 +101,41 @@ const hoveredBubbles = new Map(); // Map<bubble element, {x, y}>
 Implementation is **solid and production-ready**. The code follows best practices, handles edge cases appropriately, and integrates cleanly with existing functionality. No critical issues identified.
 
 **Status**: ✅ Ready for testing
+
+---
+
+## Errl Phone - Missing BG Controls + Nav Goo Animation Gate
+
+**Date**: 2026-01-19  
+**Scope**: Add missing Errl Phone BG controls; wire them; ensure nav goo doesn't animate unless Slow Gradient is running.
+
+### Progress
+- Added BG tab controls in `src/index.html`:
+  - `#shimmerToggle`
+  - `#vignetteToggle`
+  - `#glOverlayAlpha`, `#glOverlayDX`, `#glOverlayDY`
+- Began wiring shimmer toggle in `src/apps/landing/scripts/portal-app.js`:
+  - Mounts `ErrlBG` lazily (only when enabling shimmer) and toggles `.errl-bg .shimmer` display.
+
+### Completed
+- Wired BG controls in `src/apps/landing/scripts/portal-app.js`:
+  - `#shimmerToggle`: show/hide `.errl-bg .shimmer` (mounts `ErrlBG` once if needed)
+  - `#vignetteToggle`: show/hide `.errl-bg .vignette` and any `.vignette-frame`
+  - `#glOverlayAlpha/#glOverlayDX/#glOverlayDY`: calls `window.errlGLSetOverlay(...)` (waits briefly for GL to exist)
+- Nav goo animation gate:
+  - `Nav Goo+` now forces `speed: 0` unless `window.__errlNavGradientAnimating` is true
+  - `Slow Gradient` sets/clears `window.__errlNavGradientAnimating` and forces speed 0 immediately on stop
+  - Fixed `navDrip` slider sync for `drip: 0.1` (sets slider to -0.8)
+- WebGL goo default speed:
+  - `src/apps/landing/scripts/webgl.js`: `uSpeed` default set to `0` so goo is static unless explicitly animated
+- `src/index.html` shimmer mount safety-net now avoids duplicate mounts (checks for existing `.errl-bg`)
+
+### Double-check notes (post-implementation)
+- **Nav goo truly static when not animating**:
+  - Found shader baseline motion: `t = uTime * (0.4 + 1.6*uSpeed)` would still animate at `uSpeed=0`.
+  - Fixed to `t = uTime * uSpeed` in `src/apps/landing/scripts/webgl.js` so `uSpeed=0` means no motion.
+- **Slow Gradient stop safety**:
+  - Hardened `stopGradientAnimation()` to avoid passing `undefined` keys into `errlGLSetGoo` (could yield NaNs via `Math.max`).
+- **Persistence/reset**:
+  - Confirmed `applyUiSnapshot()` dispatches `change` for checkboxes and `input` for ranges, so the new BG controls participate in the existing persistence flow.
+  - Added baked defaults for `shimmerToggle`, `vignetteToggle`, `glOverlayAlpha/DX/DY` in the reset fallback defaults object.

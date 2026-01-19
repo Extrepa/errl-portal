@@ -138,7 +138,8 @@
     void main(){
       vec2 uv = vTextureCoord;
 
-      float t = uTime * (0.4 + 1.6*uSpeed);
+      // IMPORTANT: When uSpeed = 0, goo should be static (no auto-motion).
+      float t = uTime * uSpeed;
       vec2 n = vec2(
         noise(uv*4.0 + vec2(t*0.12, 0.0)),
         noise(uv*4.0 + vec2(0.0, t*0.15))
@@ -261,7 +262,8 @@
         uTime: 0,
         uDrip: 0.25,
         uViscosity: 0.5,
-        uSpeed: 0.5,
+        // Start static; nav goo animates only when Slow Gradient runs.
+        uSpeed: 0,
         uAmp: 0.7,
         uWiggle: 0.6,
       });

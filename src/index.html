@@ -158,7 +158,28 @@
     <div class="panel-content-wrapper">
     <div class="panel-section" data-tab="bg">
       <div class="sectionLabel" title="Background decorations">Background</div>
-      <!-- Shimmer, Vignette, and GL Overlay removed -->
+      <div class="sliderRow">
+        <label for="shimmerToggle" title="Enable shimmer animation layer">Shimmer</label>
+        <input type="checkbox" id="shimmerToggle" checked title="Toggle shimmer effect">
+      </div>
+      <div class="sliderRow">
+        <label for="vignetteToggle" title="Enable vignette frame effect">Vignette</label>
+        <input type="checkbox" id="vignetteToggle" checked title="Toggle vignette frame">
+      </div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel" title="WebGL overlay layer controls">GL Overlay</div>
+      <div class="sliderRow">
+        <label for="glOverlayAlpha" title="Overlay opacity">Alpha</label>
+        <input type="range" min="0" max="1" step="0.01" value="0.28" id="glOverlayAlpha" title="Overlay opacity">
+      </div>
+      <div class="sliderRow">
+        <label for="glOverlayDX" title="Horizontal displacement">DX</label>
+        <input type="range" min="0" max="100" step="1" value="24" id="glOverlayDX" title="Horizontal displacement">
+      </div>
+      <div class="sliderRow">
+        <label for="glOverlayDY" title="Vertical displacement">DY</label>
+        <input type="range" min="0" max="100" step="1" value="18" id="glOverlayDY" title="Vertical displacement">
+      </div>
     </div>
 
     <div class="panel-section" data-tab="pin">
@@ -678,11 +699,14 @@
     } catch (e) {}
   </script>
   <script>
-    // Mount shimmer background only if toggled on; guard file:// restrictions
+    // Background (ErrlBG) mount. Primary wiring is in `portal-app.js`.
+    // Keep this as a safety net (e.g. if `portal-app.js` fails to load).
     document.addEventListener('DOMContentLoaded', function(){
       try {
         var toggle = document.getElementById('shimmerToggle');
-        if (toggle && toggle.checked && window.ErrlBG && typeof ErrlBG.mount === 'function') {
+        // Avoid duplicate mounts.
+        var hasBg = !!document.querySelector('.errl-bg');
+        if (!hasBg && toggle && toggle.checked && window.ErrlBG && typeof ErrlBG.mount === 'function') {
           ErrlBG.mount({ headerVariant: 2, shimmer: true, parallax: true, hud: false, basePath: '.' });
         }
       } catch (e) { console.warn('Shimmer mount skipped:', e); }
