@@ -39,6 +39,9 @@ pnpm-debug.log*
 .playwright/
 playwright-report/
 
+# Playwright artifacts / generated runs
+test-results/
+
 
 # Build reports
 .reports/
