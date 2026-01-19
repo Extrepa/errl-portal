@@ -2271,8 +2271,6 @@
         lockPanelToCorner();
         return;
       }
-      // Expanded state must not keep the minimized bubble class; minimized CSS uses !important sizing.
-      panel.classList.remove('minimized');
       try { localStorage.setItem(EXPANDED_KEY, '1'); } catch(_) {}
       undockFromCorner();
       // Restore last position if present.
@@ -2397,10 +2395,6 @@
     // Keep the main phone panel locked to the corner.
     // Load persisted expanded state (best-effort)
     try { expanded = localStorage.getItem(EXPANDED_KEY) === '1'; } catch(_) { expanded = false; }
-    // If expanded was persisted, ensure we are not stuck in minimized bubble mode on reload.
-    if (expanded && panel.classList.contains('minimized')) {
-      try { restorePanel(); } catch(_) { panel.classList.remove('minimized'); }
-    }
     applyExpandedState();
     if (!expanded) lockPanelToCorner();
     window.addEventListener('resize', ()=>{
