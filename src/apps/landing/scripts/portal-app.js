@@ -283,6 +283,8 @@
   let keyboardNavActive = false;
   let keyboardNavIndex = -1;
   let bubblesInitialized = false;
+  // Track hovered bubbles and their frozen positions
+  const hoveredBubbles = new Map(); // Map<bubble element, {x, y}>
 
   function setNavOrbitSpeed(value, { syncInput = true } = {}){
     const min = parseFloat(navOrbitSpeedInput?.min ?? '0');
@@ -477,6 +479,37 @@
     const bubbleRadiusPx = getEstimatedBubbleRadiusPx(navOrbScale);
 
     function placeBubble(el, index, count){
+      // Check if this bubble is hovered - if so, use frozen position
+      const hoveredPos = hoveredBubbles.get(el);
+      if (hoveredPos && Number.isFinite(hoveredPos.x) && Number.isFinite(hoveredPos.y)) {
+        // Use frozen position, but still update layering
+        const x = hoveredPos.x;
+        const y = hoveredPos.y;
+        
+        // Dynamic layering based on orbit position:
+        // above center => front; below center => behind. Use a small band to avoid jitter.
+        const hysteresis = 10;
+        const currentlyBehind = el.parentElement === orbitBehind;
+        let shouldBeBehind = currentlyBehind;
+        if (y > cy + hysteresis) shouldBeBehind = true;
+        else if (y < cy - hysteresis) shouldBeBehind = false;
+
+        const targetParent = shouldBeBehind ? orbitBehind : orbitFront;
+        if (targetParent && el.parentElement !== targetParent) {
+          targetParent.appendChild(el);
+        }
+
+        el.style.position = 'absolute';
+        el.style.left = x.toFixed(2) + 'px';
+        el.style.top = y.toFixed(2) + 'px';
+        el.style.pointerEvents = 'auto';
+
+        if (shouldBeBehind) el.classList.add('bubble--behind');
+        else el.classList.remove('bubble--behind');
+
+        return; // Skip normal movement calculation
+      }
+
       const baseAngleDeg = parseFloat((el.dataset && el.dataset.angle) || '');
       const baseDist = parseFloat((el.dataset && el.dataset.dist) || '160');
       const angleDeg = (Number.isFinite(baseAngleDeg) ? baseAngleDeg : ((index / Math.max(1, count)) * 360))
@@ -562,6 +595,13 @@
       b.dataset.listenersAttached = 'true';
       
       b.addEventListener('mouseenter', ()=>{
+        // Freeze bubble position when hovering
+        const currentX = parseFloat(b.style.left) || 0;
+        const currentY = parseFloat(b.style.top) || 0;
+        if (Number.isFinite(currentX) && Number.isFinite(currentY)) {
+          hoveredBubbles.set(b, { x: currentX, y: currentY });
+        }
+        
         // Get background color from body or errl-bg
         let bgColor = 'rgba(0,200,255,0.7)'; // default
         try {
@@ -587,6 +627,9 @@
         window.errlGLOrbHover && window.errlGLOrbHover(i,true);
       });
       b.addEventListener('mouseleave', ()=> {
+        // Unfreeze bubble position when leaving hover
+        hoveredBubbles.delete(b);
+        
         // Reset glow
         b.style.boxShadow = '';
         window.errlGLOrbHover && window.errlGLOrbHover(i,false);
