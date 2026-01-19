@@ -464,6 +464,9 @@
       const x = cx + xOffset;
       const y = cy + yOffset + Math.sin(driftT + rowIndex * 1.7) * driftAmp;
 
+      // Validate before touching the DOM (avoid writing "NaNpx" / invalid values).
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+
       el.style.position = 'absolute';
       el.style.left = Math.round(x) + 'px';
       el.style.top = Math.round(y) + 'px';
@@ -481,8 +484,6 @@
       }
 
       // Ensure bubbles remain clickable even near edges
-      // (avoid NaNs if viewport becomes tiny during resize)
-      if (!Number.isFinite(x) || !Number.isFinite(y)) return;
       // NOTE: transform is owned by CSS wobble animation; do not set it here.
 
       // Soft clamp to viewport (prevents drifting fully off-screen on odd aspect ratios).

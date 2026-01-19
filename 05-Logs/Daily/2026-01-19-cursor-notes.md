@@ -38,6 +38,7 @@
 - **Nav bubbles layout (code)**: `updateBubbles()` now splits visible bubbles into a top row and bottom row centered on the Errl bounding box (`cx/cy`). Top row uses `z-index: 2`; bottom row uses `z-index: 0` + `bubble--behind`.
 - **Nav bubbles drift (behavior)**: Kept a small sinusoidal drift so the rows still feel “bubbly.” The existing `Orbit` slider now effectively scales drift via `navOrbitSpeed` (drift timebase + amplitude).
 - **Nav radius semantics (fix)**: Adjusted horizontal spread math so the `Radius` slider scales spacing once (avoids an unintended squared effect).
+- **NaN safety (fix)**: Moved `Number.isFinite(x/y)` validation to occur *before* writing `left/top/zIndex` in `placeRow()`, preventing transient invalid values like `"NaNpx"` from ever being written to the DOM.
 - **Viewport safety**: Bubbles are softly clamped into the viewport each tick (using their current rect) to avoid drifting fully off-screen on odd aspect ratios.
 - **Hue FX report check**: Confirmed `@keyframes hue-rotate-cycle` and `@keyframes hue-pulse` are still composed `filter` animations (not `filter: none`). `.hue-controlled` gating is what can disable animation unless `.hue-enabled` is present.
 - **Build/type safety**: `npm run typecheck` and `npm run portal:build` both pass with these changes.
