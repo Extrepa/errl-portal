@@ -78,13 +78,12 @@
 
     <!-- Orbiting nav bubbles (7 visible + 1 hidden) -->
     <div id="navOrbit" class="nav-orbit">
-      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="/about/" data-portal-link="about/index.html"><span class="label">About</span></a>
-      <a class="bubble menuOrb" data-angle="260" data-dist="175" href="/gallery/" data-portal-link="gallery/index.html"><span class="label">Gallery</span></a>
-      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="/assets/" data-portal-link="assets/index.html"><span class="label">Assets</span></a>
-      <a class="bubble menuOrb" data-angle="20"  data-dist="200" href="/studio/"><span class="label">Studio</span></a>
-      <a class="bubble menuOrb" data-angle="75"  data-dist="150" href="/design/" data-portal-link="design/"><span class="label">Design</span></a>
-      <a class="bubble menuOrb" data-angle="100" data-dist="170" href="/chat"><span class="label">Chat</span></a>
-      <a class="bubble menuOrb hidden-bubble" data-angle="180" data-dist="190" href="/games/" id="gamesBubble" style="display:none;" data-portal-link="games/index.html"><span class="label">Games</span></a>
+      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="/about/" data-portal-link="about/"><span class="label">About</span></a>
+      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="/assets/" data-portal-link="assets/"><span class="label">Assets</span></a>
+      <a class="bubble menuOrb" data-angle="75" data-dist="150" href="/design/" data-portal-link="design/" data-disabled-link="design" aria-disabled="true" tabindex="-1" title="Coming soon"><span class="label">Design</span></a>
+      <a class="bubble menuOrb" data-angle="140" data-dist="180" href="https://forum.errl.wtf"><span class="label">Forum</span></a>
+      <a class="bubble menuOrb" data-angle="260" data-dist="175" href="/gallery/" data-portal-link="gallery/"><span class="label">Gallery</span></a>
+      <a class="bubble menuOrb" data-angle="20" data-dist="200" href="/studio/" data-portal-link="studio/"><span class="label">Studio</span></a>
     </div>
   </div>
 
@@ -229,36 +228,30 @@
       <div class="sectionDivider"></div>
       <div class="sectionLabel">Errl Goo (wobble)</div>
       <div class="sliderRow"><label for="classicGooEnabled">Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked></div>
-      <div class="sliderRow">
+      <div class="sliderRow sliderRow--auto">
         <label for="classicGooStrength" title="Amount of displacement wobble applied to the Errl shape">Displacement</label>
-        <div style="display:flex; align-items:center; gap:8px; flex:1;">
-          <input id="classicGooStrength" type="range" min="0" max="2" step="0.01" value="0.35" style="flex:1">
-          <label for="classicGooStrengthAuto" style="font-size:7px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for displacement">
-            <input type="checkbox" id="classicGooStrengthAuto"> Auto
-          </label>
-        </div>
+        <input id="classicGooStrength" type="range" min="0" max="1" step="0.001" value="0.5" style="flex:1">
+        <label for="classicGooStrengthAuto" class="autoToggle" style="font-size:7px; letter-spacing:0.08em; text-transform:uppercase;" title="Enable auto fade for displacement">
+          <input type="checkbox" id="classicGooStrengthAuto" checked> Auto
+        </label>
       </div>
-      <div class="sliderRow">
+      <div class="sliderRow sliderRow--auto">
         <label for="classicGooWobble" title="Oscillation amplitude of the wobble">Wobble</label>
-        <div style="display:flex; align-items:center; gap:8px; flex:1;">
-          <input id="classicGooWobble" type="range" min="0" max="2" step="0.01" value="0.55" style="flex:1">
-          <label for="classicGooWobbleAuto" style="font-size:7px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for wobble">
-            <input type="checkbox" id="classicGooWobbleAuto"> Auto
-          </label>
-        </div>
+        <input id="classicGooWobble" type="range" min="0" max="1" step="0.001" value="0.5" style="flex:1">
+        <label for="classicGooWobbleAuto" class="autoToggle" style="font-size:7px; letter-spacing:0.08em; text-transform:uppercase;" title="Enable auto fade for wobble">
+          <input type="checkbox" id="classicGooWobbleAuto" checked> Auto
+        </label>
       </div>
-      <div class="sliderRow">
+      <div class="sliderRow sliderRow--auto">
         <label for="classicGooSpeed" title="Rate of the internal classic SVG noise animation">Speed</label>
-        <div style="display:flex; align-items:center; gap:8px; flex:1;">
-          <input id="classicGooSpeed" type="range" min="0" max="2" step="0.01" value="0.45" style="flex:1">
-          <label for="classicGooSpeedAuto" style="font-size:7px; letter-spacing:0.08em; text-transform:uppercase; display:inline-flex; align-items:center; gap:4px;" title="Enable auto fade for speed">
-            <input type="checkbox" id="classicGooSpeedAuto" checked> Auto
-          </label>
-        </div>
+        <input id="classicGooSpeed" type="range" min="0" max="1" step="0.001" value="0.5" style="flex:1">
+        <label for="classicGooSpeedAuto" class="autoToggle" style="font-size:7px; letter-spacing:0.08em; text-transform:uppercase;" title="Enable auto fade for speed">
+          <input type="checkbox" id="classicGooSpeedAuto" checked> Auto
+        </label>
       </div>
       <div class="sliderRow">
         <label for="classicGooAutoSpeed" title="Speed of the auto fade sweep">Auto Speed</label>
-        <input id="classicGooAutoSpeed" type="range" min="0.005" max="0.25" step="0.001" value="0.05">
+        <input id="classicGooAutoSpeed" type="range" min="0" max="0.25" step="0.002" value="0.05">
       </div>
       <div class="sliderRow" style="justify-content:space-between; align-items:center; gap:8px">
         <label style="font-size:11px; opacity:0.9;">Animation</label>
@@ -885,6 +878,8 @@
           el.setAttribute('href', url);
         }
       });
+
+      // Disabled links (e.g. Design) are handled elsewhere; no rewrite needed.
       
       // Rewrite data-portal-frame attributes for iframes
       document.querySelectorAll('[data-portal-frame]').forEach((el) => {
@@ -898,6 +893,56 @@
     
     // Run immediately - module scripts run in order, so this runs as soon as possible
     rewriteLinks();
+
+    // Disabled nav links: show a lightweight “Coming soon” toast.
+    (() => {
+      const TOAST_ID = 'errl-coming-soon-toast';
+      let hideTimer = null;
+
+      function showToast(message) {
+        let el = document.getElementById(TOAST_ID);
+        if (!el) {
+          el = document.createElement('div');
+          el.id = TOAST_ID;
+          el.style.position = 'fixed';
+          el.style.left = '50%';
+          el.style.bottom = '18px';
+          el.style.transform = 'translateX(-50%)';
+          el.style.zIndex = '9999';
+          el.style.maxWidth = 'min(92vw, 520px)';
+          el.style.padding = '10px 14px';
+          el.style.borderRadius = '999px';
+          el.style.border = '1px solid rgba(255,255,255,0.22)';
+          el.style.background = 'rgba(10, 14, 24, 0.88)';
+          el.style.backdropFilter = 'blur(10px)';
+          el.style.color = 'rgba(240, 245, 255, 0.96)';
+          el.style.font = "600 12px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif";
+          el.style.letterSpacing = '0.04em';
+          el.style.textTransform = 'uppercase';
+          el.style.boxShadow = '0 10px 24px rgba(0,0,0,0.45)';
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 140ms ease, transform 140ms ease';
+          document.body.appendChild(el);
+        }
+
+        el.textContent = message;
+        el.style.opacity = '1';
+        el.style.transform = 'translateX(-50%) translateY(0)';
+        if (hideTimer) window.clearTimeout(hideTimer);
+        hideTimer = window.setTimeout(() => {
+          el.style.opacity = '0';
+          el.style.transform = 'translateX(-50%) translateY(6px)';
+        }, 1400);
+      }
+
+      document.querySelectorAll('[data-disabled-link="design"]').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          showToast('Design — coming soon');
+        });
+      });
+    })();
     
     // Set CSS variable for mask-image path - always root-relative now
     const maskImagePath = '/studio/pin-widget/ErrlPin.Widget/errl-painted-2.svg';

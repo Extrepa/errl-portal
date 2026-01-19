@@ -241,7 +241,6 @@
     padding: 0.4rem 0.55rem 0.5rem;
     font-size: clamp(0.55rem, 0.65rem, 0.75rem);
     border-radius: 999px;
-    /* More circular as buttons get smaller */
     aspect-ratio: 1.2;
   }
 }
@@ -257,9 +256,7 @@
     padding: 0.35rem 0.5rem 0.45rem;
     font-size: clamp(0.5rem, 0.6rem, 0.7rem);
     border-radius: 999px;
-    /* Even more circular on very small screens */
     aspect-ratio: 1.1;
   }
 }
-
 

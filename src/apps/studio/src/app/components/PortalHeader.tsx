@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { resolvePortalPageUrl } from '../utils/portalPaths';
 import './portal-header.css';
 
-type NavItemKey = 'about' | 'gallery' | 'assets' | 'studio' | 'multitool';
+type NavItemKey = 'about' | 'assets' | 'design' | 'forum' | 'gallery' | 'studio';
 
 export type PortalNavKey = NavItemKey | 'code-lab';
 
@@ -29,16 +29,13 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
   // Landing page is at root, not under /portal
   const portalHome = '/';
 
-  // Resolve designer URL client-side to avoid hydration mismatch
-  const [multitoolUrl, setMultitoolUrl] = useState<string>('/designer.html');
-  
+  const [comingSoonVisible, setComingSoonVisible] = useState(false);
+
   useEffect(() => {
-    // Only run on client-side
-    if (typeof window !== 'undefined') {
-      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      setMultitoolUrl(isDev ? 'http://localhost:5173/designer.html' : '/designer.html');
-    }
-  }, []);
+    if (!comingSoonVisible) return;
+    const t = window.setTimeout(() => setComingSoonVisible(false), 1400);
+    return () => window.clearTimeout(t);
+  }, [comingSoonVisible]);
 
   const derivedKeyFromLocation = (): NavItemKey | undefined => {
     if (typeof window === 'undefined') return undefined;
@@ -49,7 +46,8 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
     if (normalizedHref.includes('/pages/assets/')) return 'assets';
     if (normalizedHref.includes('/pages/gallery/')) return 'gallery';
     if (normalizedHref.includes('/pages/about/')) return 'about';
-    if (normalizedPath.includes('/designer') || normalizedHref.includes('/designer')) return 'multitool';
+    if (normalizedHref.includes('/pages/design/')) return 'design';
+    if (normalizedPath === '/design' || normalizedPath === '/design/' || normalizedPath.startsWith('/design/')) return 'design';
     if (
       normalizedPath === '/studio' ||
       normalizedPath === '/studio/' ||
@@ -69,15 +67,11 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
 
   const navItems: NavItem[] = [
     { key: 'about', label: 'About Errl', href: resolvePortalPageUrl('pages/about/index.html'), type: 'external' },
-    { key: 'gallery', label: 'Gallery', href: resolvePortalPageUrl('pages/gallery/index.html'), type: 'external' },
     { key: 'assets', label: 'Assets', href: resolvePortalPageUrl('pages/assets/index.html'), type: 'external' },
+    { key: 'design', label: 'Design', href: resolvePortalPageUrl('pages/design/index.html'), type: 'external' },
+    { key: 'forum', label: 'Forum', href: 'https://forum.errl.wtf', type: 'external' },
+    { key: 'gallery', label: 'Gallery', href: resolvePortalPageUrl('pages/gallery/index.html'), type: 'external' },
     { key: 'studio', label: 'Studio', to: '/', type: 'internal' },
-    { 
-      key: 'multitool', 
-      label: 'Designer', 
-      href: multitoolUrl, 
-      type: 'external' 
-    },
   ];
 
   return (
@@ -104,13 +98,51 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
             }
 
             return (
-              <a key={item.key} href={item.href} className={className}>
+              <a
+                key={item.key}
+                href={item.href}
+                className={className}
+                aria-disabled={item.key === 'design' ? 'true' : undefined}
+                title={item.key === 'design' ? 'Coming soon' : undefined}
+                onClick={(e) => {
+                  if (item.key !== 'design') return;
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setComingSoonVisible(true);
+                }}
+              >
                 {item.label}
               </a>
             );
           })}
         </nav>
       </div>
+
+      {comingSoonVisible ? (
+        <div
+          aria-live="polite"
+          style={{
+            position: 'fixed',
+            left: '50%',
+            bottom: 18,
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            maxWidth: 'min(92vw, 520px)',
+            padding: '10px 14px',
+            borderRadius: 999,
+            border: '1px solid rgba(255,255,255,0.22)',
+            background: 'rgba(10, 14, 24, 0.88)',
+            backdropFilter: 'blur(10px)',
+            color: 'rgba(240, 245, 255, 0.96)',
+            font: "600 12px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif",
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            boxShadow: '0 10px 24px rgba(0,0,0,0.45)',
+          }}
+        >
+          Design — coming soon
+        </div>
+      ) : null}
     </header>
   );
 }

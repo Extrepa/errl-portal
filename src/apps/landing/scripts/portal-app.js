@@ -274,11 +274,9 @@
   // Initialize variables - will be set when DOM is ready
   let errl = null;
   let bubbles = [];
-  let hiddenBubble = null;
   let navOrbitSpeedInput = null;
   let navRadiusInput = null;
   let navOrbSizeInput = null;
-  let gamesVisible = false;
   let navOrbitSpeed = 1;
   let navRadius = 1.0;
   let navOrbScale = 1;
@@ -306,25 +304,12 @@
     navOrbScale = clamp(Number(value), min, max);
     if (syncInput && navOrbSizeInput) navOrbSizeInput.value = String(navOrbScale);
     if (window.errlGLSetOrbScale) window.errlGLSetOrbScale(navOrbScale);
+    // Use CSS variable so animation (wobble) can compose with scale.
+    const orbit = document.getElementById('navOrbit');
+    if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(navOrbScale));
     window.errlGLSyncOrbs && window.errlGLSyncOrbs();
     return navOrbScale;
   }
-  function setGamesVisible(next, { skipListenerReset = false } = {}){
-    gamesVisible = !!next;
-    if (hiddenBubble) hiddenBubble.style.display = gamesVisible ? 'block' : 'none';
-    if (!skipListenerReset){
-      bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
-      bubbles.forEach((b, i)=> {
-        if (b && b.dataset){
-          b.dataset.orbIndex = String(i);
-          delete b.dataset.listenersAttached;
-        }
-      });
-      attachBubbleListeners();
-    }
-    return gamesVisible;
-  }
-
   function getActiveBubbles(){
     return bubbles.filter((el)=> el && el.style.display !== 'none');
   }
@@ -362,8 +347,7 @@
       return false;
     }
     
-    bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble:not(.hidden-bubble)'));
-    hiddenBubble = document.getElementById('gamesBubble');
+    bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
     navOrbitSpeedInput = $("navOrbitSpeed");
     navRadiusInput = $("navRadius");
     navOrbSizeInput = $("navOrbSize");
@@ -378,6 +362,9 @@
     navOrbitSpeed = parseFloat(navOrbitSpeedInput?.value || '1');
     navRadius = parseFloat(navRadiusInput?.value || '1.0');
     navOrbScale = parseFloat(navOrbSizeInput?.value || '1');
+    // Apply initial scale via CSS variable so it's visible immediately.
+    const orbit = document.getElementById('navOrbit');
+    if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(navOrbScale));
     
     // Attach event listeners
     on(navOrbitSpeedInput, 'input', ()=>{
@@ -432,7 +419,7 @@
     const minViewport = Math.min(window.innerWidth, window.innerHeight);
     const viewportScale = clamp(minViewport / 900, 0.55, 1.05);
 
-    // Refresh bubble list only if count changed (e.g., toggled games bubble)
+    // Refresh bubble list only if count changed
     const currentCount = document.querySelectorAll('.nav-orbit .bubble').length;
     if (currentCount !== bubbles.length){
       bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
@@ -454,8 +441,8 @@
       el.style.position = 'absolute';
       el.style.left = x + 'px';
       el.style.top = y + 'px';
-      el.style.transform = `translate(-50%, -50%) scale(${navOrbScale})`;
-      el.style.transformOrigin = 'center center';
+      // Do not set transform here: CSS wobble animation owns transform.
+      // Scale is applied via CSS var (--navOrbScale) on #navOrbit.
       // Determine if bubble is behind Errl based on Y position relative to center
       // Bubbles below center (positive sin) appear behind, bubbles above appear in front
       const isBehind = Math.sin(rad) > 0; // Positive sin = below center = behind Errl
@@ -542,23 +529,11 @@
       speed: navOrbitSpeed,
       radius: navRadius,
       orbScale: navOrbScale,
-      gamesVisible,
     }),
     setSpeed: (value, opts) => setNavOrbitSpeed(Number(value), opts),
     setRadius: (value, opts) => setNavRadius(Number(value), opts),
     setOrbScale: (value, opts) => setNavOrbScale(Number(value), opts),
-    setGamesVisible: (value, opts) => setGamesVisible(value, opts),
-    toggleGames: () => setGamesVisible(!gamesVisible),
   };
-  
-  // Shift-B handler to toggle hidden Games bubble and re-attach listeners
-  const shiftBHandler = (e)=>{
-    if (e.key === 'B' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      e.preventDefault();
-      setGamesVisible(!gamesVisible);
-    }
-  };
-  window.addEventListener('keydown', shiftBHandler);
 
   const keyboardNavHandler = (e)=>{
     if ((e.key === 'k' || e.key === 'K') && e.metaKey && !e.shiftKey && !e.ctrlKey && !e.altKey) {
@@ -742,11 +717,14 @@
       const wob = parseFloat(wobble?.value || '0');
       const spd = parseFloat(speed?.value || '0');
       // Reduce goo effects when mouse is close to center
-      const dispScale = 6 + mult * 18 * (1 - normalizationFactor * 0.6);
-      const wobBlur = wob * (1 - normalizationFactor * 0.5) * 6;
-      const noiseWob = 0.004 + wob * (1 - normalizationFactor * 0.4) * 0.01;
-      const noiseSpd = 0.006 + spd * (1 - normalizationFactor * 0.5) * 0.01;
-      const dripVal = spd * (1 - normalizationFactor * 0.6) * 6;
+      // Tuned for 0..1 sliders with a subtle midpoint at 0.5.
+      // Keep some visible character at mid, but avoid the old “too strong” feel.
+      // Increase range so 1.0 is clearly visible, while 0.5 stays subtle.
+      const dispScale = 5 + mult * 18 * (1 - normalizationFactor * 0.6);
+      const wobBlur = wob * (1 - normalizationFactor * 0.5) * 5.5;
+      const noiseWob = 0.0035 + wob * (1 - normalizationFactor * 0.4) * 0.010;
+      const noiseSpd = 0.0040 + spd * (1 - normalizationFactor * 0.5) * 0.012;
+      const dripVal = spd * (1 - normalizationFactor * 0.6) * 5.5;
       if (nodes.disp) nodes.disp.setAttribute('scale', dispScale.toFixed(2));
       if (nodes.blur) nodes.blur.setAttribute('stdDeviation', wobBlur.toFixed(2));
       if (nodes.noise) nodes.noise.setAttribute('baseFrequency', `${noiseWob.toFixed(4)} ${noiseSpd.toFixed(4)}`);
@@ -754,19 +732,43 @@
     }
     const autoStates = new Map();
 
+    function getSliderStepInfo(slider){
+      const raw = (slider && typeof slider.step === 'string') ? slider.step : '';
+      const step = parseFloat(raw || '0');
+      if (!Number.isFinite(step) || step <= 0) return { step: null, decimals: 0 };
+      const decimals = raw.includes('.') ? (raw.split('.')[1] || '').length : 0;
+      return { step, decimals };
+    }
+    function roundToStep(value, step){
+      return step ? (Math.round(value / step) * step) : value;
+    }
+
     function advanceSlider(descriptor, delta){
       const slider = descriptor.slider;
       if (!slider) return;
       const min = parseFloat(slider.min || '0');
       const max = parseFloat(slider.max || '1');
       const span = Math.max(0.0001, max - min);
-      const currentValue = parseFloat(slider.value || String(min));
-      const currentNorm = Math.min(1, Math.max(0, (currentValue - min) / span));
       let state = autoStates.get(descriptor.key);
       if (!state) {
-        state = { target: null, direction: 1 };
+        state = { target: null, direction: 1, norm: null };
         autoStates.set(descriptor.key, state);
       }
+      // Maintain an internal high-precision value so small deltas accumulate even
+      // when the input has a coarse step (otherwise the slider may never move).
+      const sliderValue = parseFloat(slider.value || String(min));
+      const sliderNorm = Math.min(1, Math.max(0, (sliderValue - min) / span));
+      if (state.norm == null || !Number.isFinite(state.norm)) {
+        state.norm = sliderNorm;
+      } else {
+        // If user moved the slider manually, sync our internal value.
+        const { step: stepSize } = getSliderStepInfo(slider);
+        const stepNorm = stepSize ? (stepSize / span) : 0;
+        if (stepNorm > 0 && Math.abs(sliderNorm - state.norm) > stepNorm * 0.75) {
+          state.norm = sliderNorm;
+        }
+      }
+      const currentNorm = Math.min(1, Math.max(0, Number(state.norm) || 0));
       if (state.target == null || Math.abs(state.target - currentNorm) < 0.01) {
         let nextTarget = Math.random();
         // avoid tiny jitter by ensuring meaningful distance
@@ -785,8 +787,11 @@
         state.target = null;
       }
       nextNorm = Math.min(1, Math.max(0, nextNorm));
+      state.norm = nextNorm;
       const nextValue = min + nextNorm * span;
-      slider.value = nextValue.toFixed(2);
+      const { step: stepSize, decimals } = getSliderStepInfo(slider);
+      const rounded = stepSize ? roundToStep(nextValue, stepSize) : nextValue;
+      slider.value = stepSize ? rounded.toFixed(decimals) : String(rounded);
       slider.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
@@ -835,8 +840,15 @@
       // Use fixed timestep for smoother animation (cap at 60fps equivalent)
       const deltaSeconds = Math.min((timestamp - lastTs) / 1000, 1/60);
       lastTs = timestamp;
-      const rate = clamp(parseFloat(autoSpeed?.value || '0.05'), 0.005, 0.25);
-      const delta = Math.max(0.0002, rate) * deltaSeconds;
+      // Auto speed controls how quickly we sweep sliders. Keep it linear so users
+      // can feel the effect immediately (0 = stop).
+      const rate = clamp(parseFloat(autoSpeed?.value || '0.05'), 0, 0.25);
+      // Allow true stop at 0.
+      if (rate <= 0) {
+        raf = requestAnimationFrame(step);
+        return;
+      }
+      const delta = rate * deltaSeconds;
       autoDescriptors.forEach((descriptor) => {
         const { toggle } = descriptor;
         if (toggle?.checked) {
@@ -1474,9 +1486,9 @@
   });
   
   on($("classicGooRandom"), 'click', ()=>{
-    const mult = Math.random() * 2;
-    const wobble = Math.random() * 2;
-    const speed = Math.random() * 2;
+    const mult = Math.random();
+    const wobble = Math.random();
+    const speed = Math.random();
     const m = $("classicGooStrength"); if(m) { m.value = mult.toFixed(2); m.dispatchEvent(new Event('input')); }
     const w = $("classicGooWobble"); if(w) { w.value = wobble.toFixed(2); w.dispatchEvent(new Event('input')); }
     const s = $("classicGooSpeed"); if(s) { s.value = speed.toFixed(2); s.dispatchEvent(new Event('input')); }
@@ -1683,8 +1695,8 @@
           rbAttract: true, rbAttractIntensity: '1.0',
           rbRipples: false, rbRippleIntensity: '1.2',
           // Goo defaults
-          classicGooEnabled: true, classicGooStrength: '0.35', classicGooWobble: '0.55', classicGooSpeed: '0.45',
-          classicGooStrengthAuto: false, classicGooWobbleAuto: false, classicGooSpeedAuto: true,
+          classicGooEnabled: true, classicGooStrength: '0.5', classicGooWobble: '0.5', classicGooSpeed: '0.5',
+          classicGooStrengthAuto: true, classicGooWobbleAuto: true, classicGooSpeedAuto: true,
           classicGooAutoSpeed: '0.05', classicGooMouseReact: true,
           // Nav defaults
           navOrbitSpeed: '1.0', navRadius: '1.2', navOrbSize: '1.05',
