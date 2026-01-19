@@ -202,3 +202,30 @@ Implementation is **solid and production-ready**. The code follows best practice
 - Fixed persistence gap: Slow Gradient now dispatches `input` events after setting slider baselines, so the normal bundle/localStorage persistence captures the change.
   - Verified in code: Slow Gradient click sets `.value` and then calls `dispatchEvent(new Event('input', { bubbles: true }))` for each slider.
 - Fixed defensive consistency: `stopGradientAnimation()` now uses `$("navGrip") || $("navVisc")` (same as `readBaseParams()`), so viscosity is restored correctly even if the DOM changes.
+
+---
+
+## Phone tab help text + RB mouse tuning
+
+**Date**: 2026-01-19  
+**Scope**: Add concise helper text/tooltips to non-RB tabs; reduce Rising Bubbles pointer reactivity so bubbles still complete bottom-to-top travel.
+
+### UI help text / tooltips
+- `src/index.html`
+  - Added short inline helper rows for: **BG**, **Pin**, **GLB**, **Errl**, **Nav**, **Hue**, **DEV**
+  - Refined key tooltips in **HUD** (Burst + Audio + Accessibility) without adding extra layout clutter
+
+### Rising Bubbles pointer tuning
+- `src/apps/landing/scripts/rise-bubbles-three.js`
+  - Made pointer attract **mostly lateral (X-dominant)** and reduced Y influence via a small, clamped Y add.
+  - Added an **upward minimum** when composing velocity (when speed > 0) so attraction/impulses can’t stall or reverse the rise.
+
+### Quick verification (manual)
+- Confirm helper text rows appear in the intended tabs and titles show on hover.
+- With `rbAttract` enabled and `rbAttractIntensity` high, bubbles should still rise and reset at the top (no “stuck downward pull”).
+
+### Final completion check
+- Plan todos confirmed complete:
+  - `help-text-tabs`
+  - `rb-attract-lateral`
+  - `notes`

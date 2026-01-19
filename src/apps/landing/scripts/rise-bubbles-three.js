@@ -514,15 +514,24 @@
             tmpPoint.copy(tmpOrigin).add(tmpDir.copy(rayDir).multiplyScalar(t));
             const dx = tmpPoint.x - bubble.position.x;
             const dy = tmpPoint.y - bubble.position.y;
+            // Mostly lateral: keep attract meaningful without pulling bubbles downward.
             bubble.userData.impulse.x += dx * attractK;
-            bubble.userData.impulse.y += dy * attractK * 0.35;
+            // Tiny Y component (clamped) to avoid counteracting the upward travel.
+            const yAdd = clamp(dy * attractK * 0.05, -0.004, 0.004);
+            bubble.userData.impulse.y += yAdd;
           }
         }
 
         // Compose velocity: base rise + impulses
         const baseVel = bubble.userData.baseVelocity;
-        tmpVel.copy(baseVel).multiplyScalar(clamp(safeNum(controls.speed, 1.0), 0, 3));
+        const speedMult = clamp(safeNum(controls.speed, 1.0), 0, 3);
+        tmpVel.copy(baseVel).multiplyScalar(speedMult);
         tmpVel.add(bubble.userData.impulse);
+        // Safety: don't allow attraction/impulses to stall or reverse upward travel when speed is enabled.
+        if (speedMult > 0) {
+          const baseRiseMin = Math.max(0.0015, safeNum(baseVel.y, 0.02) * speedMult * 0.35);
+          if (tmpVel.y < baseRiseMin) tmpVel.y = baseRiseMin;
+        }
         // decay impulse so pushes settle
         bubble.userData.impulse.multiplyScalar(0.96);
         bubble.position.add(tmpVel);

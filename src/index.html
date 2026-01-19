@@ -158,6 +158,9 @@
     <div class="panel-content-wrapper">
     <div class="panel-section" data-tab="bg">
       <div class="sectionLabel" title="Background decorations">Background</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Shimmer/Vignette are cosmetic layers. GL Overlay is a WebGL overlay (opacity + displacement). These settings persist in localStorage.">Cosmetic layers (persisted): Shimmer + Vignette are off by default. GL Overlay controls a subtle WebGL overlay.</span>
+      </div>
       <div class="sliderRow">
         <label for="shimmerToggle" title="Enable shimmer animation layer">Shimmer</label>
         <input type="checkbox" id="shimmerToggle" title="Toggle shimmer effect">
@@ -184,6 +187,9 @@
 
     <div class="panel-section" data-tab="pin">
       <div class="sectionLabel" title="Pin widget controls">Pin Widget</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Inject updates the home page SVG. Save stores the current SVG in localStorage. Reset returns to the built-in default Errl.">Inject updates the home page; Save stores SVG locally; Reset restores default.</span>
+      </div>
       <div class="sliderRow pin-controls" style="justify-content:flex-end; gap:6px; flex-wrap:wrap;">
         <button type="button" data-colorizer-action="inject" title="Update home page SVG">Inject to Home</button>
         <button type="button" data-colorizer-action="save" title="Save SVG to localStorage">Save SVG</button>
@@ -250,7 +256,10 @@
 
     <!-- GL Background Bubbles (Particles) -->
   <div class="panel-section" data-tab="glb">
-      <div class="sectionLabel">GL Particles (BG Bubbles)</div>
+      <div class="sectionLabel" title="GPU background bubbles (separate from Rising Bubbles)">GL Particles (BG Bubbles)</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Speed controls motion, Density controls count, Alpha controls opacity.">Speed = motion, Density = count, Alpha = opacity.</span>
+      </div>
       <div class="sliderRow">
         <label for="bgSpeed" title="How fast the GPU bubble layer moves">Speed</label>
         <input type="range" min="0" max="3" step="0.01" value="0.9" id="bgSpeed" title="Particle speed">
@@ -271,8 +280,11 @@
       <div class="sliderRow"><label for="errlSize" title="Overall scale of Errl">Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1.0" title="Drag to scale Errl"></div>
       <div class="sliderRow"><label for="errlOutlineThickness" title="Thickness of face, eyes, and mouth outlines">Outlines</label><input id="errlOutlineThickness" type="range" min="1" max="8" step="0.5" value="2" title="Drag to adjust outlines"></div>
       <div class="sectionDivider"></div>
-      <div class="sectionLabel">Errl Goo (wobble)</div>
-      <div class="sliderRow"><label for="classicGooEnabled">Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked></div>
+      <div class="sectionLabel" title="Classic Goo is the SVG-based wobble on the Errl shape (not the Nav Goo+ shader)">Errl Goo (Classic)</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Classic Goo controls the Errl SVG wobble. The Auto toggles animate each slider over time (Play/Pause controls that timeline).">Classic Goo = Errl SVG wobble. Auto toggles animate each slider; Play/Pause controls the auto timeline.</span>
+      </div>
+      <div class="sliderRow"><label for="classicGooEnabled" title="Enable/disable the classic SVG goo wobble on Errl">Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked title="Toggle classic SVG goo"></div>
       <div class="sliderRow sliderRow--auto">
         <label for="classicGooStrength" title="Amount of displacement wobble applied to the Errl shape">Displacement</label>
         <input id="classicGooStrength" type="range" min="0" max="1" step="0.001" value="0.5" style="flex:1">
@@ -313,6 +325,9 @@
 
     <div class="panel-section" data-tab="nav">
       <div class="sectionLabel" title="Floating menu bubbles around Errl">Nav Bubbles</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Orbit/Radius/Size change the nav bubble layout. GL Orbs toggles the WebGL render layer that matches the DOM bubbles.">Layout controls for the menu bubbles; GL Orbs toggles the WebGL render layer.</span>
+      </div>
 <div class="sliderRow">
         <label for="navOrbitSpeed" title="How fast bubbles orbit around Errl">Orbit</label>
 <input type="range" min="0" max="2" step="0.01" value="1.0" id="navOrbitSpeed" title="Orbit speed">
@@ -332,25 +347,31 @@
       </div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel" title="Advanced gooey blending for bubble group">Nav Goo+</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="These sliders set the baseline goo feel. Slow Gradient animates around your current slider values; when not playing, the goo stays static.">Baseline goo feel. Slow Gradient animates around current sliders; otherwise it stays static.</span>
+      </div>
       <div class="sliderRow"><label for="navWiggle" title="Elastic movement blend - how much bubbles wiggle as they move">Wiggle</label><input type="range" id="navWiggle" min="0" max="1" step="0.01" value="0.4" title="Elastic movement blend - how much bubbles wiggle as they move"></div>
       <div class="sliderRow"><label for="navFlow" title="Motion scaling - speed of the flow animation">Flow Speed</label><input type="range" id="navFlow" min="0" max="2" step="0.01" value="0.8" title="Motion scaling - speed of the flow animation"></div>
       <div class="sliderRow"><label for="navGrip" title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)">Grip</label><input type="range" id="navGrip" min="0" max="1" step="0.01" value="0.5" title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)"></div>
       <div class="sliderRow"><label for="navDrip" title="Downward bias">Drip</label><input type="range" id="navDrip" min="-1" max="1" step="0.01" value="-0.5" title="Downward bias - makes bubbles sag downward"></div>
       <div class="sliderRow"><label for="navVisc" title="How strongly blobs merge together">Viscosity</label><input type="range" id="navVisc" min="0" max="1" step="0.01" value="0.9" title="How strongly blobs merge together"></div>
       <div class="sliderRow" style="justify-content:flex-end; gap:8px">
-        <button id="navSlowGradient" class="btn-animate" title="Apply slow color gradient animation">Slow Gradient</button>
+        <button id="navSlowGradient" class="btn-animate" title="Set up Slow Gradient (uses current sliders as baselines). Animation only runs when Play is active.">Slow Gradient</button>
         <button id="navGradientPlayPause" class="btn-animate" title="Play/Pause gradient animation" aria-pressed="false" style="display:none;">Play</button>
       </div>
       <div class="sliderRow" style="justify-content:flex-end"><button id="navRandom">Randomize</button></div>
     </div>
 
     <div class="panel-section" data-tab="hud">
-      <div class="sectionLabel">Particles</div>
-      <button id="burstBtn">Burst</button>
+      <div class="sectionLabel" title="Quick particle interactions">Particles</div>
+      <button id="burstBtn" title="Emit a short burst of particles">Burst</button>
     </div>
 
     <div class="panel-section" data-tab="hue">
       <div class="sectionLabel" title="Color adjustments for different layers">Hue <span style="margin-left:auto; font-weight:500; font-size:7px; opacity:.9"><label for="hueEnabled" style="cursor:pointer">Enabled</label> <input type="checkbox" id="hueEnabled" title="Toggle Hue for target"></span></div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Pick a Target layer, toggle Enabled, then adjust Hue/Saturation/Intensity. Timeline + Play/Pause animates the target over time.">Pick a target layer, then adjust Hue/Sat/Intensity. Timeline + Play animates that target.</span>
+      </div>
       <div class="sliderRow">
         <label for="hueTarget" title="Which layer to affect">Target</label>
         <select id="hueTarget" style="flex:1" title="Select target layer">
@@ -382,16 +403,16 @@
 
 <div class="panel-section" data-tab="hud">
       <div class="sectionLabel" title="Audio output controls">Audio</div>
-      <div class="sliderRow"><label for="audioEnabled" title="Master enable">Enabled</label><input type="checkbox" id="audioEnabled" checked title="Toggle audio"></div>
-      <div class="sliderRow" title="Overall output"><label for="audioMaster" title="Overall volume">Master</label><input class="mini-slider" type="range" id="audioMaster" min="0" max="1" step="0.01" value="0.4" title="Master volume"></div>
-      <div class="sliderRow" title="Adjust the amount of low end (lowshelf EQ)"><label for="audioBass" title="Bass EQ">Low End</label><input class="mini-slider" type="range" id="audioBass" min="0" max="1" step="0.01" value="0.2" title="Low-end EQ gain"></div>
+      <div class="sliderRow"><label for="audioEnabled" title="Master audio on/off">Enabled</label><input type="checkbox" id="audioEnabled" checked title="Enable/disable all audio output"></div>
+      <div class="sliderRow" title="Overall output level"><label for="audioMaster" title="Overall output level">Master</label><input class="mini-slider" type="range" id="audioMaster" min="0" max="1" step="0.01" value="0.4" title="Overall volume"></div>
+      <div class="sliderRow" title="Low end EQ boost/cut"><label for="audioBass" title="Low end EQ boost/cut">Low End</label><input class="mini-slider" type="range" id="audioBass" min="0" max="1" step="0.01" value="0.2" title="Low-end EQ amount"></div>
     </div>
 
     <div class="panel-section" data-tab="hud">
       <div class="sectionLabel" title="Accessibility helpers">Accessibility</div>
-      <div class="sliderRow"><label for="prefReduce" title="Reduce animations">Reduced Motion</label><input type="checkbox" id="prefReduce" title="Reduced motion"></div>
-      <div class="sliderRow"><label for="prefContrast" title="Increase visibility">High Contrast</label><input type="checkbox" id="prefContrast" title="High contrast"></div>
-      <div class="sliderRow"><label for="prefInvert" title="Invert colors">Invert</label><input type="checkbox" id="prefInvert" title="Invert all colors"></div>
+      <div class="sliderRow"><label for="prefReduce" title="Prefer reduced motion (minimize animations)">Reduced Motion</label><input type="checkbox" id="prefReduce" title="Prefer reduced motion"></div>
+      <div class="sliderRow"><label for="prefContrast" title="Increase UI contrast for readability">High Contrast</label><input type="checkbox" id="prefContrast" title="Increase contrast"></div>
+      <div class="sliderRow"><label for="prefInvert" title="Invert colors for alternative viewing">Invert</label><input type="checkbox" id="prefInvert" title="Invert colors"></div>
     </div>
 
     <div class="panel-section" data-tab="hud">
@@ -405,6 +426,9 @@
     </div>
     <div class="panel-section" data-tab="dev">
       <div class="sectionLabel">Developer Tools</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Snapshot exports a standalone HTML/CSS/JS with current settings applied on load. PNG is a screenshot. Export/Import Settings saves/loads the full settings bundle (localStorage).">Snapshot = portable HTML/CSS/JS. PNG = screenshot. Export/Import Settings = full settings bundle (local).</span>
+      </div>
       <div class="sliderRow" title="Open the pin widget in a larger modal" style="display:flex; gap:6px; flex-wrap:wrap;">
         <button data-pin-modal-open style="font-size:7px; padding:3px 6px;">Open Pin Widget</button>
       </div>
