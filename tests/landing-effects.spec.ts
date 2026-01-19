@@ -320,6 +320,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     await verifySliderWorks(page, '#rbSpeed', 0, 3);
     await verifySliderWorks(page, '#rbDensity', 0, 2);
+    await verifySliderWorks(page, '#rbScale', 0.5, 2.0);
     await verifySliderWorks(page, '#rbAlpha', 0, 1);
 
     // Verify bubbles canvas exists and may have content
@@ -373,7 +374,7 @@ test.describe('Landing Page Effects Tests', () => {
     await pingBtn.click();
     await page.waitForTimeout(100);
 
-    const animateBtn = page.locator('#rbAdvAnimate');
+    const animateBtn = page.locator('#rbAdvPlayPause');
     await expect(animateBtn).toBeVisible();
     await animateBtn.click();
     await page.waitForTimeout(500);
@@ -694,7 +695,8 @@ test.describe('Landing Page Effects Tests', () => {
     await page.locator('button[data-tab="rb"]').click();
     await page.waitForTimeout(300);
 
-    const animateBtn = page.locator('#rbAdvAnimate');
+    const animateBtn = page.locator('#rbAdvPlayPause');
+    await expect(animateBtn).toBeVisible();
     await animateBtn.click();
     await page.waitForTimeout(500);
   });

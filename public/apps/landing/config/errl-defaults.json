@@ -3,6 +3,7 @@
   "ui": {
     "rbSpeed": "1",
     "rbDensity": "1",
+    "rbScale": "1.0",
     "rbAlpha": "0.95",
     "rbWobble": "1",
     "rbFreq": "1",
@@ -39,6 +40,12 @@
     "bgSpeed": "0.9",
     "bgDensity": "1.2",
     "glAlpha": "0.85",
+
+    "shimmerToggle": false,
+    "vignetteToggle": false,
+    "glOverlayAlpha": "0.28",
+    "glOverlayDX": "24",
+    "glOverlayDY": "18",
 
     "errlSize": "1.0",
 

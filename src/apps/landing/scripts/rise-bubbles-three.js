@@ -20,7 +20,9 @@
     // Match the 8 navigation bubble pages/positions
     const navCount = Math.max(8, countNavBubbles());
     const bubblesPerNav = 2; // 2 bubbles per nav position = 16 total bubbles (more visually interesting)
-    const bubbleCount = navCount * bubblesPerNav;
+    const baseBubbleCount = navCount * bubblesPerNav;
+    const maxCountMultiplier = 2; // matches Errl Phone rbDensity max
+    const bubblePoolCount = Math.ceil(baseBubbleCount * maxCountMultiplier);
 
     // Shader materials for iridescent bubbles
     const vertexShader = `
@@ -126,9 +128,9 @@
       // Some behind Errl (negative z), some in front/behind nav bubbles (positive/negative z)
       // Positioned to match nav bubble orbital regions
       // Create bubbles per nav position for better distribution
-      const bubblesPerNav = Math.ceil(bubbleCount / Math.max(navAngles.length, 1));
+      const bubblesPerNav = Math.ceil(bubblePoolCount / Math.max(navAngles.length, 1));
       
-      for (let i = 0; i < bubbleCount; i++) {
+      for (let i = 0; i < bubblePoolCount; i++) {
         const bubble = new T.Mesh(bubbleGeometry, bubbleMaterial.clone());
         
         // Use nav bubble positions as reference
@@ -211,7 +213,7 @@
       const navBubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble:not(.hidden-bubble)'));
       const navAngles = navBubbles.map(b => parseFloat(b.dataset.angle || '0'));
       const navDists = navBubbles.map(b => parseFloat(b.dataset.dist || '180'));
-      const bubblesPerNav = Math.ceil(bubbleCount / Math.max(navAngles.length, 1));
+      const bubblesPerNav = Math.ceil(bubblePoolCount / Math.max(navAngles.length, 1));
       
       const navIndex = Math.floor(index / bubblesPerNav) % Math.max(navAngles.length, 1);
       const angle = navAngles[navIndex] || (360 * navIndex / Math.max(navAngles.length, 8));
@@ -264,51 +266,28 @@
       );
       
       bubble.userData.layer = layer;
+      // Reset dynamic state so we don't “jump” when wobble/impulses apply
+      try {
+        if (bubble.userData.impulse && bubble.userData.impulse.set) bubble.userData.impulse.set(0, 0, 0);
+        if (bubble.userData.wobbleOffset && bubble.userData.wobbleOffset.set) bubble.userData.wobbleOffset.set(0, 0, 0);
+        // Force re-roll sizing next frame (handled by refreshBubbleBaseScale in the main loop)
+        bubble.userData.sizePx = null;
+        bubble.userData.baseWorldScale = null;
+      } catch (_) {}
     }
-
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    const clock = new T.Clock();
-    function animate() {
-      requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
-
-      // Update bubbles
-      bubbles.forEach((bubble, index) => {
-        // Add velocity (speed is applied in updateBubbleSpeeds when control changes)
-        bubble.position.add(bubble.userData.velocity);
-        
-        // Update shader time
-        bubble.material.uniforms.uTime.value = elapsedTime;
-        
-        // Reset if too high
-        if (bubble.position.y > 30) {
-          resetBubble(bubble, index);
-        }
-      });
-
-      renderer.render(scene, camera);
-    }
-
-    // Initialize
-    init();
-    window.addEventListener('resize', onWindowResize);
-    animate();
 
     // Control state
+    // NOTE: `density` is now a COUNT multiplier (matches Errl Phone label). `scale` controls bubble size.
     let controls = {
       speed: 1.0,
-      density: 1.0,
+      density: 1.0, // 0..2 count multiplier
+      scale: 1.0,   // 0.5..2 size multiplier
       alpha: 0.95,
       wobble: 1.0,
       freq: 1.0,
-      minSize: 14,
-      maxSize: 36,
-      sizeHz: 0.0,
+      minSize: 14,  // px
+      maxSize: 36,  // px
+      sizeHz: 0.0,  // 0..1 Hz
       jumboPct: 0.1,
       jumboScale: 1.6,
       attract: true,
@@ -317,45 +296,270 @@
       rippleIntensity: 1.2
     };
 
-    // Update bubble velocities based on speed
-    function updateBubbleSpeeds() {
-      bubbles.forEach((bubble) => {
-        // Initialize baseVelocity if missing (for bubbles created before controls were added)
-        if (!bubble.userData.baseVelocity && bubble.userData.velocity) {
-          // Clone the velocity vector to preserve original values
-          const vel = bubble.userData.velocity;
-          bubble.userData.baseVelocity = new T.Vector3(vel.x, vel.y, vel.z);
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+    function safeNum(v, fallback){
+      const n = (typeof v === 'number') ? v : parseFloat(String(v || ''));
+      return Number.isFinite(n) ? n : fallback;
+    }
+    function normalizeMinMax(){
+      controls.minSize = clamp(Math.round(safeNum(controls.minSize, 14)), 6, 256);
+      controls.maxSize = clamp(Math.round(safeNum(controls.maxSize, 36)), 6, 256);
+      if (controls.maxSize < controls.minSize) controls.maxSize = controls.minSize;
+    }
+
+    const pointer = { x: 0, y: 0, active: false }; // NDC (-1..1)
+    const raycaster = new T.Raycaster();
+    const tmpVel = new T.Vector3();
+    const tmpDir = new T.Vector3();
+    const tmpOrigin = new T.Vector3();
+    const tmpPoint = new T.Vector3();
+    let lastElapsedTime = 0;
+    const rippleEvents = []; // { x, y, t }
+
+    function getActiveCount(){
+      const mult = clamp(safeNum(controls.density, 1.0), 0, maxCountMultiplier);
+      return clamp(Math.round(baseBubbleCount * mult), 0, bubblePoolCount);
+    }
+
+    function updateBubbleVisibility(){
+      const active = getActiveCount();
+      for (let i = 0; i < bubbles.length; i++) {
+        const b = bubbles[i];
+        if (!b) continue;
+        const nextVisible = i < active;
+        const wasVisible = b.visible !== false;
+        b.visible = nextVisible;
+        // If a bubble becomes newly active, reset it so it doesn't "pop" mid-field.
+        if (nextVisible && !wasVisible) {
+          resetBubble(b, i);
+          refreshBubbleBaseScale(b, { reroll: true });
         }
-        const baseVel = bubble.userData.baseVelocity || bubble.userData.velocity;
-        if (baseVel && bubble.userData.velocity) {
-          bubble.userData.velocity.x = baseVel.x * controls.speed;
-          bubble.userData.velocity.y = baseVel.y * controls.speed;
-          bubble.userData.velocity.z = baseVel.z * controls.speed;
-        }
+      }
+    }
+
+    function computeWorldScaleForPx(px, z){
+      if (!camera) return 1;
+      const fov = (camera.fov * Math.PI) / 180;
+      const dist = Math.max(0.01, camera.position.z - z);
+      const worldH = 2 * Math.tan(fov / 2) * dist;
+      const worldPerPx = worldH / Math.max(1, window.innerHeight || 1);
+      const worldDiameter = px * worldPerPx;
+      // Sphere geometry diameter is ~2 at scale=1
+      return worldDiameter / 2;
+    }
+
+    function pickBaseSizePx(){
+      normalizeMinMax();
+      const span = Math.max(0, controls.maxSize - controls.minSize);
+      let px = controls.minSize + Math.random() * span;
+      if (Math.random() < clamp(controls.jumboPct, 0, 0.6)) {
+        px *= clamp(controls.jumboScale, 1.0, 2.5);
+      }
+      return clamp(px, 6, 512);
+    }
+
+    function ensureBubbleState(b){
+      if (!b || !b.userData) b.userData = {};
+      if (!b.userData.baseVelocity && b.userData.velocity) {
+        const vel = b.userData.velocity;
+        b.userData.baseVelocity = new T.Vector3(vel.x, vel.y, vel.z);
+      }
+      if (!b.userData.baseVelocity) b.userData.baseVelocity = new T.Vector3(0, 0.02, 0);
+      if (!b.userData.impulse) b.userData.impulse = new T.Vector3(0, 0, 0);
+      if (!b.userData.wobbleOffset) b.userData.wobbleOffset = new T.Vector3(0, 0, 0);
+      if (!Number.isFinite(b.userData.wobblePhase)) b.userData.wobblePhase = Math.random() * Math.PI * 2;
+      if (!Number.isFinite(b.userData.sizePhase)) b.userData.sizePhase = Math.random() * Math.PI * 2;
+      if (!Number.isFinite(b.userData.sizePx)) b.userData.sizePx = pickBaseSizePx();
+      if (!Number.isFinite(b.userData.baseWorldScale)) {
+        b.userData.baseWorldScale = computeWorldScaleForPx(b.userData.sizePx, b.position ? b.position.z : 0);
+      }
+    }
+
+    function refreshBubbleBaseScale(b, { reroll = false } = {}){
+      ensureBubbleState(b);
+      if (reroll) b.userData.sizePx = pickBaseSizePx();
+      // Clamp to new min/max (and also allow jumbo to exceed max)
+      normalizeMinMax();
+      const baseMax = Math.max(controls.maxSize, controls.minSize);
+      const jumboMax = baseMax * clamp(safeNum(controls.jumboScale, 1.6), 1.0, 2.5);
+      const upperPx = clamp(jumboMax, controls.minSize, 512);
+      b.userData.sizePx = clamp(b.userData.sizePx, controls.minSize, upperPx);
+      b.userData.baseWorldScale = computeWorldScaleForPx(b.userData.sizePx, b.position ? b.position.z : 0);
+    }
+
+    function refreshAllBubbleBaseScales({ reroll = false } = {}){
+      bubbles.forEach((b) => {
+        if (!b) return;
+        refreshBubbleBaseScale(b, { reroll });
       });
     }
 
-    // Update bubble alpha
-    function updateBubbleAlpha() {
-      bubbles.forEach((bubble) => {
-        if (bubble.material) {
-          bubble.material.transparent = true;
-          // Alpha is controlled in shader, but we can adjust opacity
-          bubble.material.opacity = controls.alpha;
-        }
+    function applyBubbleAlpha(){
+      bubbles.forEach((b) => {
+        if (!b || !b.material) return;
+        b.material.transparent = true;
+        b.material.opacity = clamp(safeNum(controls.alpha, 0.95), 0, 1);
       });
     }
 
-    // Update bubble sizes (for new bubbles)
-    function updateBubbleSizes() {
-      bubbles.forEach((bubble) => {
-        const baseScale = bubble.userData.baseScale || 1.0;
-        const zScale = bubble.userData.zScale || 1.0;
-        const sizeMultiplier = controls.density;
-        const scale = baseScale * zScale * sizeMultiplier;
-        bubble.scale.set(scale, scale, scale);
-      });
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      // Keep min/max size expressed in pixels consistent across resizes.
+      refreshAllBubbleBaseScales({ reroll: false });
     }
+
+    // Pointer tracking for attract/ripples
+    window.addEventListener('pointermove', (e) => {
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      pointer.x = (e.clientX / w) * 2 - 1;
+      pointer.y = -(e.clientY / h) * 2 + 1;
+      pointer.active = true;
+    }, { passive: true });
+    window.addEventListener('pointerleave', () => { pointer.active = false; }, { passive: true });
+    window.addEventListener('pointerdown', (e) => {
+      if (!controls.ripples) return;
+      if (!camera) return;
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      const x = (e.clientX / w) * 2 - 1;
+      const y = -(e.clientY / h) * 2 + 1;
+      raycaster.setFromCamera({ x, y }, camera);
+      const dir = raycaster.ray.direction;
+      const org = raycaster.ray.origin;
+      if (Math.abs(dir.z) < 1e-6) return;
+      const t = (0 - org.z) / dir.z; // plane z=0
+      if (!Number.isFinite(t)) return;
+      const p = org.clone().add(dir.clone().multiplyScalar(t));
+      rippleEvents.push({ x: p.x, y: p.y, t: lastElapsedTime });
+      if (rippleEvents.length > 6) rippleEvents.shift();
+    }, { passive: true });
+
+    const clock = new T.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+      lastElapsedTime = elapsedTime;
+
+      // Precompute pointer ray for attract (we project onto per-bubble z planes)
+      let rayDir = null;
+      let rayOrg = null;
+      if (controls.attract && pointer.active && camera) {
+        raycaster.setFromCamera(pointer, camera);
+        rayDir = raycaster.ray.direction;
+        rayOrg = raycaster.ray.origin;
+        tmpOrigin.copy(rayOrg);
+      }
+
+      // Cull old ripple events
+      for (let i = rippleEvents.length - 1; i >= 0; i--) {
+        if (elapsedTime - rippleEvents[i].t > 2.5) rippleEvents.splice(i, 1);
+      }
+
+      const wobbleAmt = clamp(safeNum(controls.wobble, 1.0), 0, 2);
+      const wobbleHz = 0.1 + clamp(safeNum(controls.freq, 1.0), 0, 2) * 0.7;
+      const wobbleOmega = wobbleHz * Math.PI * 2;
+      const scaleMult = clamp(safeNum(controls.scale, 1.0), 0.5, 2.0);
+      const pulseHz = clamp(safeNum(controls.sizeHz, 0), 0, 1);
+      const pulseOmega = pulseHz * Math.PI * 2;
+      const attractK = clamp(safeNum(controls.attractIntensity, 1.0), 0, 2) * 0.0009;
+      const rippleK = clamp(safeNum(controls.rippleIntensity, 1.2), 0, 2) * 0.06;
+
+      // Update bubbles
+      bubbles.forEach((bubble, index) => {
+        if (!bubble || bubble.visible === false) return;
+        ensureBubbleState(bubble);
+
+        // Wobble displacement (non-accumulating): apply delta from previous wobble offset
+        const oldOff = bubble.userData.wobbleOffset;
+        const phase = bubble.userData.wobblePhase;
+        const wobX = Math.sin(elapsedTime * wobbleOmega + phase) * 0.15 * wobbleAmt;
+        const wobZ = Math.cos(elapsedTime * wobbleOmega + phase * 1.13) * 0.12 * wobbleAmt;
+        const nextOffX = wobX;
+        const nextOffZ = wobZ;
+        bubble.position.x += (nextOffX - oldOff.x);
+        bubble.position.z += (nextOffZ - oldOff.z);
+        oldOff.x = nextOffX;
+        oldOff.z = nextOffZ;
+
+        // Ripple impulses (radial push)
+        if (controls.ripples && rippleEvents.length) {
+          for (let i = 0; i < rippleEvents.length; i++) {
+            const r = rippleEvents[i];
+            const age = elapsedTime - r.t;
+            if (age < 0) continue;
+            const dx = bubble.position.x - r.x;
+            const dy = bubble.position.y - r.y;
+            const dist = Math.hypot(dx, dy);
+            const waveSpeed = 8.0;
+            const front = age * waveSpeed;
+            const width = 1.6;
+            const ring = Math.exp(-((dist - front) * (dist - front)) / (2 * width * width));
+            const decay = Math.exp(-age * 1.2);
+            const impulse = ring * decay * rippleK;
+            if (impulse > 1e-6 && dist > 1e-4) {
+              bubble.userData.impulse.x += (dx / dist) * impulse;
+              bubble.userData.impulse.y += (dy / dist) * impulse * 0.6;
+            }
+          }
+        }
+
+        // Pointer attract (gentle drift toward cursor ray intersection)
+        if (rayDir && rayOrg) {
+          const dz = rayDir.z;
+          if (Math.abs(dz) > 1e-6) {
+            const t = (bubble.position.z - tmpOrigin.z) / dz;
+            tmpPoint.copy(tmpOrigin).add(tmpDir.copy(rayDir).multiplyScalar(t));
+            const dx = tmpPoint.x - bubble.position.x;
+            const dy = tmpPoint.y - bubble.position.y;
+            bubble.userData.impulse.x += dx * attractK;
+            bubble.userData.impulse.y += dy * attractK * 0.35;
+          }
+        }
+
+        // Compose velocity: base rise + impulses
+        const baseVel = bubble.userData.baseVelocity;
+        tmpVel.copy(baseVel).multiplyScalar(clamp(safeNum(controls.speed, 1.0), 0, 3));
+        tmpVel.add(bubble.userData.impulse);
+        // decay impulse so pushes settle
+        bubble.userData.impulse.multiplyScalar(0.96);
+        bubble.position.add(tmpVel);
+
+        // Update shader time
+        if (bubble.material && bubble.material.uniforms && bubble.material.uniforms.uTime) {
+          bubble.material.uniforms.uTime.value = elapsedTime;
+        }
+
+        // Size (px-based) + global scale + optional pulsing
+        let s = (Number.isFinite(bubble.userData.baseWorldScale) ? bubble.userData.baseWorldScale : bubble.scale.x) * scaleMult;
+        if (pulseHz > 0) {
+          const p = bubble.userData.sizePhase;
+          const amp = 0.12 * clamp(pulseHz, 0, 1);
+          s *= (1 + amp * Math.sin(elapsedTime * pulseOmega + p));
+        }
+        bubble.scale.set(s, s, s);
+
+        // Reset if too high
+        if (bubble.position.y > 30) {
+          resetBubble(bubble, index);
+          refreshBubbleBaseScale(bubble, { reroll: true });
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    // Initialize
+    init();
+    // After init, seed sizing/visibility/alpha for the pool
+    refreshAllBubbleBaseScales({ reroll: true });
+    updateBubbleVisibility();
+    applyBubbleAlpha();
+
+    window.addEventListener('resize', onWindowResize);
+    animate();
 
     // Expose control interface
     window.errlRisingBubblesThree = {
@@ -364,56 +568,75 @@
       renderer,
       bubbles,
       setSpeed(value) {
-        controls.speed = Math.max(0, Math.min(3, parseFloat(value) || 1));
-        updateBubbleSpeeds();
+        controls.speed = clamp(safeNum(value, 1), 0, 3);
       },
+      // Repurposed: COUNT multiplier
       setDensity(value) {
-        controls.density = Math.max(0, Math.min(2, parseFloat(value) || 1));
-        updateBubbleSizes();
+        controls.density = clamp(safeNum(value, 1), 0, 2);
+        updateBubbleVisibility();
+      },
+      setScale(value) {
+        controls.scale = clamp(safeNum(value, 1.0), 0.5, 2.0);
       },
       setAlpha(value) {
-        controls.alpha = Math.max(0, Math.min(1, parseFloat(value) || 0.95));
-        updateBubbleAlpha();
+        controls.alpha = clamp(safeNum(value, 0.95), 0, 1);
+        applyBubbleAlpha();
       },
       setWobble(value) {
-        controls.wobble = Math.max(0, Math.min(2, parseFloat(value) || 1));
+        controls.wobble = clamp(safeNum(value, 1), 0, 2);
       },
       setFreq(value) {
-        controls.freq = Math.max(0, Math.min(2, parseFloat(value) || 1));
+        controls.freq = clamp(safeNum(value, 1), 0, 2);
       },
       setMinSize(value) {
-        controls.minSize = Math.max(6, Math.min(256, parseInt(value) || 14));
+        controls.minSize = clamp(parseInt(String(value || '14'), 10) || 14, 6, 256);
+        normalizeMinMax();
+        refreshAllBubbleBaseScales({ reroll: false });
       },
       setMaxSize(value) {
-        controls.maxSize = Math.max(6, Math.min(256, parseInt(value) || 36));
+        controls.maxSize = clamp(parseInt(String(value || '36'), 10) || 36, 6, 256);
+        normalizeMinMax();
+        refreshAllBubbleBaseScales({ reroll: false });
       },
       setSizeHz(value) {
-        controls.sizeHz = Math.max(0, Math.min(1, parseFloat(value) || 0));
+        controls.sizeHz = clamp(safeNum(value, 0), 0, 1);
       },
       setJumboPct(value) {
-        controls.jumboPct = Math.max(0, Math.min(0.6, parseFloat(value) || 0.1));
+        controls.jumboPct = clamp(safeNum(value, 0.1), 0, 0.6);
+        refreshAllBubbleBaseScales({ reroll: true });
       },
       setJumboScale(value) {
-        controls.jumboScale = Math.max(1.0, Math.min(2.5, parseFloat(value) || 1.6));
+        controls.jumboScale = clamp(safeNum(value, 1.6), 1.0, 2.5);
+        refreshAllBubbleBaseScales({ reroll: true });
       },
       setAttract(value) {
         controls.attract = !!value;
       },
       setAttractIntensity(value) {
-        controls.attractIntensity = Math.max(0, Math.min(2, parseFloat(value) || 1.0));
+        controls.attractIntensity = clamp(safeNum(value, 1.0), 0, 2);
       },
       setRipples(value) {
         controls.ripples = !!value;
+        if (!controls.ripples) rippleEvents.length = 0;
       },
       setRippleIntensity(value) {
-        controls.rippleIntensity = Math.max(0, Math.min(2, parseFloat(value) || 1.2));
+        controls.rippleIntensity = clamp(safeNum(value, 1.2), 0, 2);
       },
       getControls() {
-        return { ...controls };
+        // Provide both names for compatibility
+        return {
+          ...controls,
+          count: controls.density
+        };
+      },
+      getActiveCount() {
+        return getActiveCount();
+      },
+      getPoolSize() {
+        return bubblePoolCount;
       },
       stopAnimation() {
-        // This is a no-op for now, but can be used to stop any future animations
-        // Currently animations are handled in portal-app.js
+        // no-op (animation is always running; controls affect motion)
       }
     };
   }).catch(err => {

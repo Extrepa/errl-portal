@@ -29,25 +29,58 @@ test.describe('Integration: Controls to Effects', () => {
     // Verify effect exists
     const hasRB = await verifyEffectFunction(page, 'errlRisingBubblesThree.setSpeed');
     expect(hasRB).toBe(true);
+
+    // Wait for RB API surface
+    await page.waitForFunction(() => {
+      // @ts-ignore
+      const RB = (window as any).errlRisingBubblesThree;
+      return !!RB && typeof RB.getControls === 'function' && typeof RB.getActiveCount === 'function';
+    });
     
-    // Change speed
+    // Change a few controls (including new rbScale)
     await setControlValue(page, 'rbSpeed', '2.0');
+    await setControlValue(page, 'rbDensity', '1.5'); // count multiplier
+    await setControlValue(page, 'rbScale', '1.25');  // size scale
+    await setControlValue(page, 'rbAlpha', '0.8');
+    await setControlValue(page, 'rbWobble', '1.2');
+    await setControlValue(page, 'rbFreq', '0.9');
+    await setControlValue(page, 'rbMin', '16');
+    await setControlValue(page, 'rbMax', '40');
+    await setControlValue(page, 'rbJumboPct', '0.2');
+    await setControlValue(page, 'rbJumboScale', '1.8');
+    await setControlValue(page, 'rbSizeHz', '0.5');
+    await setControlValue(page, 'rbAttract', true);
+    await setControlValue(page, 'rbAttractIntensity', '1.5');
+    await setControlValue(page, 'rbRipples', true);
+    await setControlValue(page, 'rbRippleIntensity', '1.2');
     await page.waitForTimeout(500);
     
     // Verify control value changed
     const speedValue = await getControlValue(page, 'rbSpeed');
     expect(parseFloat(speedValue || '0')).toBeCloseTo(2.0, 1);
     
-    // Verify effect was called (check if Three.js instance has updated state)
+    // Verify engine state reflects the controls (wiring + purpose)
     const rbState = await page.evaluate(() => {
+      // @ts-ignore
       const RB = (window as any).errlRisingBubblesThree;
       if (!RB) return null;
+      const c = RB.getControls();
       return {
-        exists: true,
-        hasControls: RB.controls !== undefined,
+        controls: c,
+        activeCount: RB.getActiveCount(),
+        poolSize: RB.getPoolSize ? RB.getPoolSize() : null
       };
     });
-    expect(rbState?.exists).toBe(true);
+    expect(rbState?.controls).toBeTruthy();
+    expect(rbState?.controls?.speed).toBeCloseTo(2.0, 1);
+    // `density` is repurposed as count multiplier; `count` alias is also provided by the engine.
+    expect(rbState?.controls?.density).toBeCloseTo(1.5, 1);
+    expect(rbState?.controls?.count).toBeCloseTo(1.5, 1);
+    expect(rbState?.controls?.scale).toBeCloseTo(1.25, 1);
+    expect(rbState?.activeCount).toBeGreaterThan(0);
+    if (rbState?.poolSize != null) {
+      expect(rbState.activeCount).toBeLessThanOrEqual(rbState.poolSize);
+    }
   });
 
   test('should update Hue Controller when controls change', async ({ page }) => {

@@ -110,8 +110,8 @@ Comprehensive Playwright test suite covering:
 
 ### Controls Tested (50+)
 
-**Rising Bubbles (15)**:
-- rbSpeed, rbDensity, rbAlpha, rbWobble, rbFreq
+**Rising Bubbles (16)**:
+- rbSpeed, rbDensity, rbScale, rbAlpha, rbWobble, rbFreq
 - rbMin, rbMax, rbSizeHz, rbJumboPct, rbJumboScale
 - rbAttract, rbAttractIntensity, rbRipples, rbRippleIntensity
 - Advanced: rbAdvModeLoop, rbAdvModePing, rbAdvAnimSpeed, rbAdvPlayPause

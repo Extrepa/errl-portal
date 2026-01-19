@@ -139,3 +139,65 @@ Implementation is **solid and production-ready**. The code follows best practice
 - **Persistence/reset**:
   - Confirmed `applyUiSnapshot()` dispatches `change` for checkboxes and `input` for ranges, so the new BG controls participate in the existing persistence flow.
   - Added baked defaults for `shimmerToggle`, `vignetteToggle`, `glOverlayAlpha/DX/DY` in the reset fallback defaults object.
+
+### Follow-up
+- Set **Shimmer** and **Vignette** to **OFF by default**:
+  - `src/index.html`: removed `checked` from `#shimmerToggle` and `#vignetteToggle`
+  - `public/apps/landing/config/errl-defaults.json`: added `shimmerToggle: false` and `vignetteToggle: false` (plus GL overlay defaults)
+  - `src/apps/landing/scripts/portal-app.js` reset fallback defaults now set `shimmerToggle/vignetteToggle` to `false`
+
+---
+
+## Errl Phone RB Tab - Reorg + Full Wiring
+
+**Date**: 2026-01-19  
+**Scope**: Reorganized the RB tab and implemented all RB controls so they are *actually* wired to the Three.js Rising Bubbles layer with clear purpose.
+
+### UI changes
+- `src/index.html`
+  - RB tab is now explicitly **Basic** + **Advanced** with short inline guidance text.
+  - Added **`rbScale`** (Size Scale) to separate bubble sizing from bubble count.
+  - `rbDensity` is now labeled and intended as **Count** (count multiplier), matching its UI copy.
+
+### Wiring changes
+- `src/apps/landing/scripts/portal-app.js`
+  - Added `rbScale` bindings (`RB.setScale`) and persistence for `rbScale`.
+  - Kept `rbDensity` wired through `RB.setDensity`, but semantics are now *count multiplier* (engine-side).
+  - Reset Defaults fallback now includes `rbScale`.
+
+### Engine behavior (all RB controls now do something real)
+- `src/apps/landing/scripts/rise-bubbles-three.js`
+  - Bubble pool + visibility: `rbDensity` now changes active bubble **count** (uses `.visible` for pool culling).
+  - Pixel sizing: `rbMin/rbMax` now drive per-bubble base size in **pixels** (converted to world scale using camera FOV/depth).
+  - `rbScale` multiplies overall bubble size (separate from count).
+  - `rbJumboPct/rbJumboScale` affect spawn sizing (re-roll on change for immediate feedback).
+  - `rbSizeHz` pulses bubble size over time.
+  - `rbWobble/rbFreq` apply lateral oscillation (non-accumulating offset) to motion.
+  - `rbAttract/rbAttractIntensity` attracts bubbles toward pointer ray intersection.
+  - `rbRipples/rbRippleIntensity` emits click/tap ripple impulses that push bubbles outward.
+  - Added debug surface: `getActiveCount()` and `getPoolSize()` plus `getControls()` now includes `count` alias.
+
+### Tests updated
+- Added `rbScale` to RB control lists and updated RB wiring assertions:
+  - `tests/integration-controls-effects.test.ts` now asserts `getControls()` and `getActiveCount()` respond to RB controls.
+  - Updated RB control presence lists in `tests/home-page-verification.test.ts` and `tests/errl-phone-controls.spec.ts`.
+  - Fixed older tests that referenced `#rbAdvAnimate` to use `#rbAdvPlayPause` instead.
+
+### Double-check (RB)
+- Fixed two engine edge cases in `src/apps/landing/scripts/rise-bubbles-three.js`:
+  - **Jumbo sizing**: `rbJumboScale` now truly allows sizes above `rbMax` (clamps to \(rbMax * rbJumboScale\), capped at 512px).
+  - **Count changes**: when `rbDensity` increases, newly-visible bubbles are reset/re-rolled so they don’t “pop” mid-field with stale positions.
+
+---
+
+## Nav Slow Gradient - Slider Baseline Fix
+
+**Date**: 2026-01-19  
+**Issue**: While Slow Gradient animation was running, the animation loop wrote hardcoded goo params each frame, overriding user slider changes (e.g. `navFlow` speed).
+
+**Fix**: Updated `startGradientAnimation()` in `src/apps/landing/scripts/portal-app.js` so the animation loop **reads current slider values each frame** and animates gently around them (sliders become the baseline). The Slow Gradient button now just sets a good baseline and starts the loop.
+
+### Double-check (Nav Slow Gradient)
+- Verified `animate()` reads `navFlow/navWiggle/navGrip/navDrip` each frame, so moving sliders while the animation is running changes the animation immediately (no more hardcoded overwrite).
+- Fixed persistence gap: Slow Gradient now dispatches `input` events after setting slider baselines, so the normal bundle/localStorage persistence captures the change.
+  - Verified in code: Slow Gradient click sets `.value` and then calls `dispatchEvent(new Event('input', { bubbles: true }))` for each slider.

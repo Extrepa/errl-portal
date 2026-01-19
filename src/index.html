@@ -160,11 +160,11 @@
       <div class="sectionLabel" title="Background decorations">Background</div>
       <div class="sliderRow">
         <label for="shimmerToggle" title="Enable shimmer animation layer">Shimmer</label>
-        <input type="checkbox" id="shimmerToggle" checked title="Toggle shimmer effect">
+        <input type="checkbox" id="shimmerToggle" title="Toggle shimmer effect">
       </div>
       <div class="sliderRow">
         <label for="vignetteToggle" title="Enable vignette frame effect">Vignette</label>
-        <input type="checkbox" id="vignetteToggle" checked title="Toggle vignette frame">
+        <input type="checkbox" id="vignetteToggle" title="Toggle vignette frame">
       </div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel" title="WebGL overlay layer controls">GL Overlay</div>
@@ -201,17 +201,37 @@
 
     <!-- Rising Bubbles (Canvas) -->
     <div class="panel-section" data-tab="rb">
-      <div class="sectionLabel" title="Canvas particle bubbles rising behind the scene">Rising Bubbles (Canvas)</div>
-      <div class="sliderRow"><label for="rbAttract" title="Pointer attracts/repels bubbles">Attract</label><input type="checkbox" id="rbAttract" checked title="Toggle attraction/repulsion"> <label for="rbAttractIntensity" title="Attract effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.0" id="rbAttractIntensity" title="How strong the attraction/repulsion effect is"></div>
-      <div class="sliderRow"><label for="rbRipples" title="Show water-like ripples on click">Ripples</label><input type="checkbox" id="rbRipples" title="Toggle ripple effect"> <label for="rbRippleIntensity" title="Ripple effect intensity">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.2" id="rbRippleIntensity" title="How visible and strong the ripple effect is"></div>
-      <div class="sliderRow"><label for="rbSpeed" title="How fast bubbles rise">Speed</label><input type="range" min="0" max="3" step="0.01" value="1" id="rbSpeed" title="Bubble rise speed"></div>
-      <div class="sliderRow"><label for="rbDensity" title="How many bubbles appear">Density</label><input type="range" min="0" max="2" step="0.01" value="1" id="rbDensity" title="Bubble density"></div>
-      <div class="sliderRow"><label for="rbAlpha" title="Opacity of the bubbles">Alpha</label><input type="range" min="0" max="1" step="0.01" value="0.95" id="rbAlpha" title="Bubble opacity"></div>
+      <div class="sectionLabel" title="3D iridescent bubbles rendered on the #riseBubbles canvas behind the scene">Rising Bubbles (Basic)</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="These controls affect the Three.js Rising Bubbles layer. Higher values may cost performance.">Behind-the-scene bubble field (Three.js). Use Advanced for size/spawn shaping.</span>
+      </div>
+      <div class="sliderRow">
+        <label for="rbSpeed" title="How fast bubbles rise upward (vertical motion)">Rise Speed</label>
+        <input type="range" min="0" max="3" step="0.01" value="1" id="rbSpeed" title="Bubble rise speed (0 = still)">
+      </div>
+      <div class="sliderRow">
+        <label for="rbDensity" title="How many bubbles are active (multiplier). 1 = default count, 2 = double.">Count</label>
+        <input type="range" min="0" max="2" step="0.01" value="1" id="rbDensity" title="Bubble count multiplier (0 = none)">
+      </div>
+      <div class="sliderRow">
+        <label for="rbScale" title="Overall bubble size scaling (separate from Count)">Scale</label>
+        <input type="range" min="0.5" max="2.0" step="0.01" value="1.0" id="rbScale" title="Overall bubble size scale">
+      </div>
+      <div class="sliderRow">
+        <label for="rbAlpha" title="Overall opacity of the bubble layer">Alpha</label>
+        <input type="range" min="0" max="1" step="0.01" value="0.95" id="rbAlpha" title="Bubble opacity">
+      </div>
+      <div class="sectionDivider"></div>
+      <div class="sliderRow"><label for="rbAttract" title="Pointer attracts bubbles (subtle drift toward cursor)">Attract</label><input type="checkbox" id="rbAttract" checked title="Toggle attraction to pointer"> <label for="rbAttractIntensity" title="Strength of attraction force">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.0" id="rbAttractIntensity" title="Attract intensity"></div>
+      <div class="sliderRow"><label for="rbRipples" title="Click/tap emits a ripple impulse through the field">Ripples</label><input type="checkbox" id="rbRipples" title="Toggle ripple impulses"> <label for="rbRippleIntensity" title="Ripple strength">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.2" id="rbRippleIntensity" title="Ripple intensity"></div>
     </div>
     <div class="panel-section" data-tab="rb">
-      <div class="sectionLabel">RB Bubbles Advanced</div>
-      <div class="sliderRow"><label for="rbWobble" title="Side-to-side wiggle of bubbles as they rise">Wobble</label><input id="rbWobble" type="range" min="0" max="2" step="0.01" value="1"/></div>
-      <div class="sliderRow"><label for="rbFreq" title="How quickly wobble oscillates">Frequency</label><input id="rbFreq" type="range" min="0" max="2" step="0.01" value="1"/></div>
+      <div class="sectionLabel" title="Shape how bubbles move, spawn, and pulse">Rising Bubbles (Advanced)</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Advanced controls change motion style and spawn sizing.">Motion + spawn shaping. Use small changes—some controls amplify each other.</span>
+      </div>
+      <div class="sliderRow"><label for="rbWobble" title="Side-to-side motion amplitude (adds lateral drift/oscillation)">Wobble</label><input id="rbWobble" type="range" min="0" max="2" step="0.01" value="1"/></div>
+      <div class="sliderRow"><label for="rbFreq" title="Oscillation rate for wobble (higher = faster wobble)">Frequency</label><input id="rbFreq" type="range" min="0" max="2" step="0.01" value="1"/></div>
       <div class="sliderRow"><label for="rbMin" title="Smallest bubble size">Min size</label><input id="rbMin" type="number" min="6" max="256" step="1" value="14" title="Smallest bubble size in pixels"/> <label for="rbMax" title="Largest bubble size">Max</label><input id="rbMax" type="number" min="6" max="256" step="1" value="36" title="Largest bubble size in pixels"/></div>
       <div class="sliderRow"><label for="rbJumboPct" title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles.">Jumbo Percent</label><input id="rbJumboPct" type="range" min="0" max="0.6" step="0.01" value="0.1" title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles."/></div>
       <div class="sliderRow"><label for="rbJumboScale" title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size.">Jumbo Scale</label><input id="rbJumboScale" type="range" min="1.0" max="2.5" step="0.05" value="1.6" title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size."/></div>

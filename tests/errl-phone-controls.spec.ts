@@ -22,7 +22,7 @@ test.describe('Errl Phone Controls Tests', () => {
 
     // Verify all RB controls exist
     const controls = [
-      'rbSpeed', 'rbDensity', 'rbAlpha', 'rbWobble', 'rbFreq',
+      'rbSpeed', 'rbDensity', 'rbScale', 'rbAlpha', 'rbWobble', 'rbFreq',
       'rbMin', 'rbMax', 'rbSizeHz', 'rbJumboPct', 'rbJumboScale',
       'rbAttract', 'rbAttractIntensity', 'rbRipples', 'rbRippleIntensity'
     ];
@@ -36,6 +36,7 @@ test.describe('Errl Phone Controls Tests', () => {
     const setterFunctions = [
       'errlRisingBubblesThree.setSpeed',
       'errlRisingBubblesThree.setDensity',
+      'errlRisingBubblesThree.setScale',
       'errlRisingBubblesThree.setAlpha',
       'errlRisingBubblesThree.setWobble',
       'errlRisingBubblesThree.setFreq',
@@ -66,6 +67,7 @@ test.describe('Errl Phone Controls Tests', () => {
     const controlTests = [
       { id: 'rbSpeed', value: '2.0' },
       { id: 'rbDensity', value: '1.5' },
+      { id: 'rbScale', value: '1.25' },
       { id: 'rbAlpha', value: '0.8' },
       { id: 'rbWobble', value: '1.2' },
       { id: 'rbFreq', value: '0.9' },

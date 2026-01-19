@@ -1285,18 +1285,40 @@
       const startTime = Date.now();
       const period = 8000; // 8 second cycle
       
+      function clamp(n, a, b){
+        n = Number(n);
+        if (!Number.isFinite(n)) return a;
+        return Math.max(a, Math.min(b, n));
+      }
+      function readBaseParams(){
+        const fEl = $("navFlow");
+        const wEl = $("navWiggle");
+        const gEl = $("navGrip") || $("navVisc");
+        const dEl = $("navDrip");
+        const baseSpeed = clamp(parseFloat(fEl?.value || '0.3'), 0, 2);
+        const baseWiggle = clamp(parseFloat(wEl?.value || '0.2'), 0, 1);
+        const baseVisc = clamp(parseFloat(gEl?.value || '0.7'), 0, 1);
+        const baseDrip = dEl
+          ? clamp((parseFloat(dEl.value || '0') + 1) / 2, 0, 1)
+          : 0.1;
+        return { baseSpeed, baseWiggle, baseVisc, baseDrip };
+      }
+
       function animate(){
         if (!gradientAnimating) return;
         const elapsed = (Date.now() - startTime) % period;
         const t = elapsed / period; // 0 to 1
-        const hue = t * 360; // Full color cycle
-        
-        // Apply gradient with animated hue
-        window.errlGLSetGoo({ 
-          speed: 0.3 + Math.sin(t * Math.PI * 2) * 0.1, 
-          wiggle: 0.2 + Math.cos(t * Math.PI * 2) * 0.1, 
-          viscosity: 0.7, 
-          drip: 0.1 
+        const { baseSpeed, baseWiggle, baseVisc, baseDrip } = readBaseParams();
+        const wave = t * Math.PI * 2;
+        // Respect sliders as the baseline; animate gently around them.
+        const speed = clamp(baseSpeed + Math.sin(wave) * 0.10, 0, 2);
+        const wiggle = clamp(baseWiggle + Math.cos(wave) * 0.10, 0, 1);
+        const drip = clamp(baseDrip + Math.sin(wave) * 0.05, 0, 1);
+        window.errlGLSetGoo({
+          speed,
+          wiggle,
+          viscosity: baseVisc,
+          drip
         });
         
         gradientRaf = requestAnimationFrame(animate);
@@ -1352,14 +1374,20 @@
     if (slowGradientBtn) {
       on(slowGradientBtn, 'click', ()=>{
         if (!window.errlGLSetGoo) return;
-        // Apply slow, gentle gradient animation
-        window.errlGLSetGoo({ speed: 0.3, wiggle: 0.2, viscosity: 0.7, drip: 0.1 });
-        // Also update UI sliders to reflect the change
+        // Set a pleasant baseline and start animation (animation respects sliders).
         const f = $("navFlow"); if (f) f.value = 0.3;
         const w = $("navWiggle"); if (w) w.value = 0.2;
         const g = $("navGrip"); if (g) g.value = 0.7;
         // navDrip slider is -1..1 mapped to 0..1 drip; 0.1 => -0.8
         const d = $("navDrip"); if (d) d.value = -0.8;
+
+        // Persist + update any derived handlers by dispatching input events,
+        // consistent with other buttons (e.g. Randomize).
+        const bump = (el) => {
+          try { el && el.dispatchEvent(new Event('input', { bubbles: true })); } catch (_) {}
+        };
+        bump(f); bump(w); bump(g); bump(d);
+
         // Start animation
         startGradientAnimation();
       });
@@ -1417,6 +1445,7 @@
     // Basic controls
     const speed = $("rbSpeed");
     const density = $("rbDensity");
+    const scale = $("rbScale");
     const alpha = $("rbAlpha");
     const wobble = $("rbWobble");
     const freq = $("rbFreq");
@@ -1434,7 +1463,9 @@
       try{
         const obj = {
           speed: parseFloat(speed?.value || '1'),
+          // Note: rbDensity is now bubble COUNT multiplier (see RB tab label).
           density: parseFloat(density?.value || '1'),
+          scale: parseFloat(scale?.value || '1.0'),
           alpha: parseFloat(alpha?.value || '0.95'),
           wobble: parseFloat(wobble?.value || '1'),
           freq: parseFloat(freq?.value || '1'),
@@ -1452,38 +1483,41 @@
       }catch(e){}
     }
 
-    if (speed) on(speed, 'input', ()=> { withRB(RB=> RB.setSpeed(speed.value)); persistRB(); });
-    if (density) on(density, 'input', ()=> { withRB(RB=> RB.setDensity(density.value)); persistRB(); });
-    if (alpha) on(alpha, 'input', ()=> { withRB(RB=> RB.setAlpha(alpha.value)); persistRB(); });
-    if (wobble) on(wobble, 'input', ()=> { withRB(RB=> RB.setWobble(wobble.value)); persistRB(); });
-    if (freq) on(freq, 'input', ()=> { withRB(RB=> RB.setFreq(freq.value)); persistRB(); });
-    if (minSize) on(minSize, 'input', ()=> { withRB(RB=> RB.setMinSize(minSize.value)); persistRB(); });
-    if (maxSize) on(maxSize, 'input', ()=> { withRB(RB=> RB.setMaxSize(maxSize.value)); persistRB(); });
-    if (sizeHz) on(sizeHz, 'input', ()=> { withRB(RB=> RB.setSizeHz(sizeHz.value)); persistRB(); });
-    if (jumboPct) on(jumboPct, 'input', ()=> { withRB(RB=> RB.setJumboPct(jumboPct.value)); persistRB(); });
-    if (jumboScale) on(jumboScale, 'input', ()=> { withRB(RB=> RB.setJumboScale(jumboScale.value)); persistRB(); });
-    if (attract) on(attract, 'change', ()=> { withRB(RB=> RB.setAttract(attract.checked)); persistRB(); });
-    if (attractIntensity) on(attractIntensity, 'input', ()=> { withRB(RB=> RB.setAttractIntensity(attractIntensity.value)); persistRB(); });
-    if (ripples) on(ripples, 'change', ()=> { withRB(RB=> RB.setRipples(ripples.checked)); persistRB(); });
-    if (rippleIntensity) on(rippleIntensity, 'input', ()=> { withRB(RB=> RB.setRippleIntensity(rippleIntensity.value)); persistRB(); });
+    if (speed) on(speed, 'input', ()=> { withRB(RB=> RB.setSpeed && RB.setSpeed(speed.value)); persistRB(); });
+    // Repurposed: count multiplier.
+    if (density) on(density, 'input', ()=> { withRB(RB=> RB.setDensity && RB.setDensity(density.value)); persistRB(); });
+    if (scale) on(scale, 'input', ()=> { withRB(RB=> RB.setScale && RB.setScale(scale.value)); persistRB(); });
+    if (alpha) on(alpha, 'input', ()=> { withRB(RB=> RB.setAlpha && RB.setAlpha(alpha.value)); persistRB(); });
+    if (wobble) on(wobble, 'input', ()=> { withRB(RB=> RB.setWobble && RB.setWobble(wobble.value)); persistRB(); });
+    if (freq) on(freq, 'input', ()=> { withRB(RB=> RB.setFreq && RB.setFreq(freq.value)); persistRB(); });
+    if (minSize) on(minSize, 'input', ()=> { withRB(RB=> RB.setMinSize && RB.setMinSize(minSize.value)); persistRB(); });
+    if (maxSize) on(maxSize, 'input', ()=> { withRB(RB=> RB.setMaxSize && RB.setMaxSize(maxSize.value)); persistRB(); });
+    if (sizeHz) on(sizeHz, 'input', ()=> { withRB(RB=> RB.setSizeHz && RB.setSizeHz(sizeHz.value)); persistRB(); });
+    if (jumboPct) on(jumboPct, 'input', ()=> { withRB(RB=> RB.setJumboPct && RB.setJumboPct(jumboPct.value)); persistRB(); });
+    if (jumboScale) on(jumboScale, 'input', ()=> { withRB(RB=> RB.setJumboScale && RB.setJumboScale(jumboScale.value)); persistRB(); });
+    if (attract) on(attract, 'change', ()=> { withRB(RB=> RB.setAttract && RB.setAttract(attract.checked)); persistRB(); });
+    if (attractIntensity) on(attractIntensity, 'input', ()=> { withRB(RB=> RB.setAttractIntensity && RB.setAttractIntensity(attractIntensity.value)); persistRB(); });
+    if (ripples) on(ripples, 'change', ()=> { withRB(RB=> RB.setRipples && RB.setRipples(ripples.checked)); persistRB(); });
+    if (rippleIntensity) on(rippleIntensity, 'input', ()=> { withRB(RB=> RB.setRippleIntensity && RB.setRippleIntensity(rippleIntensity.value)); persistRB(); });
 
     // Apply initial values on load
     setTimeout(()=> {
       withRB(RB=> {
-        if (speed) RB.setSpeed(speed.value);
-        if (density) RB.setDensity(density.value);
-        if (alpha) RB.setAlpha(alpha.value);
-        if (wobble) RB.setWobble(wobble.value);
-        if (freq) RB.setFreq(freq.value);
-        if (minSize) RB.setMinSize(minSize.value);
-        if (maxSize) RB.setMaxSize(maxSize.value);
-        if (sizeHz) RB.setSizeHz(sizeHz.value);
-        if (jumboPct) RB.setJumboPct(jumboPct.value);
-        if (jumboScale) RB.setJumboScale(jumboScale.value);
-        if (attract) RB.setAttract(attract.checked);
-        if (attractIntensity) RB.setAttractIntensity(attractIntensity.value);
-        if (ripples) RB.setRipples(ripples.checked);
-        if (rippleIntensity) RB.setRippleIntensity(rippleIntensity.value);
+        if (speed && RB.setSpeed) RB.setSpeed(speed.value);
+        if (density && RB.setDensity) RB.setDensity(density.value);
+        if (scale && RB.setScale) RB.setScale(scale.value);
+        if (alpha && RB.setAlpha) RB.setAlpha(alpha.value);
+        if (wobble && RB.setWobble) RB.setWobble(wobble.value);
+        if (freq && RB.setFreq) RB.setFreq(freq.value);
+        if (minSize && RB.setMinSize) RB.setMinSize(minSize.value);
+        if (maxSize && RB.setMaxSize) RB.setMaxSize(maxSize.value);
+        if (sizeHz && RB.setSizeHz) RB.setSizeHz(sizeHz.value);
+        if (jumboPct && RB.setJumboPct) RB.setJumboPct(jumboPct.value);
+        if (jumboScale && RB.setJumboScale) RB.setJumboScale(jumboScale.value);
+        if (attract && RB.setAttract) RB.setAttract(attract.checked);
+        if (attractIntensity && RB.setAttractIntensity) RB.setAttractIntensity(attractIntensity.value);
+        if (ripples && RB.setRipples) RB.setRipples(ripples.checked);
+        if (rippleIntensity && RB.setRippleIntensity) RB.setRippleIntensity(rippleIntensity.value);
       });
     }, 500);
 
@@ -1939,7 +1973,7 @@
       if (!defaults){
         defaults = {
           // RB defaults
-          rbSpeed: '1', rbDensity: '1', rbAlpha: '0.95', rbWobble: '1', rbFreq: '1',
+          rbSpeed: '1', rbDensity: '1', rbScale: '1.0', rbAlpha: '0.95', rbWobble: '1', rbFreq: '1',
           rbMin: '14', rbMax: '36', rbSizeHz: '0', rbJumboPct: '0.1', rbJumboScale: '1.6',
           rbAttract: true, rbAttractIntensity: '1.0',
           rbRipples: false, rbRippleIntensity: '1.2',
@@ -1954,7 +1988,7 @@
           // GLB defaults
           bgSpeed: '0.9', bgDensity: '1.2', glAlpha: '0.85',
           // BG defaults
-          shimmerToggle: true, vignetteToggle: true,
+          shimmerToggle: false, vignetteToggle: false,
           glOverlayAlpha: '0.28', glOverlayDX: '24', glOverlayDY: '18',
           // Errl defaults
           errlSize: '1.0',

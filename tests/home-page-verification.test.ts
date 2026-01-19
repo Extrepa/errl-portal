@@ -97,7 +97,7 @@ test.describe('Rising Bubbles Controls', () => {
 
   test('should have all RB controls', async ({ page }) => {
     const controls = [
-      'rbSpeed', 'rbDensity', 'rbAlpha', 'rbWobble', 'rbFreq',
+      'rbSpeed', 'rbDensity', 'rbScale', 'rbAlpha', 'rbWobble', 'rbFreq',
       'rbMin', 'rbMax', 'rbSizeHz', 'rbJumboPct', 'rbJumboScale',
       'rbAttract', 'rbAttractIntensity', 'rbRipples', 'rbRippleIntensity'
     ];
@@ -133,6 +133,7 @@ test.describe('Rising Bubbles Controls', () => {
   test('should update all RB controls and verify wiring', async ({ page }) => {
     const controls = [
       { id: 'rbDensity', value: '1.5' },
+      { id: 'rbScale', value: '1.25' },
       { id: 'rbAlpha', value: '0.8' },
       { id: 'rbWobble', value: '1.2' },
       { id: 'rbFreq', value: '0.9' },
@@ -149,6 +150,7 @@ test.describe('Rising Bubbles Controls', () => {
     const functions = [
       'errlRisingBubblesThree.setSpeed',
       'errlRisingBubblesThree.setDensity',
+      'errlRisingBubblesThree.setScale',
       'errlRisingBubblesThree.setAlpha',
       'errlRisingBubblesThree.setWobble',
       'errlRisingBubblesThree.setFreq',
@@ -412,7 +414,7 @@ test.describe('Phone Panel Tabs', () => {
       errl: ['classicGooEnabled', 'classicGooStrength'],
       pin: ['pinWidgetFrame', '[data-colorizer-action="inject"]'],
       nav: ['navOrbitSpeed', 'navWiggle'],
-      rb: ['rbSpeed', 'rbDensity'],
+      rb: ['rbSpeed', 'rbDensity', 'rbScale'],
       glb: ['bgSpeed', 'glAlpha'],
       bg: [], // BG tab is intentionally empty
       dev: ['snapshotPngBtn', 'saveDefaultsBtn'],

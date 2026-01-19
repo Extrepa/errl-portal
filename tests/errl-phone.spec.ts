@@ -299,7 +299,7 @@ test.describe('Errl Phone Controls - Comprehensive', () => {
       await page.dispatchEvent('#rbAdvAnimSpeed', 'input');
     }
     
-    const rbAdvAnimate = page.locator('#rbAdvAnimate');
+    const rbAdvAnimate = page.locator('#rbAdvPlayPause');
     if (await rbAdvAnimate.count()) {
       await expect(rbAdvAnimate).toBeVisible();
       await rbAdvAnimate.click();
