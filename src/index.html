@@ -59,6 +59,9 @@
     <!-- Goo aura (CSS version, sits behind Errl) -->
     <div class="errl-goo" id="errlGoo" style="display:none"></div>
 
+    <!-- Orbiting nav bubbles (behind Errl layer) -->
+    <div id="navOrbitBehind" class="nav-orbit nav-orbit--behind"></div>
+
     <!-- Errl (painted SVG as center) -->
     <div class="errl-wrapper" id="errl">
       <div id="errlAuraMask" class="errl-aura-mask" style="filter:url(#errlGooFX); display:none"></div>
@@ -77,7 +80,7 @@
     </div>
 
     <!-- Orbiting nav bubbles (7 visible + 1 hidden) -->
-    <div id="navOrbit" class="nav-orbit">
+    <div id="navOrbit" class="nav-orbit nav-orbit--front">
       <a class="bubble menuOrb" data-angle="210" data-dist="180" href="/about/" data-portal-link="about/"><span class="label">About</span></a>
       <a class="bubble menuOrb" data-angle="320" data-dist="160" href="/assets/" data-portal-link="assets/"><span class="label">Assets</span></a>
       <a class="bubble menuOrb" data-angle="75" data-dist="150" href="/design/" data-portal-link="design/" data-disabled-link="design" aria-disabled="true" tabindex="-1" title="Coming soon"><span class="label">Design</span></a>
@@ -225,6 +228,7 @@
     <div class="panel-section" data-tab="errl">
       <div class="sectionLabel" title="Overall scale of the Errl image">Errl Size</div>
       <div class="sliderRow"><label for="errlSize" title="Overall scale of Errl">Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1.0" title="Drag to scale Errl"></div>
+      <div class="sliderRow"><label for="errlOutlineThickness" title="Thickness of face, eyes, and mouth outlines">Outlines</label><input id="errlOutlineThickness" type="range" min="1" max="8" step="0.5" value="2" title="Drag to adjust outlines"></div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel">Errl Goo (wobble)</div>
       <div class="sliderRow"><label for="classicGooEnabled">Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked></div>
@@ -378,6 +382,18 @@
         <input id="importSettingsFile" type="file" accept="application/json" style="display:none" />
         <span style="opacity:.8; font-size:7px; align-self:center;">(stored in local)</span>
       </div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel">Developer Logs</div>
+      <div class="sliderRow" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:space-between;">
+        <button id="devLogClearBtn" style="font-size:7px; padding:3px 6px;">Clear</button>
+        <button id="devLogExportBtn" style="font-size:7px; padding:3px 6px;">Export</button>
+        <label style="font-size:7px; opacity:.8; align-self:center;">
+          <input type="checkbox" id="devLogAutoScroll" checked style="margin-right:4px;">Auto-scroll
+        </label>
+      </div>
+      <div id="devLogViewer" style="background:#0a0a0c; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:8px; max-height:300px; overflow-y:auto; font-family:monospace; font-size:9px; line-height:1.4; color:#e5eef7;">
+        <div style="opacity:0.6; text-align:center; padding:8px;">Logs will appear here...</div>
+      </div>
     </div>
     <button id="panelScrollTop" title="Return to top">↑</button>
     </div>
@@ -385,6 +401,187 @@
   </aside>
 
   <script>
+    // Developer Log Viewer - must be initialized early
+    (function initDevLogViewer(){
+      var logContainer = null;
+      // View logs: only current page/session (what we render in the DEV tab).
+      var viewLogs = [];
+      var maxViewLogs = 500;
+      // Archive logs: persisted old + new (what we export).
+      var archiveLogs = [];
+      var maxArchiveLogs = 5000;
+      var ARCHIVE_KEY = 'errl_dev_log_archive_v1';
+      var persistTimer = null;
+      var autoScroll = true;
+      var originals = null;
+      
+      function init() {
+        logContainer = document.getElementById('devLogViewer');
+        if (!logContainer) {
+          setTimeout(init, 100);
+          return;
+        }
+        
+        // Load persisted archive (do NOT show in the DEV tab; view stays session-only)
+        try {
+          var raw = localStorage.getItem(ARCHIVE_KEY);
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              archiveLogs = parsed
+                .filter(function(x){ return x && typeof x.time === 'string' && typeof x.level === 'string' && typeof x.message === 'string'; })
+                .slice(-maxArchiveLogs);
+            }
+          }
+        } catch(_) {}
+
+        // Clear button
+        var clearBtn = document.getElementById('devLogClearBtn');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', function() {
+            // Clear view only (keeps persisted archive for export)
+            viewLogs = [];
+            updateDisplay();
+          });
+        }
+        
+        // Export button
+        var exportBtn = document.getElementById('devLogExportBtn');
+        if (exportBtn) {
+          exportBtn.addEventListener('click', function() {
+            var logText = archiveLogs.map(function(log) {
+              // Export includes timestamps + level.
+              var t = (log.time && log.time.indexOf('T') !== -1) ? log.time.split('T')[1].split('.')[0] : log.time;
+              return '[' + t + '] [' + String(log.level || 'info').toUpperCase() + '] ' + String(log.message || '');
+            }).join('\n');
+            var blob = new Blob([logText], {type: 'text/plain'});
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'errl-dev-logs-' + new Date().toISOString().replace(/:/g, '-').split('.')[0] + '.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function() { URL.revokeObjectURL(url); }, 100);
+          });
+        }
+        
+        // Auto-scroll checkbox
+        var autoScrollCheckbox = document.getElementById('devLogAutoScroll');
+        if (autoScrollCheckbox) {
+          autoScrollCheckbox.addEventListener('change', function() {
+            autoScroll = this.checked;
+          });
+        }
+        
+        // Intercept console methods to capture logs
+        var originalLog = console.log;
+        var originalWarn = console.warn;
+        var originalError = console.error;
+        originals = { log: originalLog, warn: originalWarn, error: originalError };
+        // Expose originals so other scripts can log without recursion / duplication.
+        // (Call these directly if you also call window.errlDevLog.add())
+        window.__errlConsoleOriginals = originals;
+        
+        console.log = function() {
+          originalLog.apply(console, arguments);
+          addLog(Array.from(arguments).join(' '), 'info');
+        };
+        
+        console.warn = function() {
+          originalWarn.apply(console, arguments);
+          addLog(Array.from(arguments).join(' '), 'warn');
+        };
+        
+        console.error = function() {
+          originalError.apply(console, arguments);
+          addLog(Array.from(arguments).join(' '), 'error');
+        };
+        
+        // Display any view logs that were added before initialization
+        updateDisplay();
+        addLog('Developer log viewer initialized', 'info');
+      }
+      
+      function addLog(message, level) {
+        level = level || 'info';
+        var timestamp = new Date().toISOString();
+        var entry = { time: timestamp, level: String(level), message: String(message) };
+
+        // Persisted archive (old + new) used for export.
+        archiveLogs.push(entry);
+        if (archiveLogs.length > maxArchiveLogs) {
+          archiveLogs = archiveLogs.slice(-maxArchiveLogs);
+        }
+        // Debounced persist to localStorage
+        try {
+          if (persistTimer) clearTimeout(persistTimer);
+          persistTimer = setTimeout(function(){
+            try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archiveLogs)); } catch(_) {}
+          }, 250);
+        } catch(_) {}
+
+        // View logs: current session only (shown in DEV tab)
+        viewLogs.push(entry);
+        if (viewLogs.length > maxViewLogs) {
+          viewLogs.shift();
+        }
+
+        // Update display if container is ready; otherwise it'll render when init runs.
+        if (logContainer) {
+          updateDisplay();
+        }
+      }
+      
+      function updateDisplay() {
+        if (!logContainer) return;
+        
+        if (viewLogs.length === 0) {
+          logContainer.innerHTML = '<div style="opacity:0.6; text-align:center; padding:8px;">Logs will appear here...</div>';
+          return;
+        }
+        
+        // DEV tab shows current (session) logs only, without timestamps.
+        var html = viewLogs.map(function(log) {
+          var color = '#e5eef7';
+          if (log.level === 'error') color = '#ff6b6b';
+          else if (log.level === 'warn') color = '#ffd93d';
+          else if (log.level === 'info') color = '#6bcf7f';
+          
+          return '<div style="color:' + color + '; margin-bottom:2px; word-break:break-word;">' + 
+                 escapeHtml(String(log.message || '')) + 
+                 '</div>';
+        }).join('');
+        
+        logContainer.innerHTML = html;
+        
+        if (autoScroll) {
+          logContainer.scrollTop = logContainer.scrollHeight;
+        }
+      }
+      
+      function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+      
+      // Expose API
+      window.errlDevLog = {
+        add: addLog,
+        // Clears DEV tab view only (export still contains old + new from archive).
+        clear: function() { viewLogs = []; updateDisplay(); },
+        getLogs: function() { return viewLogs.slice(); }
+      };
+      
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    
     // Force minimized state immediately - runs before any other scripts
     (function(){
       const panel = document.getElementById('errlPanel');
@@ -979,6 +1176,243 @@
       function applyPlating(){ if(!outline) return; outline.setAttribute('stroke',state.plating); ['#colorizer-g-face *','#colorizer-g-eyeL *','#colorizer-g-eyeR *','#colorizer-g-mouth *'].forEach(function(sel){ $$(sel).forEach(function(n){ n.setAttribute('stroke',state.plating); }); }); }
       function applyRegion(r){ var nodes=regionNodes(r); if(nodes.length===0) return; var f=state.fill[r]; nodes.forEach(function(n){ n.setAttribute('stroke-width', state.wireW[r]||2); n.setAttribute('stroke',state.plating); n.setAttribute('pointer-events','all'); if(f.finish==='none'){ n.setAttribute('fill','none'); n.removeAttribute('filter'); } else if(f.finish==='solid'){ n.setAttribute('fill',f.color); n.removeAttribute('filter'); } else if(f.finish==='glow'){ n.setAttribute('fill', f.color || 'url(#colorizerRbGrad)'); n.setAttribute('filter','url(#colorizerGitd)'); } else if(f.finish==='glitter'){ n.setAttribute('fill',f.color); n.setAttribute('filter','url(#colorizerGlitterSparkle)'); try{ applyGlitter('colorizer-g-'+r, 'colorizerGlitterRainbow', 'colorizerGlitterOverlay'); }catch(e){} } }); }
       function applyAll(){ ['body','face','eyeL','eyeR','mouth'].forEach(applyRegion); }
+      
+      // Outlines slider handler (face, eyes, mouth) - modifies the actual displayed SVG
+      (function setupOutlineThicknessSlider(){
+        var currentThickness = 2;
+        var isUpdating = false;
+        var initRetries = 0;
+        var maxRetries = 10;
+        
+        // Logging helper
+        function log(message, level) {
+          level = level || 'info';
+          var timestamp = new Date().toISOString();
+          var logEntry = '[' + timestamp + '] [' + level.toUpperCase() + '] ' + message;
+          var method = (level === 'error' ? 'error' : level === 'warn' ? 'warn' : 'log');
+          // If the dev log viewer is active, prefer the original console methods to avoid
+          // duplicate entries (since console.* is intercepted) and reduce overhead.
+          if (window.__errlConsoleOriginals && window.__errlConsoleOriginals[method]) {
+            window.__errlConsoleOriginals[method](logEntry);
+            if (window.errlDevLog) window.errlDevLog.add(message, level);
+          } else {
+            // Fallback: normal console logging (may be intercepted by the dev log viewer).
+            console[method](logEntry);
+          }
+        }
+        
+        function getCurrentSVGContent(){
+          // Prefer a complete SVG source (the inline stub only contains the body on first load).
+          // Use inline SVG only if it already contains the regions we need.
+          var required = ['face', 'eyeL', 'eyeR', 'mouth'];
+          var inlineSVG = document.getElementById('errlInlineSVG');
+          if (inlineSVG) {
+            var hasAll = required.every(function(r){
+              try { return inlineSVG.querySelector('[data-region="' + r + '"]') != null; } catch(_) { return false; }
+            });
+            if (hasAll) {
+              var clone = inlineSVG.cloneNode(true);
+              clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+              var serializer = new XMLSerializer();
+              return serializer.serializeToString(clone);
+            }
+          }
+
+          // Otherwise, fetch from the displayed SVG image (or fallback to canonical file).
+          var errlImg = document.getElementById('errlCenter');
+          if (errlImg) {
+            var currentSrc = errlImg.getAttribute('src') || '';
+            if (currentSrc.indexOf('blob:') === 0) {
+              // If we're on a blob URL but the inline SVG isn't fully populated yet, fall back to default.
+              log('Image is a blob URL but inline SVG is incomplete; using default SVG file', 'warn');
+              return errlImg.dataset.defaultSrc || './shared/assets/portal/L4_Central/errl-body-with-limbs.svg';
+            }
+            // Use current src if it's a normal URL; otherwise fallback to stored default/canonical.
+            return currentSrc || errlImg.dataset.defaultSrc || './shared/assets/portal/L4_Central/errl-body-with-limbs.svg';
+          }
+          return null;
+        }
+        
+        function readCurrentStrokeWidth(svgElement) {
+          // Try to read current stroke-width from face region as reference
+          var facePath = svgElement.querySelector('[data-region="face"]');
+          if (facePath) {
+            var sw = facePath.getAttribute('stroke-width');
+            if (sw) {
+              var num = parseFloat(sw);
+              if (!isNaN(num)) return num;
+            }
+          }
+          return 2; // Default fallback
+        }
+        
+        function updateErrlOutlineThickness(thickness){
+          if (isUpdating) {
+            log('Update already in progress, skipping', 'warn');
+            return;
+          }
+          isUpdating = true;
+          currentThickness = thickness;
+          log('Updating outlines to: ' + thickness);
+          
+          var svgSource = getCurrentSVGContent();
+          if (!svgSource) {
+            log('No SVG source available', 'error');
+            isUpdating = false;
+            return;
+          }
+          
+          function modifyAndInject(svgText) {
+            try {
+              var doc = parseSVGText(svgText);
+              var svgElement = doc.documentElement;
+              
+              if (!svgElement) {
+                log('Failed to parse SVG document', 'error');
+                isUpdating = false;
+                return;
+              }
+              
+              // Update stroke-width for face, eyes, and mouth
+              var regions = ['face', 'eyeL', 'eyeR', 'mouth'];
+              var totalPathsFound = 0;
+              var totalPathsModified = 0;
+              
+              regions.forEach(function(region) {
+                var selector = '[data-region="' + region + '"]';
+                var paths = svgElement.querySelectorAll(selector);
+                totalPathsFound += paths.length;
+                
+                if (paths.length === 0) {
+                  log('No paths found for region: ' + region, 'warn');
+                } else {
+                  paths.forEach(function(path) {
+                    path.setAttribute('stroke-width', thickness.toString());
+                    totalPathsModified++;
+                  });
+                  log('Modified ' + paths.length + ' path(s) for region: ' + region);
+                }
+              });
+              
+              if (totalPathsFound === 0) {
+                log('No paths found for any region. SVG may not be fully loaded.', 'error');
+                isUpdating = false;
+                return;
+              }
+              
+              log('Successfully modified ' + totalPathsModified + ' path(s) across ' + regions.length + ' regions');
+              
+              // Convert modified SVG back to string and inject
+              var serializer = new XMLSerializer();
+              var modifiedSvgString = serializer.serializeToString(svgElement);
+              injectSVGToHome(modifiedSvgString);
+              
+              isUpdating = false;
+            } catch(err) {
+              log('Error modifying SVG: ' + err.message, 'error');
+              console.error(err);
+              isUpdating = false;
+            }
+          }
+          
+          // If svgSource is already a string (from inline SVG), use it directly
+          if (typeof svgSource === 'string' && svgSource.trim().indexOf('<svg') === 0) {
+            modifyAndInject(svgSource);
+          } else {
+            // Otherwise, fetch it
+            fetch(svgSource)
+              .then(function(res) {
+                if (!res.ok) throw new Error('Failed to fetch SVG: ' + res.status);
+                return res.text();
+              })
+              .then(modifyAndInject)
+              .catch(function(err) {
+                log('Error fetching SVG: ' + err.message, 'error');
+                isUpdating = false;
+              });
+          }
+        }
+        
+        function syncSliderWithSVG() {
+          try {
+            var svgSource = getCurrentSVGContent();
+            if (!svgSource) {
+              if (initRetries < maxRetries) {
+                initRetries++;
+                setTimeout(syncSliderWithSVG, 500);
+                log('SVG not ready, retrying sync (' + initRetries + '/' + maxRetries + ')', 'warn');
+              } else {
+                log('Max retries reached, using default slider value', 'warn');
+              }
+              return;
+            }
+            
+            function readAndSync(svgText) {
+              try {
+                var doc = parseSVGText(svgText);
+                var svgElement = doc.documentElement;
+                if (svgElement) {
+                  var currentSW = readCurrentStrokeWidth(svgElement);
+                  var slider = document.getElementById('errlOutlineThickness');
+                  if (slider) {
+                    slider.value = currentSW.toString();
+                    log('Synced slider with SVG stroke-width: ' + currentSW);
+                  }
+                }
+              } catch(err) {
+                log('Error reading SVG for sync: ' + err.message, 'warn');
+              }
+            }
+            
+            if (typeof svgSource === 'string' && svgSource.trim().indexOf('<svg') === 0) {
+              readAndSync(svgSource);
+            } else {
+              fetch(svgSource)
+                .then(function(res) {
+                  if (!res.ok) throw new Error('Failed to fetch SVG');
+                  return res.text();
+                })
+                .then(readAndSync)
+                .catch(function(err) {
+                  log('Error fetching SVG for sync: ' + err.message, 'warn');
+                });
+            }
+          } catch(err) {
+            log('Error in syncSliderWithSVG: ' + err.message, 'warn');
+          }
+        }
+        
+        function initSlider(){
+          var slider = document.getElementById('errlOutlineThickness');
+          if (!slider) {
+            // Retry if element doesn't exist yet
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', initSlider);
+            } else {
+              setTimeout(initSlider, 100);
+            }
+            return;
+          }
+          
+          log('Outlines slider initialized');
+          
+          // Sync slider with current SVG values
+          setTimeout(syncSliderWithSVG, 500);
+          
+          slider.addEventListener('input', function(){
+            var thickness = parseFloat(slider.value || '2');
+            updateErrlOutlineThickness(thickness);
+          });
+        }
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initSlider);
+        } else {
+          initSlider();
+        }
+      })();
+      
       function applyGlitter(regionGroupId, gradientId, filterId){
         gradientId = gradientId || 'colorizerGlitterGoldPink';
         filterId = filterId || 'colorizerGlitterOverlay';

@@ -305,8 +305,10 @@
     if (syncInput && navOrbSizeInput) navOrbSizeInput.value = String(navOrbScale);
     if (window.errlGLSetOrbScale) window.errlGLSetOrbScale(navOrbScale);
     // Use CSS variable so animation (wobble) can compose with scale.
-    const orbit = document.getElementById('navOrbit');
-    if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(navOrbScale));
+    const orbits = Array.from(document.querySelectorAll('.nav-orbit'));
+    orbits.forEach((orbit) => {
+      if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(navOrbScale));
+    });
     window.errlGLSyncOrbs && window.errlGLSyncOrbs();
     return navOrbScale;
   }
@@ -363,8 +365,10 @@
     navRadius = parseFloat(navRadiusInput?.value || '1.0');
     navOrbScale = parseFloat(navOrbSizeInput?.value || '1');
     // Apply initial scale via CSS variable so it's visible immediately.
-    const orbit = document.getElementById('navOrbit');
-    if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(navOrbScale));
+    const orbits = Array.from(document.querySelectorAll('.nav-orbit'));
+    orbits.forEach((orbit) => {
+      if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(navOrbScale));
+    });
     
     // Attach event listeners
     on(navOrbitSpeedInput, 'input', ()=>{
@@ -382,6 +386,13 @@
     
     // Attach bubble listeners
     attachBubbleListeners();
+    
+    // Set z-index immediately on initialization to ensure layering works
+    const orbitFront = document.getElementById('navOrbit');
+    const orbitBehind = document.getElementById('navOrbitBehind');
+    if (orbitFront) orbitFront.style.zIndex = '2';
+    if (orbitBehind) orbitBehind.style.zIndex = '0';
+    if (errl) errl.style.zIndex = '1';
     
     bubblesInitialized = true;
     console.log('[portal-app] Nav bubbles initialized:', bubbles.length, 'bubbles found');
@@ -419,71 +430,76 @@
     const minViewport = Math.min(window.innerWidth, window.innerHeight);
     const viewportScale = clamp(minViewport / 900, 0.55, 1.05);
 
-    // Refresh bubble list only if count changed
-    const currentCount = document.querySelectorAll('.nav-orbit .bubble').length;
-    if (currentCount !== bubbles.length){
-      bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
-    }
+    // Refresh bubble list from both containers (they may have been moved)
+    bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
 
-    // Layout: split bubbles into a top row (above Errl) and a bottom row (below Errl),
-    // instead of orbiting left/right around the SVG.
+    // Orbit layout: bubbles orbit around Errl using their data-angle/data-dist.
+    // As they orbit, bubbles above Errl render in front; below Errl render behind.
     const active = bubbles.filter((el)=> el && el.style.display !== 'none');
     if (!active.length) {
       window.errlGLSyncOrbs && window.errlGLSyncOrbs();
       return requestAnimationFrame(updateBubbles);
     }
 
-    const topCount = Math.ceil(active.length / 2);
-    const bottomCount = active.length - topCount;
-
-    // Use an average base distance so the Radius slider still feels consistent.
-    let distSum = 0;
-    active.forEach((el)=>{
-      const baseDist = parseFloat((el.dataset && el.dataset.dist) || '160');
-      if (Number.isFinite(baseDist)) distSum += baseDist;
-      else distSum += 160;
-    });
-    const avgBaseDist = distSum / active.length;
-    const distY = avgBaseDist * navRadius * viewportScale;
-
-    // Spread bubbles horizontally within each row.
-    // Keep "Radius" scaling predictable: apply navRadius once (not squared).
-    const maxSpread = Math.min(window.innerWidth * 0.75, (avgBaseDist * viewportScale) * 2.2);
-    const spread = clamp(maxSpread, 220 * viewportScale, 560 * viewportScale) * navRadius;
+    // Verify containers exist before proceeding
+    const orbitFront = document.getElementById('navOrbit');
+    const orbitBehind = document.getElementById('navOrbitBehind');
+    if (!orbitFront || !orbitBehind) {
+      console.warn('[portal-app] Orbit containers missing, retrying...');
+      return requestAnimationFrame(updateBubbles);
+    }
+    
+    // Explicitly set z-index via JavaScript inline styles to ensure it applies
+    // Inline styles have higher specificity than CSS classes
+    orbitFront.style.zIndex = '2';
+    orbitBehind.style.zIndex = '0';
+    // Also ensure Errl has correct z-index (inline style overrides CSS)
+    if (errl) {
+      errl.style.zIndex = '1';
+    }
     const pad = 10;
+    const tSec = ts * 0.001;
+    const speedDegPerSec = 22 * navOrbitSpeed; // baseline orbit rate
+    const wobbleAmpDeg = 3.5 * clamp(navOrbitSpeed, 0, 2);
+    const radiusWobble = 10 * viewportScale * clamp(navOrbitSpeed, 0, 2);
 
-    // Optional micro-drift to keep things alive; still constrained top/bottom.
-    const driftT = ts * 0.0015 * navOrbitSpeed;
-    const driftAmp = 10 * viewportScale * clamp(navOrbitSpeed, 0, 2);
+    function placeBubble(el, index, count){
+      const baseAngleDeg = parseFloat((el.dataset && el.dataset.angle) || '');
+      const baseDist = parseFloat((el.dataset && el.dataset.dist) || '160');
+      const angleDeg = (Number.isFinite(baseAngleDeg) ? baseAngleDeg : ((index / Math.max(1, count)) * 360))
+        + (tSec * speedDegPerSec)
+        + Math.sin(tSec * 0.65 + index * 1.7) * wobbleAmpDeg;
+      const rad = angleDeg * Math.PI / 180;
+      const dist = (Number.isFinite(baseDist) ? baseDist : 160) * navRadius * viewportScale
+        + Math.sin(tSec * 0.9 + index * 1.3) * radiusWobble;
 
-    function placeRow(el, rowIndex, rowCount, rowSign){
-      // rowSign: -1 = top, +1 = bottom
-      const t = rowCount <= 1 ? 0.5 : (rowIndex / (rowCount - 1));
-      const xOffset = (t - 0.5) * spread;
-      const yOffset = rowSign * distY;
-      const x = cx + xOffset;
-      const y = cy + yOffset + Math.sin(driftT + rowIndex * 1.7) * driftAmp;
+      const x = cx + Math.cos(rad) * dist;
+      const y = cy + Math.sin(rad) * dist;
 
       // Validate before touching the DOM (avoid writing "NaNpx" / invalid values).
       if (!Number.isFinite(x) || !Number.isFinite(y)) return;
 
+      // Dynamic layering based on orbit position:
+      // above center => front; below center => behind. Use a small band to avoid jitter.
+      const hysteresis = 10;
+      const currentlyBehind = el.parentElement === orbitBehind;
+      let shouldBeBehind = currentlyBehind;
+      if (y > cy + hysteresis) shouldBeBehind = true;
+      else if (y < cy - hysteresis) shouldBeBehind = false;
+
+      const targetParent = shouldBeBehind ? orbitBehind : orbitFront;
+      if (targetParent && el.parentElement !== targetParent) {
+        targetParent.appendChild(el);
+      }
+
       el.style.position = 'absolute';
       el.style.left = Math.round(x) + 'px';
       el.style.top = Math.round(y) + 'px';
+      el.style.pointerEvents = 'auto';
 
-      // Keep behind/in-front layering deterministic:
-      // - top row in front of Errl (z-index 2)
-      // - bottom row behind Errl (z-index 0)
-      const isBehind = rowSign > 0;
-      if (isBehind) {
-        el.classList.add('bubble--behind');
-        el.style.zIndex = '0';
-      } else {
-        el.classList.remove('bubble--behind');
-        el.style.zIndex = '2';
-      }
+      if (shouldBeBehind) el.classList.add('bubble--behind');
+      else el.classList.remove('bubble--behind');
 
-      // Ensure bubbles remain clickable even near edges
       // NOTE: transform is owned by CSS wobble animation; do not set it here.
 
       // Soft clamp to viewport (prevents drifting fully off-screen on odd aspect ratios).
@@ -496,13 +512,8 @@
       el.style.top = Math.round(clampedTop) + 'px';
     }
 
-    // Top row
-    for (let i = 0; i < topCount; i++) {
-      placeRow(active[i], i, topCount, -1);
-    }
-    // Bottom row
-    for (let i = 0; i < bottomCount; i++) {
-      placeRow(active[topCount + i], i, bottomCount, +1);
+    for (let i = 0; i < active.length; i++) {
+      placeBubble(active[i], i, active.length);
     }
 
     window.errlGLSyncOrbs && window.errlGLSyncOrbs();
@@ -510,6 +521,13 @@
   }
   
   // Start the bubble update loop - will wait for DOM if needed
+  // Set initial z-index immediately (don't wait for first frame)
+  const orbitFrontInit = document.getElementById('navOrbit');
+  const orbitBehindInit = document.getElementById('navOrbitBehind');
+  const errlInit = document.getElementById('errl');
+  if (orbitFrontInit) orbitFrontInit.style.zIndex = '2';
+  if (orbitBehindInit) orbitBehindInit.style.zIndex = '0';
+  if (errlInit) errlInit.style.zIndex = '1';
   requestAnimationFrame(updateBubbles);
   
   // Additional safeguard: Try to initialize on DOMContentLoaded if not already done
@@ -672,7 +690,7 @@
 
   // Nav Goo (UI filter)
   (function navGoo(){
-    const root = document.querySelector('.nav-orbit');
+    const roots = Array.from(document.querySelectorAll('.nav-orbit'));
     const blur = document.getElementById('navGooBlur');
     const mult = document.getElementById('navGooMult');
     const thresh = document.getElementById('navGooThresh');
@@ -687,7 +705,9 @@
         // 4x5 matrix; only bottom-right row affects alpha mapping
         matNode.setAttribute('values', `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${m} ${t}`);
       }
-      if (root) root.classList.toggle('goo-on', !!(enabled && enabled.checked));
+      roots.forEach((root) => {
+        if (root) root.classList.toggle('goo-on', !!(enabled && enabled.checked));
+      });
     }
     ;[blur,mult,thresh,enabled].forEach(el=> el && el.addEventListener('input', apply));
     apply();
