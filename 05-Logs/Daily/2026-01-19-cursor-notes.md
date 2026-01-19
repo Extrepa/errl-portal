@@ -31,3 +31,14 @@
 - Scoped `.hue-cycle-*` animations to only run on `.hue-controlled` elements when `.hue-enabled` is present, so the hue toggle still truly disables filter effects.
 - Double-check: `.hue-cycle-*` on non-`.hue-controlled` nodes still animates (uses legacy `--errl-hue-shift` / `--errl-saturation` fallbacks). On `.hue-controlled` nodes, animation is forced off unless `.hue-enabled` is present, preventing the keyframes from reintroducing “always-on” filter effects.
 
+### Landing nav bubble layout tweak
+- Updated nav bubble positioning so the bubbles sit in **two rows**: **above** and **below** the Errl SVG (top row in front, bottom row behind) instead of orbiting around the sides.
+
+### Verification (nav bubbles + hue FX)
+- **Nav bubbles layout (code)**: `updateBubbles()` now splits visible bubbles into a top row and bottom row centered on the Errl bounding box (`cx/cy`). Top row uses `z-index: 2`; bottom row uses `z-index: 0` + `bubble--behind`.
+- **Nav bubbles drift (behavior)**: Kept a small sinusoidal drift so the rows still feel “bubbly.” The existing `Orbit` slider now effectively scales drift via `navOrbitSpeed` (drift timebase + amplitude).
+- **Nav radius semantics (fix)**: Adjusted horizontal spread math so the `Radius` slider scales spacing once (avoids an unintended squared effect).
+- **Viewport safety**: Bubbles are softly clamped into the viewport each tick (using their current rect) to avoid drifting fully off-screen on odd aspect ratios.
+- **Hue FX report check**: Confirmed `@keyframes hue-rotate-cycle` and `@keyframes hue-pulse` are still composed `filter` animations (not `filter: none`). `.hue-controlled` gating is what can disable animation unless `.hue-enabled` is present.
+- **Build/type safety**: `npm run typecheck` and `npm run portal:build` both pass with these changes.
+

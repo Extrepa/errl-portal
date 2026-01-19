@@ -425,36 +425,85 @@
       bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
     }
 
-    // Track visible index separately to maintain alternating orbit direction
-    let visibleIndex = 0;
-    bubbles.forEach((el)=>{
-      if (!el || el.style.display === 'none') return; // Skip hidden bubbles
-      const base = parseFloat((el.dataset && el.dataset.angle) || '0');
+    // Layout: split bubbles into a top row (above Errl) and a bottom row (below Errl),
+    // instead of orbiting left/right around the SVG.
+    const active = bubbles.filter((el)=> el && el.style.display !== 'none');
+    if (!active.length) {
+      window.errlGLSyncOrbs && window.errlGLSyncOrbs();
+      return requestAnimationFrame(updateBubbles);
+    }
+
+    const topCount = Math.ceil(active.length / 2);
+    const bottomCount = active.length - topCount;
+
+    // Use an average base distance so the Radius slider still feels consistent.
+    let distSum = 0;
+    active.forEach((el)=>{
       const baseDist = parseFloat((el.dataset && el.dataset.dist) || '160');
-      const dist = baseDist * navRadius * viewportScale;
-      // Use visibleIndex instead of i to maintain proper alternating pattern
-      const ang = base + (ts * 0.00003 * navOrbitSpeed * (visibleIndex % 2 === 0 ? 1 : -1)) * 360;
-      const rad = ang * Math.PI/180;
-      const x = cx + Math.cos(rad)*dist;
-      const y = cy + Math.sin(rad)*dist;
-      // Ensure bubbles are properly centered using translate
+      if (Number.isFinite(baseDist)) distSum += baseDist;
+      else distSum += 160;
+    });
+    const avgBaseDist = distSum / active.length;
+    const distY = avgBaseDist * navRadius * viewportScale;
+
+    // Spread bubbles horizontally within each row.
+    // Keep "Radius" scaling predictable: apply navRadius once (not squared).
+    const maxSpread = Math.min(window.innerWidth * 0.75, (avgBaseDist * viewportScale) * 2.2);
+    const spread = clamp(maxSpread, 220 * viewportScale, 560 * viewportScale) * navRadius;
+    const pad = 10;
+
+    // Optional micro-drift to keep things alive; still constrained top/bottom.
+    const driftT = ts * 0.0015 * navOrbitSpeed;
+    const driftAmp = 10 * viewportScale * clamp(navOrbitSpeed, 0, 2);
+
+    function placeRow(el, rowIndex, rowCount, rowSign){
+      // rowSign: -1 = top, +1 = bottom
+      const t = rowCount <= 1 ? 0.5 : (rowIndex / (rowCount - 1));
+      const xOffset = (t - 0.5) * spread;
+      const yOffset = rowSign * distY;
+      const x = cx + xOffset;
+      const y = cy + yOffset + Math.sin(driftT + rowIndex * 1.7) * driftAmp;
+
       el.style.position = 'absolute';
-      el.style.left = x + 'px';
-      el.style.top = y + 'px';
-      // Do not set transform here: CSS wobble animation owns transform.
-      // Scale is applied via CSS var (--navOrbScale) on #navOrbit.
-      // Determine if bubble is behind Errl based on Y position relative to center
-      // Bubbles below center (positive sin) appear behind, bubbles above appear in front
-      const isBehind = Math.sin(rad) > 0; // Positive sin = below center = behind Errl
+      el.style.left = Math.round(x) + 'px';
+      el.style.top = Math.round(y) + 'px';
+
+      // Keep behind/in-front layering deterministic:
+      // - top row in front of Errl (z-index 2)
+      // - bottom row behind Errl (z-index 0)
+      const isBehind = rowSign > 0;
       if (isBehind) {
         el.classList.add('bubble--behind');
-        el.style.zIndex = '0'; // Behind Errl (z-index 1)
+        el.style.zIndex = '0';
       } else {
         el.classList.remove('bubble--behind');
-        el.style.zIndex = '2'; // In front of Errl (z-index 1)
+        el.style.zIndex = '2';
       }
-      visibleIndex++;
-    });
+
+      // Ensure bubbles remain clickable even near edges
+      // (avoid NaNs if viewport becomes tiny during resize)
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+      // NOTE: transform is owned by CSS wobble animation; do not set it here.
+
+      // Soft clamp to viewport (prevents drifting fully off-screen on odd aspect ratios).
+      const r = el.getBoundingClientRect();
+      const w = r && r.width ? r.width : 0;
+      const h = r && r.height ? r.height : 0;
+      const clampedLeft = clamp(parseFloat(el.style.left || '0'), pad + w * 0.5, window.innerWidth - pad - w * 0.5);
+      const clampedTop = clamp(parseFloat(el.style.top || '0'), pad + h * 0.5, window.innerHeight - pad - h * 0.5);
+      el.style.left = Math.round(clampedLeft) + 'px';
+      el.style.top = Math.round(clampedTop) + 'px';
+    }
+
+    // Top row
+    for (let i = 0; i < topCount; i++) {
+      placeRow(active[i], i, topCount, -1);
+    }
+    // Bottom row
+    for (let i = 0; i < bottomCount; i++) {
+      placeRow(active[topCount + i], i, bottomCount, +1);
+    }
+
     window.errlGLSyncOrbs && window.errlGLSyncOrbs();
     requestAnimationFrame(updateBubbles);
   }
