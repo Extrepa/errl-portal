@@ -1337,7 +1337,7 @@
       // Immediately stop motion by forcing speed to 0 (keep other params).
       if (typeof window.errlGLSetGoo === 'function') {
         const w = $("navWiggle");
-        const g = $("navGrip");
+        const g = $("navGrip") || $("navVisc");
         const d = $("navDrip");
         const params = { speed: 0 };
         if (w) {

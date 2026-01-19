@@ -201,3 +201,4 @@ Implementation is **solid and production-ready**. The code follows best practice
 - Verified `animate()` reads `navFlow/navWiggle/navGrip/navDrip` each frame, so moving sliders while the animation is running changes the animation immediately (no more hardcoded overwrite).
 - Fixed persistence gap: Slow Gradient now dispatches `input` events after setting slider baselines, so the normal bundle/localStorage persistence captures the change.
   - Verified in code: Slow Gradient click sets `.value` and then calls `dispatchEvent(new Event('input', { bubbles: true }))` for each slider.
+- Fixed defensive consistency: `stopGradientAnimation()` now uses `$("navGrip") || $("navVisc")` (same as `readBaseParams()`), so viscosity is restored correctly even if the DOM changes.
