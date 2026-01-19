@@ -52,3 +52,6 @@ archive/**/*.tar.gz
 
 # Ignore Smart Environment folder
 .smart-env
+
+.npm-cache/
+debug-bubbles.js
