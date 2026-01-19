@@ -50,6 +50,14 @@ const tools: ToolLink[] = [
     to: '/pin-designer/',
     external: true,
   },
+  {
+    id: 'limewire-simulator',
+    title: 'LimeWire Simulator',
+    description: 'Nostalgic Windows XP and LimeWire file-sharing simulator. Experience the classic early 2000s interface with authentic UI elements, retro aesthetics, and interactive file-sharing simulation.',
+    badge: 'available',
+    to: '/studio/limewire-simulator/',
+    external: true,
+  },
 ];
 
 const badgeCopy: Record<NonNullable<ToolLink['badge']>, { label: string }> = {
