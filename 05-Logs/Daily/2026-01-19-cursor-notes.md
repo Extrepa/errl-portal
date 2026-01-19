@@ -26,3 +26,8 @@
 - Committed app/test/tool changes as `6d944d2`.
 - Next: ignore and stop tracking `test-results/` so Playwright artifacts don’t churn the repo.
 
+### Landing hue FX follow-up
+- Restored `.hue-cycle-*` animations by keyframing a composed `filter` (base hue vars + offsets) instead of `filter: none`.
+- Scoped `.hue-cycle-*` animations to only run on `.hue-controlled` elements when `.hue-enabled` is present, so the hue toggle still truly disables filter effects.
+- Double-check: `.hue-cycle-*` on non-`.hue-controlled` nodes still animates (uses legacy `--errl-hue-shift` / `--errl-saturation` fallbacks). On `.hue-controlled` nodes, animation is forced off unless `.hue-enabled` is present, preventing the keyframes from reintroducing “always-on” filter effects.
+
