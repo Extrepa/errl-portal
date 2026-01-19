@@ -27,6 +27,27 @@
   animation: hue-pulse 4s ease-in-out infinite;
 }
 
+/* If an element is being controlled by the hue controller, only animate when enabled.
+   Otherwise the animation would force a filter even when hue is toggled off. */
+.hue-controlled.hue-cycle-slow,
+.hue-controlled.hue-cycle-medium,
+.hue-controlled.hue-cycle-fast,
+.hue-controlled.hue-cycle-pulse {
+  animation: none;
+}
+.hue-controlled.hue-enabled.hue-cycle-slow {
+  animation: hue-rotate-cycle 30s linear infinite;
+}
+.hue-controlled.hue-enabled.hue-cycle-medium {
+  animation: hue-rotate-cycle 15s linear infinite;
+}
+.hue-controlled.hue-enabled.hue-cycle-fast {
+  animation: hue-rotate-cycle 8s linear infinite;
+}
+.hue-controlled.hue-enabled.hue-cycle-pulse {
+  animation: hue-pulse 4s ease-in-out infinite;
+}
+
 /* Base hue rotation utility
    Use a class toggle + CSS variables so other animations (bubble shine, hover)
    don't clobber hue by writing `filter:`. */
@@ -73,28 +94,49 @@
 /* Keyframes */
 @keyframes hue-rotate-cycle {
   0% { 
-    filter: none;
+    filter:
+      hue-rotate(calc(var(--errlHueDeg, var(--errl-hue-shift, 0deg)) + 0deg))
+      saturate(var(--errlHueSatPct, var(--errl-saturation, 100%)))
+      brightness(var(--errlHueBrightPct, 100%));
   }
   25% { 
-    filter: none;
+    filter:
+      hue-rotate(calc(var(--errlHueDeg, var(--errl-hue-shift, 0deg)) + 90deg))
+      saturate(calc(var(--errlHueSatPct, var(--errl-saturation, 100%)) + 10%))
+      brightness(calc(var(--errlHueBrightPct, 100%) + 5%));
   }
   50% { 
-    filter: none;
+    filter:
+      hue-rotate(calc(var(--errlHueDeg, var(--errl-hue-shift, 0deg)) + 180deg))
+      saturate(calc(var(--errlHueSatPct, var(--errl-saturation, 100%)) + 20%))
+      brightness(calc(var(--errlHueBrightPct, 100%) + 8%));
   }
   75% { 
-    filter: none;
+    filter:
+      hue-rotate(calc(var(--errlHueDeg, var(--errl-hue-shift, 0deg)) + 270deg))
+      saturate(calc(var(--errlHueSatPct, var(--errl-saturation, 100%)) + 10%))
+      brightness(calc(var(--errlHueBrightPct, 100%) + 5%));
   }
   100% { 
-    filter: none;
+    filter:
+      hue-rotate(calc(var(--errlHueDeg, var(--errl-hue-shift, 0deg)) + 360deg))
+      saturate(var(--errlHueSatPct, var(--errl-saturation, 100%)))
+      brightness(var(--errlHueBrightPct, 100%));
   }
 }
 
 @keyframes hue-pulse {
   0%, 100% { 
-    filter: none;
+    filter:
+      hue-rotate(var(--errlHueDeg, var(--errl-hue-shift, 0deg)))
+      saturate(var(--errlHueSatPct, var(--errl-saturation, 100%)))
+      brightness(var(--errlHueBrightPct, 100%));
   }
   50% { 
-    filter: none;
+    filter:
+      hue-rotate(calc(var(--errlHueDeg, var(--errl-hue-shift, 0deg)) + 60deg))
+      saturate(calc(var(--errlHueSatPct, var(--errl-saturation, 100%)) + 30%))
+      brightness(calc(var(--errlHueBrightPct, 100%) + 10%));
   }
 }
 
