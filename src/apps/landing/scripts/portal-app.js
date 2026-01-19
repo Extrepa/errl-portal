@@ -401,7 +401,21 @@
 
   // Throttle orbit updates to ~30 FPS and avoid heavy DOM queries every frame
   let lastOrbitUpdate = 0;
-  const orbitIntervalMs = 33; // ~30fps
+  function getOrbitIntervalMs(){
+    // Default to smooth ~60fps; allow perf-safe mode to cap updates.
+    // (perf-safe is controlled by the debug harness / body class)
+    try{
+      return document.body && document.body.classList.contains('perf-safe') ? 33 : 16;
+    }catch(_){
+      return 16;
+    }
+  }
+  function getEstimatedBubbleRadiusPx(navOrbScaleValue){
+    // Bubble size is: clamp(67px, 9.6vw, 118px) * --navOrbScale
+    const base = clamp(window.innerWidth * 0.096, 67, 118);
+    const scale = (typeof navOrbScaleValue === 'number' && Number.isFinite(navOrbScaleValue)) ? navOrbScaleValue : 1;
+    return 0.5 * base * scale;
+  }
   function updateBubbles(ts){
     // Ensure initialization before updating
     if (!bubblesInitialized) {
@@ -415,6 +429,7 @@
       return requestAnimationFrame(updateBubbles);
     }
     
+    const orbitIntervalMs = getOrbitIntervalMs();
     if (ts - lastOrbitUpdate < orbitIntervalMs){
       return requestAnimationFrame(updateBubbles);
     }
@@ -429,9 +444,6 @@
     const cy = rect.top + rect.height/2;
     const minViewport = Math.min(window.innerWidth, window.innerHeight);
     const viewportScale = clamp(minViewport / 900, 0.55, 1.05);
-
-    // Refresh bubble list from both containers (they may have been moved)
-    bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
 
     // Orbit layout: bubbles orbit around Errl using their data-angle/data-dist.
     // As they orbit, bubbles above Errl render in front; below Errl render behind.
@@ -459,9 +471,10 @@
     }
     const pad = 10;
     const tSec = ts * 0.001;
-    const speedDegPerSec = 22 * navOrbitSpeed; // baseline orbit rate
+    const speedDegPerSec = 12 * navOrbitSpeed; // baseline orbit rate (slower default)
     const wobbleAmpDeg = 3.5 * clamp(navOrbitSpeed, 0, 2);
     const radiusWobble = 10 * viewportScale * clamp(navOrbitSpeed, 0, 2);
+    const bubbleRadiusPx = getEstimatedBubbleRadiusPx(navOrbScale);
 
     function placeBubble(el, index, count){
       const baseAngleDeg = parseFloat((el.dataset && el.dataset.angle) || '');
@@ -473,11 +486,15 @@
       const dist = (Number.isFinite(baseDist) ? baseDist : 160) * navRadius * viewportScale
         + Math.sin(tSec * 0.9 + index * 1.3) * radiusWobble;
 
-      const x = cx + Math.cos(rad) * dist;
-      const y = cy + Math.sin(rad) * dist;
+      const rawX = cx + Math.cos(rad) * dist;
+      const rawY = cy + Math.sin(rad) * dist;
 
       // Validate before touching the DOM (avoid writing "NaNpx" / invalid values).
-      if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+      if (!Number.isFinite(rawX) || !Number.isFinite(rawY)) return;
+
+      // Soft clamp to viewport without forcing layout reads (prevents jitter/choppiness).
+      const x = clamp(rawX, pad + bubbleRadiusPx, window.innerWidth - pad - bubbleRadiusPx);
+      const y = clamp(rawY, pad + bubbleRadiusPx, window.innerHeight - pad - bubbleRadiusPx);
 
       // Dynamic layering based on orbit position:
       // above center => front; below center => behind. Use a small band to avoid jitter.
@@ -493,23 +510,15 @@
       }
 
       el.style.position = 'absolute';
-      el.style.left = Math.round(x) + 'px';
-      el.style.top = Math.round(y) + 'px';
+      // Keep subpixel precision for smoother motion (avoid Math.round stutter).
+      el.style.left = x.toFixed(2) + 'px';
+      el.style.top = y.toFixed(2) + 'px';
       el.style.pointerEvents = 'auto';
 
       if (shouldBeBehind) el.classList.add('bubble--behind');
       else el.classList.remove('bubble--behind');
 
       // NOTE: transform is owned by CSS wobble animation; do not set it here.
-
-      // Soft clamp to viewport (prevents drifting fully off-screen on odd aspect ratios).
-      const r = el.getBoundingClientRect();
-      const w = r && r.width ? r.width : 0;
-      const h = r && r.height ? r.height : 0;
-      const clampedLeft = clamp(parseFloat(el.style.left || '0'), pad + w * 0.5, window.innerWidth - pad - w * 0.5);
-      const clampedTop = clamp(parseFloat(el.style.top || '0'), pad + h * 0.5, window.innerHeight - pad - h * 0.5);
-      el.style.left = Math.round(clampedLeft) + 'px';
-      el.style.top = Math.round(clampedTop) + 'px';
     }
 
     for (let i = 0; i < active.length; i++) {

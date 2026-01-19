@@ -210,6 +210,20 @@ All automated checks pass. Manual testing recommended for:
   - **Size** → `--navOrbScale` CSS var applied to **all** `.nav-orbit` layers
 - **Expected behavior**: moving sliders should immediately affect orbit speed, orbit radius, and bubble size on both front+behind layers.
 
+### Update (2026-01-19): Slow nav orbit baseline
+- **Change**: `speedDegPerSec` multiplier reduced from **22** to **12** in `src/apps/landing/scripts/portal-app.js`.
+- **Intent**: keep the `navOrbitSpeed` slider semantics (0..2) intact, but slow the default orbit rate.
+
+### Update (2026-01-19): Smooth orbit motion (reduce choppiness)
+- **Change**: nav orbit update loop now targets **~60fps** (was throttled to ~30fps).
+- **Perf**: removed per-bubble `getBoundingClientRect()` reads during orbit updates; clamp now uses an estimated bubble radius (based on CSS `clamp(67px, 9.6vw, 118px)` times `--navOrbScale`).
+- **Quality**: stopped rounding orbit positions to integer pixels; uses subpixel `left/top` for smoother motion.
+- **Double-check**:
+  - ✅ `npm run typecheck`
+  - ✅ Playwright: `tests/home-page-verification.test.ts -g "navigation orbit"`
+  - ✅ Playwright: `tests/errl-phone-controls.spec.ts -g "Nav controls work"`
+  - ✅ Playwright: `tests/errl-phone.spec.ts -g "Nav tab - all controls functional"`
+
 ### Bubble orbit + layering (landing)
 - **Orbit restored**: bubbles now orbit using `data-angle` + `data-dist` (cos/sin around Errl center).
 - **Front/behind swapping**: each tick, bubbles are moved between `#navOrbit` (front) and `#navOrbitBehind` (behind) based on orbital Y position relative to Errl center (with hysteresis to avoid rapid flipping near centerline).
