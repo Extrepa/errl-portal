@@ -307,3 +307,8 @@ Implementation is **solid and production-ready**. The code follows best practice
 
 ### Double-check (expand button placement)
 - Verified `#phone-expand-button` is pinned to **top-left** and hidden in minimized state (`.errl-panel.minimized #phone-expand-button { display:none }`), reducing overlap risk with the top-right tabs.
+
+### Bug fix (expanded + minimized persisted state)
+- **Status**: Applied.
+- **Issue**: Phone init can end up with `minimized + expanded` when `errl_phone_expanded_v1=1`, and minimized sizing (`!important`) wins, showing the small bubble instead of the expanded panel.
+- **Fix**: When expanded is enabled/persisted, we now remove `minimized` (and restore on boot if needed) before applying the expanded layout.
