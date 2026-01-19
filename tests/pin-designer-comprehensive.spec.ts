@@ -75,7 +75,8 @@ test.describe('Pin Designer Pages - Comprehensive', () => {
 
   test('@ui pin-designer alternate page - comprehensive', async ({ page, baseURL }) => {
     const portalPath = getPortalPath(baseURL);
-    const url = baseURL! + `${portalPath}/pin-designer/pin-designer.html`;
+    // Pin designer is at /pin-designer/ (loads index.html with iframe)
+    const url = baseURL! + `${portalPath}/pin-designer/`;
     
     await testPageLoad(page, url, 'pin');
     

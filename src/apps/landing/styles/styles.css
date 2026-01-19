@@ -101,6 +101,8 @@ body[data-errlMode="errl"] #errlGoo { opacity: 0; transition: opacity 0.3s ease;
   inset: 0; 
   pointer-events: none;
   z-index: 0; /* Base layer for nav orbit - bubbles will override individually */
+  /* Bubble scale (controlled by Errl phone Nav tab) */
+  --navOrbScale: 1;
 }
 
 /* 4. Goo aura behind Errl (CSS version) */
@@ -314,7 +316,6 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 
 @keyframes bubbleShine {
   0%, 100% { 
-    filter: brightness(1) saturate(1);
     box-shadow:
       0 0 20px rgba(180,120,255,0.5),
       0 0 40px rgba(0,200,255,0.35),
@@ -323,7 +324,6 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
       inset 0 -2px 8px rgba(0,0,0,0.2);
   }
   50% { 
-    filter: brightness(1.15) saturate(1.1);
     box-shadow:
       0 0 30px rgba(180,120,255,0.7),
       0 0 60px rgba(0,200,255,0.5),
@@ -444,13 +444,12 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 }
 
 @keyframes wobble {
-  0%   { transform: translate(-50%, -50%) scale(1); }
-  50%  { transform: translate(-50%, -52%) scale(1.07); }
-  100% { transform: translate(-50%, -50%) scale(1); }
+  0%   { transform: translate(-50%, -50%) scale(calc(var(--navOrbScale, 1) * 1)); }
+  50%  { transform: translate(-50%, -52%) scale(calc(var(--navOrbScale, 1) * 1.07)); }
+  100% { transform: translate(-50%, -50%) scale(calc(var(--navOrbScale, 1) * 1)); }
 }
 
 .bubble:hover {
-  filter: brightness(1.25) saturate(1.15);
   /* Glow will be set dynamically via JS to match background color */
   box-shadow:
     0 0 35px rgba(255,255,255,0.95),
@@ -871,6 +870,8 @@ body.perf-safe *::after {
   margin: calc(4px * var(--panel-scale)) 0 calc(5px * var(--panel-scale));
   font-size: calc(7px * var(--panel-scale));
   flex-wrap: wrap; /* allow wrapping in narrow phone */
+  /* Let slider thumbs render without being clipped by row bounds */
+  overflow: visible;
 }
 /* helpers for compact layout */
 .sliderRow > * { min-width: 0; }
@@ -902,7 +903,7 @@ body.perf-safe *::after {
   cursor: pointer;
 }
 .sliderRow button { flex: 0 0 auto; }
-.sliderRow label {
+.sliderRow > label:first-child[for] {
   width: calc(40px * var(--panel-scale));
   flex-shrink: 0;
   opacity: 0.75;
@@ -920,6 +921,8 @@ body.perf-safe *::after {
   border-radius: 999px;
   background: linear-gradient(90deg, var(--errl-neon-pink), var(--errl-neon-blue), var(--errl-neon-yellow));
   outline: none;
+  /* Prevent thumb from clipping at min/max when parents use overflow hidden */
+  margin: 0 calc(7px * var(--panel-scale));
 }
 .sliderRow input[type="range"]::-webkit-slider-thumb {
   appearance: none;
@@ -959,8 +962,35 @@ body.perf-safe *::after {
 .panel-section button:active {
   transform: scale(0.95);
 }
-/* Wider labels in Errl tab so text fits - scaled for compact phone */
-.panel-section[data-tab="errl"] .sliderRow label { width: calc(55px * var(--panel-scale)); }
+/* Errl tab: keep row labels compact so sliders + Auto toggles fit */
+.panel-section[data-tab="errl"] .sliderRow > label:first-child[for] { width: calc(45px * var(--panel-scale)); }
+
+/* Rows that include a slider + an Auto checkbox need a stable layout */
+.sliderRow.sliderRow--auto{
+  display: grid;
+  grid-template-columns: calc(45px * var(--panel-scale)) minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: calc(6px * var(--panel-scale));
+  /* Keep slider thumbs visible without pushing outside phone */
+  padding: 0 calc(7px * var(--panel-scale));
+}
+.sliderRow.sliderRow--auto input[type="range"]{
+  /* In grid, margins can push content out; keep it tight */
+  margin: 0;
+}
+
+/* Auto toggle label used next to certain sliders (e.g. Errl Goo). */
+.sliderRow label.autoToggle{
+  width: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(4px * var(--panel-scale));
+  white-space: nowrap;
+  opacity: 0.9;
+  text-align: left;
+}
+.sliderRow label.autoToggle input[type="checkbox"]{ transform: scale(1.05); }
 /* Make HUD buttons show disabled state - scaled for compact phone */
 .panel-section[data-tab="hud"] .moodBtn2[disabled]{ opacity:0.5; cursor:not-allowed; }
 .panel-section[data-tab="hud"] .moodBtn2{

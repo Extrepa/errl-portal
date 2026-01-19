@@ -27,70 +27,74 @@
   animation: hue-pulse 4s ease-in-out infinite;
 }
 
-/* Base hue rotation utility */
+/* Base hue rotation utility
+   Use a class toggle + CSS variables so other animations (bubble shine, hover)
+   don't clobber hue by writing `filter:`. */
 .hue-controlled {
-  filter: hue-rotate(var(--errl-hue-shift)) saturate(var(--errl-saturation));
+  filter: none;
+}
+.hue-controlled.hue-enabled {
+  filter:
+    hue-rotate(var(--errlHueDeg, 0deg))
+    saturate(var(--errlHueSatPct, 100%))
+    brightness(var(--errlHueBrightPct, 100%));
 }
 
 /* Apply to background layer with hue shift */
 .l0.hue-controlled {
-  filter: hue-rotate(var(--errl-hue-shift)) saturate(var(--errl-saturation));
+  filter: none;
 }
 
 /* Motes with hue effects */
 .mote.hue-controlled {
-  filter: hue-rotate(var(--errl-hue-shift)) saturate(var(--errl-saturation)) brightness(110%);
+  filter: none;
 }
 
 /* HUD bubbles with subtle hue */
 .hud .bubble.hue-controlled {
-  filter: hue-rotate(calc(var(--errl-hue-shift) * 0.7)) saturate(var(--errl-saturation)) brightness(105%);
+  filter: none;
 }
 
 /* Navigation buttons with hue */
 .btn.hue-controlled::before {
-  filter: hue-rotate(var(--errl-hue-shift)) saturate(var(--errl-saturation));
+  filter: none;
 }
 
 /* Errl character hue (when not using WebGL) */
 .errl.hue-controlled {
-  filter: 
-    hue-rotate(calc(var(--errl-hue-shift) * 0.5)) 
-    saturate(var(--errl-saturation))
-    drop-shadow(0 0 18px rgba(123,92,255,.45)) 
-    drop-shadow(0 0 48px rgba(0,229,255,.18));
+  filter: none;
 }
 
 /* Ripple effects hue */
 .portal-drip.hue-controlled {
-  filter: hue-rotate(var(--errl-hue-shift)) saturate(var(--errl-saturation));
+  filter: none;
 }
 
 /* Keyframes */
 @keyframes hue-rotate-cycle {
   0% { 
-    filter: hue-rotate(0deg) saturate(var(--errl-saturation)); 
+    filter: none;
   }
   25% { 
-    filter: hue-rotate(90deg) saturate(calc(var(--errl-saturation) * 1.1)); 
+    filter: none;
   }
   50% { 
-    filter: hue-rotate(180deg) saturate(calc(var(--errl-saturation) * 1.2)); 
+    filter: none;
   }
   75% { 
-    filter: hue-rotate(270deg) saturate(calc(var(--errl-saturation) * 1.1)); 
+    filter: none;
   }
   100% { 
-    filter: hue-rotate(360deg) saturate(var(--errl-saturation)); 
+    filter: none;
   }
 }
 
 @keyframes hue-pulse {
   0%, 100% { 
-    filter: hue-rotate(var(--errl-hue-shift)) saturate(var(--errl-saturation)); 
+    filter: none;
   }
   50% { 
-    filter: hue-rotate(calc(var(--errl-hue-shift) + 60deg)) saturate(calc(var(--errl-saturation) * 1.3)); 
+    filter: none;
   }
 }
 

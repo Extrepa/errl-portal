@@ -81,6 +81,12 @@ export async function setControlValue(
     if (type === 'checkbox') {
       const checked = typeof value === 'boolean' ? value : value === 'true';
       await control.setChecked(checked);
+    } else if (type === 'range') {
+      // Range inputs need special handling - use setInputValue or evaluate
+      await control.evaluate((el: HTMLInputElement, val: string) => {
+        el.value = val;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      }, String(value));
     } else {
       await control.fill(String(value));
       // Trigger input event
@@ -92,6 +98,30 @@ export async function setControlValue(
   }
   
   await page.waitForTimeout(waitTime);
+}
+
+/**
+ * Get Pin Designer iframe content frame
+ * Pin Designer is loaded in an iframe at /pin-designer/
+ */
+export async function getPinDesignerFrame(page: Page, baseURL?: string): Promise<import('@playwright/test').Frame> {
+  if (!page.url().includes('pin-designer')) {
+    await page.goto((baseURL || '') + '/pin-designer/');
+    await page.waitForLoadState('networkidle');
+  }
+  
+  const iframe = page.locator('iframe[src*="pin-designer.html"]');
+  await expect(iframe).toBeVisible({ timeout: 10000 });
+  const iframeContent = await iframe.contentFrame();
+  if (!iframeContent) {
+    throw new Error('Pin designer iframe not found');
+  }
+  
+  // Wait for SVG inside iframe
+  await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
+  await iframeContent.waitForTimeout(1000); // Wait for initialization
+  
+  return iframeContent;
 }
 
 /**

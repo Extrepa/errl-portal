@@ -86,10 +86,13 @@ test.describe('Integration: Controls to Effects', () => {
     await setControlValue(page, 'classicGooEnabled', true);
     await page.waitForTimeout(300);
     
-    // Verify goo class is applied
+    // Verify goo class is applied to correct elements (#errlCenter and #errlAuraMask)
     const hasGooClass = await page.evaluate(() => {
-      const errlGoo = document.getElementById('errlGoo');
-      return errlGoo ? errlGoo.classList.contains('goo') : false;
+      const errlCenter = document.getElementById('errlCenter');
+      const errlAuraMask = document.getElementById('errlAuraMask');
+      const centerHasGoo = errlCenter ? errlCenter.classList.contains('goo') : false;
+      const auraHasGoo = errlAuraMask ? errlAuraMask.classList.contains('goo') : false;
+      return centerHasGoo || auraHasGoo;
     });
     expect(hasGooClass).toBe(true);
     
@@ -148,32 +151,45 @@ test.describe('Integration: Controls to Effects', () => {
     await openPhoneTab(page, 'rb');
     await setControlValue(page, 'rbSpeed', '1.8');
     await setControlValue(page, 'rbDensity', '1.3');
+    await page.waitForTimeout(500);
     
     await openPhoneTab(page, 'hue');
     await setControlValue(page, 'hueShift', '120');
     await setControlValue(page, 'hueSat', '1.5');
+    await page.waitForTimeout(500);
     
     await openPhoneTab(page, 'errl');
     await setControlValue(page, 'classicGooStrength', '0.6');
     
-    await page.waitForTimeout(1000);
+    // Wait for settings to be saved
+    await page.waitForTimeout(1500);
     
     // Reload page
     await page.reload();
+    await page.waitForLoadState('networkidle');
     await waitForEffects(page, 15000).catch(() => {});
     await ensurePhonePanelOpen(page);
+    await page.waitForTimeout(1000); // Wait for settings to restore
     
     // Verify all settings restored
     await openPhoneTab(page, 'rb');
-    expect(parseFloat(await getControlValue(page, 'rbSpeed') || '0')).toBeCloseTo(1.8, 1);
-    expect(parseFloat(await getControlValue(page, 'rbDensity') || '0')).toBeCloseTo(1.3, 1);
+    await page.waitForTimeout(300);
+    const rbSpeed = await getControlValue(page, 'rbSpeed');
+    const rbDensity = await getControlValue(page, 'rbDensity');
+    expect(parseFloat(rbSpeed || '0')).toBeCloseTo(1.8, 1);
+    expect(parseFloat(rbDensity || '0')).toBeCloseTo(1.3, 1);
     
     await openPhoneTab(page, 'hue');
-    expect(parseFloat(await getControlValue(page, 'hueShift') || '0')).toBeCloseTo(120, 0);
-    expect(parseFloat(await getControlValue(page, 'hueSat') || '0')).toBeCloseTo(1.5, 1);
+    await page.waitForTimeout(300);
+    const hueShift = await getControlValue(page, 'hueShift');
+    const hueSat = await getControlValue(page, 'hueSat');
+    expect(parseFloat(hueShift || '0')).toBeCloseTo(120, 0);
+    expect(parseFloat(hueSat || '0')).toBeCloseTo(1.5, 1);
     
     await openPhoneTab(page, 'errl');
-    expect(parseFloat(await getControlValue(page, 'classicGooStrength') || '0')).toBeCloseTo(0.6, 1);
+    await page.waitForTimeout(300);
+    const gooStrength = await getControlValue(page, 'classicGooStrength');
+    expect(parseFloat(gooStrength || '0')).toBeCloseTo(0.6, 1);
   });
 
   test('should handle rapid control changes', async ({ page }) => {

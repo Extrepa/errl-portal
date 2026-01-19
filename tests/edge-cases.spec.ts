@@ -238,10 +238,20 @@ test.describe('Edge Cases & Error Handling', () => {
     await expect(page.locator('#panelTabs')).toBeVisible({ timeout: 5000 });
     
     // Interact with various controls - wait for tabs to be visible
-    const tabs = ['HUD', 'Errl', 'Nav', 'RB', 'GLB', 'Hue'];
+    // Updated to include all 9 tabs: HUD, Errl, Pin, Nav, RB, GLB, BG, DEV, Hue
+    const tabs = ['HUD', 'Errl', 'Pin', 'Nav', 'RB', 'GLB', 'BG', 'DEV', 'Hue'];
     for (const tab of tabs) {
       try {
-        const tabButton = page.getByRole('button', { name: tab });
+        // Try multiple ways to find the tab button
+        let tabButton = page.getByRole('button', { name: tab, exact: false });
+        const count = await tabButton.count();
+        
+        if (count === 0) {
+          // Try by data-tab attribute
+          const tabLower = tab.toLowerCase();
+          tabButton = page.locator(`button[data-tab="${tabLower}"]`);
+        }
+        
         const isVisible = await tabButton.isVisible({ timeout: 3000 }).catch(() => false);
         if (isVisible) {
           await tabButton.click();

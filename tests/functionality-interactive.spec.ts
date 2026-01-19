@@ -143,15 +143,25 @@ test.describe('Interactive Controls Tests', () => {
 
   test.describe('Pin Designer Interactive Controls', () => {
     test('@ui region selection works', async ({ page, baseURL }) => {
-      await page.goto(baseURL! + '/pin-designer/pin-designer.html');
+      await page.goto(baseURL! + '/pin-designer/');
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Pin designer is loaded in an iframe
+      const iframe = page.locator('iframe[src*="pin-designer.html"]');
+      await expect(iframe).toBeVisible({ timeout: 10000 });
+      const iframeContent = await iframe.contentFrame();
+      if (!iframeContent) {
+        throw new Error('Pin designer iframe not found');
+      }
+      
+      // Wait for SVG inside iframe
+      await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
       
       // Wait for page to fully initialize
-      await page.waitForTimeout(1000);
+      await iframeContent.waitForTimeout(1000);
 
-      // Region buttons are in #bubbleRow
-      const bubbleRow = page.locator('#bubbleRow');
+      // Region buttons are in #bubbleRow (inside iframe)
+      const bubbleRow = iframeContent.locator('#bubbleRow');
       await expect(bubbleRow).toBeVisible({ timeout: 5000 });
 
       const regions = ['body', 'face', 'eyeL', 'eyeR', 'mouth'];
@@ -164,7 +174,7 @@ test.describe('Interactive Controls Tests', () => {
         if (count > 0) {
           await expect(regionBtn.first()).toBeVisible({ timeout: 3000 });
           await regionBtn.first().click({ force: true });
-          await page.waitForTimeout(300);
+          await iframeContent.waitForTimeout(300);
 
           // Verify region is selected (has active or selected class)
           const isActive = await regionBtn.first().evaluate((el) => {
@@ -179,15 +189,25 @@ test.describe('Interactive Controls Tests', () => {
     });
 
     test('@ui finish controls work', async ({ page, baseURL }) => {
-      await page.goto(baseURL! + '/pin-designer/pin-designer.html');
+      await page.goto(baseURL! + '/pin-designer/');
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Pin designer is loaded in an iframe
+      const iframe = page.locator('iframe[src*="pin-designer.html"]');
+      await expect(iframe).toBeVisible({ timeout: 10000 });
+      const iframeContent = await iframe.contentFrame();
+      if (!iframeContent) {
+        throw new Error('Pin designer iframe not found');
+      }
+      
+      // Wait for SVG inside iframe
+      await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
       
       // Wait for page to fully initialize
-      await page.waitForTimeout(1000);
+      await iframeContent.waitForTimeout(1000);
 
-      // Finish buttons are in #finishRow
-      const finishRow = page.locator('#finishRow');
+      // Finish buttons are in #finishRow (inside iframe)
+      const finishRow = iframeContent.locator('#finishRow');
       await expect(finishRow).toBeVisible({ timeout: 5000 });
 
       const finishes = ['solid', 'glitter', 'glow', 'none'];
@@ -200,7 +220,7 @@ test.describe('Interactive Controls Tests', () => {
         if (count > 0) {
           await expect(finishBtn).toBeVisible({ timeout: 3000 });
           await finishBtn.click({ force: true });
-          await page.waitForTimeout(300);
+          await iframeContent.waitForTimeout(300);
 
           // Verify finish is selected (has active or selected class)
           const isActive = await finishBtn.evaluate((el) => {
@@ -215,15 +235,25 @@ test.describe('Interactive Controls Tests', () => {
     });
 
     test('@ui zoom controls work', async ({ page, baseURL }) => {
-      await page.goto(baseURL! + '/pin-designer/pin-designer.html');
+      await page.goto(baseURL! + '/pin-designer/');
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Pin designer is loaded in an iframe
+      const iframe = page.locator('iframe[src*="pin-designer.html"]');
+      await expect(iframe).toBeVisible({ timeout: 10000 });
+      const iframeContent = await iframe.contentFrame();
+      if (!iframeContent) {
+        throw new Error('Pin designer iframe not found');
+      }
+      
+      // Wait for SVG inside iframe
+      await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
       
       // Wait for page to fully initialize
-      await page.waitForTimeout(1000);
+      await iframeContent.waitForTimeout(1000);
 
-      // Test zoom in
-      const zoomInBtn = page.locator('#zoomIn');
+      // Test zoom in (inside iframe)
+      const zoomInBtn = iframeContent.locator('#zoomIn');
       if (await zoomInBtn.count() > 0) {
         await expect(zoomInBtn).toBeVisible({ timeout: 3000 });
         await zoomInBtn.click({ force: true });
@@ -232,48 +262,59 @@ test.describe('Interactive Controls Tests', () => {
         console.log('Zoom in button not found');
       }
 
-      // Test zoom out
-      const zoomOutBtn = page.locator('#zoomOut');
+      // Test zoom out (inside iframe)
+      const zoomOutBtn = iframeContent.locator('#zoomOut');
       if (await zoomOutBtn.count() > 0) {
         await expect(zoomOutBtn).toBeVisible({ timeout: 3000 });
         await zoomOutBtn.click({ force: true });
-        await page.waitForTimeout(300);
+        await iframeContent.waitForTimeout(300);
       } else {
         console.log('Zoom out button not found');
       }
 
-      // Test fit
-      const fitBtn = page.locator('#fitBtn');
+      // Test fit (inside iframe)
+      const fitBtn = iframeContent.locator('#fitBtn');
       if (await fitBtn.count() > 0) {
         await expect(fitBtn).toBeVisible({ timeout: 3000 });
         await fitBtn.click({ force: true });
-        await page.waitForTimeout(300);
+        await iframeContent.waitForTimeout(300);
       } else {
         console.log('Fit button not found');
       }
 
-      // Test reset view
-      const resetViewBtn = page.locator('#resetView');
+      // Test reset view (inside iframe)
+      const resetViewBtn = iframeContent.locator('#resetView');
       if (await resetViewBtn.count() > 0) {
         await expect(resetViewBtn).toBeVisible({ timeout: 3000 });
         await resetViewBtn.click({ force: true });
-        await page.waitForTimeout(300);
+        await iframeContent.waitForTimeout(300);
       } else {
         console.log('Reset view button not found');
       }
       
       // Verify page is still functional after zoom operations
-      const pinSVG = page.locator('#pinSVG');
+      const pinSVG = iframeContent.locator('#pinSVG');
       await expect(pinSVG).toBeVisible();
     });
 
     test('@ui panel toggle works', async ({ page, baseURL }) => {
-      await page.goto(baseURL! + '/pin-designer/pin-designer.html');
+      await page.goto(baseURL! + '/pin-designer/');
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Pin designer is loaded in an iframe
+      const iframe = page.locator('iframe[src*="pin-designer.html"]');
+      await expect(iframe).toBeVisible({ timeout: 10000 });
+      const iframeContent = await iframe.contentFrame();
+      if (!iframeContent) {
+        throw new Error('Pin designer iframe not found');
+      }
+      
+      await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
+      await iframeContent.waitForTimeout(1000);
 
+      // Panel toggle is in the main page (header), not iframe
       const togglePanelBtn = page.locator('#togglePanel');
-      const leftPanel = page.locator('#leftPanel');
+      const leftPanel = iframeContent.locator('#leftPanel');
 
       if (await togglePanelBtn.count() > 0 && await leftPanel.count() > 0) {
         // Get initial display state
@@ -285,9 +326,9 @@ test.describe('Interactive Controls Tests', () => {
         await togglePanelBtn.evaluate((el: HTMLElement) => {
           (el as HTMLElement).click();
         });
-        await page.waitForTimeout(300);
+        await iframeContent.waitForTimeout(300);
 
-        // Verify display changed
+        // Verify display changed (inside iframe)
         const afterToggleDisplay = await leftPanel.evaluate((el) => {
           return window.getComputedStyle(el).display;
         });
@@ -296,34 +337,55 @@ test.describe('Interactive Controls Tests', () => {
     });
 
     test('@ui reset buttons work', async ({ page, baseURL }) => {
-      await page.goto(baseURL! + '/pin-designer/pin-designer.html');
+      await page.goto(baseURL! + '/pin-designer/');
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Pin designer is loaded in an iframe
+      const iframe = page.locator('iframe[src*="pin-designer.html"]');
+      await expect(iframe).toBeVisible({ timeout: 10000 });
+      const iframeContent = await iframe.contentFrame();
+      if (!iframeContent) {
+        throw new Error('Pin designer iframe not found');
+      }
+      
+      await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
+      await iframeContent.waitForTimeout(1000);
 
-      // Test reset wires
-      const resetWiresBtn = page.locator('#resetWires');
+      // Test reset wires (inside iframe)
+      const resetWiresBtn = iframeContent.locator('#resetWires');
       if (await resetWiresBtn.count() > 0) {
         await resetWiresBtn.click();
-        await page.waitForTimeout(300);
+        await iframeContent.waitForTimeout(300);
       }
 
-      // Test reset all
-      const resetAllBtn = page.locator('#resetAll');
+      // Test reset all (inside iframe)
+      const resetAllBtn = iframeContent.locator('#resetAll');
       if (await resetAllBtn.count() > 0) {
         await resetAllBtn.click();
-        await page.waitForTimeout(300);
+        await iframeContent.waitForTimeout(300);
       }
     });
 
     test('@ui randomize design button works', async ({ page, baseURL }) => {
-      await page.goto(baseURL! + '/pin-designer/pin-designer.html');
+      await page.goto(baseURL! + '/pin-designer/');
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Pin designer is loaded in an iframe
+      const iframe = page.locator('iframe[src*="pin-designer.html"]');
+      await expect(iframe).toBeVisible({ timeout: 10000 });
+      const iframeContent = await iframe.contentFrame();
+      if (!iframeContent) {
+        throw new Error('Pin designer iframe not found');
+      }
+      
+      await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
+      await iframeContent.waitForTimeout(1000);
 
-      const randomizeBtn = page.locator('#randomizeDesign');
+      // Randomize button is inside iframe
+      const randomizeBtn = iframeContent.locator('#randomizeDesign');
       if (await randomizeBtn.count() > 0) {
         await randomizeBtn.click();
-        await page.waitForTimeout(500); // Randomization may take time
+        await iframeContent.waitForTimeout(500); // Randomization may take time
       }
     });
   });

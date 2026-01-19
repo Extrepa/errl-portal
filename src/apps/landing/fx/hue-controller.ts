@@ -105,22 +105,26 @@ const DEFAULT_LAYER_STATE = { hue: 0, saturation: 1.0, intensity: 1.0, enabled: 
       }
     },
 
-    layerFilterString(state: any) {
-      const deg = ((state.hue % 360) + 360) % 360;
-      const sat = Math.max(0, state.saturation);
-      const mixBoost = 0.05 + 0.25 * state.intensity;
-      return `hue-rotate(${deg}deg) saturate(${(sat * 100).toFixed(0)}%) brightness(${(100 + mixBoost * 10).toFixed(0)}%)`;
-    },
-
     applyLayerCSS(layer: string) {
       if (!this.cssEnabled) return;
       const def = (LAYERS as any)[layer];
       if (!def || !def.selectors) return;
       const st = this.layers[layer];
+      const deg = ((st.hue % 360) + 360) % 360;
+      const sat = Math.max(0, st.saturation);
+      const mixBoost = 0.05 + 0.25 * st.intensity;
+      const brightPct = (100 + mixBoost * 10);
       for (const sel of def.selectors as string[]) {
         document.querySelectorAll(sel).forEach((el) => {
-          const f = st.enabled ? this.layerFilterString(st) : '';
-          (el as HTMLElement).style.filter = f;
+          const node = el as HTMLElement;
+          // Use variables so other animations (bubble shine/hover) don't override hue by writing `filter:`.
+          node.style.setProperty('--errlHueDeg', `${deg}deg`);
+          node.style.setProperty('--errlHueSatPct', `${(sat * 100).toFixed(0)}%`);
+          node.style.setProperty('--errlHueBrightPct', `${brightPct.toFixed(0)}%`);
+          node.classList.toggle('hue-enabled', !!st.enabled);
+          // Clear any legacy inline filters so CSS can compose consistently.
+          node.style.removeProperty('filter');
+          node.style.removeProperty('webkitFilter');
         });
       }
     },

@@ -318,7 +318,6 @@ export default defineConfig(({ command }) => ({
         'studio/pin-widget/ErrlPin.Widget/designer': resolve(process.cwd(), 'src/apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html'),
         'studio/svg-colorer/index': resolve(process.cwd(), 'src/apps/static/pages/studio/svg-colorer/index.html'),
         'pin-designer/index': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/index.html'),
-        'games/index': resolve(process.cwd(), 'src/apps/static/pages/games/index.html'),
         'chat': resolve(process.cwd(), 'src/apps/chatbot/index.html'),
         'fx/hue-examples': resolve(process.cwd(), 'src/apps/landing/fx/hue-examples.html'),
       },

@@ -53,11 +53,21 @@ test.describe('API Connection Tests', () => {
 
   test.describe('Asset Bridge API', () => {
     test('@ui asset bridge interface exists and is correct', async ({ page, baseURL }) => {
-      await page.goto(baseURL! + '/pin-designer/pin-designer.html');
+      await page.goto(baseURL! + '/pin-designer/');
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Pin designer is loaded in an iframe
+      const iframe = page.locator('iframe[src*="pin-designer.html"]');
+      await expect(iframe).toBeVisible({ timeout: 10000 });
+      const iframeContent = await iframe.contentFrame();
+      if (!iframeContent) {
+        throw new Error('Pin designer iframe not found');
+      }
+      
+      await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
+      await iframeContent.waitForTimeout(1000);
 
-      const bridgeInfo = await page.evaluate(() => {
+      const bridgeInfo = await iframeContent.evaluate(() => {
         const bridge = (window as any).pinAssetBridge;
         if (!bridge) return { exists: false };
 
@@ -97,12 +107,22 @@ test.describe('API Connection Tests', () => {
     });
 
     test('@ui asset bridge uses postMessage communication', async ({ page, baseURL }) => {
-      await page.goto(baseURL! + '/pin-designer/pin-designer.html');
+      await page.goto(baseURL! + '/pin-designer/');
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Pin designer is loaded in an iframe
+      const iframe = page.locator('iframe[src*="pin-designer.html"]');
+      await expect(iframe).toBeVisible({ timeout: 10000 });
+      const iframeContent = await iframe.contentFrame();
+      if (!iframeContent) {
+        throw new Error('Pin designer iframe not found');
+      }
+      
+      await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
+      await iframeContent.waitForTimeout(1000);
 
       // Check if bridge uses postMessage
-      const bridgeInfo = await page.evaluate(() => {
+      const bridgeInfo = await iframeContent.evaluate(() => {
         const bridge = (window as any).pinAssetBridge;
         if (!bridge) return { exists: false, usesPostMessage: false };
 
@@ -168,15 +188,24 @@ test.describe('API Connection Tests', () => {
         }
       });
 
-      await page.goto(baseURL! + '/pin-designer/pin-designer.html');
+      await page.goto(baseURL! + '/pin-designer/');
       await page.waitForLoadState('networkidle');
-      await page.waitForSelector('#pinSVG', { timeout: 10000 });
+      
+      // Pin designer is loaded in an iframe
+      const iframe = page.locator('iframe[src*="pin-designer.html"]');
+      await expect(iframe).toBeVisible({ timeout: 10000 });
+      const iframeContent = await iframe.contentFrame();
+      if (!iframeContent) {
+        throw new Error('Pin designer iframe not found');
+      }
+      
+      await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
 
       // Wait a bit for any initialization errors
-      await page.waitForTimeout(1000);
+      await iframeContent.waitForTimeout(1000);
 
       // Try to open library (will fail if API not available, but shouldn't crash)
-      const openLibraryBtn = page.locator('#openLibrary');
+      const openLibraryBtn = iframeContent.locator('#openLibrary');
       if (await openLibraryBtn.count() > 0) {
         const isDisabled = await openLibraryBtn.isDisabled();
         if (!isDisabled) {

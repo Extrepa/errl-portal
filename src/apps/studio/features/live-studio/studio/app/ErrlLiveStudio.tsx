@@ -303,7 +303,7 @@ export default function ErrlLiveStudio() {
   const tabMeta = TAB_METADATA[topTab];
   const breadcrumbs = [
     { label: 'Errl Hub', to: '/' },
-    { label: 'Live Studio', to: '/' },
+    { label: 'Code Lab', to: '/code-lab' },
     { label: tabMeta.label },
   ];
 
