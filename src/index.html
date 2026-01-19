@@ -133,6 +133,9 @@
     <!-- Close button -->
     <div id="phone-close-button" title="Close">×</div>
 
+    <!-- Expand button (desktop) -->
+    <div id="phone-expand-button" title="Expand (desktop drag)">⤢</div>
+
     <!-- Original header (hidden, kept for drag functionality) -->
     <div class="panel-header" id="errlPhoneHeader" title="Drag to move" style="display:none;">
       <div class="panel-title">ERRL PHONE</div>
@@ -209,7 +212,7 @@
     <div class="panel-section" data-tab="rb">
       <div class="sectionLabel" title="3D iridescent bubbles rendered on the #riseBubbles canvas behind the scene">Rising Bubbles (Basic)</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
-        <span title="These controls affect the Three.js Rising Bubbles layer. Higher values may cost performance.">Behind-the-scene bubble field (Three.js). Use Advanced for size/spawn shaping.</span>
+        <span title="These controls affect the Three.js Rising Bubbles layer. Tip: you can grab bubbles and throw them, or flick near one to kick it off-screen. Higher values may cost performance.">Behind-the-scene bubble field (Three.js). Tip: grab + throw, or flick to kick.</span>
       </div>
       <div class="sliderRow">
         <label for="rbSpeed" title="How fast bubbles rise upward (vertical motion)">Rise Speed</label>
@@ -228,6 +231,9 @@
         <input type="range" min="0" max="1" step="0.01" value="0.95" id="rbAlpha" title="Bubble opacity">
       </div>
       <div class="sectionDivider"></div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Interaction: drag a bubble on the canvas to throw it. Flick near a bubble to apply a quick impulse. Works on touch and mouse.">Interaction: drag to throw; flick near to kick (touch + mouse).</span>
+      </div>
       <div class="sliderRow"><label for="rbAttract" title="Pointer attracts bubbles (subtle drift toward cursor)">Attract</label><input type="checkbox" id="rbAttract" checked title="Toggle attraction to pointer"> <label for="rbAttractIntensity" title="Strength of attraction force">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.0" id="rbAttractIntensity" title="Attract intensity"></div>
       <div class="sliderRow"><label for="rbRipples" title="Click/tap emits a ripple impulse through the field">Ripples</label><input type="checkbox" id="rbRipples" title="Toggle ripple impulses"> <label for="rbRippleIntensity" title="Ripple strength">Intensity</label><input type="range" min="0" max="2" step="0.1" value="1.2" id="rbRippleIntensity" title="Ripple intensity"></div>
     </div>

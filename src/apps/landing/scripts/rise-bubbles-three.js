@@ -309,12 +309,94 @@
 
     const pointer = { x: 0, y: 0, active: false }; // NDC (-1..1)
     const raycaster = new T.Raycaster();
+    const pickRaycaster = new T.Raycaster();
     const tmpVel = new T.Vector3();
     const tmpDir = new T.Vector3();
     const tmpOrigin = new T.Vector3();
     const tmpPoint = new T.Vector3();
+    const tmpGrab = new T.Vector3();
+    const tmpOffset = new T.Vector3();
     let lastElapsedTime = 0;
     const rippleEvents = []; // { x, y, t }
+
+    // Grab/throw interaction state (canvas-driven)
+    const grabState = {
+      active: false,
+      pointerId: null,
+      bubble: null,
+      bubbleIndex: -1,
+      grabZ: 0,
+      offset: new T.Vector3(0, 0, 0),
+      // Recent world points (for velocity estimate)
+      history: [] // { x, y, tMs }
+    };
+
+    const flickState = {
+      active: false,
+      pointerId: null,
+      history: [] // { x, y, tMs } in z=0 plane
+    };
+
+    function nowMs(){ return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now(); }
+    function pushHistory(arr, x, y, tMs, max = 6){
+      arr.push({ x, y, tMs });
+      if (arr.length > max) arr.splice(0, arr.length - max);
+    }
+    function estimateVelocityWorldPerSec(arr){
+      if (!arr || arr.length < 2) return { vx: 0, vy: 0 };
+      const a = arr[arr.length - 1];
+      // Find a previous sample with a meaningful dt.
+      for (let i = arr.length - 2; i >= 0; i--) {
+        const b = arr[i];
+        const dt = (a.tMs - b.tMs) / 1000;
+        if (dt > 0.016) {
+          return { vx: (a.x - b.x) / dt, vy: (a.y - b.y) / dt };
+        }
+      }
+      // Fallback: if all samples are too close in time, use the oldest sample for max dt.
+      const b = arr[0];
+      const dt = Math.max(1e-3, (a.tMs - b.tMs) / 1000);
+      return { vx: (a.x - b.x) / dt, vy: (a.y - b.y) / dt };
+    }
+    function worldImpulseFromVelocity(vx, vy, clampMag){
+      // Simulation integrates per-frame (no explicit dt), so convert world/sec -> world/frame.
+      const fps = 60;
+      let ix = (vx / fps);
+      let iy = (vy / fps);
+      const mag = Math.hypot(ix, iy);
+      const m = (typeof clampMag === 'number') ? clampMag : 1.25;
+      if (mag > m && mag > 1e-6) {
+        const s = m / mag;
+        ix *= s; iy *= s;
+      }
+      return { ix, iy };
+    }
+    function getNdcFromEvent(e){
+      // Use canvas bounds to be robust even if canvas isn't full-viewport.
+      const rect = cvs.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / Math.max(1, rect.width);
+      const y = (e.clientY - rect.top) / Math.max(1, rect.height);
+      return { x: x * 2 - 1, y: -(y * 2 - 1) };
+    }
+    function pointOnPlaneZ(ndc, planeZ, out){
+      if (!camera) return null;
+      pickRaycaster.setFromCamera(ndc, camera);
+      const dir = pickRaycaster.ray.direction;
+      const org = pickRaycaster.ray.origin;
+      if (Math.abs(dir.z) < 1e-6) return null;
+      const t = (planeZ - org.z) / dir.z;
+      if (!Number.isFinite(t)) return null;
+      out.copy(org).add(tmpDir.copy(dir).multiplyScalar(t));
+      return out;
+    }
+    function computeBoundsAtZ(z){
+      if (!camera) return { halfW: 20, halfH: 20 };
+      const fov = (camera.fov * Math.PI) / 180;
+      const dist = Math.max(0.01, camera.position.z - z);
+      const halfH = Math.tan(fov / 2) * dist;
+      const halfW = halfH * (camera.aspect || (window.innerWidth / Math.max(1, window.innerHeight)));
+      return { halfW, halfH };
+    }
 
     function getActiveCount(){
       const mult = clamp(safeNum(controls.density, 1.0), 0, maxCountMultiplier);
@@ -420,6 +502,8 @@
     }, { passive: true });
     window.addEventListener('pointerleave', () => { pointer.active = false; }, { passive: true });
     window.addEventListener('pointerdown', (e) => {
+      // If another handler intentionally consumed this press (e.g. grab/throw), don't emit ripples.
+      try { if (e && e.defaultPrevented) return; } catch(_) {}
       if (!controls.ripples) return;
       if (!camera) return;
       const w = window.innerWidth || 1;
@@ -436,6 +520,188 @@
       rippleEvents.push({ x: p.x, y: p.y, t: lastElapsedTime });
       if (rippleEvents.length > 6) rippleEvents.shift();
     }, { passive: true });
+
+    // Grab/throw + flick interactions (attach to canvas)
+    // Note: requires CSS `touch-action: none` on #riseBubbles to feel right on mobile.
+    cvs.addEventListener('pointerdown', (e) => {
+      try {
+        // Only primary contact
+        if (e.isPrimary === false) return;
+        // Prevent ripple handler + browser gestures during active interaction
+        if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+          try { e.preventDefault(); } catch(_) {}
+        }
+
+        const ndc = getNdcFromEvent(e);
+        // Sync global pointer for existing attract behavior (best-effort).
+        pointer.x = ndc.x;
+        pointer.y = ndc.y;
+        pointer.active = true;
+
+        // Raycast to find a bubble to grab.
+        if (camera) {
+          pickRaycaster.setFromCamera(ndc, camera);
+          const hits = pickRaycaster.intersectObjects(bubbles, false);
+          const hit = hits && hits.length ? hits.find(h => h && h.object && h.object.visible !== false) : null;
+          if (hit && hit.object) {
+            grabState.active = true;
+            grabState.pointerId = e.pointerId;
+            grabState.bubble = hit.object;
+            grabState.bubbleIndex = bubbles.indexOf(hit.object);
+            grabState.grabZ = hit.object.position.z;
+            grabState.history = [];
+            // Offset so bubble doesn't snap its center to pointer hit point.
+            grabState.offset.copy(hit.object.position).sub(hit.point);
+            // Stop existing impulses while grabbed.
+            try {
+              hit.object.userData = hit.object.userData || {};
+              hit.object.userData.isGrabbed = true;
+              hit.object.userData.isThrown = false;
+              hit.object.userData.thrownAt = 0;
+              if (hit.object.userData.impulse && hit.object.userData.impulse.set) hit.object.userData.impulse.set(0, 0, 0);
+            } catch(_) {}
+            // Capture pointer so release is reliable.
+            try { cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId); } catch(_) {}
+            // Seed history with current position on grab plane.
+            const p = pointOnPlaneZ(ndc, grabState.grabZ, tmpGrab);
+            if (p) pushHistory(grabState.history, p.x, p.y, nowMs());
+            return;
+          }
+        }
+
+        // No bubble hit: track for flick impulse.
+        flickState.active = true;
+        flickState.pointerId = e.pointerId;
+        flickState.history = [];
+        const p0 = pointOnPlaneZ(ndc, 0, tmpPoint);
+        if (p0) pushHistory(flickState.history, p0.x, p0.y, nowMs());
+        try { cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId); } catch(_) {}
+      } catch(_) {}
+    }, { passive: false });
+
+    cvs.addEventListener('pointermove', (e) => {
+      try {
+        const ndc = getNdcFromEvent(e);
+        pointer.x = ndc.x;
+        pointer.y = ndc.y;
+        pointer.active = true;
+
+        if (grabState.active && grabState.pointerId === e.pointerId && grabState.bubble) {
+          if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+            try { e.preventDefault(); } catch(_) {}
+          }
+          const p = pointOnPlaneZ(ndc, grabState.grabZ, tmpGrab);
+          if (!p) return;
+          const tMs = nowMs();
+          pushHistory(grabState.history, p.x, p.y, tMs);
+          // Follow pointer on plane, preserving the original offset.
+          grabState.bubble.position.x = p.x + grabState.offset.x;
+          grabState.bubble.position.y = p.y + grabState.offset.y;
+          // Keep z fixed.
+          grabState.bubble.position.z = grabState.grabZ;
+          // While dragging, zero impulse so it doesn't fight the hand.
+          try {
+            const ud = grabState.bubble.userData || (grabState.bubble.userData = {});
+            if (ud.impulse && ud.impulse.set) ud.impulse.set(0, 0, 0);
+          } catch(_) {}
+          return;
+        }
+
+        if (flickState.active && flickState.pointerId === e.pointerId) {
+          if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+            try { e.preventDefault(); } catch(_) {}
+          }
+          const p = pointOnPlaneZ(ndc, 0, tmpPoint);
+          if (p) pushHistory(flickState.history, p.x, p.y, nowMs());
+        }
+      } catch(_) {}
+    }, { passive: false });
+
+    function endInteraction(e){
+      try {
+        const ndc = e ? getNdcFromEvent(e) : null;
+        if (ndc) { pointer.x = ndc.x; pointer.y = ndc.y; }
+
+        // Release grab -> throw impulse.
+        if (grabState.active && grabState.pointerId === (e && e.pointerId) && grabState.bubble) {
+          const vel = estimateVelocityWorldPerSec(grabState.history);
+          const imp = worldImpulseFromVelocity(vel.vx, vel.vy, 1.6);
+          const b = grabState.bubble;
+          try {
+            b.userData = b.userData || {};
+            b.userData.isGrabbed = false;
+            // Mark "thrown" briefly so upward clamp doesn't prevent downward throws.
+            b.userData.isThrown = true;
+            b.userData.thrownAt = lastElapsedTime;
+            if (!b.userData.impulse) b.userData.impulse = new T.Vector3(0, 0, 0);
+            b.userData.impulse.x += imp.ix * 0.9;
+            b.userData.impulse.y += imp.iy * 0.9;
+          } catch(_) {}
+          // Clear state.
+          grabState.active = false;
+          grabState.pointerId = null;
+          grabState.bubble = null;
+          grabState.bubbleIndex = -1;
+          grabState.history = [];
+        }
+
+        // Flick impulse (no grab): apply to nearest bubble under pointer (or near pointer).
+        if (flickState.active && flickState.pointerId === (e && e.pointerId)) {
+          const vel = estimateVelocityWorldPerSec(flickState.history);
+          const speed = Math.hypot(vel.vx, vel.vy);
+          const fastEnough = speed > 12; // world/sec threshold
+          if (fastEnough && camera && ndc) {
+            // Prefer a direct hit under finger.
+            pickRaycaster.setFromCamera(ndc, camera);
+            const hits = pickRaycaster.intersectObjects(bubbles, false);
+            let target = (hits && hits.length) ? hits.find(h => h && h.object && h.object.visible !== false) : null;
+
+            // If no direct hit, pick closest bubble in screen space (small radius).
+            if (!target) {
+              let best = null;
+              let bestD2 = Infinity;
+              const rect = cvs.getBoundingClientRect();
+              const px = e.clientX - rect.left;
+              const py = e.clientY - rect.top;
+              const maxPx = 70;
+              for (let i = 0; i < bubbles.length; i++) {
+                const b = bubbles[i];
+                if (!b || b.visible === false) continue;
+                tmpPoint.copy(b.position).project(camera);
+                const sx = (tmpPoint.x * 0.5 + 0.5) * rect.width;
+                const sy = (-tmpPoint.y * 0.5 + 0.5) * rect.height;
+                const dx = sx - px;
+                const dy = sy - py;
+                const d2 = dx*dx + dy*dy;
+                if (d2 < bestD2 && d2 <= maxPx * maxPx) { bestD2 = d2; best = b; }
+              }
+              if (best) target = { object: best };
+            }
+
+            if (target && target.object) {
+              const imp = worldImpulseFromVelocity(vel.vx, vel.vy, 1.2);
+              const b = target.object;
+              try {
+                b.userData = b.userData || {};
+                b.userData.isThrown = true;
+                b.userData.thrownAt = lastElapsedTime;
+                if (!b.userData.impulse) b.userData.impulse = new T.Vector3(0, 0, 0);
+                b.userData.impulse.x += imp.ix * 0.8;
+                b.userData.impulse.y += imp.iy * 0.8;
+              } catch(_) {}
+            }
+          }
+          flickState.active = false;
+          flickState.pointerId = null;
+          flickState.history = [];
+        }
+
+        try { if (e && cvs.releasePointerCapture) cvs.releasePointerCapture(e.pointerId); } catch(_) {}
+      } catch(_) {}
+    }
+    cvs.addEventListener('pointerup', endInteraction, { passive: true });
+    cvs.addEventListener('pointercancel', endInteraction, { passive: true });
+    cvs.addEventListener('lostpointercapture', endInteraction, { passive: true });
 
     const clock = new T.Clock();
     function animate() {
@@ -472,6 +738,22 @@
         if (!bubble || bubble.visible === false) return;
         ensureBubbleState(bubble);
 
+        // If currently grabbed, let the pointer handlers own position (no wobble/forces).
+        if (bubble.userData && bubble.userData.isGrabbed) {
+          // Keep shader time + scale updates consistent.
+          if (bubble.material && bubble.material.uniforms && bubble.material.uniforms.uTime) {
+            bubble.material.uniforms.uTime.value = elapsedTime;
+          }
+          let s = (Number.isFinite(bubble.userData.baseWorldScale) ? bubble.userData.baseWorldScale : bubble.scale.x) * scaleMult;
+          if (pulseHz > 0) {
+            const p = bubble.userData.sizePhase;
+            const amp = 0.12 * clamp(pulseHz, 0, 1);
+            s *= (1 + amp * Math.sin(elapsedTime * pulseOmega + p));
+          }
+          bubble.scale.set(s, s, s);
+          return;
+        }
+
         // Wobble displacement (non-accumulating): apply delta from previous wobble offset
         const oldOff = bubble.userData.wobbleOffset;
         const phase = bubble.userData.wobblePhase;
@@ -507,7 +789,8 @@
         }
 
         // Pointer attract (gentle drift toward cursor ray intersection)
-        if (rayDir && rayOrg) {
+        const thrownRecently = !!(bubble.userData && bubble.userData.isThrown && (elapsedTime - safeNum(bubble.userData.thrownAt, 0)) < 0.75);
+        if (!thrownRecently && rayDir && rayOrg) {
           const dz = rayDir.z;
           if (Math.abs(dz) > 1e-6) {
             const t = (bubble.position.z - tmpOrigin.z) / dz;
@@ -528,7 +811,8 @@
         tmpVel.copy(baseVel).multiplyScalar(speedMult);
         tmpVel.add(bubble.userData.impulse);
         // Safety: don't allow attraction/impulses to stall or reverse upward travel when speed is enabled.
-        if (speedMult > 0) {
+        // Skip this clamp briefly after a throw so users can fling bubbles downward.
+        if (speedMult > 0 && !thrownRecently) {
           const baseRiseMin = Math.max(0.0015, safeNum(baseVel.y, 0.02) * speedMult * 0.35);
           if (tmpVel.y < baseRiseMin) tmpVel.y = baseRiseMin;
         }
@@ -550,10 +834,18 @@
         }
         bubble.scale.set(s, s, s);
 
-        // Reset if too high
-        if (bubble.position.y > 30) {
+        // Reset if out of bounds (top or flung off-screen)
+        const bnd = computeBoundsAtZ(bubble.position.z);
+        const outX = Math.abs(bubble.position.x) > (bnd.halfW * 1.25);
+        const outY = bubble.position.y > (bnd.halfH * 1.35) || bubble.position.y < (-bnd.halfH * 1.35);
+        if (bubble.position.y > 30 || outX || outY) {
           resetBubble(bubble, index);
           refreshBubbleBaseScale(bubble, { reroll: true });
+          try {
+            bubble.userData.isThrown = false;
+            bubble.userData.thrownAt = 0;
+            bubble.userData.isGrabbed = false;
+          } catch(_) {}
         }
       });
 

@@ -691,15 +691,15 @@
       // Skip if listeners already attached
       if (b.dataset.listenersAttached) return;
       b.dataset.listenersAttached = 'true';
-      
-      b.addEventListener('mouseenter', ()=>{
-        // Freeze bubble position when hovering
+
+      function applyHoldHover(){
+        // Freeze bubble position when hovering/holding
         const currentX = parseFloat(b.style.left) || 0;
         const currentY = parseFloat(b.style.top) || 0;
         if (Number.isFinite(currentX) && Number.isFinite(currentY)) {
           hoveredBubbles.set(b, { x: currentX, y: currentY });
         }
-        
+
         // Get background color from body or errl-bg
         let bgColor = 'rgba(0,200,255,0.7)'; // default
         try {
@@ -717,21 +717,50 @@
             bgColor = bg.replace(/\)$/, ',0.7)').replace(/rgb\(/, 'rgba(');
           }
         } catch(e) {}
-        
+
         // Apply glow & audio
         b.style.setProperty('--hover-glow', bgColor);
         b.style.boxShadow = `0 0 30px rgba(255,255,255,0.9), 0 0 60px ${bgColor}`;
         audioEngine.playHover(i);
         window.errlGLOrbHover && window.errlGLOrbHover(i,true);
-      });
-      b.addEventListener('mouseleave', ()=> {
-        // Unfreeze bubble position when leaving hover
+      }
+
+      function clearHoldHover(){
+        // Unfreeze bubble position when leaving hover/hold
         hoveredBubbles.delete(b);
-        
         // Reset glow
         b.style.boxShadow = '';
         window.errlGLOrbHover && window.errlGLOrbHover(i,false);
+      }
+
+      // Desktop mouse hover remains as-is.
+      b.addEventListener('mouseenter', applyHoldHover);
+      b.addEventListener('mouseleave', clearHoldHover);
+
+      // Touch/pen: press-and-hold hover (active while pointer is down).
+      b.addEventListener('pointerdown', (e)=>{
+        try{
+          if (!e || (e.pointerType !== 'touch' && e.pointerType !== 'pen')) return;
+          // Only primary contact.
+          if (e.isPrimary === false) return;
+          b.dataset.holdPointerId = String(e.pointerId);
+          try { b.setPointerCapture && b.setPointerCapture(e.pointerId); } catch(_) {}
+          applyHoldHover();
+        } catch(_) {}
       });
+      function onPointerUpCancel(e){
+        try{
+          const pid = b.dataset.holdPointerId ? Number(b.dataset.holdPointerId) : null;
+          if (pid != null && e && typeof e.pointerId === 'number' && e.pointerId !== pid) return;
+          delete b.dataset.holdPointerId;
+          clearHoldHover();
+          try { b.releasePointerCapture && b.releasePointerCapture(e.pointerId); } catch(_) {}
+        } catch(_) {}
+      }
+      b.addEventListener('pointerup', onPointerUpCancel);
+      b.addEventListener('pointercancel', onPointerUpCancel);
+      b.addEventListener('lostpointercapture', onPointerUpCancel);
+
       b.addEventListener('click', ()=>{
         if (keyboardNavActive) deactivateKeyboardNav();
       });
@@ -2188,14 +2217,76 @@
     const tabsWrap = document.getElementById('panelTabs');
     const minBtn = document.getElementById('phoneMinToggle');
     const closeBtn = document.getElementById('phone-close-button');
+    const expandBtn = document.getElementById('phone-expand-button');
+    const vibeBar = document.getElementById('phone-vibe-bar');
     const sections = Array.from(panel.querySelectorAll('.panel-section'));
     const toTop = document.getElementById('panelScrollTop');
+
+    const EXPANDED_KEY = 'errl_phone_expanded_v1';
+    const POS_KEY = 'errl_phone_expanded_pos_v1';
+    let expanded = false;
+    let dragging = false;
+    let dragPid = null;
+    let dragSX = 0, dragSY = 0, startLeft = 0, startTop = 0;
 
     function lockPanelToCorner() {
       panel.style.left = 'auto';
       panel.style.top = 'auto';
       panel.style.right = '10px';
       panel.style.bottom = '10px';
+    }
+
+    function enforcePanelInViewport(margin){
+      const m = (typeof margin === 'number') ? margin : 10;
+      const vw = window.innerWidth || document.documentElement.clientWidth || 1200;
+      const vh = window.innerHeight || document.documentElement.clientHeight || 800;
+      const r = panel.getBoundingClientRect();
+      if (!r || !Number.isFinite(r.width) || !Number.isFinite(r.height)) return;
+      const left = Math.max(m, Math.min(r.left, vw - r.width - m));
+      const top = Math.max(m, Math.min(r.top, vh - r.height - m));
+      panel.style.left = Math.round(left) + 'px';
+      panel.style.top = Math.round(top) + 'px';
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+    }
+
+    function undockFromCorner(){
+      // Convert current corner-locked position into explicit left/top so dragging works.
+      const r = panel.getBoundingClientRect();
+      panel.style.left = Math.round(r.left) + 'px';
+      panel.style.top = Math.round(r.top) + 'px';
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+    }
+
+    function applyExpandedState(){
+      panel.classList.toggle('expanded', expanded);
+      if (expandBtn) {
+        expandBtn.textContent = expanded ? '⤡' : '⤢';
+        expandBtn.title = expanded ? 'Collapse to corner' : 'Expand (desktop drag)';
+      }
+      if (!expanded) {
+        // Back to docked behavior.
+        try { localStorage.setItem(EXPANDED_KEY, '0'); } catch(_) {}
+        lockPanelToCorner();
+        return;
+      }
+      try { localStorage.setItem(EXPANDED_KEY, '1'); } catch(_) {}
+      undockFromCorner();
+      // Restore last position if present.
+      try {
+        const raw = localStorage.getItem(POS_KEY);
+        if (raw) {
+          const p = JSON.parse(raw);
+          if (p && Number.isFinite(p.left) && Number.isFinite(p.top)) {
+            panel.style.left = Math.round(p.left) + 'px';
+            panel.style.top = Math.round(p.top) + 'px';
+            panel.style.right = 'auto';
+            panel.style.bottom = 'auto';
+          }
+        }
+      } catch(_) {}
+      enforcePanelInViewport(10);
     }
 
     function activateTab(key){
@@ -2242,7 +2333,7 @@
     function restorePanel() {
       panel.classList.remove('minimized');
       clearMinimizedInlineStyles();
-      lockPanelToCorner();
+      if (!expanded) lockPanelToCorner();
       // Show content again (CSS handles layout)
       const headerEl = panel.querySelector('.panel-header');
       const tabsEl = panel.querySelector('.panel-tabs');
@@ -2280,6 +2371,17 @@
         }
       });
     }
+
+    // expand button - toggle expanded mode (desktop-focused)
+    if (expandBtn){
+      expandBtn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        e.preventDefault();
+        if (panel.classList.contains('minimized')) restorePanel();
+        expanded = !expanded;
+        applyExpandedState();
+      });
+    }
     // restore from minimized when clicking the bubble
     panel.addEventListener('click', (e)=>{
       if (panel.classList.contains('minimized')) {
@@ -2291,8 +2393,63 @@
     });
 
     // Keep the main phone panel locked to the corner.
-    lockPanelToCorner();
-    window.addEventListener('resize', lockPanelToCorner);
+    // Load persisted expanded state (best-effort)
+    try { expanded = localStorage.getItem(EXPANDED_KEY) === '1'; } catch(_) { expanded = false; }
+    applyExpandedState();
+    if (!expanded) lockPanelToCorner();
+    window.addEventListener('resize', ()=>{
+      if (expanded) enforcePanelInViewport(10);
+      else lockPanelToCorner();
+    });
+
+    // Drag handle (desktop): vibe bar
+    function isDesktopPointer(e){
+      return e && (e.pointerType === 'mouse');
+    }
+    function onDown(e){
+      if (!expanded) return;
+      if (panel.classList.contains('minimized')) return;
+      if (!isDesktopPointer(e)) return;
+      dragging = true;
+      dragPid = e.pointerId;
+      const r = panel.getBoundingClientRect();
+      dragSX = e.clientX;
+      dragSY = e.clientY;
+      startLeft = r.left;
+      startTop = r.top;
+      undockFromCorner();
+      try { vibeBar && vibeBar.setPointerCapture && vibeBar.setPointerCapture(e.pointerId); } catch(_) {}
+      panel.classList.add('dragging');
+    }
+    function onMove(e){
+      if (!dragging) return;
+      if (e.pointerId !== dragPid) return;
+      const dx = e.clientX - dragSX;
+      const dy = e.clientY - dragSY;
+      panel.style.left = Math.round(startLeft + dx) + 'px';
+      panel.style.top = Math.round(startTop + dy) + 'px';
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+      enforcePanelInViewport(10);
+    }
+    function onUp(e){
+      if (!dragging) return;
+      if (e.pointerId !== dragPid) return;
+      dragging = false;
+      panel.classList.remove('dragging');
+      try { vibeBar && vibeBar.releasePointerCapture && vibeBar.releasePointerCapture(e.pointerId); } catch(_) {}
+      // Persist expanded position
+      try {
+        const r = panel.getBoundingClientRect();
+        localStorage.setItem(POS_KEY, JSON.stringify({ left: r.left, top: r.top }));
+      } catch(_) {}
+    }
+    if (vibeBar){
+      vibeBar.addEventListener('pointerdown', onDown);
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
+    }
 
     // scroll-to-top button - use content wrapper for scrolling
     const contentWrapper = panel.querySelector('.panel-content-wrapper');

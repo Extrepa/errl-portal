@@ -62,7 +62,10 @@ a { color: inherit; text-decoration: none; }
   max-width: 100vw;
   max-height: 100vh;
   z-index: 2; /* L2: rising background bubbles */
-  pointer-events:none;
+  /* Allow direct pointer interaction (grab/throw). */
+  pointer-events: auto;
+  /* Prevent browser scrolling/zooming from hijacking drags on touch. */
+  touch-action: none;
   background: transparent;
 }
 
@@ -292,6 +295,8 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   user-select: none;
   cursor: pointer;
   pointer-events: auto;
+  /* Faster taps on mobile; prevent double-tap zoom delays. */
+  touch-action: manipulation;
   /* z-index set dynamically by JS to layer bubbles in front/behind Errl */
   animation: wobble 3s ease-in-out infinite, bubbleShine 8s ease-in-out infinite;
   animation-duration: calc(3s * var(--motionMultiplier, 1)), calc(8s * var(--motionMultiplier, 1));
@@ -650,6 +655,47 @@ body.perf-safe *::after {
   background: rgba(255, 0, 0, 0.2);
   text-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
 }
+
+/* Expand button (desktop) - sits next to close */
+#phone-expand-button{
+  position: absolute;
+  /* Place in opposite corner to avoid covering top-right tab (Pin). */
+  left: calc(4px * var(--panel-scale));
+  top: calc(4px * var(--panel-scale));
+  width: calc(20px * var(--panel-scale));
+  height: calc(20px * var(--panel-scale));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(14px * var(--panel-scale));
+  color: rgba(var(--errl-text-rgb), 0.9);
+  cursor: pointer;
+  z-index: 100;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+  line-height: 1;
+  font-weight: bold;
+  background: rgba(var(--errl-bg-rgb), 0.3);
+  border-radius: 50%;
+}
+#phone-expand-button:hover{
+  color: rgba(var(--errl-neon-cyan-rgb), 0.95);
+  transform: scale(1.2);
+  background: rgba(var(--errl-accent-rgb), 0.18);
+  text-shadow: 0 0 8px rgba(var(--errl-accent-rgb), 0.8);
+}
+
+/* Expanded phone: larger + draggable on desktop */
+.errl-panel.expanded{
+  --panel-scale: 1.8;
+}
+.errl-panel.expanded #phone-expand-button{
+  /* collapse glyph */
+  font-size: calc(13px * var(--panel-scale));
+}
+
+/* Hide expand control when minimized (bubble state). */
+.errl-panel.minimized #phone-expand-button{ display:none !important; }
 
 .panel-header {
   display: none; /* Hide original header, using vibe bar instead */

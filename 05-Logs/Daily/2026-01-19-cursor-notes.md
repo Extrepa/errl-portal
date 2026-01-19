@@ -229,3 +229,81 @@ Implementation is **solid and production-ready**. The code follows best practice
   - `help-text-tabs`
   - `rb-attract-lateral`
   - `notes`
+
+---
+
+## Touch interactions + RB grab/throw
+
+**Date**: 2026-01-19  
+**Scope**: Ensure key interactions work on touch; add grab/throw + flick impulse for Rising Bubbles.
+
+### Touch support updates
+- `src/apps/landing/scripts/portal-app.js`
+  - Nav bubble hover effects now support **press-and-hold on touch/pen** via pointer events + pointer capture.
+  - Desktop mouse hover remains unchanged (`mouseenter`/`mouseleave`).
+- `src/apps/landing/styles/styles.css`
+  - Added `touch-action: manipulation` to `.bubble` to keep taps responsive on mobile.
+
+### Rising Bubbles grab/throw
+- `src/apps/landing/scripts/rise-bubbles-three.js`
+  - Added canvas (`#riseBubbles`) pointer interactions:
+    - **Grab + drag** a bubble (raycast pick), then **release to throw** using estimated release velocity.
+    - **Flick impulse**: fast swipe near a bubble applies an impulse without sticky dragging.
+  - Added “thrown” window that bypasses the upward-min clamp briefly so downward/side throws feel natural.
+  - Added off-screen bounds reset (x/y) so flung bubbles respawn cleanly.
+- `src/apps/landing/styles/styles.css`
+  - Enabled pointer input for `#riseBubbles` and set `touch-action: none` so drags don’t trigger browser gestures.
+
+### Quick verification (manual)
+- On mobile/touch:
+  - Press-and-hold a nav bubble: glow + freeze while held; releasing clears.
+  - Drag a Rising Bubble: it follows finger; release throws; bubble respawns after leaving bounds.
+  - Flick near a Rising Bubble: it should kick off-screen with a noticeable impulse.
+
+### Follow-up (RB tab tips)
+- `src/index.html`
+  - Added RB tab inline tips describing **grab/throw** and **flick** interactions (touch + mouse).
+
+### Double-check notes (touch + throw)
+- Verified RB tab tips are placed in **RB Basic**: one helper line under the section label and one helper line above Attract/Ripples.
+- Verified nav bubble press-and-hold uses pointer capture and clears on `pointerup`/`pointercancel`/`lostpointercapture`.
+- Verified Rising Bubbles interaction design avoids conflicts:
+  - Canvas handlers use `preventDefault` only for touch/pen and only during interaction.
+  - Ripple clicks still work when not interacting (ripple handler bails if `defaultPrevented`).
+  - Thrown bubbles bypass the upward-min clamp briefly so downward throws are possible.
+- Lints checked: no diagnostics for the modified files.
+
+---
+
+## Errl phone expanded + desktop drag
+
+**Date**: 2026-01-19  
+**Scope**: Add a UI control to expand the Errl phone and allow dragging it around on desktop.
+
+### Changes
+- `src/index.html`
+  - Added `#phone-expand-button` next to `#phone-close-button`.
+- `src/apps/landing/styles/styles.css`
+  - Styled the expand button and added `.errl-panel.expanded` scaling.
+- `src/apps/landing/scripts/portal-app.js`
+  - Added expanded mode toggle + persistence (`errl_phone_expanded_v1`).
+  - Added desktop drag via the vibe bar (pointer capture), with viewport clamping and persisted position (`errl_phone_expanded_pos_v1`).
+
+### Quick verification (manual)
+- Desktop: click expand ⤢ → phone grows; drag via the vibe bar; reload should restore position while expanded.
+- Click again (⤡) → collapses back to bottom-right docked behavior.
+
+### Follow-up (expand button placement)
+- Moved `#phone-expand-button` to the opposite corner (top-left) so it doesn't cover the top-right tab area (Pin).
+
+---
+
+## RB throw velocity estimation - fix (history fallback)
+
+**Date**: 2026-01-19  
+**Issue**: When no history sample exceeded the 16ms threshold, the fallback velocity estimate used `arr[arr.length - 2]`, which can overestimate velocity on fast pointer movements.
+
+**Fix**: Updated `estimateVelocityWorldPerSec()` fallback to use the oldest sample (`arr[0]`) to maximize time delta and stabilize throw strength.
+
+### Double-check (expand button placement)
+- Verified `#phone-expand-button` is pinned to **top-left** and hidden in minimized state (`.errl-panel.minimized #phone-expand-button { display:none }`), reducing overlap risk with the top-right tabs.
