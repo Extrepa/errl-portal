@@ -14,7 +14,7 @@ const portalPagesRewritePlugin = () => ({
       if (req.url && req.method === 'GET') {
         // Rewrite root-level portal pages to source location
         // Match paths like /about/, /gallery/, /assets/errl-head-coin/, etc.
-        if (req.url.match(/^\/(about|gallery|assets|games|studio|design|pin-designer)(\/|$)/)) {
+        if (req.url.match(/^\/(about|gallery|assets|games|studio|design|pin-designer|pin-designer-face-only)(\/|$)/)) {
           req.url = `/apps/static/pages${req.url}`;
         }
         // Rewrite /chat to chatbot app
@@ -319,6 +319,7 @@ export default defineConfig(({ command }) => ({
         'studio/svg-colorer/index': resolve(process.cwd(), 'src/apps/static/pages/studio/svg-colorer/index.html'),
         'studio/limewire-simulator/index': resolve(process.cwd(), 'src/apps/static/pages/studio/limewire-simulator/index.html'),
         'pin-designer/index': resolve(process.cwd(), 'src/apps/static/pages/pin-designer/index.html'),
+        'pin-designer-face-only/index': resolve(process.cwd(), 'src/apps/static/pages/pin-designer-face-only/index.html'),
         'chat': resolve(process.cwd(), 'src/apps/chatbot/index.html'),
         'fx/hue-examples': resolve(process.cwd(), 'src/apps/landing/fx/hue-examples.html'),
       },

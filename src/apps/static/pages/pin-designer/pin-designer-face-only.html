@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Errl Pin Designer — Interactive Enamel Mockups (v0.5-embedded)</title>
+<title>Errl Face Designer — Face-Only Customization (v0.6-face-only)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../../../shared/styles/errlDesignSystem.css" />
 <style>
@@ -452,10 +452,8 @@
         <button class="btn ghost panel-toggle" id="togglePanel" title="Show/Hide controls">Panel</button>
         <input id="moldFile" type="file" accept=".svg" style="display:none"/>
         <button class="btn" id="loadBtn" title="Load an SVG mold">Load SVG</button>
-        <button class="btn" id="exportSVG" title="Export current proof as SVG">Export SVG</button>
-        <button class="btn" id="exportPNG" title="Export current proof as PNG">Export PNG</button>
-        <button class="btn" id="exportFaceSVG" title="Export face only as SVG">Export Face SVG</button>
-        <button class="btn" id="exportFacePNG" title="Export face only as PNG">Export Face PNG</button>
+        <button class="btn" id="exportSVG" title="Export face as SVG">Export SVG</button>
+        <button class="btn" id="exportPNG" title="Export face as PNG">Export PNG</button>
       </div>
       <div class="designer-toolbar__right">
         <button class="btn brand" id="saveDesign" title="Save this design to the shared library">Save Design</button>
@@ -470,14 +468,8 @@
     <h2>Style</h2>
     <div class="controls">
       <div>
-        <div class="mini">Plating & Outlines</div>
-        <div id="platingSwatches" class="swatches-grid"></div>
-      </div>
-      <div>
-        <div class="mini">Regions</div>
+        <div class="mini">Face Regions</div>
         <div class="bubble-row" id="bubbleRow">
-          <div class="bubble" data-region="all">All</div>
-          <div class="bubble" data-region="body">Body</div>
           <div class="bubble" data-region="face">Face</div>
           <div class="bubble" data-region="eyeL">Eye L</div>
           <div class="bubble" data-region="eyeR">Eye R</div>
@@ -526,16 +518,12 @@
       </div>
       <div class="row">
         <div>
-          <label>Outline width</label>
-          <input id="outlineW" type="range" min="2" max="20" step="1" value="8"/>
-        </div>
-        <div>
           <label>Wire width</label>
           <input id="wireW" type="range" min="2" max="16" step="1" value="6"/>
         </div>
       </div>
       <div class="wires-actions">
-        <button class="btn" id="resetWires" title="Reset all inner wires and outline to minimums">Reset wires to min</button>
+        <button class="btn" id="resetWires" title="Reset all inner wires to minimums">Reset wires to min</button>
         <button class="btn" id="randomizeDesign" title="Generate a fresh random palette">Randomize design</button>
       </div>
     </div>
@@ -620,8 +608,8 @@
       (function(){
         function currentRegion(){
           var sel = document.querySelector('#bubbleRow .bubble.active, #bubbleRow .bubble.selected');
-          var r = (sel && sel.getAttribute('data-region')) || 'body';
-          return r === 'all' ? 'body' : r;
+          var r = (sel && sel.getAttribute('data-region')) || 'face';
+          return r; // Face-only version: no 'all' option
         }
         var chips = document.querySelectorAll('#glitterChips .finish');
         chips.forEach(function(el){
@@ -767,12 +755,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   const fileInput = document.getElementById('moldFile');
   const exportSVGBtn = document.getElementById('exportSVG');
   const exportPNGBtn = document.getElementById('exportPNG');
-  const exportFaceSVGBtn = document.getElementById('exportFaceSVG');
-  const exportFacePNGBtn = document.getElementById('exportFacePNG');
   const togglePanelBtn = document.getElementById('togglePanel');
   const leftPanel = document.getElementById('leftPanel');
 
-  const platingSwatches = document.getElementById('platingSwatches');
   const colorSwatches   = document.getElementById('colorSwatches');
   const wheel           = document.getElementById('wheel');
 
@@ -780,7 +765,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   const finishRow   = document.getElementById('finishRow');
   const linkFeatures= document.getElementById('linkFeatures');
 
-  const outlineW = document.getElementById('outlineW');
   const wireW    = document.getElementById('wireW');
   const resetWiresBtn = document.getElementById('resetWires');
 
@@ -972,28 +956,25 @@ window.addEventListener('DOMContentLoaded',()=>{
   });
 
   const regionGs = {
-    body:  document.getElementById('region-body'),
     face:  document.getElementById('region-face'),
     eyeL:  document.getElementById('region-eyeL'),
     eyeR:  document.getElementById('region-eyeR'),
     mouth: document.getElementById('region-mouth')
   };
-  const regions = { body:null, face:null, eyeL:null, eyeR:null, mouth:null };
+  const regions = { face:null, eyeL:null, eyeR:null, mouth:null };
 
-  const regionKeys = ['body','face','eyeL','eyeR','mouth'];
+  const regionKeys = ['face','eyeL','eyeR','mouth'];
   const defaultRegionColors = {
-    body: '#7b5cff',
     face: '#f8fafc',
     eyeL: '#0f172a',
     eyeR: '#0f172a',
     mouth: '#ef4444',
   };
   const state = {
-    selected: 'body',
+    selected: 'face',
     plating: '#0a0a0c',
-    wires: { body:6, face:6, eyeL:6, eyeR:6, mouth:6 },
+    wires: { face:6, eyeL:6, eyeR:6, mouth:6 },
     regions: {
-      body:  { finish:'solid',  color:'#7b5cff' },
       face:  { finish:'none',   color:'#ffffff' },
       eyeL:  { finish:'solid',  color:'#000000' },
       eyeR:  { finish:'solid',  color:'#000000' },
@@ -1002,7 +983,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
 
   function targetsFor(region){
-    if(region==='all') return regionKeys;
     if(linkFeatures && linkFeatures.checked && ['eyeL','eyeR','mouth'].includes(region)){
       return ['eyeL','eyeR','mouth'];
     }
@@ -1038,18 +1018,19 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
 
   function setPlating(color){
+    // Face-only version: plating/outline not used, but keep for compatibility
     state.plating = color;
-    outline.setAttribute('stroke', color);
+    const outline = document.getElementById('outline-plating');
+    if(outline) outline.setAttribute('stroke', color);
     Object.values(regionGs).forEach(g=>{
-      g.querySelectorAll('*').forEach(el=>{ el.setAttribute('stroke', color); });
+      if(g) g.querySelectorAll('*').forEach(el=>{ el.setAttribute('stroke', color); });
     });
   }
 
   function updateBubbleFills(){
     document.querySelectorAll('.bubble').forEach(b=>{
       const r = b.dataset.region;
-      const key = (r==='all') ? 'body' : r;
-      const st = state.regions[key];
+      const st = state.regions[r];
       const swatch = (st && st.finish!=='none') ? st.color : 'var(--chip)';
       b.style.background = swatch;
       b.style.color = '#e9edf3';
@@ -1059,10 +1040,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   function selectRegion(region){
     state.selected = region;
     document.querySelectorAll('.bubble').forEach(b=> b.classList.toggle('active', b.dataset.region===region));
-    const key = (region==='all') ? 'body' : region;
-    finishRow.querySelectorAll('.finish').forEach(n=> n.classList.toggle('active', n.dataset.finish===state.regions[key].finish));
-    wheel.value = state.regions[key].color || '#7b5cff';
-    wireW.value = state.wires[key] || wireW.value;
+    finishRow.querySelectorAll('.finish').forEach(n=> n.classList.toggle('active', n.dataset.finish===state.regions[region].finish));
+    wheel.value = state.regions[region].color || '#7b5cff';
+    wireW.value = state.wires[region] || wireW.value;
   }
 
   function findPaintable(node){ return node.querySelector('path,ellipse,circle,polygon,rect') || node; }
@@ -1098,14 +1078,13 @@ window.addEventListener('DOMContentLoaded',()=>{
       }
       const q = sel => doc.querySelector(sel);
       const map = {
-        body:  q('[data-region="body"], #body, #fill-body, path#body-fill'),
         face:  q('[data-region="face"], #face, #fill-face, path#face-fill'),
         eyeL:  q('[data-region="eyeL"], #eyeL, #left-eye, #fill-eyeL, path#eyeL-fill'),
         eyeR:  q('[data-region="eyeR"], #eyeR, #right-eye, #fill-eyeR, path#eyeR-fill'),
         mouth: q('[data-region="mouth"], #mouth, #fill-mouth, path#mouth-fill')
       };
       Object.keys(map).forEach((key)=>{
-        placeInto(key, map[key] || null);
+        if(key !== 'body') placeInto(key, map[key] || null);
         if (!state.regions[key]) {
           state.regions[key] = {
             finish: 'solid',
@@ -1367,13 +1346,13 @@ window.addEventListener('DOMContentLoaded',()=>{
     const outlineWidth = (snapshot.outline && snapshot.outline.strokeWidth) || outline.getAttribute('stroke-width') || '8';
     outline.setAttribute('stroke', outlineStroke);
     outline.setAttribute('stroke-width', outlineWidth);
-    outlineW.value = outlineWidth;
+    // outlineW.value = outlineWidth; // Face-only version: outline control removed
     regionKeys.forEach((key)=>{
       const el = regions[key];
       if (el) el.setAttribute('stroke-width', state.wires[key] || 6);
     });
-    selectRegion(state.selected || 'body');
-    const targetKey = (state.selected === 'all') ? 'body' : state.selected;
+    selectRegion(state.selected || 'face');
+    const targetKey = state.selected;
     wheel.value = (state.regions[targetKey] && state.regions[targetKey].color) || '#7b5cff';
     wireW.value = state.wires[targetKey] || wireW.value;
     applyAll();
@@ -1382,56 +1361,36 @@ window.addEventListener('DOMContentLoaded',()=>{
     captureInitialSnapshot();
   }
 
-  exportSVGBtn.addEventListener('click', ()=>{ const data = buildStandaloneSVG();
+  exportSVGBtn.addEventListener('click', ()=>{ 
+    const data = buildFaceOnlySVG(); // Face-only version: always export face
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([data],{type:'image/svg+xml'}));
-    a.download = 'errl-painted.svg'; document.body.appendChild(a); a.click(); a.remove();
-  });
-
-  exportPNGBtn.addEventListener('click', ()=>{
-    const data = buildStandaloneSVG();
-    const blob = new Blob([data],{type:'image/svg+xml'});
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.onload = ()=>{ const scale = window.devicePixelRatio>1 ? 2 : 1;
-      const c = document.createElement('canvas'); c.width = img.width * scale; c.height = img.height * scale;
-      const ctx2d = c.getContext('2d'); ctx2d.drawImage(img,0,0,c.width,c.height);
-      c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='errl-painted.png'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }, 'image/png');
-    };
-    img.onerror = ()=> alert('PNG export failed to render the SVG.');
-    img.src = url;
-  });
-
-  exportFaceSVGBtn.addEventListener('click', ()=>{
-    const data = buildFaceOnlySVG();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([data],{type:'image/svg+xml'}));
-    a.download = 'errl-face.svg';
-    document.body.appendChild(a);
-    a.click();
+    a.download = 'errl-face.svg'; 
+    document.body.appendChild(a); 
+    a.click(); 
     a.remove();
   });
 
-  exportFacePNGBtn.addEventListener('click', ()=>{
-    const data = buildFaceOnlySVG();
+  exportPNGBtn.addEventListener('click', ()=>{
+    const data = buildFaceOnlySVG(); // Face-only version: always export face
     const blob = new Blob([data],{type:'image/svg+xml'});
     const url = URL.createObjectURL(blob);
     const img = new Image();
-    img.onload = ()=>{
+    img.onload = ()=>{ 
       const scale = window.devicePixelRatio>1 ? 2 : 1;
-      const c = document.createElement('canvas');
-      c.width = img.width * scale;
+      const c = document.createElement('canvas'); 
+      c.width = img.width * scale; 
       c.height = img.height * scale;
-      const ctx2d = c.getContext('2d');
+      const ctx2d = c.getContext('2d'); 
       ctx2d.drawImage(img,0,0,c.width,c.height);
-      c.toBlob(b=>{
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(b);
-        a.download = 'errl-face.png';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+      c.toBlob(b=>{ 
+        const a=document.createElement('a'); 
+        a.href=URL.createObjectURL(b); 
+        a.download='errl-face.png'; 
+        document.body.appendChild(a); 
+        a.click(); 
+        a.remove(); 
+        URL.revokeObjectURL(url); 
       }, 'image/png');
     };
     img.onerror = ()=> alert('PNG export failed to render the SVG.');
@@ -1445,13 +1404,15 @@ window.addEventListener('DOMContentLoaded',()=>{
     {label:'Antique Gold',stroke:'#b08d3b'},{label:'Antique Silver',stroke:'#9aa3b2'},
     {label:'Blue Anodized',stroke:'#2f7de1'},{label:'Teal Anodized',stroke:'#11a39a'},{label:'Purple Anodized',stroke:'#6a43ff'},{label:'Rainbow Anodized',stroke:'#ff6ad5'}
   ];
-  function renderPlating(){ platingSwatches.innerHTML='';
-    platingOpts.forEach(opt=>{ const wrap=document.createElement('div'); wrap.className='swatchwrap';
-      const box=document.createElement('div'); box.className='swatch';
-      const span=document.createElement('span'); span.style.background=opt.stroke; box.appendChild(span);
-      box.title=opt.label; box.addEventListener('click',()=> setPlating(opt.stroke));
-      const lbl=document.createElement('div'); lbl.className='swatch-label'; lbl.textContent=opt.label;
-      wrap.appendChild(box); wrap.appendChild(lbl); platingSwatches.appendChild(wrap); });
+  function renderPlating(){ 
+    // Face-only version: plating controls removed, function kept for compatibility
+    // platingSwatches.innerHTML='';
+    // platingOpts.forEach(opt=>{ const wrap=document.createElement('div'); wrap.className='swatchwrap';
+    //   const box=document.createElement('div'); box.className='swatch';
+    //   const span=document.createElement('span'); span.style.background=opt.stroke; box.appendChild(span);
+    //   box.title=opt.label; box.addEventListener('click',()=> setPlating(opt.stroke));
+    //   const lbl=document.createElement('div'); lbl.className='swatch-label'; lbl.textContent=opt.label;
+    //   wrap.appendChild(box); wrap.appendChild(lbl); platingSwatches.appendChild(wrap); });
   }
 
   const palette=['#000000','#ffffff','#7b5cff','#6a43ff','#8b5cf6','#a78bfa','#e879f9','#22c55e','#10b981','#059669','#3b82f6','#2563eb','#0ea5e9','#06b6d4','#14b8a6','#f59e0b','#eab308','#fde047','#ef4444','#f87171','#fb7185','#f97316','#fb923c','#94a3b8','#64748b'];
@@ -1487,7 +1448,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   function showCtx(x,y,region){
     selectRegion(region);
     ctxRegionLabel.textContent = region.toUpperCase();
-    ctxColor.value = state.regions[(region==='all')?'body':region].color || '#7b5cff';
+    ctxColor.value = state.regions[region].color || '#7b5cff'; // Face-only version: no 'all' option
     ctx.style.left = x+'px'; ctx.style.top = y+'px'; ctx.style.display='block';
   }
   function hideCtx(){ ctx.style.display='none'; }
@@ -1497,22 +1458,23 @@ window.addEventListener('DOMContentLoaded',()=>{
   wireW.addEventListener('input', ()=>{
     targetsFor(state.selected).forEach(r=>{ const el=regions[r]; if(el){ el.setAttribute('stroke-width', wireW.value); state.wires[r]=+wireW.value; }});
   });
-  outlineW.addEventListener('input', ()=>{ outline.setAttribute('stroke-width', outlineW.value); });
+  // outlineW.addEventListener('input', ()=>{ outline.setAttribute('stroke-width', outlineW.value); }); // Face-only version: outline control removed
   resetWiresBtn.addEventListener('click', ()=>{
-    const wireMin = +wireW.min; const outMin = +outlineW.min;
+    const wireMin = +wireW.min;
     regionKeys.forEach(r=>{ const el=regions[r]; if(el){ el.setAttribute('stroke-width', wireMin); state.wires[r]=wireMin; }});
-    outline.setAttribute('stroke-width', outMin);
-    wireW.value = wireMin; outlineW.value = outMin;
+    // outline.setAttribute('stroke-width', outMin); // Face-only version: outline control removed
+    wireW.value = wireMin;
   });
 
   function randomizeDesign(){
     const platingOpt = randomChoice(platingOpts);
     if(platingOpt){ setPlating(platingOpt.stroke); }
-    const outlineMin = +outlineW.min || 2;
-    const outlineMax = +outlineW.max || 20;
-    const nextOutline = randomInt(outlineMin, outlineMax);
-    outlineW.value = nextOutline;
-    outline.setAttribute('stroke-width', nextOutline);
+    // Face-only version: outline randomization removed
+    // const outlineMin = +outlineW.min || 2;
+    // const outlineMax = +outlineW.max || 20;
+    // const nextOutline = randomInt(outlineMin, outlineMax);
+    // outlineW.value = nextOutline;
+    // outline.setAttribute('stroke-width', nextOutline);
 
     const finishes = ['solid','glow','glitter'];
     const wireMin = +wireW.min || 2;
@@ -1530,9 +1492,9 @@ window.addEventListener('DOMContentLoaded',()=>{
       }
       applyPaint(key);
     });
-    selectRegion('body');
-    wheel.value = state.regions.body?.color || '#7b5cff';
-    wireW.value = state.wires.body || wireW.value;
+    selectRegion('face');
+    wheel.value = state.regions.face?.color || '#7b5cff';
+    wireW.value = state.wires.face || wireW.value;
     updateBubbleFills();
     fitView();
   }
@@ -1653,7 +1615,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   function applyPreset(name){
     const p = presets[name]; if(!p) return;
     setPlating(p.plating);
-    outlineW.value = p.outlineW; outline.setAttribute('stroke-width', p.outlineW);
+    // outlineW.value = p.outlineW; outline.setAttribute('stroke-width', p.outlineW); // Face-only version: outline control removed
     regionKeys.forEach(k=>{
       const cfg = p.regions[k]; if(!cfg) return;
       state.regions[k].finish = cfg.finish; state.regions[k].color = cfg.color; state.wires[k] = cfg.wire;
@@ -1763,7 +1725,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderPalette();
   bindFinishRow(finishRow);
   bindFinishRow(ctxFinishRow);
-  selectRegion('body');
+  selectRegion('face');
   updateBubbleFills();
 
   loadDefaultMold().catch(()=> fitView());
