@@ -152,6 +152,33 @@ const replaceBaseUrlPlugin = () => ({
   },
 });
 
+const copyIframeHtmlFilesPlugin = () => ({
+  name: 'copy-iframe-html-files',
+  apply: 'build',
+  // Run after reorganizeBuildOutputPlugin by using a later hook
+  writeBundle() {
+    const distDir = resolve(process.cwd(), 'dist');
+    const srcPagesDir = resolve(process.cwd(), 'src/apps/static/pages');
+    
+    // Copy HTML files that are loaded in iframes to their final locations
+    // These files need to be in the same directories as their index.html files
+    const iframeHtmlFiles = [
+      { src: resolve(srcPagesDir, 'pin-designer/pin-designer.html'), dest: resolve(distDir, 'pin-designer/pin-designer.html') },
+      { src: resolve(srcPagesDir, 'pin-designer/pin-designer-face-only.html'), dest: resolve(distDir, 'pin-designer/pin-designer-face-only.html') },
+    ];
+    
+    for (const { src, dest } of iframeHtmlFiles) {
+      if (existsSync(src)) {
+        const destDir = pathDirname(dest);
+        if (!existsSync(destDir)) {
+          mkdirSync(destDir, { recursive: true });
+        }
+        cpSync(src, dest);
+      }
+    }
+  },
+});
+
 const reorganizeBuildOutputPlugin = () => ({
   name: 'reorganize-build-output',
   apply: 'build',
@@ -266,7 +293,8 @@ export default defineConfig(({ command }) => ({
     copySharedStylesPlugin(), 
     copyRedirectsPlugin(), 
     replaceBaseUrlPlugin(), 
-    reorganizeBuildOutputPlugin()
+    reorganizeBuildOutputPlugin(),
+    copyIframeHtmlFilesPlugin()
   ],
   // Use root base path for custom domain (errl.wtf)
   base: '/',
