@@ -126,11 +126,11 @@
     return {
       version: 1,
       ui,
-      hue: { layers: {} },
-      gl: { overlay: {}, bubbles: {} },
-      nav: { goo: {} },
-      rb: {},
-      goo: {}
+      hue: (repo.hue && typeof repo.hue === 'object') ? repo.hue : { layers: {} },
+      gl: (repo.gl && typeof repo.gl === 'object') ? repo.gl : { overlay: {}, bubbles: {} },
+      nav: (repo.nav && typeof repo.nav === 'object') ? repo.nav : { goo: {} },
+      rb: (repo.rb && typeof repo.rb === 'object') ? repo.rb : {},
+      goo: (repo.goo && typeof repo.goo === 'object') ? repo.goo : {}
     };
   }
 
@@ -2002,17 +2002,18 @@
       if (!defaults){
         defaults = {
           // RB defaults
-          rbSpeed: '1', rbDensity: '1', rbScale: '1.0', rbAlpha: '0.95', rbWobble: '1', rbFreq: '1',
-          rbMin: '14', rbMax: '36', rbSizeHz: '0', rbJumboPct: '0.1', rbJumboScale: '1.6',
-          rbAttract: true, rbAttractIntensity: '1.0',
-          rbRipples: false, rbRippleIntensity: '1.2',
+          rbSpeed: '1.03', rbDensity: '1.46', rbScale: '1', rbAlpha: '0.87', rbWobble: '0.98', rbFreq: '0.95',
+          rbMin: '14', rbMax: '36', rbSizeHz: '0.67', rbJumboPct: '0.33', rbJumboScale: '1.95',
+          rbAttract: false, rbAttractIntensity: '0.4',
+          rbRipples: false, rbRippleIntensity: '0.8',
+          rbAdvAnimSpeed: '0.10',
           // Goo defaults
-          classicGooEnabled: true, classicGooStrength: '0.5', classicGooWobble: '0.5', classicGooSpeed: '0.5',
+          classicGooEnabled: true, classicGooStrength: '0.187', classicGooWobble: '0.432', classicGooSpeed: '0.201',
           classicGooStrengthAuto: true, classicGooWobbleAuto: true, classicGooSpeedAuto: true,
-          classicGooAutoSpeed: '0.05', classicGooMouseReact: true,
+          classicGooAutoSpeed: '0.16', classicGooMouseReact: true,
           // Nav defaults
-          navOrbitSpeed: '1.0', navRadius: '1.2', navOrbSize: '1.05',
-          navWiggle: '0.4', navFlow: '0.8', navGrip: '0.5', navDrip: '-0.5', navVisc: '0.9',
+          navOrbitSpeed: '1', navRadius: '1.26', navOrbSize: '1.22',
+          navWiggle: '0.57', navFlow: '1.07', navGrip: '0.35', navDrip: '-0.02', navVisc: '0.26',
           glOrbsToggle: true,
           // GLB defaults
           bgSpeed: '0.9', bgDensity: '1.2', glAlpha: '0.85',
@@ -2020,9 +2021,9 @@
           shimmerToggle: false, vignetteToggle: false,
           glOverlayAlpha: '0.28', glOverlayDX: '24', glOverlayDY: '18',
           // Errl defaults
-          errlSize: '1.0',
+          errlSize: '1', errlOutlineThickness: '2.5',
           // Hue defaults
-          hueEnabled: false, hueShift: '0', hueSat: '1', hueInt: '1', hueTimeline: '0',
+          hueEnabled: false, hueShift: '158', hueSat: '0.9', hueInt: '1', hueTimeline: '0',
           // Audio defaults
           audioEnabled: true, audioMaster: '0.4', audioBass: '0.2',
           // A11y defaults
