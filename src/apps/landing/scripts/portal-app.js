@@ -2066,7 +2066,32 @@
       // Persist bundle so Reset behaves like a clean baseline.
       try{
         const ui = (defaults && typeof defaults === 'object') ? defaults : {};
-        setBundle({ version: 1, ui, hue: { layers: {} } });
+        setBundle({ 
+          version: 1, 
+          ui, 
+          hue: {
+            layers: {
+              background: { hue: 0, saturation: 1, intensity: 1, enabled: false },
+              riseBubbles: { hue: 0, saturation: 1.23, intensity: 0.49, enabled: false },
+              nav: { hue: 0, saturation: 0.9, intensity: 1, enabled: false },
+              glOverlay: { hue: 0, saturation: 1, intensity: 1, enabled: false },
+              bgBubbles: { hue: 0, saturation: 0.46, intensity: 0.68, enabled: false }
+            }
+          },
+          rb: {
+            speed: 1.03, density: 1.46, scale: 1, alpha: 0.87, wobble: 0.98, freq: 0.95,
+            min: 14, max: 36, sizeHz: 0.67, jumboPct: 0.33, jumboScale: 1.95,
+            attract: false, attractIntensity: 0.4, ripples: false, rippleIntensity: 0.8
+          },
+          gl: {
+            bubbles: { speed: 0.9, density: 1.2, alpha: 0.85 }
+          },
+          goo: {
+            auto: { rate: 0.16, strength: true, wobble: true, speed: true },
+            mouseReactive: true
+          },
+          nav: { goo: {} }
+        });
       }catch(_){}
       
       alert('Defaults reset. All settings restored to stock values.');

@@ -19,27 +19,8 @@ The user provided a JSON settings file (`errl-portal-settings_2026-01-28T03-27-0
 3.  **Updated `src/index.html`**:
     *   Updated hardcoded `value` and `checked` attributes for all relevant controls in the settings panel to match the new defaults. This ensures the UI reflects the defaults immediately on load.
 
-### Key New Default Values:
-- `rbSpeed`: 1.03
-- `rbDensity`: 1.46
-- `rbAlpha`: 0.87
-- `rbWobble`: 0.98
-- `rbFreq`: 0.95
-- `rbSizeHz`: 0.67
-- `rbJumboPct`: 0.33
-- `rbJumboScale`: 1.95
-- `rbAttract`: false
-- `navRadius`: 1.26
-- `navOrbSize`: 1.22
-- `navWiggle`: 0.57
-- `navFlow`: 1.07
-- `navGrip`: 0.35
-- `navDrip`: -0.02
-- `navVisc`: 0.26
-- `errlOutlineThickness`: 2.5
-- `hueShift`: 158
-- `hueSat`: 0.9
-- `classicGooStrength`: 0.187
-- `classicGooWobble`: 0.432
-- `classicGooSpeed`: 0.201
-- `classicGooAutoSpeed`: 0.16
+### Double-Check Verification (Update):
+- **Verification against source JSON**: All values in `errl-defaults.json`, `portal-app.js` (baked defaults), and `index.html` (hardcoded defaults) have been cross-referenced with `errl-portal-settings_2026-01-28T03-27-06-062Z.json`.
+- **Reset Logic Enhanced**: Updated the `resetDefaults` function in `portal-app.js` to not only update the UI controls but also persist the full state bundle (including Hue layers, Rising Bubbles physics, and GL parameters) to `localStorage`. This ensures that a "Reset" truly returns the app to the state provided by the user, even in the absence of a network connection to load the external config.
+- **UI Consistency**: Verified that all checkboxes (e.g., `rbAttract`, `rbRipples`) and range sliders correctly reflect the new defaults in the HTML source, providing a seamless initial load experience.
+- **Pushing Changes**: All verified changes have been pushed to `origin/main`.
