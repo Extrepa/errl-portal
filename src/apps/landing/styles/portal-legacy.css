@@ -35,6 +35,9 @@ html.portal-legacy .bubble {
     inset 0 2px 8px rgba(255, 255, 255, 0.25);
   -webkit-animation: none;
   animation: none;
+  /* Match portal-app: left/top are orbit centers; wobble normally supplies translate(-50%,-50%). */
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 
 html.portal-legacy .bubble::before {

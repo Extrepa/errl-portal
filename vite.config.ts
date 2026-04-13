@@ -327,6 +327,8 @@ export default defineConfig(({ command }) => ({
   build: {
     outDir: resolve(process.cwd(), 'dist'),
     emptyOutDir: true,
+    // Transpile optional chaining / nullish coalescing for Safari < 13 (iOS 10.3–12 still use type=module).
+    target: 'safari12',
     rollupOptions: {
       input: {
         main: resolve(process.cwd(), 'src/index.html'),

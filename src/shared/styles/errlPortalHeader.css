@@ -121,7 +121,10 @@
 .errl-bubble-btn::before {
   content: '';
   position: absolute;
-  inset: -2px;
+  top: -2px;
+  right: -2px;
+  bottom: -2px;
+  left: -2px;
   border-radius: 999px;
   padding: 2px;
   background: linear-gradient(
@@ -178,6 +181,51 @@
   }
 }
 
+/* Old WebKit: no clamp() / aspect-ratio (Safari < 13.1) */
+@supports not (font-size: clamp(1px, 2vw, 16px)) {
+  .errl-bubble-btn {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 900px) {
+  @supports not (font-size: clamp(1px, 2vw, 16px)) {
+    .errl-bubble-btn {
+      font-size: 0.72rem;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  @supports not (font-size: clamp(1px, 2vw, 16px)) {
+    .errl-bubble-btn {
+      font-size: 0.65rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  @supports not (font-size: clamp(1px, 2vw, 16px)) {
+    .errl-bubble-btn {
+      font-size: 0.58rem;
+    }
+  }
+}
+
+@supports not (aspect-ratio: 1 / 1) {
+  @media (max-width: 640px) {
+    .errl-bubble-btn {
+      min-height: 2.75rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .errl-bubble-btn {
+      min-height: 2.5rem;
+    }
+  }
+}
+
 @media (max-width: 900px) {
   .errl-header-content {
     flex-wrap: nowrap;
@@ -217,8 +265,9 @@
     height: 38px;
     padding: 0;
     border-radius: 999px;
-    display: inline-grid;
-    place-items: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
     font-size: 0;
     flex-shrink: 0;

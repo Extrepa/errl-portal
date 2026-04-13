@@ -272,26 +272,30 @@
   <script>
     ;(() => {
       const sections = document.querySelectorAll(".drip-section.fade-in");
-      const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("is-visible"); });
-      }, { root: null, rootMargin: "0px 0px -20% 0px", threshold: 0.15 });
-      sections.forEach(sec => revealObserver.observe(sec));
+      if (typeof window.IntersectionObserver === "function") {
+        const revealObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("is-visible"); });
+        }, { root: null, rootMargin: "0px 0px -20% 0px", threshold: 0.15 });
+        sections.forEach(sec => revealObserver.observe(sec));
 
-      let activeSection = null;
-      const glowObserver = new IntersectionObserver((entries) => {
-        let best = null, bestRatio = 0;
-        entries.forEach(entry => { if (entry.intersectionRatio > bestRatio) { bestRatio = entry.intersectionRatio; best = entry.target; } });
-        if (best && best !== activeSection) { if (activeSection) activeSection.classList.remove("glow"); best.classList.add("glow"); activeSection = best; }
-      }, { root: null, threshold: [0.2, 0.4, 0.6, 0.8] });
-      sections.forEach(sec => glowObserver.observe(sec));
+        let activeSection = null;
+        const glowObserver = new IntersectionObserver((entries) => {
+          let best = null, bestRatio = 0;
+          entries.forEach(entry => { if (entry.intersectionRatio > bestRatio) { bestRatio = entry.intersectionRatio; best = entry.target; } });
+          if (best && best !== activeSection) { if (activeSection) activeSection.classList.remove("glow"); best.classList.add("glow"); activeSection = best; }
+        }, { root: null, threshold: [0.2, 0.4, 0.6, 0.8] });
+        sections.forEach(sec => glowObserver.observe(sec));
+      } else {
+        sections.forEach(sec => sec.classList.add("is-visible"));
+      }
 
       const drips = document.querySelectorAll(".drip-divider");
       window.addEventListener("scroll", () => {
         const t = window.scrollY;
         drips.forEach((el, i) => {
           const offset = (t * 0.06) + (i * 8);
-          el.style.filter = `hue-rotate(${offset}deg)`;
-          el.style.transform = `translateY(${Math.sin((t/200)+(i*0.5))*4}px)`;
+          el.style.filter = "hue-rotate(" + offset + "deg)";
+          el.style.transform = "translateY(" + (Math.sin((t/200)+(i*0.5))*4) + "px)";
         });
       });
     })();
@@ -310,7 +314,7 @@
           el.style.bottom = '18px';
           el.style.transform = 'translateX(-50%)';
           el.style.zIndex = '9999';
-          el.style.maxWidth = 'min(92vw, 520px)';
+          el.style.maxWidth = Math.min(window.innerWidth * 0.92, 520) + 'px';
           el.style.padding = '10px 14px';
           el.style.borderRadius = '999px';
           el.style.border = '1px solid rgba(255,255,255,0.22)';
