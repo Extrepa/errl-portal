@@ -1,0 +1,68 @@
+/**
+ * Old WebKit fallbacks when html.portal-legacy is set (nomodule bootstrap).
+ * Avoids clamp(), conic-gradient(), and heavy blend modes that break very old Safari.
+ * Loaded via @import in styles.css so Vite bundles these rules into main CSS.
+ */
+
+html.portal-legacy #bgParticles,
+html.portal-legacy #riseBubbles,
+html.portal-legacy #errlWebGL {
+  display: none !important;
+}
+
+html.portal-legacy .bubble {
+  width: 88px !important;
+  height: 88px !important;
+  min-width: 67px !important;
+  min-height: 67px !important;
+  max-width: 118px !important;
+  max-height: 118px !important;
+  line-height: 88px !important;
+  mix-blend-mode: normal;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  /* Solid fallback then simple gradient (no conic-gradient) */
+  background-color: #2a1f3d;
+  background-image: -webkit-linear-gradient(135deg, rgba(180, 120, 255, 0.9) 0%, rgba(0, 200, 255, 0.75) 50%, rgba(255, 215, 0, 0.7) 100%);
+  background-image: linear-gradient(135deg, rgba(180, 120, 255, 0.9) 0%, rgba(0, 200, 255, 0.75) 50%, rgba(255, 215, 0, 0.7) 100%);
+  -webkit-box-shadow:
+    0 0 16px rgba(180, 120, 255, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    inset 0 2px 8px rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 0 16px rgba(180, 120, 255, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    inset 0 2px 8px rgba(255, 255, 255, 0.25);
+  -webkit-animation: none;
+  animation: none;
+}
+
+html.portal-legacy .bubble::before {
+  display: none;
+}
+
+/* Keep link text readable without relying on keyframe opacity */
+html.portal-legacy .bubble .label,
+html.portal-legacy .bubble span {
+  opacity: 1 !important;
+  -webkit-animation: none;
+  animation: none;
+}
+
+html.portal-legacy .bubble.menuOrb .label {
+  color: #e7ecf5 !important;
+  -webkit-text-fill-color: #e7ecf5 !important;
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  filter: none !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 6px rgba(0, 0, 0, 0.8) !important;
+}
+
+@media screen and (max-width: 480px) {
+  html.portal-legacy .bubble {
+    width: 72px !important;
+    height: 72px !important;
+    line-height: 72px !important;
+  }
+}

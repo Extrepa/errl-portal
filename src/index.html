@@ -663,6 +663,8 @@
     })();
   </script>
 
+  <!-- Classic ES5 orbit for browsers that do not run type=module (pre-iOS 10.3 Safari); skipped when modules are supported -->
+  <script nomodule defer src="./legacy/portal-legacy-bootstrap.js"></script>
   <script defer src="https://unpkg.com/pixi.js@7/dist/pixi.min.js"></script>
   <!-- L0/L2 DOM canvases -->
   <script type="module" src="./apps/landing/scripts/bg-particles.js"></script>

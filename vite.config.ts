@@ -286,6 +286,8 @@ const reorganizeBuildOutputPlugin = () => ({
 // Vite multi-page build rooted at src/
 export default defineConfig(({ command }) => ({
   root: 'src',
+  // Repo-root `public/` (legacy bootstrap, config JSON). Default with root: 'src' would be src/public.
+  publicDir: resolve(__dirname, 'public'),
   plugins: [
     portalPagesRewritePlugin(), 
     copyShapeMadnessContentPlugin(),
