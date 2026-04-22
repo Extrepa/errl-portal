@@ -2,6 +2,11 @@
 (function(){
   const cvs = document.getElementById('riseBubbles');
   if (!cvs) return;
+  try {
+    cvs.style.touchAction = 'none';
+    cvs.style.webkitUserSelect = 'none';
+    cvs.style.userSelect = 'none';
+  } catch(_) {}
 
   // Import Three.js
   import('https://esm.run/three').then((THREE) => {
@@ -293,7 +298,8 @@
       attract: true,
       attractIntensity: 1.0,
       ripples: false,
-      rippleIntensity: 1.2
+      rippleIntensity: 1.2,
+      interactionMode: 'classic'
     };
 
     function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
@@ -318,6 +324,7 @@
     const tmpOffset = new T.Vector3();
     let lastElapsedTime = 0;
     const rippleEvents = []; // { x, y, t }
+    let popCount = 0;
 
     // Grab/throw interaction state (canvas-driven)
     const grabState = {
@@ -336,6 +343,13 @@
       pointerId: null,
       history: [] // { x, y, tMs } in z=0 plane
     };
+    let touchInteractionCount = 0;
+    function setTouchInteractionActive(on){
+      if (on) touchInteractionCount += 1;
+      else touchInteractionCount = Math.max(0, touchInteractionCount - 1);
+      const active = touchInteractionCount > 0;
+      try { document.body && document.body.classList.toggle('rb-touch-active', active); } catch(_) {}
+    }
 
     function nowMs(){ return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now(); }
     function pushHistory(arr, x, y, tMs, max = 6){
@@ -483,6 +497,36 @@
         b.material.opacity = clamp(safeNum(controls.alpha, 0.95), 0, 1);
       });
     }
+    function triggerPop(bubble, pointerClient){
+      if (!bubble || bubble.visible === false) return false;
+      ensureBubbleState(bubble);
+      if (bubble.userData && bubble.userData.poppedUntil && bubble.userData.poppedUntil > lastElapsedTime) return false;
+      bubble.userData.poppedUntil = lastElapsedTime + 0.26;
+      bubble.userData.wasPopped = true;
+      if (bubble.userData.impulse && bubble.userData.impulse.set) bubble.userData.impulse.set(0, 0, 0);
+      rippleEvents.push({ x: bubble.position.x, y: bubble.position.y, t: lastElapsedTime });
+      if (rippleEvents.length > 6) rippleEvents.shift();
+      popCount += 1;
+      const cx = pointerClient && Number.isFinite(pointerClient.clientX) ? pointerClient.clientX : null;
+      const cy = pointerClient && Number.isFinite(pointerClient.clientY) ? pointerClient.clientY : null;
+      try {
+        window.dispatchEvent(new CustomEvent('errl:rb-pop', {
+          detail: {
+            x: bubble.position.x,
+            y: bubble.position.y,
+            popCount,
+            clientX: cx,
+            clientY: cy
+          }
+        }));
+      } catch(_) {}
+      return true;
+    }
+    function popAnyVisibleBubble(){
+      const target = bubbles.find((b) => b && b.visible !== false);
+      if (!target) return false;
+      return triggerPop(target);
+    }
 
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -530,6 +574,7 @@
         // Prevent ripple handler + browser gestures during active interaction
         if (e.pointerType === 'touch' || e.pointerType === 'pen') {
           try { e.preventDefault(); } catch(_) {}
+          setTouchInteractionActive(true);
         }
 
         const ndc = getNdcFromEvent(e);
@@ -544,6 +589,10 @@
           const hits = pickRaycaster.intersectObjects(bubbles, false);
           const hit = hits && hits.length ? hits.find(h => h && h.object && h.object.visible !== false) : null;
           if (hit && hit.object) {
+            if (controls.interactionMode === 'pop') {
+              triggerPop(hit.object, { clientX: e.clientX, clientY: e.clientY });
+              return;
+            }
             grabState.active = true;
             grabState.pointerId = e.pointerId;
             grabState.bubble = hit.object;
@@ -619,8 +668,14 @@
 
     function endInteraction(e){
       try {
+        if (e && (e.pointerType === 'touch' || e.pointerType === 'pen')) {
+          setTouchInteractionActive(false);
+        }
         const ndc = e ? getNdcFromEvent(e) : null;
         if (ndc) { pointer.x = ndc.x; pointer.y = ndc.y; }
+        if (e && (e.pointerType === 'touch' || e.pointerType === 'pen')) {
+          pointer.active = false;
+        }
 
         // Release grab -> throw impulse.
         if (grabState.active && grabState.pointerId === (e && e.pointerId) && grabState.bubble) {
@@ -702,6 +757,8 @@
     cvs.addEventListener('pointerup', endInteraction, { passive: true });
     cvs.addEventListener('pointercancel', endInteraction, { passive: true });
     cvs.addEventListener('lostpointercapture', endInteraction, { passive: true });
+    window.addEventListener('pointerup', endInteraction, { passive: true });
+    window.addEventListener('pointercancel', endInteraction, { passive: true });
 
     const clock = new T.Clock();
     function animate() {
@@ -752,6 +809,17 @@
           }
           bubble.scale.set(s, s, s);
           return;
+        }
+
+        if (bubble.userData && bubble.userData.poppedUntil && bubble.userData.poppedUntil > elapsedTime) {
+          bubble.scale.set(0.0001, 0.0001, 0.0001);
+          return;
+        }
+        if (bubble.userData && bubble.userData.wasPopped && bubble.userData.poppedUntil && bubble.userData.poppedUntil <= elapsedTime) {
+          bubble.userData.wasPopped = false;
+          bubble.userData.poppedUntil = 0;
+          resetBubble(bubble, index);
+          refreshBubbleBaseScale(bubble, { reroll: true });
         }
 
         // Wobble displacement (non-accumulating): apply delta from previous wobble offset
@@ -923,11 +991,23 @@
       setRippleIntensity(value) {
         controls.rippleIntensity = clamp(safeNum(value, 1.2), 0, 2);
       },
+      setInteractionMode(value) {
+        controls.interactionMode = (value === 'pop') ? 'pop' : 'classic';
+      },
+      popAnyVisible() {
+        return popAnyVisibleBubble();
+      },
       getControls() {
         // Provide both names for compatibility
         return {
           ...controls,
           count: controls.density
+        };
+      },
+      getStats() {
+        return {
+          popCount,
+          interactionMode: controls.interactionMode
         };
       },
       getActiveCount() {

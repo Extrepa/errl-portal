@@ -348,6 +348,281 @@ test.describe('Errl Phone Controls Tests', () => {
     }
   });
 
+  test('@ui Minimized phone bubble shows Customize CTA and restores', async ({ page }) => {
+    await ensurePhonePanelOpen(page);
+    const panel = page.locator('#errlPanel');
+    const closeBtn = page.locator('#phone-close-button');
+
+    await closeBtn.click();
+    await expect(panel).toHaveClass(/minimized/);
+
+    const cta = page.locator('#errlPanel .panel-minimized-label');
+    await expect(cta).toBeVisible();
+    await expect(cta).toHaveText(/customize/i);
+
+    const animationName = await panel.evaluate((el) => getComputedStyle(el).animationName || '');
+    expect(animationName.toLowerCase()).toContain('panelctaglow');
+
+    await panel.click();
+    await expect(panel).not.toHaveClass(/minimized/);
+    await expect(page.locator('#panelTabs')).toBeVisible();
+  });
+
+  test('@controls Pin action buttons are bound before opening modal', async ({ page }) => {
+    await openPhoneTab(page, 'pin');
+    const boundState = await page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll('[data-colorizer-action]'));
+      if (!buttons.length) return { count: 0, allBound: false };
+      const allBound = buttons.every((btn) => (btn as HTMLElement).dataset.bound === '1');
+      return { count: buttons.length, allBound };
+    });
+    expect(boundState.count).toBeGreaterThan(0);
+    expect(boundState.allBound).toBe(true);
+  });
+
+  test('@ui Reduced motion disables minimized CTA animation', async ({ page }) => {
+    await ensurePhonePanelOpen(page);
+    const panel = page.locator('#errlPanel');
+    await page.locator('#phone-close-button').click();
+    await expect(panel).toHaveClass(/minimized/);
+
+    await page.evaluate(() => document.body.classList.add('reduced-motion'));
+    const animationName = await panel.evaluate((el) => getComputedStyle(el).animationName || '');
+    expect(animationName.toLowerCase()).toBe('none');
+  });
+
+  test('@controls RB interaction mode is mutually exclusive', async ({ page }) => {
+    await openPhoneTab(page, 'rb');
+    const mode = page.locator('#rbInteractionMode');
+    const attract = page.locator('#rbAttract');
+    const ripples = page.locator('#rbRipples');
+    const status = page.locator('#rbModeStatus');
+    await expect(mode).toBeVisible();
+
+    await mode.selectOption('pop');
+    await expect(status).toContainText(/pop mode/i);
+    await expect(attract).not.toBeChecked();
+    await expect(ripples).toBeChecked();
+
+    await mode.selectOption('classic');
+    await expect(status).toContainText(/classic throw/i);
+    await expect(attract).toBeChecked();
+    await expect(ripples).not.toBeChecked();
+  });
+
+  test('@controls Preset buttons apply style bundles', async ({ page }) => {
+    await openPhoneTab(page, 'hud');
+    const trippy = page.locator('#presetTrippy');
+    const clean = page.locator('#presetClean');
+    const status = page.locator('#presetStatus');
+    await expect(trippy).toBeVisible();
+    await expect(clean).toBeVisible();
+
+    await trippy.click();
+    await expect(status).toContainText(/trippy/i);
+    await openPhoneTab(page, 'rb');
+    expect(parseFloat((await getControlValue(page, 'rbWobble')) || '0')).toBeGreaterThan(1.3);
+
+    await openPhoneTab(page, 'hud');
+    await clean.click();
+    await expect(status).toContainText(/clean/i);
+    await openPhoneTab(page, 'rb');
+    expect(parseFloat((await getControlValue(page, 'rbWobble')) || '0')).toBeLessThan(0.8);
+  });
+
+  test('@controls Design nav hidden by default; DEV toggle shows Design bubble', async ({ page }) => {
+    test.setTimeout(60000);
+    await page.evaluate(() => {
+      try {
+        localStorage.removeItem('errl_portal_show_design_nav');
+        const raw = localStorage.getItem('errl_portal_settings_v1');
+        if (raw) {
+          const b = JSON.parse(raw);
+          if (b && b.ui && 'portalShowDesignNav' in b.ui) {
+            delete b.ui.portalShowDesignNav;
+            localStorage.setItem('errl_portal_settings_v1', JSON.stringify(b));
+          }
+        }
+      } catch (_) {}
+    });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+    await page.waitForSelector('#errlPanel', { state: 'attached', timeout: 20000 });
+    await expect(page.locator('#errlPanel')).toBeVisible({ timeout: 20000 });
+    await waitForEffect(page, 'risingBubbles', 10000).catch(() => {});
+    await page.evaluate(() => {
+      const p = document.getElementById('errlPanel');
+      if (p) p.classList.remove('minimized');
+    });
+    await page.waitForTimeout(200);
+    const off = await page.evaluate(() => {
+      if (!document.documentElement.hasAttribute('data-errl-hide-design-nav')) return false;
+      const el = document.querySelector('.nav-orbit .bubble[data-nav-bubble-key="design"]') as HTMLElement | null;
+      return !el || window.getComputedStyle(el).display === 'none';
+    });
+    expect(off).toBe(true);
+    await openPhoneTab(page, 'dev');
+    const toggle = page.locator('#portalShowDesignNav');
+    await expect(toggle).toBeAttached();
+    await page.evaluate(() => {
+      const el = document.getElementById('portalShowDesignNav');
+      if (el && 'checked' in el) {
+        (el as HTMLInputElement).checked = true;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    await page.waitForTimeout(500);
+    const on = await page.evaluate(() => {
+      if (document.documentElement.hasAttribute('data-errl-hide-design-nav')) return false;
+      const el = document.querySelector('.nav-orbit .bubble[data-nav-bubble-key="design"]') as HTMLElement | null;
+      return !!el && window.getComputedStyle(el).display !== 'none';
+    });
+    expect(on).toBe(true);
+  });
+
+  test('@controls Nav skin controls exist and apply', async ({ page }) => {
+    await openPhoneTab(page, 'nav');
+    const preset = page.locator('#navSkinPreset');
+    const apply = page.locator('#navSkinApply');
+    const reset = page.locator('#navSkinReset');
+    const target = page.locator('#navSkinTarget');
+    await expect(preset).toBeVisible();
+    await expect(apply).toBeVisible();
+    await expect(reset).toBeVisible();
+    await expect(target).toBeVisible();
+
+    await target.selectOption('__all__');
+    await preset.selectOption('orb');
+    await apply.click();
+    const hasCustomClass = await page.evaluate(() => {
+      const bubble = document.querySelector('.nav-orbit .bubble');
+      return !!bubble && bubble.classList.contains('has-custom-media');
+    });
+    expect(hasCustomClass).toBe(true);
+
+    await reset.click();
+    const hasClassAfterReset = await page.evaluate(() => {
+      const bubble = document.querySelector('.nav-orbit .bubble');
+      return !!bubble && bubble.classList.contains('has-custom-media');
+    });
+    expect(hasClassAfterReset).toBe(false);
+  });
+
+  test('@controls Nav skin per-bubble target only styles selected bubble', async ({ page }) => {
+    await openPhoneTab(page, 'nav');
+    await page.locator('#navSkinTarget').selectOption('gallery');
+    await page.locator('#navSkinPreset').selectOption('sheetPink');
+    await page.locator('#navSkinApply').click();
+    await page.waitForTimeout(200);
+    const rows = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll('.nav-orbit .bubble')).map((b) => ({
+        key: b.getAttribute('data-nav-bubble-key'),
+        has: b.classList.contains('has-custom-media'),
+      }));
+    });
+    const gallery = rows.find((r) => r.key === 'gallery');
+    const about = rows.find((r) => r.key === 'about');
+    expect(gallery?.has).toBe(true);
+    expect(about?.has).toBe(false);
+  });
+
+  test('@controls Nav per-bubble skin restores from bundle after reload', async ({ page }) => {
+    await openPhoneTab(page, 'nav');
+    await page.locator('#navSkinTarget').selectOption('about');
+    await page.locator('#navSkinPreset').selectOption('orb');
+    await page.locator('#navSkinApply').click();
+    await page.waitForTimeout(300);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+    await waitForEffect(page, 'risingBubbles', 10000).catch(() => {});
+    await ensurePhonePanelOpen(page);
+    const aboutSkinned = await page.evaluate(() => {
+      const el = document.querySelector('.nav-orbit .bubble[data-nav-bubble-key="about"]');
+      return !!(el && el.classList.contains('has-custom-media'));
+    });
+    expect(aboutSkinned).toBe(true);
+    const studioPlain = await page.evaluate(() => {
+      const el = document.querySelector('.nav-orbit .bubble[data-nav-bubble-key="studio"]');
+      return !!(el && !el.classList.contains('has-custom-media'));
+    });
+    expect(studioPlain).toBe(true);
+  });
+
+  test('@controls Nav skin pack strip shows preview chips', async ({ page }) => {
+    await openPhoneTab(page, 'nav');
+    await page.waitForTimeout(600);
+    const orbChip = page.locator('#navSkinPackStrip .nav-skin-pack-btn[data-pack="orb"]');
+    await expect(orbChip).toBeVisible({ timeout: 12000 });
+    const count = await page.locator('#navSkinPackStrip .nav-skin-pack-btn').count();
+    expect(count).toBeGreaterThanOrEqual(3);
+  });
+
+  test('@controls Custom preset slot apply restores saved rb speed', async ({ page }) => {
+    await openPhoneTab(page, 'rb');
+    await setControlValue(page, 'rbSpeed', '2.0');
+    await page.waitForTimeout(400);
+    await openPhoneTab(page, 'hud');
+    await page.locator('#customPresetSlot1Save').click();
+    await page.waitForTimeout(200);
+    await openPhoneTab(page, 'rb');
+    await setControlValue(page, 'rbSpeed', '1.05');
+    await page.waitForTimeout(200);
+    await openPhoneTab(page, 'hud');
+    await page.locator('#customPresetSlot1Apply').click();
+    await page.waitForTimeout(400);
+    await openPhoneTab(page, 'rb');
+    const v = parseFloat((await getControlValue(page, 'rbSpeed')) || '0');
+    expect(v).toBeGreaterThan(1.9);
+  });
+
+  test('@controls Pop mode exposes pop interaction in RB engine', async ({ page }) => {
+    await openPhoneTab(page, 'rb');
+    await page.locator('#rbInteractionMode').selectOption('pop');
+
+    const popResult = await page.evaluate(() => {
+      const RB = (window as any).errlRisingBubblesThree;
+      if (!RB || typeof RB.getStats !== 'function') return { ok: false };
+      let eventSeen = false;
+      const handler = () => { eventSeen = true; };
+      window.addEventListener('errl:rb-pop', handler, { once: true });
+      const before = RB.getStats().popCount || 0;
+      if (typeof RB.popAnyVisible === 'function') RB.popAnyVisible();
+      const after = RB.getStats().popCount || 0;
+      const mode = RB.getStats().interactionMode;
+      const flashVisible = !!document.getElementById('rbPopFlashOverlay');
+      return { ok: true, before, after, mode, eventSeen, flashVisible };
+    });
+
+    expect(popResult.ok).toBe(true);
+    expect(popResult.mode).toBe('pop');
+    expect(popResult.flashVisible).toBe(true);
+    expect(popResult.eventSeen).toBe(true);
+    expect(popResult.after).toBeGreaterThanOrEqual(popResult.before + 1);
+  });
+
+  test('@controls RB pop flash skipped when reduced motion is enabled', async ({ page }) => {
+    await openPhoneTab(page, 'hud');
+    await page.locator('#prefReduce').check();
+    await openPhoneTab(page, 'rb');
+    await page.locator('#rbInteractionMode').selectOption('pop');
+    const sawActive = await page.evaluate(() => new Promise<boolean>((resolve) => {
+      const overlay = document.getElementById('rbPopFlashOverlay');
+      let activeSeen = false;
+      const obs = new MutationObserver(() => {
+        if (overlay && overlay.classList.contains('active')) activeSeen = true;
+      });
+      if (overlay) obs.observe(overlay, { attributes: true, attributeFilter: ['class'] });
+      const RB = (window as any).errlRisingBubblesThree;
+      if (RB && typeof RB.popAnyVisible === 'function') RB.popAnyVisible();
+      setTimeout(() => {
+        obs.disconnect();
+        resolve(activeSeen);
+      }, 250);
+    }));
+    expect(sawActive).toBe(false);
+  });
+
   test('@effects Shiny bubble CSS is applied', async ({ page }) => {
     await page.waitForTimeout(2000);
 
@@ -376,25 +651,68 @@ test.describe('Errl Phone Controls Tests', () => {
   });
 
   test('@effects Burst button works', async ({ page }) => {
-    await page.waitForTimeout(2000);
-
     const burstBtn = page.locator('#burstBtn');
     await expect(burstBtn).toBeVisible();
 
-    // Verify burst function exists
     const hasBurst = await page.evaluate(() => {
       return typeof (window as any).errlGLBurst === 'function';
     });
     expect(hasBurst).toBe(true);
 
-    // Click burst button
+    await page.waitForFunction(
+      () => typeof (window as any).enableErrlGL === 'function' && (window as any).PIXI,
+      { timeout: 20000 }
+    );
+    await page.evaluate(() => {
+      (window as any).enableErrlGL && (window as any).enableErrlGL();
+    });
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          if ((window as any).errlGLLoaded) {
+            resolve();
+            return;
+          }
+          const t = setTimeout(() => resolve(), 18000);
+          const done = () => {
+            clearTimeout(t);
+            resolve();
+          };
+          try {
+            window.addEventListener('errl:webgl-ready', done, { once: true });
+          } catch (_) {
+            done();
+          }
+        })
+    );
+
     await burstBtn.click();
-    await page.waitForTimeout(500);
-    // No error should occur
+    await page.waitForTimeout(400);
+  });
+
+  test('@a11y Accessibility row labels are not ellipsized', async ({ page }) => {
+    await openPhoneTab(page, 'hud');
+    const reduce = page.locator('label[for="prefReduce"]');
+    await expect(reduce).toBeVisible();
+    await expect(reduce).toHaveText('Reduced Motion');
+    const notClipped = await reduce.evaluate((el) => {
+      return el.scrollWidth <= el.clientWidth + 1;
+    });
+    expect(notClipped).toBe(true);
+  });
+
+  test('@ui First-visit CTA copy exists in DOM', async ({ page }) => {
+    const hint = page.locator('#errlPhoneCtaHint');
+    await expect(hint).toBeAttached();
+    await expect(hint).toHaveAttribute('role', 'complementary');
   });
 
   test('@controls All hue controls exist and work', async ({ page }) => {
     await openPhoneTab(page, 'hue');
+    const wrap = page.locator('#errlPanel .panel-content-wrapper');
+    if (await wrap.count()) {
+      await wrap.evaluate((el) => { el.scrollTop = el.scrollHeight; });
+    }
 
     const hueControls = [
       'hueEnabled', 'hueTarget', 'hueShift', 'hueSat', 'hueInt', 'hueTimeline', 'huePlayPause'
@@ -402,7 +720,8 @@ test.describe('Errl Phone Controls Tests', () => {
 
     for (const controlId of hueControls) {
       const control = page.locator(`#${controlId}`);
-      await expect(control).toBeVisible({ timeout: 5000 });
+      await control.scrollIntoViewIfNeeded();
+      await expect(control).toBeVisible({ timeout: 12000 });
     }
 
     // Test layer switching

@@ -39,6 +39,16 @@
   <link rel="stylesheet" href="./apps/landing/fx/effects.css" />
   <link rel="stylesheet" href="./apps/landing/fx/hue-effects.css" />
   <link rel="stylesheet" href="./apps/landing/fx/errl-bg.css" />
+  <link rel="stylesheet" href="./shared/styles/errlPortalHeader.css" />
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('errl_portal_show_design_nav') !== 'true') {
+          document.documentElement.setAttribute('data-errl-hide-design-nav', '');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <script type="module" src="./apps/landing/scripts/assets.js"></script>
   <!-- Debug harness: runtime layer toggles (safe no-op unless used) -->
   <script type="module" src="./apps/static/dev/debug.ts"></script>
@@ -48,6 +58,7 @@
   <canvas id="bgParticles"></canvas>
   <!-- Rising bubbles (Stable mode + fallback) -->
   <canvas id="riseBubbles"></canvas>
+  <div id="errlIdleStreak" class="errl-idle-streak" aria-hidden="true"><span class="errl-idle-streak__line"></span></div>
 
   <!-- WebGL layer (hidden in Stable mode) -->
   
@@ -81,12 +92,12 @@
 
     <!-- Orbiting nav bubbles (7 visible + 1 hidden) -->
     <div id="navOrbit" class="nav-orbit nav-orbit--front">
-      <a class="bubble menuOrb" data-angle="210" data-dist="180" href="/about/" data-portal-link="about/"><span class="label">About</span></a>
-      <a class="bubble menuOrb" data-angle="320" data-dist="160" href="/assets/" data-portal-link="assets/"><span class="label">Assets</span></a>
-      <a class="bubble menuOrb" data-angle="75" data-dist="150" href="/design/" data-portal-link="design/" data-disabled-link="design" aria-disabled="true" tabindex="-1" title="Coming soon"><span class="label">Design</span></a>
-      <a class="bubble menuOrb" data-angle="140" data-dist="180" href="https://forum.errl.wtf"><span class="label">Forum</span></a>
-      <a class="bubble menuOrb" data-angle="260" data-dist="175" href="/gallery/" data-portal-link="gallery/"><span class="label">Gallery</span></a>
-      <a class="bubble menuOrb" data-angle="20" data-dist="200" href="/studio/" data-portal-link="studio/"><span class="label">Studio</span></a>
+      <a class="bubble menuOrb" data-nav-bubble-key="about" data-angle="210" data-dist="180" href="/about/" data-portal-link="about/"><span class="label">About</span></a>
+      <a class="bubble menuOrb" data-nav-bubble-key="assets" data-angle="320" data-dist="160" href="/assets/" data-portal-link="assets/"><span class="label">Assets</span></a>
+      <a class="bubble menuOrb" data-nav-bubble-key="design" data-errl-nav="design" data-angle="75" data-dist="150" href="/design/" data-portal-link="design/" data-disabled-link="design" aria-disabled="true" tabindex="-1" title="Coming soon"><span class="label">Design</span></a>
+      <a class="bubble menuOrb" data-nav-bubble-key="forum" data-angle="140" data-dist="180" href="https://forum.errl.wtf"><span class="label">Forum</span></a>
+      <a class="bubble menuOrb" data-nav-bubble-key="gallery" data-angle="260" data-dist="175" href="/gallery/" data-portal-link="gallery/"><span class="label">Gallery</span></a>
+      <a class="bubble menuOrb" data-nav-bubble-key="studio" data-angle="20" data-dist="200" href="/studio/" data-portal-link="studio/"><span class="label">Studio</span></a>
     </div>
   </div>
 
@@ -126,10 +137,12 @@
   </svg>
 
   <!-- Control panel -->
-  <aside class="errl-panel minimized" id="errlPanel">
+  <aside class="errl-panel minimized" id="errlPanel" aria-label="Customize Errl portal controls" data-minimized-label="Customize">
     <!-- Vibe bar at top -->
     <div id="phone-vibe-bar"></div>
     
+    <span class="panel-minimized-label" aria-hidden="true">Customize</span>
+
     <!-- Close button -->
     <div id="phone-close-button" title="Close">×</div>
 
@@ -145,59 +158,80 @@
     </div>
 
     <!-- Tabs at top -->
-    <div class="panel-tabs" id="panelTabs">
-      <button data-tab="hud" class="tab tab-icon active" title="HUD" aria-label="HUD"><span class="label">HUD</span></button>
-      <button data-tab="errl" class="tab tab-icon" title="Errl" aria-label="Errl"><span class="label">Errl</span></button>
-      <button data-tab="pin" class="tab tab-icon" title="Pin Widget" aria-label="Pin Widget"><span class="label">Pin</span></button>
-      <button data-tab="nav" class="tab tab-icon" title="Nav" aria-label="Nav"><span class="label">Nav</span></button>
-      <button data-tab="rb" class="tab tab-icon" title="Rising Bubbles" aria-label="Rising Bubbles"><span class="label">RB</span></button>
-      <button data-tab="glb" class="tab tab-icon" title="GL Bubbles" aria-label="GL Bubbles"><span class="label">GLB</span></button>
-      <button data-tab="bg" class="tab tab-icon" title="Background" aria-label="Background"><span class="label">BG</span></button>
-      <button data-tab="dev" class="tab tab-icon" title="Developer" aria-label="Developer"><span class="label">DEV</span></button>
-      <button data-tab="hue" class="tab tab-icon" title="Hue" aria-label="Hue"><span class="label">Hue</span></button>
+    <div class="panel-tabs" id="panelTabs" role="tablist" aria-label="Errl phone control tabs">
+      <button data-tab="hud" class="tab tab-icon active" title="HUD" aria-label="HUD" role="tab"><span class="label">HUD</span></button>
+      <button data-tab="errl" class="tab tab-icon" title="Errl" aria-label="Errl" role="tab"><span class="label">Errl</span></button>
+      <button data-tab="pin" class="tab tab-icon" title="Pin Widget" aria-label="Pin Widget" role="tab"><span class="label">Pin</span></button>
+      <button data-tab="nav" class="tab tab-icon" title="Nav" aria-label="Nav" role="tab"><span class="label">Nav</span></button>
+      <button data-tab="rb" class="tab tab-icon" title="Rising Bubbles" aria-label="Rising Bubbles" role="tab"><span class="label">RB</span></button>
+      <button data-tab="glb" class="tab tab-icon" title="GL Bubbles" aria-label="GL Bubbles" role="tab"><span class="label">GLB</span></button>
+      <button data-tab="bg" class="tab tab-icon" title="Background" aria-label="Background" role="tab"><span class="label">BG</span></button>
+      <button data-tab="dev" class="tab tab-icon" title="Developer" aria-label="Developer" role="tab"><span class="label">DEV</span></button>
+      <button data-tab="hue" class="tab tab-icon" title="Hue" aria-label="Hue" role="tab"><span class="label">Hue</span></button>
     </div>
 
     <!-- Content wrapper for scrollable content -->
     <div class="panel-content-wrapper">
     <div class="panel-section" data-tab="bg">
       <div class="sectionLabel" title="Background decorations">Background</div>
-      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
-        <span title="Shimmer/Vignette are cosmetic layers. GL Overlay is a WebGL overlay (opacity + displacement). These settings persist in localStorage.">Cosmetic layers (persisted): Shimmer + Vignette are off by default. GL Overlay controls a subtle WebGL overlay.</span>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
+        <span title="Shimmer=animated highlight sheet on the ErrlBG layer. Vignette=darken edges. GL overlay=warp+opacity on the pre-composited WebGL gradient. All persist. Turn on Shimmer to mount ErrlBG.">Shimmer: optional animated highlight. Vignette: edge darkening. These mount the static background when enabled. GL overlay: wobble the screen-space gradient in WebGL (set Enabled + Alpha if you do not see it). Settings persist in local storage.</span>
       </div>
       <div class="sliderRow">
-        <label for="shimmerToggle" title="Enable shimmer animation layer">Shimmer</label>
+        <label for="shimmerToggle" title="Enable shimmer animation layer (mounts Errl background)">Shimmer</label>
         <input type="checkbox" id="shimmerToggle" title="Toggle shimmer effect">
       </div>
       <div class="sliderRow">
-        <label for="vignetteToggle" title="Enable vignette frame effect">Vignette</label>
+        <label for="vignetteToggle" title="Enable vignette frame effect (mounts Errl background)">Vignette</label>
         <input type="checkbox" id="vignetteToggle" title="Toggle vignette frame">
       </div>
       <div class="sectionDivider"></div>
-      <div class="sectionLabel" title="WebGL overlay layer controls">GL Overlay</div>
+      <div class="sectionLabel" title="WebGL overlay layer controls">GL overlay</div>
+      <div class="sliderRow" style="opacity:.8; font-size:9px; line-height:1.3;">
+        <span title="Affects the gradient screen overlay. Move the pointer: ripples use DX/DY strength.">Screen-space WebGL gradient: Alpha = strength. DX / DY = wobble direction. Move the pointer to see the ripple; raise Alpha first.</span>
+      </div>
       <div class="sliderRow">
         <label for="glOverlayAlpha" title="Overlay opacity">Alpha</label>
         <input type="range" min="0" max="1" step="0.01" value="0.28" id="glOverlayAlpha" title="Overlay opacity">
       </div>
       <div class="sliderRow">
-        <label for="glOverlayDX" title="Horizontal displacement">DX</label>
+        <label for="glOverlayDX" title="Horizontal wave strength">DX</label>
         <input type="range" min="0" max="100" step="1" value="24" id="glOverlayDX" title="Horizontal displacement">
       </div>
       <div class="sliderRow">
-        <label for="glOverlayDY" title="Vertical displacement">DY</label>
+        <label for="glOverlayDY" title="Vertical wave strength">DY</label>
         <input type="range" min="0" max="100" step="1" value="18" id="glOverlayDY" title="Vertical displacement">
       </div>
     </div>
 
     <div class="panel-section" data-tab="pin">
-      <div class="sectionLabel" title="Pin widget controls">Pin Widget</div>
+      <div class="sectionLabel" title="Pin widget controls" style="gap:6px; flex-wrap:wrap;">
+        <span>Pin Widget</span>
+        <button type="button" id="pinTourShow" class="pin-tour-show-btn" title="Show Pin quick start again" aria-label="Show Pin quick start">?</button>
+      </div>
+      <div id="pinTourBanner" class="pin-tour-banner" role="region" aria-label="Pin widget quick start" hidden>
+        <div class="pin-tour-banner__steps">
+          <strong>What you can do</strong>
+          <ul class="pin-tour-banner__list">
+            <li><strong>Inject to Home</strong> swaps the main Errl SVG to match what the widget is showing (fast preview of your edit).</li>
+            <li><strong>Save SVG</strong> keeps a copy in this browser; it loads the next time you return.</li>
+            <li><strong>Reset Default</strong> restores the built-in Errl art.</li>
+            <li><strong>Open Larger View</strong> opens a bigger editor if the small panel is hard to use.</li>
+          </ul>
+        </div>
+        <button type="button" id="pinTourDismiss" class="pin-tour-banner__dismiss" title="Dismiss">Got it</button>
+      </div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
-        <span title="Inject updates the home page SVG. Save stores the current SVG in localStorage. Reset returns to the built-in default Errl.">Inject updates the home page; Save stores SVG locally; Reset restores default.</span>
+        <span title="Inject updates the home page SVG immediately. Save stores your latest SVG in localStorage. Reset returns to the built-in default Errl.">Inject = live update now. Save = keep this style for later. Reset = restore stock Errl.</span>
       </div>
       <div class="sliderRow pin-controls" style="justify-content:flex-end; gap:6px; flex-wrap:wrap;">
         <button type="button" data-colorizer-action="inject" title="Update home page SVG">Inject to Home</button>
         <button type="button" data-colorizer-action="save" title="Save SVG to localStorage">Save SVG</button>
         <button type="button" data-colorizer-action="reset" title="Reset to default Errl">Reset Default</button>
         <button type="button" data-pin-modal-open title="Open larger view">Open Larger View</button>
+      </div>
+      <div class="sliderRow" style="opacity:.75; font-size:9px; line-height:1.2;">
+        <span id="pinActionHint">Tip: Inject to preview quickly, then Save when you like it.</span>
       </div>
       <iframe
         class="pin-widget-frame"
@@ -211,8 +245,21 @@
     <!-- Rising Bubbles (Canvas) -->
     <div class="panel-section" data-tab="rb">
       <div class="sectionLabel" title="3D iridescent bubbles rendered on the #riseBubbles canvas behind the scene">Rising Bubbles (Basic)</div>
-      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
-        <span title="These controls affect the Three.js Rising Bubbles layer. Tip: you can grab bubbles and throw them, or flick near one to kick it off-screen. Higher values may cost performance.">Behind-the-scene bubble field (Three.js). Tip: grab + throw, or flick to kick.</span>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
+        <span title="Rising Bubbles: independent Three.js layer on the #riseBubbles canvas (not the GL Particles / GLB tab). Modes: Classic = grab, throw, flick. Pop = tap a bubble to pop. Rise Speed, Count, Scale, Alpha: global look. Attract/Repel: optional pointer forces; higher can cost FPS on low-end devices.">Foreground field on the <code style="font-size:8px;">#riseBubbles</code> canvas. It is <strong>not</strong> the same as GL Particles (GLB tab) behind Errl. Try <em>Mode</em> to switch feel; if performance dips, lower Count, Alpha, and pointer forces.</span>
+      </div>
+      <div class="sliderRow">
+        <label for="rbInteractionMode" title="Only one interaction profile can be active at a time">Mode</label>
+        <select id="rbInteractionMode" title="Choose rising bubble interaction mode">
+          <option value="classic">Classic Throw</option>
+          <option value="pop">Pop Mode</option>
+        </select>
+      </div>
+      <div class="sliderRow" style="opacity:.8; font-size:9px; line-height:1.35;">
+        <span id="rbModeLegend" class="rb-mode-legend">Classic = grab and throw / flick. Pop = tap a bubble on the canvas to pop it.</span>
+      </div>
+      <div class="sliderRow" style="opacity:.8; font-size:9px; line-height:1.2;">
+        <span id="rbModeStatus">Classic Throw: drag/flick controls are prioritized.</span>
       </div>
       <div class="sliderRow">
         <label for="rbSpeed" title="How fast bubbles rise upward (vertical motion)">Rise Speed</label>
@@ -262,9 +309,9 @@
 
     <!-- GL Background Bubbles (Particles) -->
   <div class="panel-section" data-tab="glb">
-      <div class="sectionLabel" title="GPU background bubbles (separate from Rising Bubbles)">GL Particles (BG Bubbles)</div>
-      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
-        <span title="Speed controls motion, Density controls count, Alpha controls opacity.">Speed = motion, Density = count, Alpha = opacity.</span>
+      <div class="sectionLabel" title="GPU background particles behind Errl (WebGL)">GL Particles (background)</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
+        <span title="Drives the multi-layer WebGL background bubbles behind the scene. Requires the WebGL layer. Hue tab Target: Particles tints this layer. Randomize re-rolls the three sliders.">Deep background particle layers (WebGL) behind the scene&mdash;separate from the Rising Bubbles (RB) canvas. <strong>Speed</strong> = travel; <strong>Density</strong> = more/fewer dots; <strong>Alpha</strong> = how visible. Use the Hue tab with Target &quot;Particles&quot; to recolor. <strong>Randomize</strong> re-rolls all three; WebGL can take a second to spin up the first time.</span>
       </div>
       <div class="sliderRow">
         <label for="bgSpeed" title="How fast the GPU bubble layer moves">Speed</label>
@@ -351,6 +398,37 @@
         <input type="checkbox" id="glOrbsToggle" checked title="Toggle WebGL orb render layer (3D rendered orbs that sync with nav bubbles)">
         <button id="rotateSkins" style="margin-left:auto" title="Cycle through fun orb textures (faces, patterns, etc.)">Rotate Skins</button>
       </div>
+      <div class="sliderRow">
+        <label for="navSkinTarget" title="Apply skin to every bubble or one label">Apply to</label>
+        <select id="navSkinTarget" title="All nav bubbles or a single bubble" aria-label="Nav skin target">
+          <option value="__all__">All bubbles</option>
+          <option value="about">About</option>
+          <option value="assets">Assets</option>
+          <option value="design">Design</option>
+          <option value="forum">Forum</option>
+          <option value="gallery">Gallery</option>
+          <option value="studio">Studio</option>
+        </select>
+      </div>
+      <div class="sliderRow" id="navSkinPackStripRow">
+        <span style="font-size:9px; opacity:.85; min-width:42px;">Packs</span>
+        <div id="navSkinPackStrip" class="nav-skin-pack-strip" title="Curated skins (applies to current target)"></div>
+      </div>
+      <div class="sliderRow">
+        <label for="navSkinPreset" title="Choose a look for nav bubbles">Skin</label>
+        <select id="navSkinPreset" title="Select navigation bubble skin">
+          <option value="random">Random built-in</option>
+          <option value="orb">NeedsFriends Orb</option>
+          <option value="sheetRainbow">Rainbow Sheet</option>
+          <option value="sheetPink">Pink Sheet</option>
+          <option value="proc">Procedural</option>
+        </select>
+        <button id="navSkinApply" title="Apply selected skin">Apply</button>
+      </div>
+      <div class="sliderRow" style="justify-content:flex-end; gap:6px; flex-wrap:wrap;">
+        <input id="navSkinUpload" type="file" accept="image/*,.gif" />
+        <button id="navSkinReset" title="Reset to procedural bubbles">Reset Skin</button>
+      </div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel" title="Advanced gooey blending for bubble group">Nav Goo+</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
@@ -370,7 +448,41 @@
 
     <div class="panel-section" data-tab="hud">
       <div class="sectionLabel" title="Quick particle interactions">Particles</div>
-      <button id="burstBtn" title="Emit a short burst of particles">Burst</button>
+      <button id="burstBtn" title="Emit a short burst of WebGL particles at the center of the screen. Requires a working WebGL layer.">Burst</button>
+      <div id="errlGlHint" class="errl-gl-hint" role="status" aria-live="polite" hidden></div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel" title="Quick multi-control style snapshots">Preset Scenes</div>
+      <div class="sliderRow" style="justify-content:flex-end; gap:6px; flex-wrap:wrap;">
+        <button id="presetClean" title="Lower intensity, cleaner look">Clean</button>
+        <button id="presetEpic" title="Boost dramatic effects">Epic</button>
+        <button id="presetTrippy" title="High color motion and wobble">Trippy</button>
+      </div>
+      <div class="sliderRow" style="opacity:.8; font-size:9px;">
+        <span id="presetStatus">No preset applied yet.</span>
+      </div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel" title="Save your own combinations">My presets (3 slots)</div>
+      <div class="sliderRow" style="opacity:.85; font-size:9px; line-height:1.3;">
+        <span title="Saves Rising Bubbles, Hue layers, Nav skins, and panel controls in this slot.">Saves RB + Hue + Nav skins + panel controls.</span>
+      </div>
+      <div class="sliderRow" style="flex-wrap:wrap; gap:6px; align-items:center;">
+        <input id="customPresetSlot1Name" type="text" maxlength="24" placeholder="Slot 1 name" style="flex:1; min-width:90px; font-size:9px;" aria-label="Custom preset slot 1 name" />
+        <button type="button" id="customPresetSlot1Save" title="Overwrite slot 1">Save 1</button>
+        <button type="button" id="customPresetSlot1Apply">Apply 1</button>
+        <button type="button" id="customPresetSlot1Clear">Clear 1</button>
+      </div>
+      <div class="sliderRow" style="flex-wrap:wrap; gap:6px; align-items:center;">
+        <input id="customPresetSlot2Name" type="text" maxlength="24" placeholder="Slot 2 name" style="flex:1; min-width:90px; font-size:9px;" aria-label="Custom preset slot 2 name" />
+        <button type="button" id="customPresetSlot2Save" title="Overwrite slot 2">Save 2</button>
+        <button type="button" id="customPresetSlot2Apply">Apply 2</button>
+        <button type="button" id="customPresetSlot2Clear">Clear 2</button>
+      </div>
+      <div class="sliderRow" style="flex-wrap:wrap; gap:6px; align-items:center;">
+        <input id="customPresetSlot3Name" type="text" maxlength="24" placeholder="Slot 3 name" style="flex:1; min-width:90px; font-size:9px;" aria-label="Custom preset slot 3 name" />
+        <button type="button" id="customPresetSlot3Save" title="Overwrite slot 3">Save 3</button>
+        <button type="button" id="customPresetSlot3Apply">Apply 3</button>
+        <button type="button" id="customPresetSlot3Clear">Clear 3</button>
+      </div>
     </div>
 
     <div class="panel-section" data-tab="hue">
@@ -416,21 +528,33 @@
 
     <div class="panel-section" data-tab="hud">
       <div class="sectionLabel" title="Accessibility helpers">Accessibility</div>
-      <div class="sliderRow"><label for="prefReduce" title="Prefer reduced motion (minimize animations)">Reduced Motion</label><input type="checkbox" id="prefReduce" title="Prefer reduced motion"></div>
-      <div class="sliderRow"><label for="prefContrast" title="Increase UI contrast for readability">High Contrast</label><input type="checkbox" id="prefContrast" title="Increase contrast"></div>
-      <div class="sliderRow"><label for="prefInvert" title="Invert colors for alternative viewing">Invert</label><input type="checkbox" id="prefInvert" title="Invert colors"></div>
+      <div class="sliderRow sliderRow--a11y"><label for="prefReduce" title="Prefer reduced motion (minimize animations)">Reduced Motion</label><input type="checkbox" id="prefReduce" title="Prefer reduced motion" aria-label="Reduced motion: minimize animations"></div>
+      <div class="sliderRow sliderRow--a11y"><label for="prefContrast" title="Increase UI contrast for readability">High Contrast</label><input type="checkbox" id="prefContrast" title="Increase contrast" aria-label="High contrast mode"></div>
+      <div class="sliderRow sliderRow--a11y"><label for="prefInvert" title="Invert colors for alternative viewing">Invert</label><input type="checkbox" id="prefInvert" title="Invert colors" aria-label="Invert screen colors"></div>
     </div>
 
     <div class="panel-section" data-tab="hud">
-      <div class="sectionLabel">Mood <span style="opacity:.65">(Not Currently Working)</span></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="moodBtn2" data-mood2="calm" disabled>Calm</button>
-        <button class="moodBtn2" data-mood2="curious" disabled>Curious</button>
-        <button class="moodBtn2" data-mood2="excited" disabled>Excited</button>
-        <button class="moodBtn2" data-mood2="anxious" disabled>Anxious</button>
+      <div class="sectionLabel" title="Post tint on the WebGL scene (Errl + FX)">Scene tint (WebGL)</div>
+      <div class="sliderRow" style="opacity:.85; font-size:9px; line-height:1.3;">
+        <span title="Uses the WebGL mood filter. Enable GL from the BG tab if the page is still mostly DOM-only.">Subtle color grade on the WebGL layer. Heavier when GL overlay is on.</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" role="group" aria-label="WebGL scene tint presets">
+        <button type="button" class="moodBtn2" data-gl-mood="off" title="Neutral">Off</button>
+        <button type="button" class="moodBtn2" data-gl-mood="calm" title="Cool soft grade">Calm</button>
+        <button type="button" class="moodBtn2" data-gl-mood="neon" title="Teal / magenta pop">Neon</button>
+        <button type="button" class="moodBtn2" data-gl-mood="alert" title="Warm punch">Alert</button>
       </div>
     </div>
     <div class="panel-section" data-tab="dev">
+      <div class="sectionLabel">Portal (admin)</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Toggles the Design item in the orbiting nav and pill-style headers (stored in this browser, local only).">Preview the Design entry when the route is not ready. Off by default.</span>
+      </div>
+      <div class="sliderRow">
+        <label for="portalShowDesignNav" title="Show Design in portal navigation (local only)">Show Design in navigation</label>
+        <input type="checkbox" id="portalShowDesignNav" title="When off, the Design link is hidden everywhere it shares this key">
+      </div>
+      <div class="sectionDivider"></div>
       <div class="sectionLabel">Developer Tools</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
         <span title="Snapshot exports a standalone HTML/CSS/JS with current settings applied on load. PNG is a screenshot. Export/Import Settings saves/loads the full settings bundle (localStorage).">Snapshot = portable HTML/CSS/JS. PNG = screenshot. Export/Import Settings = full settings bundle (local).</span>
@@ -470,6 +594,13 @@
     </div>
     <!-- End content wrapper -->
   </aside>
+
+  <div id="errlPhoneCtaHint" class="errl-phone-cta-hint" role="complementary" aria-label="How to open portal controls" hidden>
+    <p class="errl-phone-cta-hint__text">Use <strong>Customize</strong> (bottom-right glow) to open the control phone.</p>
+    <div class="errl-phone-cta-hint__actions">
+      <button type="button" id="errlPhoneCtaDismiss" class="errl-phone-cta-hint__btn">Got it</button>
+    </div>
+  </div>
 
   <script>
     // Developer Log Viewer - must be initialized early
@@ -1727,7 +1858,7 @@
         var saveButtons = [saveBtn].concat(extraSave);
         var resetButtons = [resetBtn].concat(extraReset);
 
-        if (!frame) { console.error('Colorizer frame not found'); return; }
+        if (!frame) { console.error('Colorizer frame not found'); return false; }
         
         // Reset-to-default handler (fallback + escape hatch)
         function resetHomeToDefault(){
@@ -1845,7 +1976,20 @@
 
         // Load saved SVG on init
         loadSavedSVG();
+        return true;
       };
+      (function bootColorizerDesigner(attempt){
+        if (window.__errlColorizerDesignerBooted === '1') return;
+        if (!window.initColorizerDesigner) return;
+        var ok = false;
+        try { ok = window.initColorizerDesigner() === true; } catch(_) { ok = false; }
+        if (ok) {
+          window.__errlColorizerDesignerBooted = '1';
+          return;
+        }
+        if (attempt >= 5) return;
+        setTimeout(function(){ bootColorizerDesigner(attempt + 1); }, 250);
+      })(0);
     })();
   </script>
 </body>

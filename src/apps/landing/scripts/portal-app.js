@@ -21,6 +21,11 @@
     if (!b.ui || typeof b.ui !== 'object') b.ui = {};
     if (!b.hue || typeof b.hue !== 'object') b.hue = {};
     if (!b.hue.layers || typeof b.hue.layers !== 'object') b.hue.layers = {};
+    if (!b.nav || typeof b.nav !== 'object') b.nav = {};
+    if (!b.nav.goo || typeof b.nav.goo !== 'object') b.nav.goo = {};
+    if (!b.customPresets || !Array.isArray(b.customPresets)) b.customPresets = [null, null, null];
+    while (b.customPresets.length < 3) b.customPresets.push(null);
+    if (b.customPresets.length > 3) b.customPresets = b.customPresets.slice(0, 3);
     return b;
   }
 
@@ -172,6 +177,56 @@
     }catch(_){}
   })();
 
+  const SHOW_DESIGN_NAV_KEY = 'errl_portal_show_design_nav';
+  function readShowDesignNav(){
+    try { return localStorage.getItem(SHOW_DESIGN_NAV_KEY) === 'true'; } catch (_) { return false; }
+  }
+  function writeShowDesignNav(on){
+    try {
+      if (on) localStorage.setItem(SHOW_DESIGN_NAV_KEY, 'true');
+      else localStorage.removeItem(SHOW_DESIGN_NAV_KEY);
+    } catch (_){}
+  }
+  function isErrlNavBubbleVisible(b){
+    if (!b) return false;
+    try {
+      if (b.getAttribute('hidden') != null) return false;
+      const st = window.getComputedStyle(b);
+      if (st.display === 'none' || st.visibility === 'hidden') return false;
+    } catch (_) { return false; }
+    return true;
+  }
+  function getVisibleNavBubblesList(){
+    return Array.from(document.querySelectorAll('.nav-orbit .bubble')).filter(isErrlNavBubbleVisible);
+  }
+  if (typeof window !== 'undefined') {
+    window.__errlGetVisibleNavBubbles = getVisibleNavBubblesList;
+  }
+  function syncDesignNavFromStorage(){
+    const show = readShowDesignNav();
+    if (show) document.documentElement.removeAttribute('data-errl-hide-design-nav');
+    else document.documentElement.setAttribute('data-errl-hide-design-nav', '');
+    const syncChk = $('portalShowDesignNav');
+    if (syncChk) syncChk.checked = show;
+    const designOpt = document.querySelector('#navSkinTarget option[value="design"]');
+    const navST = $('navSkinTarget');
+    if (designOpt) designOpt.disabled = !show;
+    if (navST && !show && navST.value === 'design') navST.value = '__all__';
+    if (typeof window.errlGLRebuildNavOrbs === 'function') window.errlGLRebuildNavOrbs();
+    if (typeof window.__errlRefreshNavSkins === 'function') window.__errlRefreshNavSkins();
+    try {
+      window.dispatchEvent(new CustomEvent('errl-design-nav-visibility', { detail: { show } }));
+    } catch (_){}
+  }
+  on($('portalShowDesignNav'), 'change', (e) => {
+    const el = e && e.target;
+    writeShowDesignNav(!!(el && el.checked));
+    syncDesignNavFromStorage();
+  });
+  window.addEventListener('storage', (ev) => {
+    if (ev.key === SHOW_DESIGN_NAV_KEY) syncDesignNavFromStorage();
+  });
+
   // Lightweight audio engine for nav bubble hover pings
   const audioEngine = (function(){
     const Ctor = window.AudioContext || window.webkitAudioContext;
@@ -223,6 +278,30 @@
         osc.start(now);
         osc.stop(now + 0.5);
       },
+      playPop(intensity){
+        const chain = ensure();
+        if (!chain) return;
+        const { ctx, destination } = chain;
+        const now = ctx.currentTime;
+        const gain = ctx.createGain();
+        const oscA = ctx.createOscillator();
+        const oscB = ctx.createOscillator();
+        const level = Math.max(0.03, Math.min(0.2, (master * 0.18) + (Number(intensity) || 0) * 0.02));
+        oscA.type = 'triangle';
+        oscB.type = 'sine';
+        oscA.frequency.value = 530;
+        oscB.frequency.value = 780;
+        oscA.connect(gain);
+        oscB.connect(gain);
+        gain.connect(destination);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(level, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+        oscA.start(now);
+        oscB.start(now + 0.004);
+        oscA.stop(now + 0.17);
+        oscB.stop(now + 0.17);
+      },
       setEnabled(on){
         enabled = !!on;
         if (!enabled && ctx && ctx.state !== 'closed'){
@@ -254,6 +333,90 @@
   on(audioEnabledToggle, 'change', ()=> audioEngine.setEnabled(!!audioEnabledToggle.checked));
   on(audioMasterSlider, 'input', ()=> audioEngine.setMaster(parseFloat(audioMasterSlider.value || '0')));
   on(audioBassSlider, 'input', ()=> audioEngine.setBass(parseFloat(audioBassSlider.value || '0')));
+  const rbPopFlashOverlay = document.createElement('div');
+  rbPopFlashOverlay.id = 'rbPopFlashOverlay';
+  rbPopFlashOverlay.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(rbPopFlashOverlay);
+  const rbPopShardCanvas = document.createElement('canvas');
+  rbPopShardCanvas.id = 'rbPopShardCanvas';
+  rbPopShardCanvas.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(rbPopShardCanvas);
+  let rbPopFlashTimer = null;
+  let rbShardRaf = null;
+
+  function isReducedMotionUi(){
+    try {
+      if (document.body.classList.contains('reduced-motion')) return true;
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    } catch(_) { return false; }
+  }
+
+  function paintRbPopShards(clientX, clientY){
+    if (document.body.classList.contains('perf-safe')) return;
+    if (document.body.classList.contains('rb-touch-active')) return;
+    if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) return;
+    const cvs = rbPopShardCanvas;
+    const ctx = cvs.getContext('2d');
+    if (!ctx) return;
+    const w = window.innerWidth || 1;
+    const h = window.innerHeight || 1;
+    if (cvs.width !== (w | 0)) cvs.width = w | 0;
+    if (cvs.height !== (h | 0)) cvs.height = h | 0;
+    const start = performance.now();
+    const shards = [];
+    for (let i = 0; i < 14; i++) {
+      const ang = (Math.PI * 2 * i) / 14 + Math.random() * 0.4;
+      const spd = 40 + Math.random() * 90;
+      shards.push({ ang, spd, w: 2 + Math.random() * 2.5 });
+    }
+    if (rbShardRaf) cancelAnimationFrame(rbShardRaf);
+    function frame(now){
+      const elapsed = now - start;
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      ctx.globalCompositeOperation = 'lighter';
+      const uAll = Math.min(1, elapsed / 200);
+      shards.forEach((s)=>{
+        const u = uAll;
+        if (u >= 1) return;
+        const len = s.spd * u;
+        const x1 = clientX + Math.cos(s.ang) * len * 0.35;
+        const y1 = clientY + Math.sin(s.ang) * len * 0.35;
+        ctx.strokeStyle = `rgba(200,240,255,${0.45 * (1 - u)})`;
+        ctx.lineWidth = s.w * (1 - u * 0.6);
+        ctx.beginPath();
+        ctx.moveTo(clientX, clientY);
+        ctx.lineTo(x1, y1);
+        ctx.stroke();
+      });
+      ctx.globalCompositeOperation = 'source-over';
+      if (elapsed < 200) rbShardRaf = requestAnimationFrame(frame);
+      else {
+        rbShardRaf = null;
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+      }
+    }
+    rbShardRaf = requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('errl:rb-pop', (e)=>{
+    const detail = e && e.detail ? e.detail : {};
+    const intensity = Number.isFinite(detail && detail.popCount) ? Math.min(3, detail.popCount % 4) : 1;
+    try {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('debug') === '1' && detail.popCount != null) console.info('[errl:rb-pop] popCount', detail.popCount);
+    } catch(_) {}
+    audioEngine.playPop(intensity);
+    const rm = isReducedMotionUi();
+    if (!rm) {
+      rbPopFlashOverlay.classList.add('active');
+      if (rbPopFlashTimer) clearTimeout(rbPopFlashTimer);
+      rbPopFlashTimer = setTimeout(()=>{
+        rbPopFlashOverlay.classList.remove('active');
+        rbPopFlashTimer = null;
+      }, 130);
+    }
+    if (!rm) paintRbPopShards(detail.clientX, detail.clientY);
+  });
 
   // Shimmer toggle control (BG tab)
   (function shimmerControl(){
@@ -356,7 +519,10 @@
   })();
 
   // GL background bubbles + persist minimal defaults
-  function setBubs(p){ window.errlGLSetBubbles && window.errlGLSetBubbles(p); }
+  function setBubs(p){
+    window.enableErrlGL && window.enableErrlGL();
+    window.errlGLSetBubbles && window.errlGLSetBubbles(p);
+  }
   function persistBubs(){
     const obj = { speed: parseFloat($("bgSpeed")?.value||'1'), density: parseFloat($("bgDensity")?.value||'1'), alpha: parseFloat($("glAlpha")?.value||'0.9') };
     updateBundle((b)=> {
@@ -413,7 +579,7 @@
     return navOrbScale;
   }
   function getActiveBubbles(){
-    return bubbles.filter((el)=> el && el.style.display !== 'none');
+    return bubbles.filter((el)=> isErrlNavBubbleVisible(el));
   }
   function focusKeyboardBubble(nextIndex){
     const active = getActiveBubbles();
@@ -547,7 +713,7 @@
 
     // Orbit layout: bubbles orbit around Errl using their data-angle/data-dist.
     // As they orbit, bubbles above Errl render in front; below Errl render behind.
-    const active = bubbles.filter((el)=> el && el.style.display !== 'none');
+    const active = bubbles.filter((el)=> isErrlNavBubbleVisible(el));
     if (!active.length) {
       window.errlGLSyncOrbs && window.errlGLSyncOrbs();
       return requestAnimationFrame(updateBubbles);
@@ -687,10 +853,16 @@
   // Hover → GL orb squish + audio + background color glow
   function attachBubbleListeners(){
     bubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
-    bubbles.forEach((b,i)=>{
+    bubbles.forEach((b, domIndex)=>{
       // Skip if listeners already attached
       if (b.dataset.listenersAttached) return;
       b.dataset.listenersAttached = 'true';
+
+      function glOrbIndexForThisBubble(){
+        const vis = getVisibleNavBubblesList();
+        const ix = vis.indexOf(b);
+        return ix >= 0 ? ix : 0;
+      }
 
       function applyHoldHover(){
         // Freeze bubble position when hovering/holding
@@ -721,8 +893,9 @@
         // Apply glow & audio
         b.style.setProperty('--hover-glow', bgColor);
         b.style.boxShadow = `0 0 30px rgba(255,255,255,0.9), 0 0 60px ${bgColor}`;
-        audioEngine.playHover(i);
-        window.errlGLOrbHover && window.errlGLOrbHover(i,true);
+        const oi = glOrbIndexForThisBubble();
+        audioEngine.playHover(oi);
+        window.errlGLOrbHover && window.errlGLOrbHover(oi, true);
       }
 
       function clearHoldHover(){
@@ -730,7 +903,8 @@
         hoveredBubbles.delete(b);
         // Reset glow
         b.style.boxShadow = '';
-        window.errlGLOrbHover && window.errlGLOrbHover(i,false);
+        const oi = glOrbIndexForThisBubble();
+        window.errlGLOrbHover && window.errlGLOrbHover(oi, false);
       }
 
       // Desktop mouse hover remains as-is.
@@ -835,13 +1009,40 @@
   });
 
   // Burst button - stop propagation so it doesn't trigger canvas click
+  (function errlGlUserHints(){
+    const HINT_MS = 5200;
+    let hintTimer = null;
+    const el = () => document.getElementById('errlGlHint');
+    function showMsg(text) {
+      const n = el();
+      if (!n) return;
+      n.textContent = text;
+      n.hidden = false;
+      if (hintTimer) clearTimeout(hintTimer);
+      hintTimer = setTimeout(()=>{
+        n.hidden = true;
+        n.textContent = '';
+        hintTimer = null;
+      }, HINT_MS);
+    }
+    function onUnavail() {
+      showMsg('WebGL is not available. Burst needs the canvas and Pixi (check the page loaded fully).');
+    }
+    function onErr() {
+      showMsg('WebGL texture failed to load, so effects may be limited. Try a refresh.');
+    }
+    if (typeof window.addEventListener === 'function') {
+      window.addEventListener('errl:webgl-unavailable', onUnavail);
+      window.addEventListener('errl:webgl-error', onErr);
+    }
+  })();
   on($("burstBtn"), 'click', (e)=>{
     e.stopPropagation();
     e.preventDefault();
     e.stopImmediatePropagation();
     window.enableErrlGL && window.enableErrlGL();
     if (window.errlGLBurst) {
-      // Get center of viewport for burst
+      // Get center of viewport for burst (queued until texture ready; see webgl.js)
       const x = window.innerWidth / 2;
       const y = window.innerHeight / 2;
       window.errlGLBurst(x, y);
@@ -876,6 +1077,12 @@
     const enabled = document.getElementById('navGooEnabled');
     const blurNode = document.getElementById('navGooBlurNode');
     const matNode = document.getElementById('navGooMatrixNode');
+    if (!blur && !mult && !thresh && !enabled) {
+      roots.forEach((root) => {
+        if (root) root.classList.remove('goo-on');
+      });
+      return;
+    }
     function apply(){
       if (blurNode && blur) blurNode.setAttribute('stdDeviation', String(parseFloat(blur.value||'6')));
       if (matNode){
@@ -1402,6 +1609,7 @@
     
     if (slowGradientBtn) {
       on(slowGradientBtn, 'click', ()=>{
+        window.enableErrlGL && window.enableErrlGL();
         if (!window.errlGLSetGoo) return;
         // Set a pleasant baseline and start animation (animation respects sliders).
         const f = $("navFlow"); if (f) f.value = 0.3;
@@ -1451,17 +1659,329 @@
   ];
   const skinFiles = [...new Set([...userSkins, ...defaultSkins])];
   skinFiles.push(null); // null = procedural fallback
-  
-  on($("rotateSkins"), 'click', ()=>{
-    if (!window.errlGLSetBubblesLayerTexture || skinFiles.length === 0) return;
-    // Pick random skin
-    const randomSkin = skinFiles[Math.floor(Math.random() * skinFiles.length)];
-    const kind = randomSkin ? 'custom' : 'proc';
-    // Apply to all bubble layers
-    for (let i = 0; i < 6; i++) {
-      window.errlGLSetBubblesLayerTexture(i, kind, randomSkin);
+  const NAV_SKIN_KEY = 'errl_nav_skin_pref_v1';
+  const NAV_MAX_UPLOAD_BYTES = 1_500_000;
+  const NAV_MAX_IMAGE_DIM = 2048;
+  const navSkinTarget = $("navSkinTarget");
+  const navSkinPreset = $("navSkinPreset");
+  const navSkinApply = $("navSkinApply");
+  const navSkinUpload = $("navSkinUpload");
+  const navSkinReset = $("navSkinReset");
+  const navPresetMap = {
+    orb: '../../shared/assets/shared/fx/Orb_NeedsFriends.png',
+    sheetRainbow: '../../shared/assets/shared/BubbleSheets/Bubble_Sheet-Rainbow.png',
+    sheetPink: '../../shared/assets/shared/BubbleSheets/Bubble_Sheet-PinkRed.png',
+    proc: null
+  };
+
+  function resolveLandingAssetUrl(relPath){
+    if (!relPath || typeof relPath !== 'string') return null;
+    if (/^(data:|https?:|blob:)/i.test(relPath)) return relPath;
+    try { return new URL(relPath, import.meta.url).href; }
+    catch(_) { return relPath; }
+  }
+
+  function clampDataUrlForStorage(url){
+    return url && url.length <= 120000 ? url : null;
+  }
+
+  function displayUrlForRecord(rec){
+    if (!rec || rec.kind === 'proc' || !rec.url) return null;
+    const u = String(rec.url);
+    return /^(https?:|data:|blob:)/i.test(u) ? u : resolveLandingAssetUrl(u);
+  }
+
+  function applySkinToBubbleEl(bubble, displayUrl){
+    if (!bubble) return;
+    if (!displayUrl) {
+      bubble.classList.remove('has-custom-media');
+      bubble.style.removeProperty('--navBubbleMedia');
+      return;
     }
+    bubble.classList.add('has-custom-media');
+    bubble.style.setProperty('--navBubbleMedia', `url("${displayUrl}")`);
+  }
+
+  function glOrbArgsForRecord(rec){
+    if (!rec || rec.kind === 'proc' || !rec.url) return { kind: 'proc', url: null };
+    if (rec.preset === 'orb') return { kind: 'orb', url: null };
+    return { kind: 'custom', url: displayUrlForRecord(rec) };
+  }
+
+  function syncBackgroundBubbleLayersFromGlobal(displayUrl){
+    if (!window.errlGLSetBubblesLayerTexture) return;
+    const mode = displayUrl ? 'custom' : 'proc';
+    for (let i = 0; i < 6; i++) {
+      window.errlGLSetBubblesLayerTexture(i, mode, displayUrl || null);
+    }
+  }
+
+  function paintNavSkins(){
+    const bundle = getBundle();
+    const nav = bundle.nav || {};
+    const mode = nav.skinMode === 'perBubble' ? 'perBubble' : 'global';
+    const domBubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
+    const globalSkin = nav.skin && typeof nav.skin === 'object' ? nav.skin : { kind: 'proc', url: null, preset: null };
+    const per = (nav.bubbleSkins && typeof nav.bubbleSkins === 'object') ? nav.bubbleSkins : {};
+
+    if (mode === 'global') {
+      const disp = displayUrlForRecord(globalSkin);
+      syncBackgroundBubbleLayersFromGlobal(disp);
+      const orbArgs = glOrbArgsForRecord(globalSkin);
+      domBubbles.forEach((bubble) => {
+        applySkinToBubbleEl(bubble, disp);
+      });
+      const vis = (typeof window.__errlGetVisibleNavBubbles === 'function') ? window.__errlGetVisibleNavBubbles() : domBubbles;
+      vis.forEach((bubble, i) => {
+        if (window.errlGLSetOrbTexture) window.errlGLSetOrbTexture(i, orbArgs.kind, orbArgs.url);
+      });
+    } else {
+      syncBackgroundBubbleLayersFromGlobal(null);
+      domBubbles.forEach((bubble) => {
+        const key = (bubble.getAttribute && bubble.getAttribute('data-nav-bubble-key')) || '';
+        const rec = (key && per[key] && typeof per[key] === 'object') ? per[key] : { kind: 'proc', url: null };
+        const disp = displayUrlForRecord(rec);
+        applySkinToBubbleEl(bubble, disp);
+      });
+      const vis = (typeof window.__errlGetVisibleNavBubbles === 'function') ? window.__errlGetVisibleNavBubbles() : domBubbles;
+      vis.forEach((bubble, i) => {
+        const key = (bubble.getAttribute && bubble.getAttribute('data-nav-bubble-key')) || '';
+        const rec = (key && per[key] && typeof per[key] === 'object') ? per[key] : { kind: 'proc', url: null };
+        const orbArgs = glOrbArgsForRecord(rec);
+        if (window.errlGLSetOrbTexture) window.errlGLSetOrbTexture(i, orbArgs.kind, orbArgs.url);
+      });
+    }
+  }
+
+  window.__errlRefreshNavSkins = paintNavSkins;
+  try {
+    window.errlSetDesignNavVisibility = function(visible) {
+      writeShowDesignNav(!!visible);
+      syncDesignNavFromStorage();
+    };
+    window.__errlSyncDesignNavFromStorage = syncDesignNavFromStorage;
+    syncDesignNavFromStorage();
+  } catch (_) {}
+
+  function persistLegacyNavJson(){
+    const nav = getBundle().nav || {};
+    if (nav.skinMode === 'perBubble') return;
+    try { writeJson(NAV_SKIN_KEY, nav.skin || { kind: 'proc', url: null, preset: 'proc' }); } catch(_) {}
+  }
+
+  function getNavApplyTargetKey(){
+    const v = navSkinTarget && navSkinTarget.value;
+    if (!v || v === '__all__') return null;
+    return v;
+  }
+
+  function skinRecordFromPresetKey(presetKey){
+    if (presetKey === 'random') {
+      const randomSkin = skinFiles[Math.floor(Math.random() * skinFiles.length)];
+      if (!randomSkin) return { kind: 'proc', url: null, preset: 'proc' };
+      return { kind: 'custom', url: randomSkin, preset: 'random' };
+    }
+    const raw = Object.prototype.hasOwnProperty.call(navPresetMap, presetKey) ? navPresetMap[presetKey] : null;
+    if (!raw) return { kind: 'proc', url: null, preset: 'proc' };
+    return { kind: 'custom', url: raw, preset: presetKey };
+  }
+
+  function applyNavPresetOrRandom(presetKey){
+    const rec = skinRecordFromPresetKey(presetKey);
+    const targetKey = getNavApplyTargetKey();
+    if (!targetKey) {
+      updateBundle((b)=>{
+        b.nav = b.nav || {};
+        b.nav.skinMode = 'global';
+        b.nav.bubbleSkins = {};
+        b.nav.skin = {
+          kind: rec.kind,
+          url: clampDataUrlForStorage(rec.url),
+          preset: rec.preset
+        };
+      });
+    } else {
+      updateBundle((b)=>{
+        b.nav = b.nav || {};
+        b.nav.skinMode = 'perBubble';
+        b.nav.bubbleSkins = { ...(b.nav.bubbleSkins || {}) };
+        b.nav.bubbleSkins[targetKey] = {
+          kind: rec.kind,
+          url: clampDataUrlForStorage(rec.url),
+          preset: rec.preset
+        };
+      });
+    }
+    paintNavSkins();
+    persistLegacyNavJson();
+  }
+
+  function validateDecodedImageSize(dataUrl, cb){
+    const img = new Image();
+    img.onload = ()=>{
+      const ok = img.naturalWidth <= NAV_MAX_IMAGE_DIM && img.naturalHeight <= NAV_MAX_IMAGE_DIM;
+      cb(ok ? null : `Image is too large (${img.naturalWidth}x${img.naturalHeight}). Max side ${NAV_MAX_IMAGE_DIM}px.`);
+    };
+    img.onerror = ()=>{ cb('Could not read image.'); };
+    img.src = dataUrl;
+  }
+
+  on($("rotateSkins"), 'click', ()=>{
+    window.enableErrlGL && window.enableErrlGL();
+    if (skinFiles.length === 0) return;
+    if (navSkinPreset) navSkinPreset.value = 'random';
+    applyNavPresetOrRandom('random');
   });
+
+  on(navSkinApply, 'click', ()=>{
+    if (!navSkinPreset) return;
+    const preset = navSkinPreset.value || 'random';
+    applyNavPresetOrRandom(preset === 'random' ? 'random' : preset);
+  });
+
+  on(navSkinReset, 'click', ()=>{
+    const targetKey = getNavApplyTargetKey();
+    if (!targetKey) {
+      updateBundle((b)=>{
+        b.nav = b.nav || {};
+        b.nav.skinMode = 'global';
+        b.nav.skin = { kind: 'proc', url: null, preset: 'proc' };
+        b.nav.bubbleSkins = {};
+      });
+      try { localStorage.removeItem(NAV_SKIN_KEY); } catch(_) {}
+    } else {
+      updateBundle((b)=>{
+        b.nav = b.nav || {};
+        b.nav.skinMode = 'perBubble';
+        b.nav.bubbleSkins = { ...(b.nav.bubbleSkins || {}) };
+        delete b.nav.bubbleSkins[targetKey];
+        if (!Object.keys(b.nav.bubbleSkins).length) {
+          b.nav.skinMode = 'global';
+          b.nav.skin = { kind: 'proc', url: null, preset: 'proc' };
+          b.nav.bubbleSkins = {};
+        }
+      });
+    }
+    paintNavSkins();
+    persistLegacyNavJson();
+    if (navSkinPreset) navSkinPreset.value = 'proc';
+    if (navSkinUpload) navSkinUpload.value = '';
+  });
+
+  on(navSkinUpload, 'change', ()=>{
+    const file = navSkinUpload && navSkinUpload.files && navSkinUpload.files[0];
+    if (!file) return;
+    if (file.size > NAV_MAX_UPLOAD_BYTES) {
+      alert('Image is too large. Please use a file under 1.5MB.');
+      navSkinUpload.value = '';
+      return;
+    }
+    if (!/^image\//.test(file.type || '')) {
+      alert('Unsupported file type. Please upload an image or GIF.');
+      navSkinUpload.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+      if (!dataUrl) return;
+      validateDecodedImageSize(dataUrl, (errMsg)=>{
+        if (errMsg) {
+          alert(errMsg);
+          navSkinUpload.value = '';
+          return;
+        }
+        const targetKey = getNavApplyTargetKey();
+        const slot = { kind: 'custom', url: clampDataUrlForStorage(dataUrl), preset: 'upload' };
+        if (!targetKey) {
+          updateBundle((b)=>{
+            b.nav = b.nav || {};
+            b.nav.skinMode = 'global';
+            b.nav.bubbleSkins = {};
+            b.nav.skin = slot;
+          });
+        } else {
+          updateBundle((b)=>{
+            b.nav = b.nav || {};
+            b.nav.skinMode = 'perBubble';
+            b.nav.bubbleSkins = { ...(b.nav.bubbleSkins || {}) };
+            b.nav.bubbleSkins[targetKey] = slot;
+          });
+        }
+        paintNavSkins();
+        persistLegacyNavJson();
+        if (navSkinPreset) navSkinPreset.value = 'random';
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+
+  (function loadSavedNavSkin(){
+    const bundle = getBundle();
+    const nav = bundle.nav || {};
+    if (nav.skinMode === 'perBubble' && nav.bubbleSkins && Object.keys(nav.bubbleSkins).length) {
+      paintNavSkins();
+      return;
+    }
+    const saved = readJson(NAV_SKIN_KEY);
+    const bundled = nav.skin && typeof nav.skin === 'object' ? nav.skin : null;
+    const src = bundled && typeof bundled === 'object' ? bundled : saved;
+    if (!src || typeof src !== 'object') {
+      paintNavSkins();
+      return;
+    }
+    const kind = src.kind === 'proc' ? 'proc' : 'custom';
+    const url = (kind === 'custom' && src.url) ? src.url : null;
+    updateBundle((b)=>{
+      b.nav = b.nav || {};
+      b.nav.skinMode = 'global';
+      b.nav.bubbleSkins = {};
+      b.nav.skin = { kind, url: clampDataUrlForStorage(url), preset: src.preset || null };
+    });
+    paintNavSkins();
+    if (navSkinPreset && src.preset && navSkinPreset.querySelector(`option[value="${src.preset}"]`)) {
+      navSkinPreset.value = src.preset;
+    }
+  })();
+
+  (function mountNavSkinPacks(){
+    const strip = document.getElementById('navSkinPackStrip');
+    if (!strip) return;
+    fetch('./apps/landing/config/nav-skin-packs.json', { cache: 'no-cache' })
+      .then((r)=> (r.ok ? r.json() : []))
+      .then((list)=>{
+        if (!Array.isArray(list)) return;
+        strip.innerHTML = '';
+        list.forEach((pack)=>{
+          if (!pack || !pack.preset) return;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'nav-skin-pack-btn';
+          btn.title = pack.label || pack.preset;
+          btn.dataset.pack = pack.preset;
+          const rel = pack.thumb && String(pack.thumb);
+          const thumbSrc = rel ? resolveLandingAssetUrl(rel) : null;
+          if (thumbSrc) {
+            const img = document.createElement('img');
+            img.className = 'nav-skin-pack-thumb';
+            img.alt = '';
+            img.loading = 'lazy';
+            img.src = thumbSrc;
+            btn.appendChild(img);
+          }
+          const lab = document.createElement('span');
+          lab.className = 'nav-skin-pack-label';
+          lab.textContent = pack.label || pack.preset;
+          btn.appendChild(lab);
+          btn.addEventListener('click', ()=>{
+            if (navSkinPreset) navSkinPreset.value = pack.preset === 'random' ? 'random' : pack.preset;
+            applyNavPresetOrRandom(pack.preset === 'random' ? 'random' : pack.preset);
+          });
+          strip.appendChild(btn);
+        });
+      })
+      .catch(()=>{ try { strip.innerHTML = ''; } catch(_) {} });
+  })();
 
   // Rising Bubbles (Three.js) controls
   (function risingBubblesControls(){
@@ -1487,6 +2007,54 @@
     const attractIntensity = $("rbAttractIntensity");
     const ripples = $("rbRipples");
     const rippleIntensity = $("rbRippleIntensity");
+    const mode = $("rbInteractionMode");
+    const modeStatus = $("rbModeStatus");
+    const modeLegend = $("rbModeLegend");
+
+    function setModeStatus(text){
+      if (!modeStatus) return;
+      modeStatus.textContent = text;
+    }
+
+    function syncInteractionLocks(){
+      if (attractIntensity) attractIntensity.disabled = !attract?.checked;
+      if (rippleIntensity) rippleIntensity.disabled = !ripples?.checked;
+    }
+
+    function applyInteractionMode(nextMode, { persist = true } = {}) {
+      const normalized = nextMode === 'pop' ? 'pop' : 'classic';
+      if (mode) mode.value = normalized;
+      withRB((RB)=> { if (RB.setInteractionMode) RB.setInteractionMode(normalized); });
+      if (normalized === 'pop') {
+        if (attract) {
+          attract.checked = false;
+          withRB((RB)=> RB.setAttract && RB.setAttract(false));
+        }
+        if (ripples) {
+          ripples.checked = true;
+          withRB((RB)=> RB.setRipples && RB.setRipples(true));
+        }
+        if (rippleIntensity && parseFloat(rippleIntensity.value || '0') < 1.2) {
+          rippleIntensity.value = '1.2';
+          withRB((RB)=> RB.setRippleIntensity && RB.setRippleIntensity(rippleIntensity.value));
+        }
+        setModeStatus('Pop Mode: tap bubbles on canvas to pop. Attract is disabled to avoid overload.');
+        if (modeLegend) modeLegend.textContent = 'Pop = tap a bubble on the #riseBubbles canvas to pop it (audio + light feedback).';
+      } else {
+        if (attract) {
+          attract.checked = true;
+          withRB((RB)=> RB.setAttract && RB.setAttract(true));
+        }
+        if (ripples) {
+          ripples.checked = false;
+          withRB((RB)=> RB.setRipples && RB.setRipples(false));
+        }
+        setModeStatus('Classic Throw: drag/flick controls are prioritized.');
+        if (modeLegend) modeLegend.textContent = 'Classic = grab and throw bubbles, or flick near one to kick it.';
+      }
+      syncInteractionLocks();
+      if (persist) persistRB();
+    }
 
     function persistRB(){
       try{
@@ -1506,11 +2074,47 @@
           attract: !!attract?.checked,
           attractIntensity: parseFloat(attractIntensity?.value || '1.0'),
           ripples: !!ripples?.checked,
-          rippleIntensity: parseFloat(rippleIntensity?.value || '1.2')
+          rippleIntensity: parseFloat(rippleIntensity?.value || '1.2'),
+          interactionMode: mode?.value || 'classic'
         };
         updateBundle((b)=> { b.rb = obj; });
       }catch(e){}
     }
+
+    function applyRbBundle(rb){
+      if (!rb || typeof rb !== 'object') return;
+      const setNum = (el, v)=>{
+        if (!el || v === undefined || v === null || Number.isNaN(+v)) return;
+        el.value = String(v);
+      };
+      setNum(speed, rb.speed);
+      setNum(density, rb.density);
+      setNum(scale, rb.scale);
+      setNum(alpha, rb.alpha);
+      setNum(wobble, rb.wobble);
+      setNum(freq, rb.freq);
+      setNum(minSize, rb.min);
+      setNum(maxSize, rb.max);
+      setNum(sizeHz, rb.sizeHz);
+      setNum(jumboPct, rb.jumboPct);
+      setNum(jumboScale, rb.jumboScale);
+      setNum(attractIntensity, rb.attractIntensity);
+      setNum(rippleIntensity, rb.rippleIntensity);
+      if (mode && rb.interactionMode) mode.value = rb.interactionMode === 'pop' ? 'pop' : 'classic';
+      try { if (mode) mode.dispatchEvent(new Event('change', { bubbles: true })); } catch(_) {}
+      if (attract && rb.attract !== undefined) {
+        attract.checked = !!rb.attract;
+        try { attract.dispatchEvent(new Event('change', { bubbles: true })); } catch(_) {}
+      }
+      if (ripples && rb.ripples !== undefined) {
+        ripples.checked = !!rb.ripples;
+        try { ripples.dispatchEvent(new Event('change', { bubbles: true })); } catch(_) {}
+      }
+      const emit = (el)=>{ try { el && el.dispatchEvent(new Event('input', { bubbles: true })); } catch(_) {} };
+      [speed, density, scale, alpha, wobble, freq, minSize, maxSize, sizeHz, jumboPct, jumboScale, attractIntensity, rippleIntensity].forEach(emit);
+      persistRB();
+    }
+    window.__errlApplyRbBundle = applyRbBundle;
 
     if (speed) on(speed, 'input', ()=> { withRB(RB=> RB.setSpeed && RB.setSpeed(speed.value)); persistRB(); });
     // Repurposed: count multiplier.
@@ -1524,10 +2128,21 @@
     if (sizeHz) on(sizeHz, 'input', ()=> { withRB(RB=> RB.setSizeHz && RB.setSizeHz(sizeHz.value)); persistRB(); });
     if (jumboPct) on(jumboPct, 'input', ()=> { withRB(RB=> RB.setJumboPct && RB.setJumboPct(jumboPct.value)); persistRB(); });
     if (jumboScale) on(jumboScale, 'input', ()=> { withRB(RB=> RB.setJumboScale && RB.setJumboScale(jumboScale.value)); persistRB(); });
-    if (attract) on(attract, 'change', ()=> { withRB(RB=> RB.setAttract && RB.setAttract(attract.checked)); persistRB(); });
+    if (attract) on(attract, 'change', ()=> {
+      withRB(RB=> RB.setAttract && RB.setAttract(attract.checked));
+      if (attract.checked) applyInteractionMode('classic', { persist: false });
+      syncInteractionLocks();
+      persistRB();
+    });
     if (attractIntensity) on(attractIntensity, 'input', ()=> { withRB(RB=> RB.setAttractIntensity && RB.setAttractIntensity(attractIntensity.value)); persistRB(); });
-    if (ripples) on(ripples, 'change', ()=> { withRB(RB=> RB.setRipples && RB.setRipples(ripples.checked)); persistRB(); });
+    if (ripples) on(ripples, 'change', ()=> {
+      withRB(RB=> RB.setRipples && RB.setRipples(ripples.checked));
+      if (ripples.checked) applyInteractionMode('pop', { persist: false });
+      syncInteractionLocks();
+      persistRB();
+    });
     if (rippleIntensity) on(rippleIntensity, 'input', ()=> { withRB(RB=> RB.setRippleIntensity && RB.setRippleIntensity(rippleIntensity.value)); persistRB(); });
+    if (mode) on(mode, 'change', ()=> { applyInteractionMode(mode.value, { persist: true }); });
 
     // Apply initial values on load
     setTimeout(()=> {
@@ -1548,6 +2163,8 @@
         if (ripples && RB.setRipples) RB.setRipples(ripples.checked);
         if (rippleIntensity && RB.setRippleIntensity) RB.setRippleIntensity(rippleIntensity.value);
       });
+      applyInteractionMode(mode?.value || 'classic', { persist: false });
+      syncInteractionLocks();
     }, 500);
 
     // RB Advanced Animation controls
@@ -1650,6 +2267,231 @@
         }
       });
     }
+  })();
+
+  // Quick style presets (clean/epic/trippy)
+  (function presets(){
+    const PRESET_KEY = 'errl_portal_last_preset_v1';
+    const statusEl = $("presetStatus");
+    const cleanBtn = $("presetClean");
+    const epicBtn = $("presetEpic");
+    const trippyBtn = $("presetTrippy");
+    const btnMap = { clean: cleanBtn, epic: epicBtn, trippy: trippyBtn };
+
+    function setControlValue(id, value){
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === 'checkbox') {
+        el.checked = !!value;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        el.value = String(value);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+    function markActive(name){
+      Object.keys(btnMap).forEach((k)=>{
+        const btn = btnMap[k];
+        if (!btn) return;
+        btn.classList.toggle('active', k === name);
+      });
+    }
+    function setStatus(text){
+      if (statusEl) statusEl.textContent = text;
+    }
+    function applyPreset(name){
+      if (name === 'clean') {
+        setControlValue('rbWobble', '0.40');
+        setControlValue('rbFreq', '0.55');
+        setControlValue('rbAlpha', '0.65');
+        setControlValue('navFlow', '0.45');
+        setControlValue('navWiggle', '0.30');
+        setControlValue('hueEnabled', false);
+      } else if (name === 'epic') {
+        setControlValue('rbWobble', '1.10');
+        setControlValue('rbFreq', '1.05');
+        setControlValue('rbAlpha', '0.90');
+        setControlValue('navFlow', '1.35');
+        setControlValue('navWiggle', '0.72');
+        setControlValue('hueEnabled', true);
+        setControlValue('hueTarget', 'nav');
+        setControlValue('hueInt', '0.75');
+      } else if (name === 'trippy') {
+        setControlValue('rbWobble', '1.55');
+        setControlValue('rbFreq', '1.40');
+        setControlValue('rbAlpha', '0.94');
+        setControlValue('navFlow', '1.70');
+        setControlValue('navWiggle', '0.88');
+        setControlValue('hueEnabled', true);
+        setControlValue('hueTarget', 'riseBubbles');
+        setControlValue('hueInt', '1.00');
+        setControlValue('hueSat', '1.60');
+      }
+      markActive(name);
+      setStatus(`Preset applied: ${name[0].toUpperCase()}${name.slice(1)}`);
+      try { localStorage.setItem(PRESET_KEY, name); } catch(_) {}
+    }
+
+    on(cleanBtn, 'click', ()=> applyPreset('clean'));
+    on(epicBtn, 'click', ()=> applyPreset('epic'));
+    on(trippyBtn, 'click', ()=> applyPreset('trippy'));
+    const last = (() => { try { return localStorage.getItem(PRESET_KEY) || ''; } catch(_) { return ''; } })();
+    if (last && btnMap[last]) {
+      markActive(last);
+      setStatus(`Last preset: ${last[0].toUpperCase()}${last.slice(1)} (tap to re-apply).`);
+    }
+  })();
+
+  (function customPresetSlots(){
+    function captureSnapshot(){
+      const H = window.ErrlHueController;
+      const hueLayers = (H && H.layers)
+        ? JSON.parse(JSON.stringify(H.layers))
+        : JSON.parse(JSON.stringify((getBundle().hue && getBundle().hue.layers) || {}));
+      const nav = getBundle().nav || {};
+      return {
+        ui: snapshotUiControls(),
+        rb: { ...(getBundle().rb || {}) },
+        hue: { layers: hueLayers },
+        nav: {
+          skinMode: nav.skinMode,
+          skin: nav.skin ? { ...nav.skin } : { kind: 'proc', url: null, preset: 'proc' },
+          bubbleSkins: JSON.parse(JSON.stringify(nav.bubbleSkins || {})),
+          goo: JSON.parse(JSON.stringify(nav.goo || {}))
+        }
+      };
+    }
+    function applyHueLayers(layers){
+      const H = window.ErrlHueController;
+      if (!H || !layers || typeof layers !== 'object') return;
+      Object.keys(H.layers).forEach((k)=>{
+        const L = layers[k];
+        if (!L || typeof L !== 'object') return;
+        if (typeof H.setEnabled === 'function') H.setEnabled(!!L.enabled, k);
+        if (typeof H.setHue === 'function') H.setHue(+L.hue, k);
+        if (typeof H.setSaturation === 'function') H.setSaturation(+L.saturation, k);
+        if (typeof H.setIntensity === 'function') H.setIntensity(+L.intensity, k);
+      });
+      if (typeof H.applyAllCSS === 'function') H.applyAllCSS();
+      if (typeof H.persist === 'function') H.persist();
+    }
+    function applySnapshot(snap){
+      if (!snap) return;
+      updateBundle((b)=>{
+        if (snap.rb) b.rb = { ...snap.rb };
+        if (snap.hue && snap.hue.layers) {
+          b.hue = b.hue || {};
+          b.hue.layers = JSON.parse(JSON.stringify(snap.hue.layers));
+        }
+        if (snap.nav) b.nav = deepMerge(b.nav || { goo: {} }, snap.nav);
+      });
+      if (snap.ui) applyUiSnapshot(snap.ui);
+      if (window.__errlApplyRbBundle && snap.rb) window.__errlApplyRbBundle(snap.rb);
+      applyHueLayers(snap.hue && snap.hue.layers);
+      if (window.__errlRefreshNavSkins) window.__errlRefreshNavSkins();
+    }
+    function wireSlot(zero){
+      const idx = zero + 1;
+      const nameEl = document.getElementById(`customPresetSlot${idx}Name`);
+      const saveEl = document.getElementById(`customPresetSlot${idx}Save`);
+      const applyEl = document.getElementById(`customPresetSlot${idx}Apply`);
+      const clearEl = document.getElementById(`customPresetSlot${idx}Clear`);
+      if (!saveEl || !applyEl || !clearEl) return;
+      on(saveEl, 'click', ()=>{
+        const snap = captureSnapshot();
+        const label = (nameEl && nameEl.value && String(nameEl.value).trim()) || `Slot ${idx}`;
+        updateBundle((b)=>{
+          b.customPresets = b.customPresets || [null, null, null];
+          b.customPresets[zero] = { name: label, snap };
+        });
+        if (nameEl) nameEl.value = label;
+        const st = document.getElementById('presetStatus');
+        if (st) st.textContent = `Saved custom preset: ${label}`;
+      });
+      on(applyEl, 'click', ()=>{
+        const b = getBundle();
+        const slot = b.customPresets && b.customPresets[zero];
+        if (!slot || !slot.snap) {
+          const st = document.getElementById('presetStatus');
+          if (st) st.textContent = `Slot ${idx} is empty.`;
+          return;
+        }
+        applySnapshot(slot.snap);
+        const st = document.getElementById('presetStatus');
+        if (st) st.textContent = `Applied custom preset: ${slot.name || ('Slot ' + idx)}`;
+      });
+      on(clearEl, 'click', ()=>{
+        updateBundle((b)=>{
+          b.customPresets = b.customPresets || [null, null, null];
+          b.customPresets[zero] = null;
+        });
+        if (nameEl) nameEl.value = '';
+        const st = document.getElementById('presetStatus');
+        if (st) st.textContent = `Cleared slot ${idx}.`;
+      });
+    }
+    function hydrateNames(){
+      const b = getBundle();
+      if (!b.customPresets) return;
+      for (let i = 0; i < 3; i++) {
+        const slot = b.customPresets[i];
+        const nameEl = document.getElementById(`customPresetSlot${i + 1}Name`);
+        if (nameEl && slot && slot.name) nameEl.value = slot.name;
+      }
+    }
+    wireSlot(0); wireSlot(1); wireSlot(2);
+    hydrateNames();
+  })();
+
+  (function pinTourBanner(){
+    const KEY = 'errl_pin_tour_dismissed_v2';
+    const banner = document.getElementById('pinTourBanner');
+    const dismiss = document.getElementById('pinTourDismiss');
+    const showBtn = document.getElementById('pinTourShow');
+    if (!banner) return;
+    let dismissed = false;
+    try { dismissed = localStorage.getItem(KEY) === '1'; } catch(_) {}
+    if (!dismissed) banner.hidden = false;
+    on(dismiss, 'click', ()=>{
+      banner.hidden = true;
+      try { localStorage.setItem(KEY, '1'); } catch(_) {}
+    });
+    on(showBtn, 'click', ()=>{ banner.hidden = false; });
+  })();
+
+  (function glMoodButtons(){
+    document.querySelectorAll('[data-gl-mood]').forEach((btn)=>{
+      on(btn, 'click', ()=>{
+        const name = btn.getAttribute('data-gl-mood') || 'off';
+        const tryGL = (attempt)=>{
+          if (typeof window.errlGLSetMood === 'function') {
+            window.errlGLSetMood(name);
+            return;
+          }
+          if (attempt > 30) return;
+          setTimeout(()=> tryGL(attempt + 1), 120);
+        };
+        tryGL(0);
+      });
+    });
+  })();
+
+  // Pin guidance hint updates for action clarity
+  (function pinActionGuidance(){
+    const hint = $("pinActionHint");
+    if (!hint) return;
+    const labels = {
+      inject: 'Injected live to home. Save if you want to keep this look.',
+      save: 'Saved locally. This style loads again when you return.',
+      reset: 'Reset to default Errl. Inject or Save to customize again.'
+    };
+    document.querySelectorAll('[data-colorizer-action]').forEach((btn)=>{
+      on(btn, 'click', ()=>{
+        const action = btn && btn.getAttribute ? btn.getAttribute('data-colorizer-action') : '';
+        if (action && labels[action]) hint.textContent = labels[action];
+      });
+    });
   })();
 
   function applyDefaultsFromBundleOrRepo(){
@@ -1776,6 +2618,7 @@
   // Overlay randomizer removed
   
   on($("glbRandom"), 'click', ()=>{
+    window.enableErrlGL && window.enableErrlGL();
     const speed = Math.random() * 3;
     const density = Math.random() * 1.5;
     const alpha = Math.random();
@@ -1785,6 +2628,7 @@
   });
   
   on($("navRandom"), 'click', ()=>{
+    window.enableErrlGL && window.enableErrlGL();
     const wiggle = Math.random();
     const flow = Math.random() * 2;
     const grip = Math.random();
@@ -1984,7 +2828,7 @@
       }
       
       // Clear unified settings + any legacy keys (best-effort)
-      ['errl_portal_settings_v1','errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings','errl_goo_cfg','errl_a11y','errl_ui_defaults'].forEach(k=>{
+      ['errl_portal_settings_v1','errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings','errl_goo_cfg','errl_a11y','errl_ui_defaults','errl_nav_skin_pref_v1','errl_portal_last_preset_v1'].forEach(k=>{
         try{ localStorage.removeItem(k); }catch(e){}
       });
       
@@ -2090,9 +2934,17 @@
             auto: { rate: 0.16, strength: true, wobble: true, speed: true },
             mouseReactive: true
           },
-          nav: { goo: {} }
+          nav: {
+            goo: {},
+            skinMode: 'global',
+            skin: { kind: 'proc', url: null, preset: 'proc' },
+            bubbleSkins: {}
+          },
+          customPresets: [null, null, null]
         });
       }catch(_){}
+
+      try { if (window.__errlRefreshNavSkins) window.__errlRefreshNavSkins(); } catch(_) {}
       
       alert('Defaults reset. All settings restored to stock values.');
     } catch(e) {
@@ -2136,6 +2988,7 @@
     kick('bgSpeed'); kick('bgDensity'); kick('glAlpha');
     kick('navOrbitSpeed');
     kick('errlSize');
+    if (window.__errlRefreshNavSkins) window.__errlRefreshNavSkins();
   }
 
   function exportSettings(){
@@ -2175,15 +3028,18 @@
       if (!obj || typeof obj !== 'object') throw new Error('Invalid JSON');
       const v = (typeof obj.version === 'number') ? obj.version : 1;
       if (v !== 1) throw new Error('Unsupported settings version: ' + v);
-      const bundle = {
+      const rawSlots = Array.isArray(obj.customPresets) ? obj.customPresets.slice(0, 3) : [null, null, null];
+      while (rawSlots.length < 3) rawSlots.push(null);
+      const bundle = normalizeBundle({
         version: 1,
         ui: (obj.ui && typeof obj.ui === 'object') ? obj.ui : {},
         hue: (obj.hue && typeof obj.hue === 'object') ? obj.hue : { layers: {} },
         gl: (obj.gl && typeof obj.gl === 'object') ? obj.gl : { overlay: {}, bubbles: {} },
-        nav: (obj.nav && typeof obj.nav === 'object') ? obj.nav : { goo: {} },
+        nav: (obj.nav && typeof obj.nav === 'object') ? deepMerge({ goo: {} }, obj.nav) : { goo: {} },
         rb: (obj.rb && typeof obj.rb === 'object') ? obj.rb : {},
-        goo: (obj.goo && typeof obj.goo === 'object') ? obj.goo : {}
-      };
+        goo: (obj.goo && typeof obj.goo === 'object') ? obj.goo : {},
+        customPresets: rawSlots
+      });
       applyBundle(bundle);
       alert('Settings imported.');
     }catch(e){
@@ -2232,11 +3088,41 @@
   (function phoneUI(){
     const panel = document.getElementById('errlPanel');
     if (!panel) return;
+    const ctaHint = document.getElementById('errlPhoneCtaHint');
+    const ctaDismiss = document.getElementById('errlPhoneCtaDismiss');
+    const CTA_HINT_KEY = 'errl_phone_cta_dismissed_v1';
+    function phoneCtaReducedMotion() {
+      try {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
+      } catch (_) {}
+      return document.body && document.body.classList.contains('reduced-motion');
+    }
+    function dismissPhoneCta() {
+      if (ctaHint) ctaHint.hidden = true;
+      try { localStorage.setItem(CTA_HINT_KEY, '1'); } catch (_) {}
+    }
+    function maybeShowPhoneCta() {
+      if (!ctaHint) return;
+      if (!panel.classList.contains('minimized')) return;
+      if (phoneCtaReducedMotion()) return;
+      let dismissed = false;
+      try { dismissed = localStorage.getItem(CTA_HINT_KEY) === '1'; } catch (_) {}
+      if (dismissed) return;
+      ctaHint.hidden = false;
+    }
+    if (ctaDismiss) {
+      ctaDismiss.addEventListener('click', (e) => { e.stopPropagation(); dismissPhoneCta(); });
+    }
+    if (ctaHint) {
+      ctaHint.addEventListener('click', (e) => e.stopPropagation());
+    }
+    setTimeout(() => { maybeShowPhoneCta(); }, 500);
     
     // Initialize: ALWAYS start minimized by default (user must click to expand)
     // Rely on CSS for minimized styling; avoid inline !important that can block restoring.
     try { localStorage.removeItem('errl_phone_min'); } catch(_) {}
     panel.classList.add('minimized');
+    panel.setAttribute('aria-expanded', 'false');
     // no inline size constraints; CSS .errl-panel.minimized handles the bubble look
     
     const header = document.getElementById('errlPhoneHeader');
@@ -2316,18 +3202,37 @@
     }
 
     function activateTab(key){
+      const tabButtons = tabsWrap ? Array.from(tabsWrap.querySelectorAll('.tab')) : [];
+      const tabSections = sections.filter((sec) => sec.getAttribute('data-tab') === key);
+      const tabSectionId = tabSections[0] ? (tabSections[0].id || `panel-section-${key}`) : '';
+      if (tabSections[0] && !tabSections[0].id) tabSections[0].id = tabSectionId;
       // toggle buttons
       if (tabsWrap){
-        Array.from(tabsWrap.querySelectorAll('.tab')).forEach(btn=>{
+        tabButtons.forEach((btn, idx)=>{
           const on = btn.getAttribute('data-tab') === key;
           btn.classList.toggle('active', on);
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+          btn.setAttribute('tabindex', on ? '0' : '-1');
+          if (tabSectionId) btn.setAttribute('aria-controls', tabSectionId);
+          if (!btn.id) {
+            const tabKey = btn.getAttribute('data-tab') || `idx${idx}`;
+            btn.id = `panel-tab-${tabKey}`;
+          }
         });
       }
       // toggle sections
       sections.forEach(sec=>{
         const on = sec.getAttribute('data-tab') === key;
         sec.style.display = on ? 'block' : 'none';
+        sec.setAttribute('role', 'tabpanel');
+        if (tabSectionId && sec.id !== tabSectionId) {
+          sec.removeAttribute('aria-labelledby');
+        }
       });
+      if (tabSections[0]) {
+        const activeTab = tabButtons.find((btn) => btn.getAttribute('data-tab') === key);
+        if (activeTab) tabSections[0].setAttribute('aria-labelledby', activeTab.id);
+      }
     }
 
     // Helper: clear any inline minimized constraints (from previous versions or HTML)
@@ -2345,11 +3250,36 @@
         const key = t.getAttribute('data-tab');
         if (key) activateTab(key);
       });
+      tabsWrap.addEventListener('keydown', (e)=>{
+        const tabs = Array.from(tabsWrap.querySelectorAll('.tab'));
+        if (!tabs.length) return;
+        const current = e.target && e.target.closest ? e.target.closest('.tab') : null;
+        const currentIdx = current ? tabs.indexOf(current) : -1;
+        if (currentIdx < 0) return;
+        let nextIdx = -1;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          nextIdx = (currentIdx + 1) % tabs.length;
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          nextIdx = (currentIdx - 1 + tabs.length) % tabs.length;
+        } else if (e.key === 'Home') {
+          nextIdx = 0;
+        } else if (e.key === 'End') {
+          nextIdx = tabs.length - 1;
+        }
+        if (nextIdx < 0) return;
+        e.preventDefault();
+        const nextTab = tabs[nextIdx];
+        const key = nextTab && nextTab.getAttribute('data-tab');
+        if (!key) return;
+        activateTab(key);
+        nextTab.focus();
+      });
     }
 
     // Helper function to minimize the panel
     function minimizePanel() {
       panel.classList.add('minimized');
+      panel.setAttribute('aria-expanded', 'false');
       clearMinimizedInlineStyles();
       lockPanelToCorner();
       try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
@@ -2357,7 +3287,9 @@
 
     // Helper function to restore the panel
     function restorePanel() {
+      dismissPhoneCta();
       panel.classList.remove('minimized');
+      panel.setAttribute('aria-expanded', 'true');
       clearMinimizedInlineStyles();
       if (!expanded) lockPanelToCorner();
       // Show content again (CSS handles layout)
@@ -2412,7 +3344,7 @@
     panel.addEventListener('click', (e)=>{
       if (panel.classList.contains('minimized')) {
         // Only expand if clicking the panel itself (not child elements)
-        if (e.target === panel || e.target.classList.contains('errl-panel') || e.target.id === 'phone-vibe-bar') {
+        if (e.target === panel || e.target.classList.contains('errl-panel') || e.target.id === 'phone-vibe-bar' || e.target.classList.contains('panel-minimized-label')) {
           restorePanel();
         }
       }
@@ -2720,5 +3652,32 @@
     import('@shared/devpanel/runtime.ts')
       .then((mod) => mod.mountDevPanel())
       .catch((err) => console.warn('[devpanel] failed to mount', err));
+  })();
+
+  (function errlIdleStreakLayer(){
+    const el = document.getElementById('errlIdleStreak');
+    if (!el) return;
+    function isReduced(){
+      if (document.body && document.body.classList.contains('reduced-motion')) return true;
+      try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_){ return false; }
+    }
+    function playOnce(){
+      if (isReduced() || (typeof document.hidden === 'boolean' && document.hidden)) return;
+      el.classList.remove('errl-idle-streak--on');
+      void el.offsetWidth;
+      el.classList.add('errl-idle-streak--on');
+    }
+    const baseMs = 26000;
+    function scheduleNext(){
+      setTimeout(()=>{
+        if (isReduced() || (typeof document.hidden === 'boolean' && document.hidden)) {
+          scheduleNext();
+          return;
+        }
+        playOnce();
+        scheduleNext();
+      }, baseMs + Math.random() * 14000);
+    }
+    setTimeout(scheduleNext, 12000 + Math.random() * 8000);
   })();
 })();

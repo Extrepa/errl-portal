@@ -1,18 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* Aligned with forum (forum.errl.wtf): default hide Design until Errl Phone enables it. */
+html[data-errl-hide-design-nav] [data-errl-nav='design'] {
+  display: none !important;
+}
+
 .errl-header {
   position: sticky;
   top: 0;
   width: 100%;
   z-index: 40;
-  padding: 0.55rem 0.85rem;
+  padding: 0.5rem 0.85rem;
   backdrop-filter: blur(12px);
-  background:
-      linear-gradient(135deg, rgba(220, 220, 240, 0.95) 0%, rgba(180, 180, 200, 0.9) 25%, rgba(160, 160, 180, 0.9) 50%, rgba(180, 180, 200, 0.9) 75%, rgba(220, 220, 240, 0.95) 100%),
-      linear-gradient(45deg, rgba(255, 255, 255, 0.24) 0%, transparent 30%, transparent 70%, rgba(255, 255, 255, 0.24) 100%);
-  box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.35),
-      0 1px 0 rgba(255, 255, 255, 0.4) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.18) inset;
-  border-bottom: 1px solid rgba(120, 120, 140, 0.55);
+  -webkit-backdrop-filter: blur(12px);
+  background: var(--errl-panel, rgba(7, 27, 37, 0.82));
+  box-shadow: var(--shadow, 0 24px 60px rgba(0, 0, 0, 0.45));
+  border: 1px solid rgba(22, 58, 74, 0.6);
+  border-bottom: 1px solid rgba(52, 225, 255, 0.12);
+  isolation: isolate;
 }
 
 .errl-header-content {
@@ -23,8 +28,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  letter-spacing: -0.02em;
+  font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: -0.01em;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -40,32 +45,29 @@
   gap: 0.5rem;
   padding: 0.45rem 0.75rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(52, 225, 255, 0.45);
   font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
-  background-size: 200% 200%;
-  background-image: linear-gradient(
+  color: #ecf9ff;
+  text-shadow: 0 0 8px rgba(52, 225, 255, 0.35);
+  background: linear-gradient(
     135deg,
-    #ff0080 0%,
-    #8000ff 25%,
-    #0080ff 50%,
-    #00ff80 75%,
-    #ff8000 100%
+    rgba(52, 225, 255, 0.2) 0%,
+    rgba(255, 52, 245, 0.15) 50%,
+    rgba(0, 245, 160, 0.12) 100%
   );
   box-shadow:
-      0 4px 12px rgba(0, 0, 0, 0.35),
-      0 1px 0 rgba(255, 255, 255, 0.3) inset;
+    0 0 0 1px rgba(52, 225, 255, 0.15) inset,
+    0 4px 18px rgba(0, 0, 0, 0.4);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .errl-home-btn:hover {
   transform: translateY(-1px);
   box-shadow:
-      0 6px 18px rgba(0, 0, 0, 0.4),
-      0 1px 0 rgba(255, 255, 255, 0.4) inset;
+    0 0 0 1px rgba(52, 225, 255, 0.3) inset,
+    0 0 20px rgba(52, 225, 255, 0.25);
 }
 
 .errl-home-btn .chevron {
@@ -76,7 +78,7 @@
 .errl-nav {
   display: flex;
   flex-wrap: nowrap;
-  gap: 0.6rem;
+  gap: 0.5rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -103,73 +105,74 @@
   line-height: 1.05;
   text-align: center;
   text-decoration: none;
-  color: rgba(230, 232, 255, 0.96);
+  color: var(--errl-text, rgba(236, 249, 255, 0.95));
   white-space: nowrap;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
-  background:
-      linear-gradient(135deg, rgba(110, 110, 140, 0.92) 0%, rgba(60, 60, 80, 0.9) 50%, rgba(110, 110, 140, 0.92) 100%),
-      linear-gradient(45deg, rgba(255, 255, 255, 0.16) 0%, transparent 30%, transparent 70%, rgba(255, 255, 255, 0.16) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-      0 4px 12px rgba(0, 0, 0, 0.28),
-      0 1px 0 rgba(255, 255, 255, 0.18) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.24) inset;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  text-shadow: 0 0 10px rgba(52, 225, 255, 0.2);
+  background: rgba(4, 16, 23, 0.65);
+  border: 1px solid rgba(52, 225, 255, 0.22);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) inset;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
   flex-shrink: 0;
 }
 
 .errl-bubble-btn::before {
   content: '';
   position: absolute;
-  top: -2px;
-  right: -2px;
-  bottom: -2px;
-  left: -2px;
+  top: -1px;
+  right: -1px;
+  bottom: -1px;
+  left: -1px;
   border-radius: 999px;
-  padding: 2px;
+  padding: 1px;
   background: linear-gradient(
     90deg,
-    rgba(0, 255, 255, 0.55) 0%,
-    rgba(255, 0, 255, 0.55) 25%,
-    rgba(255, 255, 0, 0.55) 50%,
-    rgba(0, 255, 0, 0.55) 75%,
-    rgba(0, 255, 255, 0.55) 100%
+    rgba(52, 225, 255, 0.4) 0%,
+    rgba(255, 52, 245, 0.35) 35%,
+    rgba(245, 255, 183, 0.2) 70%,
+    rgba(52, 225, 255, 0.4) 100%
   );
   background-size: 180% 100%;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: xor;
   -webkit-mask-composite: xor;
   animation: portal-header-led-flow 3s linear infinite;
-  opacity: 0.75;
+  opacity: 0.55;
   pointer-events: none;
 }
 
 .errl-bubble-btn:hover {
   transform: translateY(-1px);
-  box-shadow:
-      0 6px 16px rgba(0, 0, 0, 0.34),
-      0 1px 0 rgba(255, 255, 255, 0.25) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.28) inset;
+  border-color: rgba(52, 225, 255, 0.45);
+  box-shadow: 0 0 16px rgba(52, 225, 255, 0.15);
 }
 
 .errl-bubble-btn[aria-disabled='true'] {
-  opacity: 0.78;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
 .errl-bubble-btn[aria-disabled='true']:hover {
   transform: none;
-  box-shadow:
-      0 4px 12px rgba(0, 0, 0, 0.28),
-      0 1px 0 rgba(255, 255, 255, 0.18) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.24) inset;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) inset;
 }
 
 .errl-bubble-btn.active {
-  background:
-      linear-gradient(135deg, rgba(140, 90, 255, 0.95) 0%, rgba(60, 40, 120, 0.95) 50%, rgba(140, 90, 255, 0.95) 100%);
-  color: #f2edff;
-  border-color: rgba(255, 255, 255, 0.35);
+  background: linear-gradient(
+    135deg,
+    rgba(52, 225, 255, 0.2) 0%,
+    rgba(123, 92, 255, 0.2) 50%,
+    rgba(255, 52, 245, 0.12) 100%
+  );
+  color: #fff;
+  border-color: rgba(52, 225, 255, 0.55);
+  font-weight: 700;
+  text-shadow: 0 0 14px rgba(52, 225, 255, 0.5);
+  box-shadow: 0 0 22px rgba(52, 225, 255, 0.15);
+}
+
+.errl-bubble-btn.active::before {
+  opacity: 0.85;
+  animation-duration: 1.2s;
 }
 
 @keyframes portal-header-led-flow {
@@ -181,7 +184,6 @@
   }
 }
 
-/* Old WebKit: no clamp() / aspect-ratio (Safari < 13.1) */
 @supports not (font-size: clamp(1px, 2vw, 16px)) {
   .errl-bubble-btn {
     font-size: 0.8rem;
@@ -281,7 +283,7 @@
 
   .errl-nav {
     gap: 0.3rem;
-    padding: 0.25rem 0;
+    padding: 0.1rem 0;
   }
 
   .errl-bubble-btn {
@@ -308,4 +310,3 @@
     aspect-ratio: 1.1;
   }
 }
-

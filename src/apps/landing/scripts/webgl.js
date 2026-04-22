@@ -11,6 +11,7 @@
   let moodFilter = null;
   let orbContainer = null;
   let orbs = [];
+  let orbBaseTexture = null;
   let orbFilter = null;
   let fxm = null; // ErrlFX manager
   let bubblesFX = null; // legacy single layer
@@ -19,6 +20,15 @@
   let overlayFilter = null;
   let fxRoot = null;
   let scheduleRendererResize = null;
+
+  // Queues for async init: texture loads in img.onload after init() starts sync (Pixi + Image).
+  const pendingBursts = [];
+  let pendingBubbles = null;
+  let pendingGoo = null;
+  let pendingMood = null;
+  let pendingOverlay = null;
+  let pendingShowOrbs = null;
+  W.errlGLLoaded = false;
 
   function getCanvas() {
     return document.getElementById('errlWebGL');
@@ -468,8 +478,14 @@
 
       started = true;
       enable();
+      runPostInitFlush();
     };
-    img.onerror = () => console.warn('Failed to load serialized Errl SVG for WebGL');
+    img.onerror = () => {
+      console.warn('Failed to load serialized Errl SVG for WebGL');
+      try {
+        W.dispatchEvent(new CustomEvent('errl:webgl-error', { bubbles: true, detail: { reason: 'texture-load' } }));
+      } catch (_) {}
+    };
     img.src = url;
   }
 
@@ -478,6 +494,77 @@
   }
   function disable(){
     paused = true;
+  }
+
+  function applyGooParams(p){
+    if (!filter || !p) return;
+    if ('intensity' in p) filter.uniforms.uAmp = Math.max(0, Math.min(1, p.intensity));
+    if ('speed' in p) filter.uniforms.uSpeed = Math.max(0, p.speed);
+    if ('viscosity' in p) filter.uniforms.uViscosity = Math.max(0, Math.min(1, p.viscosity));
+    if ('drip' in p) filter.uniforms.uDrip = Math.max(0, Math.min(1, p.drip));
+    if ('wiggle' in p) filter.uniforms.uWiggle = Math.max(0, Math.min(1, p.wiggle));
+  }
+
+  function mergePendingGoo(p){
+    pendingGoo = { ...(pendingGoo || {}), ...p };
+  }
+
+  function applyBubblesParams(params){
+    if (!bubblesFXLayers || !params) return;
+    const layers = bubblesFXLayers.filter(Boolean);
+    if ('speed' in params) layers.forEach(l=> l.setSpeed && l.setSpeed(params.speed));
+    if ('density' in params) layers.forEach(l=> l.setCountFactor && l.setCountFactor(params.density));
+    const patch = {};
+    if ('alpha' in params) patch.alpha = params.alpha;
+    if ('minSize' in params) patch.minSize = params.minSize;
+    if ('maxSize' in params) patch.maxSize = params.maxSize;
+    if ('farRatio' in params) patch.farRatio = params.farRatio;
+    if ('sizeJitterFreq' in params) patch.sizeJitterFreq = params.sizeJitterFreq;
+    if ('jumboChance' in params) patch.jumboChance = params.jumboChance;
+    if ('jumboScale' in params) patch.jumboScale = params.jumboScale;
+    if (Object.keys(patch).length) layers.forEach(l=> l.set && l.set(patch));
+    if ('wobble' in params) layers.forEach(l=> l.setWobbleMult && l.setWobbleMult(params.wobble));
+    if ('freq' in params) layers.forEach(l=> l.setFreqMult && l.setFreqMult(params.freq));
+  }
+
+  function mergePendingBubbles(p){
+    if (!p) return;
+    pendingBubbles = { ...(pendingBubbles || {}), ...p };
+  }
+
+  function runPostInitFlush(){
+    if (pendingGoo && filter) {
+      const g = pendingGoo;
+      pendingGoo = null;
+      applyGooParams(g);
+    }
+    if (pendingBubbles && bubblesFXLayers) {
+      const b = pendingBubbles;
+      pendingBubbles = null;
+      applyBubblesParams(b);
+    }
+    if (typeof pendingMood === 'string' && moodFilter) {
+      setMood(pendingMood);
+      pendingMood = null;
+    }
+    if (pendingOverlay && overlay) {
+      const o = pendingOverlay;
+      pendingOverlay = null;
+      if ('alpha' in o) overlay.alpha = o.alpha;
+      if (overlayFilter) {
+        if ('dx' in o) overlayFilter.uniforms.uDX = o.dx;
+        if ('dy' in o) overlayFilter.uniforms.uDY = o.dy;
+      }
+    }
+    if (typeof pendingShowOrbs === 'boolean' && orbContainer) {
+      orbContainer.visible = pendingShowOrbs;
+      pendingShowOrbs = null;
+    }
+    while (pendingBursts.length) {
+      const b = pendingBursts.shift();
+      spawnBurstGL(b.c, b.x, b.y);
+    }
+    try { W.errlGLLoaded = true; W.dispatchEvent(new CustomEvent('errl:webgl-ready', { bubbles: true })); } catch (_) { W.errlGLLoaded = true; }
   }
 
   function spawnBurstGL(count = 600, clickX = null, clickY = null){
@@ -538,9 +625,22 @@
     }
   }
 
+  function getNavOrbitDomElements(){
+    const all = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
+    if (typeof W.__errlGetVisibleNavBubbles === 'function') {
+      return W.__errlGetVisibleNavBubbles();
+    }
+    return all.filter((b) => {
+      try {
+        return b.getBoundingClientRect().width > 0;
+      } catch (_) { return false; }
+    });
+  }
+
   function buildOrbs(tex){
-    // create one orb per DOM bubble
-    const doms = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
+    // one orb per visible nav bubble (must match __errlGetVisibleNavBubbles)
+    orbBaseTexture = tex;
+    const doms = getNavOrbitDomElements();
     orbs.forEach(s=>s.destroy({texture:false, baseTexture:false}));
     orbs = doms.map((_b,i)=>{
       const s = new PIXI.Sprite(tex);
@@ -558,12 +658,18 @@
 
   function syncOrbsPositions(){
     if (!orbs.length) return;
-    const doms = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
-    doms.forEach((b,i)=>{
+    const doms = getNavOrbitDomElements();
+    if (!doms.length || orbs.length !== doms.length) {
+      if (orbBaseTexture) {
+        buildOrbs(orbBaseTexture);
+        return;
+      }
+    }
+    doms.forEach((b, i) => {
+      if (!orbs[i]) return;
       const r = b.getBoundingClientRect();
       const x = r.left + r.width/2;
       const y = r.top + r.height/2;
-      // assume CSS pixels == renderer pixels in this setup
       orbs[i].x = x; orbs[i].y = y;
     });
   }
@@ -585,29 +691,60 @@
   // expose controls
   W.enableErrlGL = function(){ if (!started) init(); else enable(); };
   W.disableErrlGL = function(){ disable(); };
-  W.errlGLBurst = function(x, y){ if (!started) init(); spawnBurstGL(600, x, y); };
-  W.errlGLSetMood = function(name){ if (!started) init(); setMood(name); };
+  W.errlGLBurst = function(x, y, count){
+    const c = (count != null && isFinite(count)) ? Math.max(1, Math.min(5000, count|0)) : 600;
+    if (!getCanvas() || !W.PIXI) {
+      try { W.dispatchEvent(new CustomEvent('errl:webgl-unavailable', { bubbles: true, detail: { reason: 'no-canvas' } })); } catch (_) {}
+      return;
+    }
+    if (!started) init();
+    if (!particles) {
+      pendingBursts.push({ x, y, c });
+      return;
+    }
+    spawnBurstGL(c, x, y);
+  };
+  W.errlGLSetMood = function(name){
+    if (!started) init();
+    if (!moodFilter) {
+      pendingMood = name;
+      return;
+    }
+    setMood(name);
+  };
   W.errlGLSyncOrbs = function(){ if (!started) return; syncOrbsPositions(); };
+  W.errlGLRebuildNavOrbs = function(){
+    if (!started || !orbBaseTexture) return;
+    buildOrbs(orbBaseTexture);
+  };
   W.errlGLOrbHover = function(index, on){ if (!started || !orbs[index]) return; const f=orbs[index].filters && orbs[index].filters[0]; if (f) f.uniforms.uIOR = on ? 1.8 : 1.0; };
   W.errlGLSetOrbScale = function(scale){ if(!started||!orbs.length) return; const s = Math.max(0.2, Math.min(2.5, scale||1)); orbs.forEach(o=> o && o.scale && o.scale.set(0.72*s)); };
-  W.errlGLShowOrbs = function(show){ if (!started) init(); if (orbContainer) orbContainer.visible = !!show; };
-  W.errlGLSetGoo = function(p){ if(!started) init(); if(!filter||!p) return; if('intensity' in p) filter.uniforms.uAmp = Math.max(0, Math.min(1, p.intensity)); if('speed' in p) filter.uniforms.uSpeed = Math.max(0, p.speed); if('viscosity' in p) filter.uniforms.uViscosity = Math.max(0, Math.min(1, p.viscosity)); if('drip' in p) filter.uniforms.uDrip = Math.max(0, Math.min(1, p.drip)); if('wiggle' in p) filter.uniforms.uWiggle = Math.max(0, Math.min(1, p.wiggle)); };
+  W.errlGLShowOrbs = function(show){
+    if (!started) init();
+    const on = !!show;
+    if (!orbContainer) {
+      pendingShowOrbs = on;
+      return;
+    }
+    orbContainer.visible = on;
+  };
+  W.errlGLSetGoo = function(p){
+    if (!started) init();
+    if (!p) return;
+    if (!filter) {
+      mergePendingGoo(p);
+      return;
+    }
+    applyGooParams(p);
+  };
   W.errlGLSetBubbles = function(params){
-    if (!started) init(); if (!bubblesFXLayers || !params) return;
-    const layers = bubblesFXLayers.filter(Boolean);
-    if ('speed' in params) layers.forEach(l=> l.setSpeed && l.setSpeed(params.speed));
-    if ('density' in params) layers.forEach(l=> l.setCountFactor && l.setCountFactor(params.density));
-    const patch = {};
-    if ('alpha' in params) patch.alpha = params.alpha;
-    if ('minSize' in params) patch.minSize = params.minSize;
-    if ('maxSize' in params) patch.maxSize = params.maxSize;
-    if ('farRatio' in params) patch.farRatio = params.farRatio;
-    if ('sizeJitterFreq' in params) patch.sizeJitterFreq = params.sizeJitterFreq;
-    if ('jumboChance' in params) patch.jumboChance = params.jumboChance;
-    if ('jumboScale' in params) patch.jumboScale = params.jumboScale;
-    if (Object.keys(patch).length) layers.forEach(l=> l.set && l.set(patch));
-    if ('wobble' in params) layers.forEach(l=> l.setWobbleMult && l.setWobbleMult(params.wobble));
-    if ('freq' in params) layers.forEach(l=> l.setFreqMult && l.setFreqMult(params.freq));
+    if (!started) init();
+    if (!params) return;
+    if (!bubblesFXLayers) {
+      mergePendingBubbles(params);
+      return;
+    }
+    applyBubblesParams(params);
   };
   W.errlGLSetBubblesTexture = function(kind, url){
     if (!started) init(); if (!bubblesFXLayers) return;
@@ -622,7 +759,49 @@
     else if (kind==='proc') l.set({ textureUrl: null });
     else if (kind==='custom' && url) l.set({ textureUrl: url });
   };
-  W.errlGLSetOverlay = function(params){ if (!started) init(); if (!overlay) return; if ('alpha' in params) overlay.alpha = params.alpha; if (overlayFilter){ if ('dx' in params) overlayFilter.uniforms.uDX = params.dx; if ('dy' in params) overlayFilter.uniforms.uDY = params.dy; } };
+  /** Per-nav-orb texture (sync with DOM `.nav-orbit .bubble` order). kind: proc | custom | orb */
+  W.errlGLSetOrbTexture = function(index, kind, url){
+    if (!started) init();
+    const sprite = orbs[index];
+    if (!sprite || !orbBaseTexture) return;
+    const applyBase = ()=>{ try { sprite.texture = orbBaseTexture; } catch(_) {} };
+    if (kind === 'proc' || !url) {
+      applyBase();
+      return;
+    }
+    const resolved = (kind === 'orb')
+      ? `${BASE_URL}assets/shared/fx/Orb_NeedsFriends.png`
+      : String(url);
+    try {
+      const PIXI = W.PIXI;
+      if (!PIXI || !PIXI.Texture) {
+        applyBase();
+        return;
+      }
+      const tex = PIXI.Texture.from(resolved);
+      if (tex && tex.baseTexture) {
+        tex.baseTexture.once('error', ()=>{ applyBase(); });
+      }
+      sprite.texture = tex;
+    } catch(_) {
+      applyBase();
+    }
+  };
+  W.errlGLSetOverlay = function(params){
+    if (!started) init();
+    if (!params) return;
+    if (!overlay) {
+      if ('alpha' in params) pendingOverlay = { ...pendingOverlay, alpha: params.alpha };
+      if ('dx' in params) pendingOverlay = { ...pendingOverlay, dx: params.dx };
+      if ('dy' in params) pendingOverlay = { ...pendingOverlay, dy: params.dy };
+      return;
+    }
+    if ('alpha' in params) overlay.alpha = params.alpha;
+    if (overlayFilter) {
+      if ('dx' in params) overlayFilter.uniforms.uDX = params.dx;
+      if ('dy' in params) overlayFilter.uniforms.uDY = params.dy;
+    }
+  };
   W.errlGLGetOverlay = function(){ if (!started) return null; return { alpha: overlay ? overlay.alpha : null, dx: overlayFilter ? overlayFilter.uniforms.uDX : null, dy: overlayFilter ? overlayFilter.uniforms.uDY : null }; };
   W.errlGLSetDprCap = function(cap){
     const normalized = normalizeDprCap(cap);

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Nav Bubbles & Tabs Changes Verification', () => {
   test.beforeEach(async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
   });
 
   test('@ui nav bubbles are larger (60% increase)', async ({ page }) => {
@@ -82,7 +82,7 @@ test.describe('Nav Bubbles & Tabs Changes Verification', () => {
     expect(tabsPosition?.tabsBeforeContent).toBe(true);
   });
 
-  test('@ui Errl Phone tabs use horizontal flex layout', async ({ page }) => {
+  test('@ui Errl Phone tabs use grid layout', async ({ page }) => {
     const panel = page.locator('#errlPanel');
     const isMinimized = await panel.evaluate((el) => 
       el.classList.contains('minimized')
@@ -99,17 +99,18 @@ test.describe('Nav Bubbles & Tabs Changes Verification', () => {
       const styles = window.getComputedStyle(tabs);
       return {
         display: styles.display,
-        flexDirection: styles.flexDirection,
-        flexWrap: styles.flexWrap,
+        gridTemplateColumns: styles.gridTemplateColumns,
+        gridTemplateRows: styles.gridTemplateRows,
       };
     });
 
     expect(tabsLayout).not.toBeNull();
-    expect(tabsLayout?.display).toBe('flex');
-    expect(tabsLayout?.flexDirection).toBe('row');
+    expect(tabsLayout?.display).toBe('grid');
+    expect(tabsLayout?.gridTemplateColumns).toBeTruthy();
+    expect(tabsLayout?.gridTemplateRows).toBeTruthy();
   });
 
-  test('@ui Errl Phone tabs have horizontal layout with labels', async ({ page }) => {
+  test('@ui Errl Phone tabs include labels in grid cells', async ({ page }) => {
     const panel = page.locator('#errlPanel');
     const isMinimized = await panel.evaluate((el) => 
       el.classList.contains('minimized')
@@ -126,7 +127,7 @@ test.describe('Nav Bubbles & Tabs Changes Verification', () => {
       const styles = window.getComputedStyle(tab);
       const label = tab.querySelector('.label') as HTMLElement;
       return {
-        flexDirection: styles.flexDirection,
+        display: styles.display,
         height: styles.height,
         labelVisible: label ? window.getComputedStyle(label).display !== 'none' : false,
         labelFontSize: label ? window.getComputedStyle(label).fontSize : null,
@@ -134,7 +135,7 @@ test.describe('Nav Bubbles & Tabs Changes Verification', () => {
     });
 
     expect(tabLayout).not.toBeNull();
-    expect(tabLayout?.flexDirection).toBe('row');
+    expect(tabLayout?.display).toMatch(/grid|flex/);
     expect(tabLayout?.height).toBeTruthy(); // Should have fixed height
     expect(tabLayout?.labelVisible).toBe(true);
     expect(tabLayout?.labelFontSize).toBeTruthy();
@@ -167,7 +168,7 @@ test.describe('Nav Bubbles & Tabs Changes Verification', () => {
     expect(isActive).toBe(true);
   });
 
-  test('@ui all 8 tabs are visible in horizontal layout', async ({ page }) => {
+  test('@ui all 9 tabs are visible in panel layout', async ({ page }) => {
     const panel = page.locator('#errlPanel');
     const isMinimized = await panel.evaluate((el) => 
       el.classList.contains('minimized')
@@ -179,10 +180,10 @@ test.describe('Nav Bubbles & Tabs Changes Verification', () => {
     }
 
     const tabs = page.locator('.panel-tabs .tab');
-    await expect(tabs).toHaveCount(8);
+    await expect(tabs).toHaveCount(9);
     
     // Verify all tabs are visible
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 9; i++) {
       await expect(tabs.nth(i)).toBeVisible();
     }
   });

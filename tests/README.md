@@ -46,6 +46,7 @@ Comprehensive Playwright test suite covering:
    - GLB controls
    - Hue controls
    - Effect function verification
+   - **See also:** [docs/reference/errl-phone-capabilities.md](../docs/reference/errl-phone-capabilities.md) for layer vs tab semantics, WebGL readiness, and new HUD/CTA cases (Burst, a11y labels, first-visit CTA).
 
 3. **`effects.spec.ts`** (Enhanced)
    - Background particles

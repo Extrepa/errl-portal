@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { resolvePortalPageUrl } from '../utils/portalPaths';
 import './portal-header.css';
 
+const SHOW_DESIGN_NAV_KEY = 'errl_portal_show_design_nav';
+
 type NavItemKey = 'about' | 'assets' | 'design' | 'forum' | 'gallery' | 'studio';
 
 export type PortalNavKey = NavItemKey | 'code-lab';
@@ -30,6 +32,38 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
   const portalHome = '/';
 
   const [comingSoonVisible, setComingSoonVisible] = useState(false);
+  const [showDesignInNav, setShowDesignInNav] = useState(() => {
+    try {
+      return localStorage.getItem(SHOW_DESIGN_NAV_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (showDesignInNav) document.documentElement.removeAttribute('data-errl-hide-design-nav');
+    else document.documentElement.setAttribute('data-errl-hide-design-nav', '');
+  }, [showDesignInNav]);
+
+  useEffect(() => {
+    const read = () => {
+      try {
+        setShowDesignInNav(localStorage.getItem(SHOW_DESIGN_NAV_KEY) === 'true');
+      } catch {
+        setShowDesignInNav(false);
+      }
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === SHOW_DESIGN_NAV_KEY) read();
+    };
+    const onVis = () => read();
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('errl-design-nav-visibility', onVis as EventListener);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('errl-design-nav-visibility', onVis as EventListener);
+    };
+  }, []);
 
   useEffect(() => {
     if (!comingSoonVisible) return;
@@ -73,6 +107,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
     { key: 'gallery', label: 'Gallery', href: resolvePortalPageUrl('pages/gallery/index.html'), type: 'external' },
     { key: 'studio', label: 'Studio', to: '/', type: 'internal' },
   ];
+  const visibleNavItems = navItems.filter((item) => item.key !== 'design' || showDesignInNav);
 
   return (
     <header className="errl-header">
@@ -85,7 +120,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
         </a>
 
         <nav className="errl-nav" aria-label="Errl primary">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = highlightKey === item.key;
             const className = ['errl-bubble-btn', isActive ? 'active' : ''].filter(Boolean).join(' ');
 
@@ -102,6 +137,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
                 key={item.key}
                 href={item.href}
                 className={className}
+                data-errl-nav={item.key === 'design' ? 'design' : undefined}
                 aria-disabled={item.key === 'design' ? 'true' : undefined}
                 title={item.key === 'design' ? 'Coming soon' : undefined}
                 onClick={(e) => {

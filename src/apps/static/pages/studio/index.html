@@ -470,6 +470,9 @@
       }
     </style>
     <link rel="stylesheet" href="../../../../shared/styles/errlPortalHeader.css" />
+    <script>
+      (function () { try { if (localStorage.getItem('errl_portal_show_design_nav') !== 'true') { document.documentElement.setAttribute('data-errl-hide-design-nav', ''); } } catch (e) {} })();
+    </script>
   </head>
   <body>
     <header class="errl-header">
@@ -478,7 +481,7 @@
         <nav class="errl-nav">
           <a class="errl-bubble-btn" data-portal-link="about/" href="/about/">About Errl</a>
           <a class="errl-bubble-btn" data-portal-link="assets/" href="/assets/">Assets</a>
-          <a class="errl-bubble-btn" href="/design/" data-portal-link="design/" data-disabled-link="design" aria-disabled="true" tabindex="-1" title="Coming soon">Design</a>
+          <a class="errl-bubble-btn" href="/design/" data-errl-nav="design" data-portal-link="design/" data-disabled-link="design" aria-disabled="true" tabindex="-1" title="Coming soon">Design</a>
           <a class="errl-bubble-btn" href="https://forum.errl.wtf">Forum</a>
           <a class="errl-bubble-btn" data-portal-link="gallery/" href="/gallery/">Gallery</a>
           <a class="errl-bubble-btn active" href="/studio/" data-portal-link="studio/">Studio</a>
@@ -622,5 +625,6 @@
         });
       })();
     </script>
+    <script type="module" src="../../../../shared/scripts/portal-nav-visibility.mjs"></script>
   </body>
 </html>

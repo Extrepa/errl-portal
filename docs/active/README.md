@@ -1,7 +1,7 @@
 # Active Documentation
 
 **Purpose**: Current, actively referenced documentation  
-**Last Updated**: 2026-01-15
+**Last Updated**: 2026-04-22
 
 ---
 
@@ -33,6 +33,7 @@ These files remain in the root directory for easy access:
 
 See `docs/reference/` for:
 - Architecture documentation
+- **Errl Phone** — `docs/reference/errl-phone-capabilities.md` (control panel, WebGL init, layers, events, tests)
 - Project structure
 - Completion checklists
 - Deployment guides

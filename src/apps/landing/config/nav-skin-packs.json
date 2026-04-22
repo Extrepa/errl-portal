@@ -1,0 +1,6 @@
+[
+  { "label": "Orb", "preset": "orb" },
+  { "label": "Rainbow", "preset": "sheetRainbow" },
+  { "label": "Pink", "preset": "sheetPink" },
+  { "label": "Random", "preset": "random" }
+]

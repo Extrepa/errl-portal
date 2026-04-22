@@ -1,7 +1,7 @@
 # Reference Documentation
 
 **Purpose**: Reference guides and technical documentation  
-**Last Updated**: 2026-01-15
+**Last Updated**: 2026-04-22
 
 ---
 
@@ -9,6 +9,12 @@
 
 ### Architecture
 - `architecture.md` - Technical architecture and design
+
+### Errl Phone (landing control panel)
+- `errl-phone-capabilities.md` - Layers (RB vs GLB vs BG), WebGL init contract, events, localStorage keys, DOM hooks, tests, and extension notes (2026-04).
+
+### Portal navigation
+- `portal-nav-and-design-visibility.md` - Design link visibility (`errl_portal_show_design_nav`), forum-aligned header CSS, `data-errl-nav`, subpage script, WebGL visible-orbs, tests (2026-04).
 
 ### Project Structure
 - `project-structure.md` - File organization and structure

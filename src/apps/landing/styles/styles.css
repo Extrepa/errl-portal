@@ -15,6 +15,151 @@ body {
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
+#rbPopShardCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 6;
+}
+.nav-skin-pack-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+  justify-content: flex-end;
+}
+button.nav-skin-pack-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 8px;
+  padding: 3px 5px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.35);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--errl-text);
+  max-width: 52px;
+  line-height: 1.1;
+}
+button.nav-skin-pack-btn .nav-skin-pack-thumb {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
+}
+/* CSS preview tiles when no image asset (manifest optional `thumb` URL still wins if set). */
+button.nav-skin-pack-btn[data-pack]::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  display: block;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+button.nav-skin-pack-btn:has(.nav-skin-pack-thumb)::before {
+  display: none;
+}
+button.nav-skin-pack-btn[data-pack="orb"]::before {
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95), rgba(160, 110, 255, 0.85) 42%, rgba(45, 20, 95, 0.95));
+}
+button.nav-skin-pack-btn[data-pack="sheetRainbow"]::before {
+  background: linear-gradient(128deg, #ff7eb3, #7afcff, #89ff89, #fff59d);
+}
+button.nav-skin-pack-btn[data-pack="sheetPink"]::before {
+  background: linear-gradient(145deg, #ffd6e8, #ff9ec8 40%, #c86bdc);
+}
+button.nav-skin-pack-btn[data-pack="random"]::before {
+  background: conic-gradient(from 210deg, #444, #bbb, #666, #ddd, #444);
+}
+button.nav-skin-pack-btn .nav-skin-pack-label {
+  display: block;
+  text-align: center;
+  word-break: break-word;
+}
+button.nav-skin-pack-btn:hover {
+  border-color: rgba(var(--errl-neon-cyan-rgb), 0.75);
+}
+.pin-tour-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(var(--errl-neon-purple-rgb), 0.45);
+  background: rgba(20, 12, 40, 0.55);
+  font-size: 9px;
+  line-height: 1.35;
+}
+.pin-tour-banner[hidden] {
+  display: none !important;
+}
+.pin-tour-banner__steps {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pin-tour-banner__dismiss {
+  flex-shrink: 0;
+  font-size: 8px;
+  padding: 3px 8px;
+}
+.pin-tour-banner__list {
+  margin: 4px 0 0 1.1em;
+  padding: 0;
+  list-style: disc;
+  color: rgba(var(--errl-text-rgb), 0.92);
+}
+.pin-tour-banner__list li {
+  margin: 2px 0 4px;
+}
+.pin-tour-show-btn {
+  flex-shrink: 0;
+  min-width: 1.2em;
+  min-height: 1.2em;
+  padding: 0 0.4em;
+  line-height: 1;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--errl-text);
+  background: rgba(40, 24, 64, 0.55);
+  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.4);
+}
+.pin-tour-show-btn:hover,
+.pin-tour-show-btn:focus-visible {
+  border-color: rgba(var(--errl-neon-cyan-rgb), 0.8);
+  outline: none;
+}
+#rbPopFlashOverlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 7;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 50% 54%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 34%, rgba(0,0,0,0) 70%),
+    linear-gradient(120deg, rgba(255,0,255,0.10), rgba(0,229,255,0.09), rgba(255,224,102,0.08));
+  transition: opacity 120ms ease-out;
+}
+#rbPopFlashOverlay.active {
+  opacity: 1;
+}
+body.rb-touch-active {
+  overscroll-behavior: none;
+}
+body.reduced-motion #rbPopFlashOverlay {
+  transition: none !important;
+}
 :root {
   --motionMultiplier: 1.35;
 }
@@ -69,6 +214,47 @@ a { color: inherit; text-decoration: none; }
   /* Prevent browser scrolling/zooming from hijacking drags on touch. */
   touch-action: none;
   background: transparent;
+}
+
+/* Rare, subtle “shooting” highlight — disabled when user prefers less motion */
+.errl-idle-streak {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+.errl-idle-streak__line {
+  position: absolute;
+  width: min(140px, 32vw);
+  height: 1px;
+  top: 32%;
+  left: -20%;
+  opacity: 0;
+  border-radius: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 220, 0.5), rgba(200, 120, 255, 0.35), transparent);
+  box-shadow: 0 0 10px rgba(0, 220, 255, 0.2);
+  transform: rotate(-10deg);
+}
+.errl-idle-streak--on .errl-idle-streak__line {
+  animation: errlIdleStreak 2.1s ease-in-out;
+}
+body.reduced-motion .errl-idle-streak,
+body.reduced-motion .errl-idle-streak--on .errl-idle-streak__line {
+  animation: none !important;
+}
+body.reduced-motion .errl-idle-streak__line { opacity: 0 !important; }
+@media (prefers-reduced-motion: reduce) {
+  .errl-idle-streak,
+  .errl-idle-streak--on .errl-idle-streak__line {
+    animation: none !important;
+  }
+  .errl-idle-streak__line { opacity: 0 !important; }
+}
+@keyframes errlIdleStreak {
+  0% { left: -18%; opacity: 0; }
+  8% { opacity: 0.5; }
+  100% { left: 108%; opacity: 0; }
 }
 
 /* WebGL layer */
@@ -409,6 +595,15 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 }
 .bubble:hover{ color:#fff; animation: wobble 3s ease-in-out infinite; animation-duration: calc(3s * var(--motionMultiplier, 1)); }
 .bubble.hidden-bubble { display: none !important; }
+.bubble.has-custom-media {
+  background-image:
+    radial-gradient(circle at 20% 18%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 28%, transparent 54%),
+    var(--navBubbleMedia, none);
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(255,255,255,0.35);
+}
 .nav-orbit { filter: none; }
 .nav-orbit.goo-on { filter: url(#uiGoo); }
 
@@ -542,27 +737,42 @@ body.perf-safe *::after {
   flex-direction: column;
   filter: none; /* Ensure sharp rendering, no blur */
 }
+.errl-panel .panel-minimized-label {
+  display: none;
+}
 /* Minimize to a small floating icon - Errl Club style */
 .errl-panel.minimized {
-  width: 40px !important;
-  height: 40px !important;
+  width: 52px !important;
+  height: 52px !important;
+  margin-bottom: calc(18px * var(--panel-scale, 1)) !important; /* room for label below glow */
   padding: 0 !important;
   border-radius: 999px !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   cursor: pointer !important;
-  min-width: 40px !important;
-  max-width: 40px !important;
-  max-height: 40px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  max-height: 52px !important;
   background: radial-gradient(circle at 30% 30%, rgba(var(--errl-neon-purple-rgb), 0.9), rgba(76, 0, 153, 0.95)) !important;
-  border: 2px solid rgba(var(--errl-neon-purple-rgb), 0.8) !important;
+  border: 2px solid rgba(var(--errl-neon-cyan-rgb), 0.62) !important;
   box-shadow:
-    0 0 15px rgba(var(--errl-neon-purple-rgb), 0.8),
-    0 0 30px rgba(var(--errl-neon-purple-rgb), 0.4),
-    inset 0 0 10px rgba(var(--errl-text-rgb), 0.2) !important;
+    0 0 18px rgba(var(--errl-neon-purple-rgb), 0.84),
+    0 0 34px rgba(var(--errl-neon-cyan-rgb), 0.38),
+    inset 0 0 12px rgba(var(--errl-text-rgb), 0.2) !important;
   filter: none !important; /* Ensure sharp rendering when minimized */
+  animation: panelCtaGlow calc(5.2s * var(--motionMultiplier, 1)) linear infinite;
+}
+.errl-panel.minimized::before{
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.48);
+  box-shadow: 0 0 20px rgba(var(--errl-neon-purple-rgb), 0.3);
+  pointer-events: none;
+  animation: panelCtaHalo calc(3.2s * var(--motionMultiplier, 1)) ease-out infinite;
 }
 .errl-panel.minimized::after{
   content: "";
@@ -571,7 +781,94 @@ body.perf-safe *::after {
   width: 100%; height: 100%;
   background-image: var(--minIcon, url('./assets/portal/ui/phone-tabs/hud_300.png'));
   background-size: cover; background-repeat:no-repeat; background-position:center;
+  opacity: 0.52;
   border-radius: inherit;
+  pointer-events: none;
+}
+.errl-panel.minimized .panel-minimized-label {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-top: calc(4px * var(--panel-scale, 1));
+  transform: translateX(-50%);
+  z-index: 2;
+  width: max-content;
+  max-width: min(92px, 28vw);
+  font-size: calc(8px * var(--panel-scale, 1));
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(var(--errl-text-rgb), 0.98);
+  text-shadow:
+    0 0 6px rgba(var(--errl-neon-cyan-rgb), 0.9),
+    0 0 1px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  text-align: center;
+}
+/* First-visit nudge: points users at the minimize affordance (see portal-app) */
+.errl-phone-cta-hint {
+  position: fixed;
+  z-index: 9;
+  right: calc(10px + env(safe-area-inset-right, 0));
+  bottom: calc(80px + env(safe-area-inset-bottom, 0));
+  max-width: min(220px, 90vw);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(20, 12, 32, 0.94), rgba(10, 8, 20, 0.92));
+  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.45);
+  box-shadow: 0 0 20px rgba(var(--errl-neon-purple-rgb), 0.45);
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--errl-text);
+  animation: errlPhoneCtaIn 0.5s ease-out;
+}
+body.reduced-motion .errl-phone-cta-hint {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .errl-phone-cta-hint {
+    animation: none;
+  }
+}
+.errl-phone-cta-hint__text {
+  margin: 0 0 8px 0;
+  opacity: 0.95;
+}
+.errl-phone-cta-hint__text strong {
+  color: rgba(var(--errl-neon-cyan-rgb), 0.98);
+  font-weight: 600;
+}
+.errl-phone-cta-hint__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.errl-phone-cta-hint__btn {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--errl-surface);
+  color: var(--errl-text);
+  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.5);
+}
+.errl-phone-cta-hint__btn:hover,
+.errl-phone-cta-hint__btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--errl-neon-cyan-rgb), 0.35);
+}
+@keyframes errlPhoneCtaIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .errl-panel.minimized .panel-header,
 .errl-panel.minimized .panel-tabs,
@@ -580,6 +877,50 @@ body.perf-safe *::after {
 .errl-panel.minimized #phone-close-button { display:none !important; }
 .errl-panel.minimized .panel-mode button, .errl-panel.minimized .panel-title { display:none !important; }
 .errl-panel.dragging { cursor:grabbing; }
+@keyframes panelCtaGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 18px rgba(var(--errl-neon-purple-rgb), 0.84),
+      0 0 34px rgba(var(--errl-neon-cyan-rgb), 0.38),
+      inset 0 0 12px rgba(var(--errl-text-rgb), 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(var(--errl-neon-purple-rgb), 0.92),
+      0 0 42px rgba(var(--errl-neon-cyan-rgb), 0.56),
+      inset 0 0 14px rgba(var(--errl-text-rgb), 0.26);
+  }
+}
+@keyframes panelCtaHalo {
+  0% {
+    opacity: 0.58;
+  }
+  70%, 100% {
+    opacity: 0;
+  }
+}
+body.reduced-motion .errl-panel.minimized,
+body.reduced-motion .errl-panel.minimized::before,
+body.reduced-motion .errl-panel.minimized::after {
+  animation: none !important;
+}
+
+/* Ephemeral WebGL / Burst status under HUD (see portal-app errlGlUserHints) */
+.errl-gl-hint {
+  margin: calc(4px * var(--panel-scale, 1)) 0 0;
+  font-size: calc(8px * var(--panel-scale, 1));
+  line-height: 1.35;
+  color: rgba(var(--errl-neon-cyan-rgb), 0.95);
+  max-width: 100%;
+  opacity: 0.92;
+}
+@media (prefers-reduced-motion: reduce) {
+  .errl-panel.minimized,
+  .errl-panel.minimized::before,
+  .errl-panel.minimized::after {
+    animation: none !important;
+  }
+}
 .hud-icons{ display:flex; gap:calc(10px * var(--panel-scale)); margin:calc(10px * var(--panel-scale)) 0 calc(6px * var(--panel-scale)); }
 .hud-icon{ width:calc(28px * var(--panel-scale)); height:calc(28px * var(--panel-scale)); border-radius:50%; border:none; cursor:pointer; position:relative; outline:none; background:
   radial-gradient(circle at 28% 28%, rgba(255,255,255,0.85), rgba(255,255,255,0) 60%),
@@ -956,6 +1297,17 @@ body.perf-safe *::after {
   cursor: pointer;
 }
 .sliderRow button { flex: 0 0 auto; }
+.sliderRow button.active {
+  border-color: rgba(var(--errl-neon-cyan-rgb), 0.75);
+  color: rgba(var(--errl-neon-cyan-rgb), 0.95);
+  box-shadow: 0 0 10px rgba(var(--errl-neon-cyan-rgb), 0.35);
+}
+.sliderRow input[type="file"] {
+  flex: 1 1 auto;
+  min-width: calc(95px * var(--panel-scale));
+  max-width: 100%;
+  font-size: calc(8px * var(--panel-scale));
+}
 .sliderRow > label:first-child[for] {
   width: calc(40px * var(--panel-scale));
   flex-shrink: 0;
@@ -966,6 +1318,22 @@ body.perf-safe *::after {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* Full phrase labels (e.g. Accessibility) — do not clip */
+.sliderRow.sliderRow--a11y > label:first-child[for] {
+  width: auto;
+  min-width: min(100%, calc(86px * var(--panel-scale)));
+  max-width: 100%;
+  flex: 0 1 auto;
+  text-align: left;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  line-height: 1.25;
+  align-self: center;
+}
+.sliderRow.sliderRow--a11y {
+  align-items: flex-start;
 }
 .sliderRow input[type="range"] {
   flex: 1;
@@ -1104,7 +1472,25 @@ body.perf-safe *::after {
 
 /* Ensure minimized state is never scaled */
 .errl-panel.minimized {
-  transform: none !important;
+  --panel-scale: 1;
   bottom: 10px !important;
   right: 10px !important;
+}
+@media (max-width: 520px) {
+  .errl-panel {
+    width: min(92vw, 340px);
+    height: min(76vh, 620px);
+    max-height: calc(100vh - 16px);
+  }
+  .panel-tabs .tab {
+    min-height: calc(28px * var(--panel-scale)) !important;
+    height: calc(28px * var(--panel-scale)) !important;
+  }
+  .sliderRow {
+    gap: calc(6px * var(--panel-scale));
+    margin-bottom: calc(8px * var(--panel-scale));
+  }
+  .sliderRow input[type="range"] {
+    min-height: calc(22px * var(--panel-scale));
+  }
 }

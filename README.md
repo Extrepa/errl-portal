@@ -62,6 +62,8 @@ errl-portal/
 
 Most documentation is internal and focused on development. For questions or contributions, please refer to the source code and inline documentation.
 
+- **Errl Phone (control panel, WebGL, layers):** [docs/reference/errl-phone-capabilities.md](docs/reference/errl-phone-capabilities.md) — how RB, GLB, BG, and overlay differ; init queues and events; storage keys; where to change code and tests.
+
 ---
 
 *This is a personal creative project exploring interactive web experiences and visual design tools.*
