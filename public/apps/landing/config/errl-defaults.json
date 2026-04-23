@@ -64,7 +64,9 @@
 
     "prefReduce": false,
     "prefContrast": false,
-    "prefInvert": false
+    "prefInvert": false,
+
+    "errlPhonePanelSize": "1"
   },
   "hue": {
     "layers": {

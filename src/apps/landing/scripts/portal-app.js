@@ -1151,7 +1151,7 @@
     apply();
   })();
 
-  // Nav Goo+ WebGL controls (wiggle, flow, grip, drip, viscosity)
+  // WebGL goo (Errl body texture), ids navWiggle…navVisc — live in Errl tab; not menu orbit physics
   (function navGooPlus(){
     const w = document.getElementById('navWiggle');
     const f = document.getElementById('navFlow');
@@ -2881,6 +2881,7 @@
       alert('Defaults saved.');
     }catch(e){ alert('Could not save defaults.'); }
   }
+  let resetDefaultsInFlight = false;
   async function resetDefaults(){
     try {
       // Stop all animations first
@@ -2902,7 +2903,7 @@
       }
       
       // Clear unified settings + any legacy keys (best-effort)
-      ['errl_portal_settings_v1','errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings','errl_goo_cfg','errl_a11y','errl_ui_defaults','errl_nav_skin_pref_v1','errl_portal_last_preset_v1'].forEach(k=>{
+      ['errl_portal_settings_v1','errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings','errl_goo_cfg','errl_a11y','errl_ui_defaults','errl_nav_skin_pref_v1','errl_portal_last_preset_v1','errl_phone_size_v1'].forEach(k=>{
         try{ localStorage.removeItem(k); }catch(e){}
       });
       
@@ -2945,7 +2946,9 @@
           // Audio defaults
           audioEnabled: true, audioMaster: '0.4', audioBass: '0.2',
           // A11y defaults
-          prefReduce: false, prefContrast: false, prefInvert: false
+          prefReduce: false, prefContrast: false, prefInvert: false,
+          // Phone frame
+          errlPhonePanelSize: '1'
         };
       }
       
@@ -3026,8 +3029,21 @@
       alert('Reset failed. Please reload the page.');
     }
   }
+  async function requestResetDefaults(source){
+    if (resetDefaultsInFlight) return;
+    const via = source === 'secret'
+      ? 'You triggered the hidden reset command.'
+      : 'You are about to reset every panel control.';
+    if (!window.confirm(via + ' Continue and restore all stock defaults in this browser?')) return;
+    resetDefaultsInFlight = true;
+    try {
+      await resetDefaults();
+    } finally {
+      resetDefaultsInFlight = false;
+    }
+  }
   const saveBtn=document.getElementById('saveDefaultsBtn'); if (saveBtn) saveBtn.addEventListener('click', saveDefaults);
-  const rstBtn=document.getElementById('resetDefaultsBtn'); if (rstBtn) rstBtn.addEventListener('click', ()=>{ resetDefaults(); });
+  const rstBtn=document.getElementById('resetDefaultsBtn'); if (rstBtn) rstBtn.addEventListener('click', ()=>{ requestResetDefaults('button'); });
   const exportBtn = document.getElementById('exportSettingsBtn');
   const importBtn = document.getElementById('importSettingsBtn');
   const importFile = document.getElementById('importSettingsFile');
@@ -3057,11 +3073,15 @@
     setBundle(bundle);
     // Apply UI immediately
     if (bundle.ui) applyUiSnapshot(bundle.ui);
-    // Re-apply derived effects from current inputs
+    // Re-apply derived effects from current inputs (import/undo can set many sliders; kicks sync WebGL + nav layout)
     const kick = (id) => { const el = document.getElementById(id); if (el) el.dispatchEvent(new Event('input')); };
+    const kickCh = (id) => { const el = document.getElementById(id); if (el) el.dispatchEvent(new Event('change', { bubbles: true })); };
     kick('bgSpeed'); kick('bgDensity'); kick('glAlpha');
     kick('navOrbitSpeed');
+    kick('navRadius');
+    kick('navOrbSize');
     kick('errlSize');
+    kickCh('glOrbsToggle');
     if (window.__errlRefreshNavSkins) window.__errlRefreshNavSkins();
   }
 
@@ -3155,9 +3175,40 @@
     panel.addEventListener('change', schedule, true);
   })();
 
-  window.addEventListener('keydown', (e)=>{
-    if (e.key === 'S' && e.shiftKey){ saveDefaults(); }
-  });
+  // Global key commands: keep explicit combos and ignore editable contexts.
+  (function globalPhoneKeyCommands(){
+    const SECRET_ENTER_WINDOW_MS = 1200;
+    let enterBurstCount = 0;
+    let lastEnterAt = 0;
+    function isEditableTarget(target){
+      if (!target || !target.tagName) return false;
+      const tag = String(target.tagName).toUpperCase();
+      if (target.isContentEditable) return true;
+      return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+    }
+    async function maybeRunSecretReset(){
+      const raw = window.prompt('Secret command', '');
+      if (raw == null) return;
+      if (raw.trim() !== 'errl') return;
+      await requestResetDefaults('secret');
+    }
+    window.addEventListener('keydown', async (e)=>{
+      if (e.isComposing || isEditableTarget(e.target)) return;
+      if (e.key === 'S' && e.shiftKey) {
+        saveDefaults();
+        return;
+      }
+      if (e.key !== 'Enter') return;
+      const now = Date.now();
+      if ((now - lastEnterAt) > SECRET_ENTER_WINDOW_MS) enterBurstCount = 0;
+      lastEnterAt = now;
+      enterBurstCount += 1;
+      if (enterBurstCount < 3) return;
+      enterBurstCount = 0;
+      e.preventDefault();
+      await maybeRunSecretReset();
+    });
+  })();
   // ===== Errl Phone UI (tabs, minimize, drag, scroll-to-top) =====
   (function phoneUI(){
     const panel = document.getElementById('errlPanel');
@@ -3207,6 +3258,46 @@
     const vibeBar = document.getElementById('phone-vibe-bar');
     const sections = Array.from(panel.querySelectorAll('.panel-section'));
     const toTop = document.getElementById('panelScrollTop');
+    const contentWrapper = panel.querySelector('.panel-content-wrapper');
+    const PHONE_SIZE_KEY = 'errl_phone_size_v1';
+    const PHONE_SIZE_SCALES = [0.88, 1, 1.12];
+    const sizeInput = $('errlPhonePanelSize');
+
+    function syncPhoneUserScale() {
+      if (!sizeInput || !panel) return;
+      let idx = parseInt(String(sizeInput.value).trim(), 10);
+      if (!Number.isFinite(idx)) idx = 1;
+      idx = clamp(idx, 0, 2);
+      if (String(idx) !== sizeInput.value) sizeInput.value = String(idx);
+      if (panel.classList.contains('minimized')) {
+        try { panel.style.removeProperty('--phone-user-scale'); } catch (_) {}
+      } else {
+        const s = PHONE_SIZE_SCALES[idx];
+        panel.style.setProperty('--phone-user-scale', String(s));
+      }
+      const lab = $('errlPhonePanelSizeLabel');
+      if (lab) lab.textContent = ['S', 'M', 'L'][idx];
+      sizeInput.setAttribute('aria-valuenow', String(idx));
+      try { localStorage.setItem(PHONE_SIZE_KEY, String(idx)); } catch (_) {}
+    }
+    on(sizeInput, 'input', syncPhoneUserScale);
+    on(sizeInput, 'change', syncPhoneUserScale);
+    syncPhoneUserScale();
+    settingsReady
+      .then(() => {
+        try {
+          const b = getBundle();
+          if (b && b.ui && b.ui.errlPhonePanelSize !== undefined && b.ui.errlPhonePanelSize !== '') return;
+          const leg = localStorage.getItem(PHONE_SIZE_KEY);
+          if (leg == null) return;
+          const idx = clamp(parseInt(leg, 10) || 1, 0, 2);
+          if (sizeInput) {
+            sizeInput.value = String(idx);
+            sizeInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        } catch (_) {}
+      })
+      .catch(() => {});
 
     const EXPANDED_KEY = 'errl_phone_expanded_v1';
     const POS_KEY = 'errl_phone_expanded_pos_v1';
@@ -3307,6 +3398,11 @@
         const activeTab = tabButtons.find((btn) => btn.getAttribute('data-tab') === key);
         if (activeTab) tabSections[0].setAttribute('aria-labelledby', activeTab.id);
       }
+      if (contentWrapper) {
+        contentWrapper.scrollTop = 0;
+        try { contentWrapper.scrollTo({ top: 0, behavior: 'auto' }); } catch (_) { contentWrapper.scrollTop = 0; }
+        if (toTop) toTop.style.display = 'none';
+      }
     }
 
     // Helper: clear any inline minimized constraints (from previous versions or HTML)
@@ -3354,6 +3450,7 @@
     function minimizePanel() {
       panel.classList.add('minimized');
       panel.setAttribute('aria-expanded', 'false');
+      try { panel.style.removeProperty('--phone-user-scale'); } catch (_) {}
       clearMinimizedInlineStyles();
       lockPanelToCorner();
       try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
@@ -3375,6 +3472,7 @@
       // Use setTimeout to ensure CSS has updated after removing minimized class
       setTimeout(() => {
         activateTab('hud');
+        syncPhoneUserScale();
       }, 0);
       try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
     }
@@ -3429,10 +3527,49 @@
     try { expanded = localStorage.getItem(EXPANDED_KEY) === '1'; } catch(_) { expanded = false; }
     applyExpandedState();
     if (!expanded) lockPanelToCorner();
-    window.addEventListener('resize', ()=>{
+    function selfHealPhoneIfTiny() {
+      if (panel.classList.contains('minimized')) return;
+      const r = panel.getBoundingClientRect();
+      if (r.width >= 100 && r.height >= 100) return;
+      try {
+        const b = getBundle();
+        if (b && b.ui) {
+          b.ui.errlPhonePanelSize = '1';
+          setBundle(b);
+        }
+        localStorage.removeItem('errl_phone_expanded_v1');
+        localStorage.removeItem('errl_phone_expanded_pos_v1');
+        localStorage.removeItem(PHONE_SIZE_KEY);
+      } catch (_) {}
+      if (sizeInput) {
+        sizeInput.value = '1';
+        sizeInput.dispatchEvent(new Event('input', { bubbles: true }));
+      } else {
+        panel.style.setProperty('--phone-user-scale', '1');
+      }
+      clearMinimizedInlineStyles();
+      panel.classList.remove('expanded');
+      expanded = false;
+      try { localStorage.setItem(EXPANDED_KEY, '0'); } catch (_) {}
+      applyExpandedState();
+      lockPanelToCorner();
+    }
+    function syncCoarsePointerClass() {
+      try {
+        const coarse =
+          (window.matchMedia('(max-width: 520px)').matches ||
+            window.matchMedia('(pointer: coarse)').matches);
+        panel.classList.toggle('errl-panel--coarse', !!coarse);
+      } catch (_) {}
+    }
+    syncCoarsePointerClass();
+    window.addEventListener('resize', () => {
+      syncCoarsePointerClass();
       if (expanded) enforcePanelInViewport(10);
       else lockPanelToCorner();
     });
+    requestAnimationFrame(selfHealPhoneIfTiny);
+    setTimeout(selfHealPhoneIfTiny, 500);
 
     // Drag handle (desktop): vibe bar
     function isDesktopPointer(e){
@@ -3484,7 +3621,6 @@
     }
 
     // scroll-to-top button - use content wrapper for scrolling
-    const contentWrapper = panel.querySelector('.panel-content-wrapper');
     if (contentWrapper) {
       contentWrapper.addEventListener('scroll', ()=>{
         if (!toTop) return;

@@ -710,13 +710,14 @@ body.perf-safe *::after {
 
 /* 7. Control Panel ("Errl Phone") - Errl Club Style */
 .errl-panel {
+  --phone-user-scale: 1;
   --panel-scale: 1;
   position: fixed;
   bottom: 10px;
   right: 10px;
   top: auto;
-  width: calc(180px * var(--panel-scale));
-  height: calc(280px * var(--panel-scale));
+  width: calc(180px * var(--panel-scale) * var(--phone-user-scale, 1));
+  height: calc(280px * var(--panel-scale) * var(--phone-user-scale, 1));
   overflow: hidden; /* let content wrapper handle scrolling */
   background: var(--errl-panel-gradient);
   scrollbar-width: thin; /* Firefox */
@@ -736,6 +737,11 @@ body.perf-safe *::after {
   display: flex;
   flex-direction: column;
   filter: none; /* Ensure sharp rendering, no blur */
+}
+.errl-panel:not(.minimized) {
+  max-width: min(40vw, 360px);
+  max-height: min(50vh, 480px);
+  box-sizing: border-box;
 }
 .errl-panel .panel-minimized-label {
   display: none;
@@ -1066,12 +1072,12 @@ body.reduced-motion .errl-panel.minimized::after {
   color: rgba(var(--errl-neon-cyan-rgb), 0.5); 
   border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.2);
   border-radius: calc(4px * var(--panel-scale));
-  padding: 0; 
+  padding: calc(1px * var(--panel-scale)) calc(1px * var(--panel-scale)); 
   font-size: 0; 
   cursor: pointer; 
-  height: calc(24px * var(--panel-scale)) !important;
-  min-height: calc(24px * var(--panel-scale)) !important;
-  max-height: calc(24px * var(--panel-scale)) !important;
+  min-height: calc(26px * var(--panel-scale)) !important;
+  height: auto !important;
+  max-height: none !important;
   width: auto !important;
   min-width: auto !important;
   max-width: none !important;
@@ -1083,6 +1089,7 @@ body.reduced-motion .errl-panel.minimized::after {
   transition: all 0.2s ease; 
   flex: 0 1 auto;
   box-sizing: border-box;
+  align-content: center;
 }
 .panel-tabs .tab:hover{ 
   color: rgba(var(--errl-neon-cyan-rgb), 0.8);
@@ -1111,10 +1118,41 @@ body.reduced-motion .errl-panel.minimized::after {
   text-align: center;
   z-index: 2;
   color: var(--errl-text);
-  line-height: 1.2;
+  line-height: 1.15;
   font-weight: 500;
-  white-space: nowrap;
+  white-space: normal;
   pointer-events: none;
+}
+.panel-tabs .tab .tab__line {
+  display: block;
+  word-break: break-word;
+  hyphens: auto;
+}
+.panel-tabs .tab .tab__line--sub {
+  font-size: 0.92em;
+  opacity: 0.9;
+  margin-top: 0.1em;
+}
+.errl-panel .panel-tab-intro {
+  font-size: calc(7.5px * var(--panel-scale));
+  line-height: 1.35;
+  color: rgba(230, 245, 255, 0.9);
+  margin: 0 0 calc(6px * var(--panel-scale)) 0;
+  padding: calc(4px * var(--panel-scale)) calc(5px * var(--panel-scale));
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: calc(4px * var(--panel-scale));
+  box-sizing: border-box;
+}
+.errl-panel .panel-tab-intro .panel-tab-intro__code {
+  font-size: 0.95em;
+}
+.errl-panel .errl-phone-size-label {
+  display: inline-block;
+  min-width: 1.25em;
+  text-align: center;
+  font-weight: 700;
+  color: rgba(125, 249, 255, 0.95);
 }
 .panel-tabs .tab:hover .label,
 .panel-tabs .tab.active .label {
@@ -1194,15 +1232,16 @@ body.reduced-motion .errl-panel.minimized::after {
 .panel-tabs .tab[data-tab="hue"]::after{ background-image:url('./assets/portal/ui/phone-tabs/hue_300.png'); }
 .panel-tabs .tab-icon{ 
   /* Tab icon class - icons are now handled via ::after pseudo-element */
-  /* Width/height removed as tabs are now horizontal with fixed dimensions */
-  height: calc(24px * var(--panel-scale)) !important;
-  min-height: calc(24px * var(--panel-scale)) !important;
-  max-height: calc(24px * var(--panel-scale)) !important;
+  min-height: calc(26px * var(--panel-scale)) !important;
+  height: auto !important;
+  max-height: none !important;
   width: auto !important;
   min-width: auto !important;
   max-width: none !important;
   display: flex !important;
   flex-direction: row !important;
+  align-items: center;
+  justify-content: center;
 }
 .panel-mode button {
   background: rgba(var(--errl-text-rgb), 0.08);
@@ -1473,18 +1512,29 @@ body.reduced-motion .errl-panel.minimized::after {
 /* Ensure minimized state is never scaled */
 .errl-panel.minimized {
   --panel-scale: 1;
+  --phone-user-scale: 1;
   bottom: 10px !important;
   right: 10px !important;
 }
 @media (max-width: 520px) {
-  .errl-panel {
-    width: min(92vw, 340px);
-    height: min(76vh, 620px);
-    max-height: calc(100vh - 16px);
+  .errl-panel:not(.minimized) {
+    width: min(92vw, 340px) !important;
+    max-width: min(92vw, 340px) !important;
+    height: min(55vh, 520px) !important;
+    max-height: min(
+      55vh,
+      520px,
+      calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px)
+    ) !important;
   }
   .panel-tabs .tab {
-    min-height: calc(28px * var(--panel-scale)) !important;
-    height: calc(28px * var(--panel-scale)) !important;
+    min-height: calc(32px * var(--panel-scale)) !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: calc(2px * var(--panel-scale)) 0;
+  }
+  .panel-tabs .tab .label {
+    line-height: 1.1;
   }
   .sliderRow {
     gap: calc(6px * var(--panel-scale));
@@ -1492,6 +1542,19 @@ body.reduced-motion .errl-panel.minimized::after {
   }
   .sliderRow input[type="range"] {
     min-height: calc(22px * var(--panel-scale));
+  }
+}
+@media (max-width: 520px) and (pointer: coarse) {
+  .errl-panel:not(.minimized) #phone-close-button,
+  .errl-panel:not(.minimized) #phone-expand-button {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .errl-panel:not(.minimized) .panel-tabs .tab {
+    min-height: 40px !important;
   }
 }
 

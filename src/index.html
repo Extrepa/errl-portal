@@ -164,20 +164,21 @@
 
     <!-- Tabs at top -->
     <div class="panel-tabs" id="panelTabs" role="tablist" aria-label="Errl phone control tabs">
-      <button data-tab="hud" class="tab tab-icon active" title="HUD" aria-label="HUD" role="tab"><span class="label">HUD</span></button>
-      <button data-tab="errl" class="tab tab-icon" title="Errl" aria-label="Errl" role="tab"><span class="label">Errl</span></button>
-      <button data-tab="pin" class="tab tab-icon" title="Pin Widget" aria-label="Pin Widget" role="tab"><span class="label">Pin</span></button>
-      <button data-tab="nav" class="tab tab-icon" title="Nav" aria-label="Nav" role="tab"><span class="label">Nav</span></button>
-      <button data-tab="rb" class="tab tab-icon" title="Rising Bubbles" aria-label="Rising Bubbles" role="tab"><span class="label">RB</span></button>
-      <button data-tab="glb" class="tab tab-icon" title="GL Bubbles" aria-label="GL Bubbles" role="tab"><span class="label">GLB</span></button>
-      <button data-tab="bg" class="tab tab-icon" title="Background" aria-label="Background" role="tab"><span class="label">BG</span></button>
-      <button data-tab="dev" class="tab tab-icon" title="Developer" aria-label="Developer" role="tab"><span class="label">DEV</span></button>
-      <button data-tab="hue" class="tab tab-icon" title="Hue" aria-label="Hue" role="tab"><span class="label">Hue</span></button>
+      <button data-tab="hud" class="tab tab-icon active" title="Heads-up: burst, presets, audio, accessibility, and scene tint" aria-label="Heads-up (HUD): quick actions, audio, accessibility, and scene tint" role="tab" type="button"><span class="label"><span class="tab__line">Heads-up</span><span class="tab__line tab__line--sub">HUD</span></span></button>
+      <button data-tab="errl" class="tab tab-icon" title="Errl: body scale, classic goo, and WebGL goo on the character" aria-label="Errl tab: character size and goo effects" role="tab" type="button"><span class="label"><span class="tab__line">Errl</span><span class="tab__line tab__line--sub">body</span></span></button>
+      <button data-tab="pin" class="tab tab-icon" title="Pin: home SVG editor and inject tools" aria-label="Pin tab: widget and inject to home" role="tab" type="button"><span class="label"><span class="tab__line">Pin</span><span class="tab__line tab__line--sub">widget</span></span></button>
+      <button data-tab="nav" class="tab tab-icon" title="Navigation: orbiting menu bubbles, skins, and WebGL orbs" aria-label="Navigation tab: menu ring and skins" role="tab" type="button"><span class="label"><span class="tab__line">Nav</span><span class="tab__line tab__line--sub">menu</span></span></button>
+      <button data-tab="rb" class="tab tab-icon" title="Rising Bubbles: 3D bubble field on the foreground canvas" aria-label="Rising Bubbles tab: 3D bubble layer" role="tab" type="button"><span class="label"><span class="tab__line">Rising</span><span class="tab__line tab__line--sub">bubbles</span></span></button>
+      <button data-tab="glb" class="tab tab-icon" title="GL Particles: GPU background particles behind the scene" aria-label="GL Bubbles / GL Particles: background WebGL layer behind the scene" role="tab" type="button"><span class="label"><span class="tab__line">GL</span><span class="tab__line tab__line--sub">particles</span></span></button>
+      <button data-tab="bg" class="tab tab-icon" title="Background: stars, shimmer, vignette, and custom base underlay" aria-label="Background tab: scene backdrop and overlay" role="tab" type="button"><span class="label"><span class="tab__line">Back</span><span class="tab__line tab__line--sub">ground</span></span></button>
+      <button data-tab="dev" class="tab tab-icon" title="Developer: tools, save defaults, logs, and admin options" aria-label="Developer tab: tools and settings export" role="tab" type="button"><span class="label"><span class="tab__line">Dev</span><span class="tab__line tab__line--sub">tools</span></span></button>
+      <button data-tab="hue" class="tab tab-icon" title="Color: per-layer hue, saturation, and animation" aria-label="Color tab: tint layers with hue and saturation" role="tab" type="button"><span class="label"><span class="tab__line">Color</span><span class="tab__line tab__line--sub">hue</span></span></button>
     </div>
 
     <!-- Content wrapper for scrollable content -->
     <div class="panel-content-wrapper">
     <div class="panel-section" data-tab="bg">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Background</strong> &mdash; backdrop, shimmer, vignette, and optional custom image under the star field. Scroll down for controls.</p>
       <div class="sectionLabel" title="Background decorations">Background</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35; flex-wrap:wrap; min-width:0;">
         <span title="Shimmer, vignette, and GL in front. Optional custom image is the underlay; stars/GL still draw on top.">Shimmer, vignette, and GL in front. <strong>Custom base</strong> (optional) sits <em>under</em> the stars. Clear to remove. Other settings persist in local storage.</span>
@@ -218,6 +219,7 @@
     </div>
 
     <div class="panel-section" data-tab="pin">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Pin</strong> &mdash; edit the home SVG in the widget, then inject or save. Read the tour below.</p>
       <div class="sectionLabel" title="Pin widget controls" style="gap:6px; flex-wrap:wrap;">
         <span>Pin Widget</span>
         <button type="button" id="pinTourShow" class="pin-tour-show-btn" title="Show Pin quick start again" aria-label="Show Pin quick start">?</button>
@@ -257,9 +259,10 @@
 
     <!-- Rising Bubbles (Canvas) -->
     <div class="panel-section" data-tab="rb">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Rising Bubbles</strong> &mdash; 3D field on the <code class="panel-tab-intro__code">#riseBubbles</code> canvas. Not the same as GL Particles. Start here, then Advanced below.</p>
       <div class="sectionLabel" title="3D iridescent bubbles rendered on the #riseBubbles canvas behind the scene">Rising Bubbles (Basic)</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
-        <span title="Rising Bubbles: independent Three.js layer on the #riseBubbles canvas (not the GL Particles / GLB tab). Modes: Classic = grab, throw, flick. Pop = tap a bubble to pop. Rise Speed, Count, Scale, Alpha: global look. Attract/Repel: optional pointer forces; higher can cost FPS on low-end devices.">Foreground field on the <code style="font-size:8px;">#riseBubbles</code> canvas. It is <strong>not</strong> the same as GL Particles (GLB tab) behind Errl. Try <em>Mode</em> to switch feel; if performance dips, lower Count, Alpha, and pointer forces.</span>
+        <span title="Rising Bubbles: independent Three.js on #riseBubbles. Spawn field is not driven by the Nav tab ring.">Foreground on <code style="font-size:8px;">#riseBubbles</code> &mdash; not GL Particles (GLB). <strong>Nav</strong> Orbit/Radius/Size only affects the menu ring, not this layer.</span>
       </div>
       <div class="sliderRow">
         <label for="rbInteractionMode" title="Only one interaction profile can be active at a time">Mode</label>
@@ -300,6 +303,7 @@
       <div class="sliderRow"><label for="rbRipples" title="Click/tap emits a ripple impulse through the field">Ripples</label><input type="checkbox" id="rbRipples" title="Toggle ripple impulses"> <label for="rbRippleIntensity" title="Ripple strength">Intensity</label><input type="range" min="0" max="2" step="0.1" value="0.8" id="rbRippleIntensity" title="Ripple intensity"></div>
     </div>
     <div class="panel-section" data-tab="rb">
+      <p class="panel-tab-intro" role="note">About this section: <strong>Advanced</strong> &mdash; motion, spawn size, and jumbo options. Small changes can have a big effect.</p>
       <div class="sectionLabel" title="Shape how bubbles move, spawn, and pulse">Rising Bubbles (Advanced)</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
         <span title="Advanced controls change motion style and spawn sizing.">Motion + spawn shaping. Use small changes—some controls amplify each other.</span>
@@ -324,6 +328,7 @@
 
     <!-- GL Background Bubbles (Particles) -->
   <div class="panel-section" data-tab="glb">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>GL Particles</strong> &mdash; WebGL dots <em>behind</em> the scene. Hue &rarr; Target &quot;Particles&quot; tints this layer.</p>
       <div class="sectionLabel" title="GPU background particles behind Errl (WebGL)">GL Particles (background)</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
         <span title="Drives the multi-layer WebGL background bubbles behind the scene. Requires the WebGL layer. Hue tab Target: Particles tints this layer. Randomize re-rolls the three sliders.">Deep background particle layers (WebGL) behind the scene&mdash;separate from the Rising Bubbles (RB) canvas. <strong>Speed</strong> = travel; <strong>Density</strong> = more/fewer dots; <strong>Alpha</strong> = how visible. Use the Hue tab with Target &quot;Particles&quot; to recolor. <strong>Randomize</strong> re-rolls all three; WebGL can take a second to spin up the first time.</span>
@@ -344,11 +349,12 @@
     </div>
 
     <div class="panel-section" data-tab="errl">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Errl</strong> &mdash; character scale, classic SVG goo, then WebGL goo on the body (not the nav ring).</p>
       <div class="sectionLabel" title="Overall scale of the Errl image">Errl Size</div>
       <div class="sliderRow"><label for="errlSize" title="Overall scale of Errl">Size</label><input id="errlSize" type="range" min="0.8" max="1.6" step="0.01" value="1" title="Drag to scale Errl"></div>
       <div class="sliderRow"><label for="errlOutlineThickness" title="Thickness of face, eyes, and mouth outlines">Outlines</label><input id="errlOutlineThickness" type="range" min="1" max="8" step="0.5" value="2.5" title="Drag to adjust outlines"></div>
       <div class="sectionDivider"></div>
-      <div class="sectionLabel" title="Classic Goo is the SVG-based wobble on the Errl shape (not the Nav Goo+ shader)">Errl Goo (Classic)</div>
+      <div class="sectionLabel" title="Classic Goo is the SVG-based wobble on the Errl shape; WebGL Goo is a separate block below">Errl Goo (Classic)</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
         <span title="Classic Goo controls the Errl SVG wobble. The Auto toggles animate each slider over time (Play/Pause controls that timeline).">Classic Goo = Errl SVG wobble. Auto toggles animate each slider; Play/Pause controls the auto timeline.</span>
       </div>
@@ -389,9 +395,25 @@
       <div class="sliderRow" style="justify-content:flex-end">
         <button id="classicGooRandom">Random</button>
       </div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel" title="Pixi/WebGL melty shader on the Errl texture (not the menu orbits)">WebGL Goo (Errl)</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
+        <span title="Drives errlGLSetGoo: displacement on the central character in the WebGL layer. Does not move menu bubbles.">These sliders set the <strong>Errl body</strong> WebGL displacement (goo), not the floating navigation bubbles. For menu ring layout use the Nav tab (Orbit / Radius / Size).</span>
+      </div>
+      <div class="sliderRow"><label for="navWiggle" title="Displacement noise amplitude on Errl WebGL">Wiggle</label><input type="range" id="navWiggle" min="0" max="1" step="0.01" value="0.57" title="Errl WebGL wiggle"></div>
+      <div class="sliderRow"><label for="navFlow" title="Shader animation speed (when gradient play is on)">Flow speed</label><input type="range" id="navFlow" min="0" max="2" step="0.01" value="1.07" title="WebGL flow speed"></div>
+      <div class="sliderRow"><label for="navGrip" title="Shader viscosity / stickiness">Grip</label><input type="range" id="navGrip" min="0" max="1" step="0.01" value="0.35" title="WebGL grip/viscosity"></div>
+      <div class="sliderRow"><label for="navDrip" title="Downward bias in shader">Drip</label><input type="range" id="navDrip" min="-1" max="1" step="0.01" value="-0.02" title="WebGL drip"></div>
+      <div class="sliderRow"><label for="navVisc" title="Goo smoothness in shader">Viscosity</label><input type="range" id="navVisc" min="0" max="1" step="0.01" value="0.26" title="WebGL viscosity"></div>
+      <div class="sliderRow" style="justify-content:flex-end; gap:8px">
+        <button id="navSlowGradient" class="btn-animate" title="Set up Slow Gradient (uses current sliders as baselines). Animation only runs when Play is active.">Slow Gradient</button>
+        <button id="navGradientPlayPause" class="btn-animate" title="Play/Pause gradient animation" aria-pressed="false" style="display:none;">Play</button>
+      </div>
+      <div class="sliderRow" style="justify-content:flex-end"><button id="navRandom" type="button">Randomize WebGL goo</button></div>
     </div>
 
     <div class="panel-section" data-tab="nav">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Nav</strong> &mdash; orbit, radius, size, GL orbs, and bubble skins. Does not change Rising Bubbles.</p>
       <div class="sectionLabel" title="Floating menu bubbles around Errl">Nav Bubbles</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
         <span title="Orbit/Radius/Size change the nav bubble layout. GL Orbs toggles the WebGL render layer that matches the DOM bubbles.">Layout controls for the menu bubbles; GL Orbs toggles the WebGL render layer.</span>
@@ -444,24 +466,16 @@
         <input id="navSkinUpload" type="file" accept="image/*,.gif" />
         <button id="navSkinReset" title="Reset to procedural bubbles">Reset Skin</button>
       </div>
-      <div class="sectionDivider"></div>
-      <div class="sectionLabel" title="Advanced gooey blending for bubble group">Nav Goo+</div>
-      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
-        <span title="These sliders set the baseline goo feel. Slow Gradient animates around your current slider values; when not playing, the goo stays static.">Baseline goo feel. Slow Gradient animates around current sliders; otherwise it stays static.</span>
-      </div>
-      <div class="sliderRow"><label for="navWiggle" title="Elastic movement blend - how much bubbles wiggle as they move">Wiggle</label><input type="range" id="navWiggle" min="0" max="1" step="0.01" value="0.57" title="Elastic movement blend - how much bubbles wiggle as they move"></div>
-      <div class="sliderRow"><label for="navFlow" title="Motion scaling - speed of the flow animation">Flow Speed</label><input type="range" id="navFlow" min="0" max="2" step="0.01" value="1.07" title="Motion scaling - speed of the flow animation"></div>
-      <div class="sliderRow"><label for="navGrip" title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)">Grip</label><input type="range" id="navGrip" min="0" max="1" step="0.01" value="0.35" title="Grip/Stickiness - how much bubbles resist movement (higher = more visible animation)"></div>
-      <div class="sliderRow"><label for="navDrip" title="Downward bias">Drip</label><input type="range" id="navDrip" min="-1" max="1" step="0.01" value="-0.02" title="Downward bias - makes bubbles sag downward"></div>
-      <div class="sliderRow"><label for="navVisc" title="How strongly blobs merge together">Viscosity</label><input type="range" id="navVisc" min="0" max="1" step="0.01" value="0.26" title="How strongly blobs merge together"></div>
-      <div class="sliderRow" style="justify-content:flex-end; gap:8px">
-        <button id="navSlowGradient" class="btn-animate" title="Set up Slow Gradient (uses current sliders as baselines). Animation only runs when Play is active.">Slow Gradient</button>
-        <button id="navGradientPlayPause" class="btn-animate" title="Play/Pause gradient animation" aria-pressed="false" style="display:none;">Play</button>
-      </div>
-      <div class="sliderRow" style="justify-content:flex-end"><button id="navRandom">Randomize</button></div>
     </div>
 
     <div class="panel-section" data-tab="hud">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Heads-up</strong> &mdash; panel size, burst, presets, then audio, accessibility, and scene tint in sections below. Read top to bottom.</p>
+      <div class="sectionLabel" title="Control phone panel size on this device">Panel size</div>
+      <div class="sliderRow" style="flex-wrap:wrap; align-items:center; gap:8px;">
+        <label for="errlPhonePanelSize" class="errl-noclip" title="Small / medium / large for the control phone when open">Size</label>
+        <input type="range" id="errlPhonePanelSize" min="0" max="2" step="1" value="1" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-label="Control phone size: small, medium, or large" title="S (compact) M (default) L (larger)">
+        <span id="errlPhonePanelSizeLabel" class="errl-phone-size-label" aria-hidden="true">M</span>
+      </div>
       <div class="sectionLabel" title="Quick particle interactions">Particles</div>
       <div class="sliderRow" style="font-size:9px; line-height:1.35; min-width:0; flex-wrap:wrap;">
         <span class="errl-noclip" title="Burst nudges the small GL background field (GLB tab) where available; otherwise a short WebGL ring.">Short impulse on the <strong>GL background</strong> bubbles. Uses WebGL. Adjust GL Particles (GLB) for density/alpha.</span>
@@ -514,6 +528,7 @@
     </div>
 
     <div class="panel-section" data-tab="hue">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Color</strong> &mdash; pick a layer, enable, then adjust hue, saturation, and intensity. Timeline animates the target.</p>
       <div class="sectionLabel" title="Color adjustments for different layers">Hue <span style="margin-left:auto; font-weight:500; font-size:7px; opacity:.9"><label for="hueEnabled" style="cursor:pointer">Enabled</label> <input type="checkbox" id="hueEnabled" title="Toggle Hue for target"></span></div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
         <span title="Pick a Target layer, toggle Enabled, then adjust Hue/Saturation/Intensity. Timeline + Play/Pause animates the target over time.">Pick a target layer, then adjust Hue/Sat/Intensity. Timeline + Play animates that target.</span>
@@ -548,6 +563,7 @@
     </div>
 
 <div class="panel-section" data-tab="hud">
+      <p class="panel-tab-intro" role="note">About this section: <strong>Audio</strong> &mdash; output level and low-end EQ for nav pings and effects.</p>
       <div class="sectionLabel" title="Audio output controls">Audio</div>
       <div class="sliderRow"><label for="audioEnabled" title="Master audio on/off">Enabled</label><input type="checkbox" id="audioEnabled" checked title="Enable/disable all audio output"></div>
       <div class="sliderRow" title="Overall output level"><label for="audioMaster" title="Overall output level">Master</label><input class="mini-slider" type="range" id="audioMaster" min="0" max="1" step="0.01" value="0.4" title="Overall volume"></div>
@@ -555,6 +571,7 @@
     </div>
 
     <div class="panel-section" data-tab="hud">
+      <p class="panel-tab-intro" role="note">About this section: <strong>Accessibility</strong> &mdash; motion, contrast, and color inversion for comfort.</p>
       <div class="sectionLabel" title="Accessibility helpers">Accessibility</div>
       <div class="sliderRow sliderRow--a11y"><label for="prefReduce" title="Prefer reduced motion (minimize animations)">Reduced Motion</label><input type="checkbox" id="prefReduce" title="Prefer reduced motion" aria-label="Reduced motion: minimize animations"></div>
       <div class="sliderRow sliderRow--a11y"><label for="prefContrast" title="Increase UI contrast for readability">High Contrast</label><input type="checkbox" id="prefContrast" title="Increase contrast" aria-label="High contrast mode"></div>
@@ -562,6 +579,7 @@
     </div>
 
     <div class="panel-section" data-tab="hud">
+      <p class="panel-tab-intro" role="note">About this section: <strong>Scene tint</strong> &mdash; quick mood grades on the WebGL stack (Errl and FX).</p>
       <div class="sectionLabel" title="Post tint on the WebGL scene (Errl + FX)">Scene tint (WebGL)</div>
       <div class="sliderRow" style="opacity:.85; font-size:9px; line-height:1.3;">
         <span title="Uses the WebGL mood filter. Enable GL from the BG tab if the page is still mostly DOM-only.">Subtle color grade on the WebGL layer. Heavier when GL overlay is on.</span>
@@ -574,6 +592,7 @@
       </div>
     </div>
     <div class="panel-section" data-tab="dev">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Developer</strong> &mdash; admin flags, export/snapshot, save defaults, and session logs. Use <strong>Reset defaults</strong> if the phone looks wrong.</p>
       <div class="sectionLabel">Portal (admin)</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
         <span title="Toggles the Design item in the orbiting nav and pill-style headers (stored in this browser, local only).">Preview the Design entry when the route is not ready. Off by default.</span>
@@ -622,15 +641,15 @@
       <button type="button" id="settingsUndoBtn" class="settings-history-btn" title="Undo last settings change">Back</button>
       <button type="button" id="settingsRedoBtn" class="settings-history-btn" title="Redo">Fwd</button>
       <span class="settings-tab-reset__label" title="Load repo defaults for that tab (browser only)">Reset</span>
-      <button type="button" class="tab-reset-mini" data-tab-reset="hud" title="Reset HUD">HUD</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="errl" title="Reset Errl">E</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="pin" title="Reset Pin">P</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="nav" title="Reset Nav">N</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="rb" title="Reset Rising Bubbles">R</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="glb" title="Reset GLB">G</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="bg" title="Reset background">B</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="dev" title="Reset dev toggles in defaults">D</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="hue" title="Reset Hue">H</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="hud" title="Reset Heads-up (HUD) tab to shipped defaults" aria-label="Reset Heads-up tab">HUD</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="errl" title="Reset Errl tab to shipped defaults" aria-label="Reset Errl tab">Errl</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="pin" title="Reset Pin tab to shipped defaults" aria-label="Reset Pin tab">Pin</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="nav" title="Reset Nav tab to shipped defaults" aria-label="Reset Nav tab">Nav</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="rb" title="Reset Rising Bubbles tab to shipped defaults" aria-label="Reset Rising Bubbles tab">RB</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="glb" title="Reset GL Particles tab to shipped defaults" aria-label="Reset GL Particles tab">GLB</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="bg" title="Reset Background tab to shipped defaults" aria-label="Reset Background tab">BG</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="dev" title="Reset Developer tab to shipped defaults" aria-label="Reset Developer tab">Dev</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="hue" title="Reset Color (Hue) tab to shipped defaults" aria-label="Reset Color tab">Hue</button>
     </div>
     <button id="panelScrollTop" title="Return to top">↑</button>
     </div>
