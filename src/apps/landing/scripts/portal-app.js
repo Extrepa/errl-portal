@@ -3243,12 +3243,17 @@
     }
     setTimeout(() => { maybeShowPhoneCta(); }, 500);
     
-    // Initialize: ALWAYS start minimized by default (user must click to expand)
-    // Rely on CSS for minimized styling; avoid inline !important that can block restoring.
+    // Initialize: ALWAYS start minimized and docked in the bottom-right corner.
+    // Clear stale inline position/scale from previous sessions before first paint.
     try { localStorage.removeItem('errl_phone_min'); } catch(_) {}
+    panel.classList.remove('expanded');
     panel.classList.add('minimized');
     panel.setAttribute('aria-expanded', 'false');
-    // no inline size constraints; CSS .errl-panel.minimized handles the bubble look
+    panel.style.removeProperty('--phone-user-scale');
+    panel.style.left = 'auto';
+    panel.style.top = 'auto';
+    panel.style.right = 'calc(10px + env(safe-area-inset-right, 0px))';
+    panel.style.bottom = 'calc(10px + env(safe-area-inset-bottom, 0px))';
     
     const header = document.getElementById('errlPhoneHeader');
     const tabsWrap = document.getElementById('panelTabs');
@@ -3318,7 +3323,14 @@
     let dragPid = null;
     let dragSX = 0, dragSY = 0, startLeft = 0, startTop = 0;
 
+    // This panel should never restore to a floating position on new page loads.
+    try {
+      localStorage.setItem(EXPANDED_KEY, '0');
+      localStorage.removeItem(POS_KEY);
+    } catch (_) {}
+
     function lockPanelToCorner() {
+      panel.classList.remove('expanded');
       panel.style.left = 'auto';
       panel.style.top = 'auto';
       panel.style.right = 'calc(10px + env(safe-area-inset-right, 0px))';
@@ -3533,6 +3545,8 @@
       try { panel.style.removeProperty('--phone-user-scale'); } catch (_) {}
       clearMinimizedInlineStyles();
       lockPanelToCorner();
+      if (settingsHistoryRow) settingsHistoryRow.hidden = true;
+      if (toTop) toTop.style.display = 'none';
       try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
     }
 
@@ -3553,6 +3567,7 @@
       setTimeout(() => {
         activateTab('hud');
         syncPhoneUserScale();
+        if (!expanded) lockPanelToCorner();
       }, 0);
       try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
     }
@@ -3649,7 +3664,10 @@
       if (expanded) enforcePanelInViewport(10);
       else lockPanelToCorner();
     });
-    requestAnimationFrame(selfHealPhoneIfTiny);
+    requestAnimationFrame(() => {
+      if (panel.classList.contains('minimized') || !expanded) lockPanelToCorner();
+      selfHealPhoneIfTiny();
+    });
     setTimeout(selfHealPhoneIfTiny, 500);
 
     // Drag handle (desktop): vibe bar

@@ -743,6 +743,12 @@ body.perf-safe *::after {
   max-height: min(50vh, 480px);
   box-sizing: border-box;
 }
+.errl-panel:not(.expanded) {
+  left: auto !important;
+  top: auto !important;
+  right: calc(10px + env(safe-area-inset-right, 0px)) !important;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+}
 .errl-panel .panel-minimized-label {
   display: none;
 }
@@ -879,6 +885,9 @@ body.reduced-motion .errl-phone-cta-hint {
 .errl-panel.minimized .panel-header,
 .errl-panel.minimized .panel-tabs,
 .errl-panel.minimized .panel-section,
+.errl-panel.minimized .panel-content-wrapper,
+.errl-panel.minimized #settingsHistoryRow,
+.errl-panel.minimized #panelScrollTop,
 .errl-panel.minimized #phone-vibe-bar,
 .errl-panel.minimized #phone-close-button { display:none !important; }
 .errl-panel.minimized .panel-mode button, .errl-panel.minimized .panel-title { display:none !important; }
@@ -1134,6 +1143,7 @@ body.reduced-motion .errl-panel.minimized::after {
   margin-top: 0.1em;
 }
 .errl-panel .panel-tab-intro {
+  display: none !important;
   font-size: calc(7.5px * var(--panel-scale));
   line-height: 1.35;
   color: rgba(230, 245, 255, 0.9);

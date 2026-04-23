@@ -356,9 +356,11 @@ test.describe('Errl Phone Controls Tests', () => {
   });
 
   test('@ui Minimized phone bubble shows Customize CTA and restores', async ({ page }) => {
-    await ensurePhonePanelOpen(page);
+    await openPhoneTab(page, 'dev');
     const panel = page.locator('#errlPanel');
     const closeBtn = page.locator('#phone-close-button');
+    const settingsHistoryRow = page.locator('#settingsHistoryRow');
+    await expect(settingsHistoryRow).toBeVisible();
 
     await closeBtn.click({ force: true, timeout: 10_000 });
     await expect(panel).toHaveClass(/minimized/);
@@ -366,6 +368,10 @@ test.describe('Errl Phone Controls Tests', () => {
     const cta = page.locator('#errlPanel .panel-minimized-label');
     await expect(cta).toBeVisible();
     await expect(cta).toHaveText(/customize/i);
+    await expect(settingsHistoryRow).toBeHidden();
+    await expect(page.locator('#panelScrollTop')).toBeHidden();
+    await expect(page.locator('#phone-expand-button')).toBeHidden();
+    await expect(page.locator('#phone-close-button')).toBeHidden();
 
     const animationName = await panel.evaluate((el) => getComputedStyle(el).animationName || '');
     expect(animationName.toLowerCase()).toContain('panelctaglow');
@@ -373,6 +379,27 @@ test.describe('Errl Phone Controls Tests', () => {
     await ensurePhonePanelOpen(page);
     await expect(panel).not.toHaveClass(/minimized/);
     await expect(page.locator('#panelTabs')).toBeAttached();
+  });
+
+  test('@ui Tab help keeps summary visible and details behind question button', async ({ page }) => {
+    await openPhoneTab(page, 'hud');
+    const help = page.locator('.panel-section[data-tab="hud"] .panel-tab-help').first();
+    const summary = help.locator('.panel-tab-help__summary');
+    const qBtn = help.locator('.panel-tab-help__btn');
+    const details = help.locator('.panel-tab-help__details');
+    const intro = page.locator('.panel-section[data-tab="hud"] .panel-tab-intro').first();
+
+    await expect(help).toBeVisible();
+    await expect(summary).toBeVisible();
+    await expect(qBtn).toBeVisible();
+    await expect(details).toBeHidden();
+    await expect(intro).toBeHidden();
+
+    await qBtn.click({ force: true });
+    await expect(details).toBeVisible();
+
+    await qBtn.click({ force: true });
+    await expect(details).toBeHidden();
   });
 
   test('@controls Pin action buttons are bound before opening modal', async ({ page }) => {
