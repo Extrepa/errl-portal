@@ -470,7 +470,9 @@ test.describe('Landing Page Effects Tests', () => {
     await rotateBtn.click();
     await sleep(200);
 
-    // Test Nav Goo+ controls
+    await page.locator('button[data-tab="errl"]').click();
+    await sleep(300);
+    // WebGL Goo (Errl) — wiggle, flow, …
     await verifySliderWorks(page, '#navWiggle', 0, 1);
     await verifySliderWorks(page, '#navFlow', 0, 2);
     await verifySliderWorks(page, '#navGrip', 0, 1);

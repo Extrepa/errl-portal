@@ -35,7 +35,7 @@ test.describe('Export Functionality Tests', () => {
       await ensurePanelOpen(page);
 
       // Switch to Dev tab where export buttons are
-      const devTab = page.getByRole('button', { name: /DEV/i });
+      const devTab = page.getByRole('tab', { name: /DEV/i });
       await devTab.click();
       await page.waitForTimeout(300);
 
@@ -70,7 +70,7 @@ test.describe('Export Functionality Tests', () => {
       await page.waitForTimeout(1000);
 
       // Switch to Dev tab where export buttons are
-      const devTab = page.getByRole('button', { name: /DEV/i });
+      const devTab = page.getByRole('tab', { name: /DEV/i });
       await devTab.click();
       await page.waitForTimeout(300);
 
@@ -97,7 +97,7 @@ test.describe('Export Functionality Tests', () => {
       await ensurePanelOpen(page);
 
       // Switch to GLB tab first
-      const glbTab = page.getByRole('button', { name: /GL Bubbles/i });
+      const glbTab = page.getByRole('tab', { name: /GL Bubbles/i });
       await glbTab.click();
       await page.waitForTimeout(300);
 
@@ -106,7 +106,7 @@ test.describe('Export Functionality Tests', () => {
       await page.dispatchEvent('#bgSpeed', 'input');
 
       // Switch to DEV tab where save defaults button is
-      const devTab = page.getByRole('button', { name: /DEV/i });
+      const devTab = page.getByRole('tab', { name: /DEV/i });
       await devTab.click();
       await page.waitForTimeout(300);
 
@@ -134,7 +134,7 @@ test.describe('Export Functionality Tests', () => {
       await ensurePanelOpen(page);
 
       // Switch to GLB tab first
-      const glbTab = page.getByRole('button', { name: /GL Bubbles/i });
+      const glbTab = page.getByRole('tab', { name: /GL Bubbles/i });
       await glbTab.click();
       await page.waitForTimeout(300);
 
@@ -143,7 +143,7 @@ test.describe('Export Functionality Tests', () => {
       await page.dispatchEvent('#bgSpeed', 'input');
       
       // Switch to DEV tab where save defaults button is
-      const devTab = page.getByRole('button', { name: /DEV/i });
+      const devTab = page.getByRole('tab', { name: /DEV/i });
       await devTab.click();
       await page.waitForTimeout(300);
       

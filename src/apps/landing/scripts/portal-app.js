@@ -3512,14 +3512,11 @@
         applyExpandedState();
       });
     }
-    // restore from minimized when clicking the bubble
+    // restore from minimized when interacting with the bubble
     panel.addEventListener('click', (e)=>{
-      if (panel.classList.contains('minimized')) {
-        // Only expand if clicking the panel itself (not child elements)
-        if (e.target === panel || e.target.classList.contains('errl-panel') || e.target.id === 'phone-vibe-bar' || e.target.classList.contains('panel-minimized-label')) {
-          restorePanel();
-        }
-      }
+      if (!panel.classList.contains('minimized')) return;
+      const target = e.target && e.target.closest ? e.target.closest('#errlPanel') : null;
+      if (target === panel) restorePanel();
     });
 
     // Keep the main phone panel locked to the corner.

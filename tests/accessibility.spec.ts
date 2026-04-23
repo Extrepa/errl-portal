@@ -104,7 +104,7 @@ test.describe('Accessibility Tests', () => {
       if (p && p.classList.contains('minimized')) p.click();
     });
     
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     
     // Check inputs have labels
     const inputs = page.locator('input[type="range"], input[type="checkbox"]');
@@ -134,7 +134,7 @@ test.describe('Accessibility Tests', () => {
       if (p && p.classList.contains('minimized')) p.click();
     });
     
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     
     const prefContrast = page.locator('#prefContrast');
     await prefContrast.check();
@@ -158,7 +158,7 @@ test.describe('Accessibility Tests', () => {
       if (p && p.classList.contains('minimized')) p.click();
     });
     
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     
     const prefReduce = page.locator('#prefReduce');
     await prefReduce.check();

@@ -142,13 +142,13 @@ test.describe('Integration: Controls to Effects', () => {
     expect(parseFloat(dispScale || '0')).toBeGreaterThan(0);
   });
 
-  test('should update Navigation Goo when controls change', async ({ page }) => {
-    await openPhoneTab(page, 'nav');
+  test('should update Errl WebGL goo when controls change', async ({ page }) => {
+    await openPhoneTab(page, 'errl');
     
     // Verify WebGL goo function exists
     const hasGooFunction = await verifyEffectFunction(page, 'errlGLSetGoo');
     
-    // Change nav goo+ controls
+    // WebGL goo sliders (ids navWiggle… live on Errl tab)
     await setControlValue(page, 'navWiggle', '0.5');
     await setControlValue(page, 'navFlow', '1.2');
     await setControlValue(page, 'navGrip', '0.7');

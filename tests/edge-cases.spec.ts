@@ -17,7 +17,7 @@ test.describe('Edge Cases & Error Handling', () => {
       const p = document.getElementById('errlPanel');
       if (p && p.classList.contains('minimized')) p.click();
     });
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     
     const audioMaster = page.locator('#audioMaster');
     // Try to set value outside range (0-1) via JavaScript
@@ -41,7 +41,7 @@ test.describe('Edge Cases & Error Handling', () => {
       const p = document.getElementById('errlPanel');
       if (p && p.classList.contains('minimized')) p.click();
     });
-    await page.getByRole('button', { name: 'Errl' }).click();
+    await page.getByRole('tab', { name: 'Errl' }).click();
     
     const errlSize = page.locator('#errlSize');
     // Try invalid input via JavaScript
@@ -66,7 +66,7 @@ test.describe('Edge Cases & Error Handling', () => {
       const p = document.getElementById('errlPanel');
       if (p && p.classList.contains('minimized')) p.click();
     });
-    await page.getByRole('button', { name: 'Nav' }).click();
+    await page.getByRole('tab', { name: 'Nav' }).click();
     
     const navOrbitSpeed = page.locator('#navOrbitSpeed');
     // Try to set NaN via JavaScript
@@ -90,12 +90,12 @@ test.describe('Edge Cases & Error Handling', () => {
     });
     
     // Change tab
-    await page.getByRole('button', { name: 'Errl' }).click();
-    await expect(page.getByRole('button', { name: 'Errl' })).toHaveAttribute('class', /active/);
+    await page.getByRole('tab', { name: 'Errl' }).click();
+    await expect(page.getByRole('tab', { name: 'Errl' })).toHaveAttribute('class', /active/);
     
     // Change another tab
-    await page.getByRole('button', { name: 'Nav' }).click();
-    await expect(page.getByRole('button', { name: 'Nav' })).toHaveAttribute('class', /active/);
+    await page.getByRole('tab', { name: 'Nav' }).click();
+    await expect(page.getByRole('tab', { name: 'Nav' })).toHaveAttribute('class', /active/);
     
     // Panel should still be open
     await expect(page.locator('#panelTabs')).toBeVisible();
@@ -108,12 +108,12 @@ test.describe('Edge Cases & Error Handling', () => {
     });
     
     // Change a setting
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     await page.locator('#audioMaster').fill('0.7');
     await page.dispatchEvent('#audioMaster', 'input');
     
     // Save defaults
-    await page.getByRole('button', { name: 'Developer' }).click();
+    await page.getByRole('tab', { name: 'Developer' }).click();
     await page.locator('#saveDefaultsBtn').click();
     await page.waitForTimeout(200);
     
@@ -126,7 +126,7 @@ test.describe('Edge Cases & Error Handling', () => {
       const p = document.getElementById('errlPanel');
       if (p && p.classList.contains('minimized')) p.click();
     });
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     
     // Check if value was restored (may depend on implementation)
     const audioMaster = page.locator('#audioMaster');
@@ -167,7 +167,7 @@ test.describe('Edge Cases & Error Handling', () => {
       const p = document.getElementById('errlPanel');
       if (p && p.classList.contains('minimized')) p.click();
     });
-    await page.getByRole('button', { name: 'Errl' }).click();
+    await page.getByRole('tab', { name: 'Errl' }).click();
     
     // Rapidly change multiple controls
     const errlSize = page.locator('#errlSize');
@@ -243,7 +243,7 @@ test.describe('Edge Cases & Error Handling', () => {
     for (const tab of tabs) {
       try {
         // Try multiple ways to find the tab button
-        let tabButton = page.getByRole('button', { name: tab, exact: false });
+        let tabButton = page.getByRole('tab', { name: tab, exact: false });
         const count = await tabButton.count();
         
         if (count === 0) {

@@ -1,4 +1,4 @@
-// L2 Three.js rising bubbles for #riseBubbles - positioned behind Errl and between nav bubbles
+// L2 Three.js rising bubbles for #riseBubbles - behind Errl; spawn layout is fixed (not tied to Nav tab orbit/radius)
 (function(){
   const cvs = document.getElementById('riseBubbles');
   if (!cvs) return;
@@ -14,31 +14,17 @@
     
     let scene, camera, renderer;
     let bubbles = [];
-    function getVisibleNavSlice() {
-      try {
-        if (typeof window !== 'undefined' && typeof window.__errlGetVisibleNavBubbles === 'function') {
-          const v = window.__errlGetVisibleNavBubbles();
-          if (v && v.length) return Array.from(v);
-        }
-      } catch (_) {}
-      return Array.from(document.querySelectorAll('.nav-orbit .bubble')).filter((b) => {
-        if (!b) return false;
-        if (b.getAttribute('hidden') != null) return false;
-        try {
-          const st = window.getComputedStyle(b);
-          if (st.display === 'none' || st.visibility === 'hidden') return false;
-        } catch (_) { return false; }
-        return true;
-      });
-    }
-    // Match visible nav bubbles (hidden Design is excluded when not shown)
-    function countNavBubbles() {
-      return Math.max(1, getVisibleNavSlice().length);
-    }
-
-    // Create multiple bubbles per nav position for richer effect
-    const bubblesPerNav = 2; // 2 bubbles per nav position
-    const navCount = Math.max(8, countNavBubbles());
+    // Fixed sectors for spawn/reset (decoupled from live Nav menu layout so Orbit/Radius/Size do not reshape this field).
+    const RB_SPAWN_SECTORS = 6;
+    const RB_DEFAULT_BASE_DIST = 180;
+    const rbSpawn = (function buildRbSpawn() {
+      const angles = Array.from({ length: RB_SPAWN_SECTORS }, (_, i) => (360 * i) / RB_SPAWN_SECTORS);
+      const dists = angles.map(() => RB_DEFAULT_BASE_DIST);
+      return { angles, dists, count: Math.max(1, angles.length) };
+    })();
+    // Create multiple bubbles per sector for richer effect
+    const bubblesPerNav = 2; // 2 bubbles per sector
+    const navCount = Math.max(8, rbSpawn.count);
     const baseBubbleCount = navCount * bubblesPerNav;
     // max density slider matches Errl Phone; collect mode can raise the effective cap
     const maxDensityForMode = (mode) => (mode === 'collect' ? 2.5 : 2);
@@ -134,10 +120,8 @@
         side: T.DoubleSide
       });
 
-      // Get nav bubble orbital data from actual visible DOM elements
-      const navBubbles = getVisibleNavSlice();
-      const navAngles = navBubbles.map(b => parseFloat(b.dataset.angle || '0'));
-      const navDists = navBubbles.map(b => parseFloat(b.dataset.dist || '180'));
+      const navAngles = rbSpawn.angles;
+      const navDists = rbSpawn.dists;
       
       // Calculate screen-to-3D scaling factor
       // Nav bubbles use screen pixels (dist ~150-200px), convert to 3D world units
@@ -229,10 +213,9 @@
     }
 
     function resetBubble(bubble, index) {
-      // Reset bubble to bottom maintaining its layer and nav association
-      const navBubbles = getVisibleNavSlice();
-      const navAngles = navBubbles.map(b => parseFloat(b.dataset.angle || '0'));
-      const navDists = navBubbles.map(b => parseFloat(b.dataset.dist || '180'));
+      // Reset bubble to bottom (same fixed sectors as init)
+      const navAngles = rbSpawn.angles;
+      const navDists = rbSpawn.dists;
       const bubblesPerNav = Math.ceil(bubblePoolCount / Math.max(navAngles.length, 1));
       
       const navIndex = Math.floor(index / bubblesPerNav) % Math.max(navAngles.length, 1);

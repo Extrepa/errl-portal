@@ -84,3 +84,12 @@
 - **Tests:** Phone tab strips use **`role="tab"`** in markup; Playwright selectors updated from **`getByRole('button')` to `getByRole('tab')`** (Format HTML in studio left as `button`); **“all tabs”** test uses **`data-tab`** for all 9 keys; **scrollIntoViewIfNeeded** where capped panel height hides controls.
 - **Process guardrail:** In this workspace/session, do **not** run Playwright or make Playwright-test changes unless explicitly requested first by the user.
 - **Secret reset flow:** Added guarded global key handler in `portal-app.js`: triple `Enter` (outside editable fields) opens a command prompt; typing exact lowercase `errl` and pressing Enter routes through `requestResetDefaults('secret')`, which confirms before calling `resetDefaults()`. Reset button now uses the same wrapper with in-flight guard so full reset behavior stays single-path and extensible for future easter-egg commands.
+
+### Full history + safe cleanup documentation sweep
+
+- Added full forensics changelog for portal repo: `05-Logs/Implementation/FULL-HISTORY-CHANGELOG.md` (all refs + reflog + unreachable summary).
+- Added archived chat index: `05-Logs/Implementation/ARCHIVED-CHAT-INDEX.md` with parent transcript links in `[title](uuid)` format.
+- Added safe cleanup ledger: `05-Logs/Implementation/SAFE-CLEANUP-LEDGER.md` with keep/archive/remove-safe/needs-confirmation classification and execution record.
+- Archived root screenshots + test logs into `05-Logs/Implementation/Cleanup-Archive/2026-04-22/errl-portal/`.
+- Removed regenerable artifacts: `test-results` in portal repo, and `.next/.open-next/.npm-cache/.npm-logs/.wrangler` in forum docs repo.
+- Restored tracked `.npm`/`.npm-logs` files where deletion would have removed tracked history; left those under needs-confirmation.

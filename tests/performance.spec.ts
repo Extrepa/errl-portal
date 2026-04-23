@@ -68,24 +68,24 @@ test.describe('Performance Tests', () => {
     });
     
     // Enable various effects
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     await page.locator('#audioEnabled').check();
     
-    await page.getByRole('button', { name: 'Errl' }).click();
+    await page.getByRole('tab', { name: 'Errl' }).click();
     await page.locator('#classicGooEnabled').check();
     
-    await page.getByRole('button', { name: 'Nav' }).click();
+    await page.getByRole('tab', { name: 'Nav' }).click();
     await page.locator('#glOrbsToggle').check();
     
-    await page.getByRole('button', { name: 'Rising Bubbles' }).click();
+    await page.getByRole('tab', { name: 'Rising Bubbles' }).click();
     await page.locator('#rbAttract').check();
     await page.locator('#rbRipples').check();
     
-    await page.getByRole('button', { name: /GL Bubbles/i }).click();
+    await page.getByRole('tab', { name: /GL Bubbles/i }).click();
     await page.locator('#bgSpeed').fill('1.5');
     await page.dispatchEvent('#bgSpeed', 'input');
     
-    await page.getByRole('button', { name: 'Hue' }).click();
+    await page.getByRole('tab', { name: 'Hue' }).click();
     await page.locator('#hueEnabled').check();
     await page.locator('#huePlayPause').click();
     
@@ -127,7 +127,7 @@ test.describe('Performance Tests', () => {
       const p = document.getElementById('errlPanel');
       if (p && p.classList.contains('minimized')) p.click();
     });
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     await page.locator('#prefReduce').check();
     
     await page.waitForTimeout(500);

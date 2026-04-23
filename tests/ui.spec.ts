@@ -171,7 +171,7 @@ test.describe('Effects System Tests', () => {
   test('@ui hue target wiring updates and dispatches', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Hue' }).click();
+    await page.getByRole('tab', { name: 'Hue' }).click();
     await expect(page.locator('#hueTarget')).toBeVisible();
 
     // Select Navigation target
@@ -215,7 +215,7 @@ test.describe('Effects System Tests', () => {
   test('@ui overlay sliders enable GL and update values', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    const glbTab = page.getByRole('button', { name: /GL Bubbles/i });
+    const glbTab = page.getByRole('tab', { name: /GL Bubbles/i });
     await glbTab.click();
     const slider = page.locator('#glAlpha');
     if (await slider.count()) {
@@ -410,13 +410,11 @@ test.describe('Errl Phone Controls Tests', () => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
     
-    const tabs = ['HUD', 'Errl', 'Nav', 'RB', 'GLB', 'BG', 'DEV', 'Hue'];
-    
-    for (const tabName of tabs) {
-      const tab = page.getByRole('button', { name: tabName });
+    const tabKeys = ['hud', 'errl', 'pin', 'nav', 'rb', 'glb', 'bg', 'dev', 'hue'];
+    for (const key of tabKeys) {
+      const tab = page.locator(`#errlPanel .panel-tabs [data-tab="${key}"]`).first();
       await expect(tab).toBeVisible();
       await tab.click();
-      // Verify tab is active
       await expect(tab).toHaveAttribute('class', /active/);
     }
   });
@@ -424,7 +422,7 @@ test.describe('Errl Phone Controls Tests', () => {
   test('@ui HUD tab controls work', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     
     // Test particles burst button
     const burstBtn = page.locator('#burstBtn');
@@ -460,7 +458,7 @@ test.describe('Errl Phone Controls Tests', () => {
   test('@ui Errl tab controls work', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Errl' }).click();
+    await page.getByRole('tab', { name: 'Errl' }).click();
     
     // Test Errl size
     const errlSize = page.locator('#errlSize');
@@ -498,7 +496,7 @@ test.describe('Errl Phone Controls Tests', () => {
   test('@ui Nav tab controls work', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Nav' }).click();
+    await page.getByRole('tab', { name: 'Nav' }).click();
     
     // Test nav bubbles controls
     const navOrbitSpeed = page.locator('#navOrbitSpeed');
@@ -521,8 +519,9 @@ test.describe('Errl Phone Controls Tests', () => {
     const rotateSkins = page.locator('#rotateSkins');
     await expect(rotateSkins).toBeVisible();
     await rotateSkins.click();
-    
-    // Test nav goo controls
+
+    await page.getByRole('tab', { name: 'Errl' }).click();
+    // WebGL goo on Errl tab
     const navWiggle = page.locator('#navWiggle');
     await expect(navWiggle).toBeVisible();
     await navWiggle.fill('0.5');
@@ -547,7 +546,7 @@ test.describe('Errl Phone Controls Tests', () => {
   test('@ui RB (Rising Bubbles) tab controls work', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Rising Bubbles' }).click();
+    await page.getByRole('tab', { name: 'Rising Bubbles' }).click();
     
     // Test basic controls
     const rbAttract = page.locator('#rbAttract');
@@ -595,7 +594,7 @@ test.describe('Errl Phone Controls Tests', () => {
   test('@ui GLB tab controls work', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: /GL Bubbles/i }).click();
+    await page.getByRole('tab', { name: /GL Bubbles/i }).click();
     
     const bgSpeed = page.locator('#bgSpeed');
     await expect(bgSpeed).toBeVisible();
@@ -623,7 +622,7 @@ test.describe('Errl Phone Controls Tests', () => {
   test('@ui BG tab is empty (controls removed)', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Background' }).click();
+    await page.getByRole('tab', { name: 'Background' }).click();
     
     // Verify section exists but is empty
     const bgSection = page.locator('.panel-section[data-tab="bg"]');
@@ -636,7 +635,7 @@ test.describe('Errl Phone Controls Tests', () => {
   test('@ui Hue tab controls work', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Hue' }).click();
+    await page.getByRole('tab', { name: 'Hue' }).click();
     
     // Test enabled toggle
     const hueEnabled = page.locator('#hueEnabled');
@@ -703,7 +702,7 @@ test.describe('Developer Controls Tests', () => {
   test('@ui dev tab controls are accessible', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Developer' }).click();
+    await page.getByRole('tab', { name: 'Developer' }).click();
     
     // Verify all dev controls exist
     const openColorizer = page.locator('#openColorizer');
@@ -725,7 +724,7 @@ test.describe('Developer Controls Tests', () => {
   test('@ui colorizer opens and closes', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Developer' }).click();
+    await page.getByRole('tab', { name: 'Developer' }).click();
     
     const openColorizer = page.locator('#openColorizer');
     await openColorizer.click();
@@ -744,7 +743,7 @@ test.describe('Developer Controls Tests', () => {
   test('@ui snapshot PNG button works', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Developer' }).click();
+    await page.getByRole('tab', { name: 'Developer' }).click();
     
     const snapshotPngBtn = page.locator('#snapshotPngBtn');
     await expect(snapshotPngBtn).toBeVisible();
@@ -759,7 +758,7 @@ test.describe('Developer Controls Tests', () => {
   test('@ui export HTML button works', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Developer' }).click();
+    await page.getByRole('tab', { name: 'Developer' }).click();
     
     const exportHtmlBtn = page.locator('#exportHtmlBtn');
     await expect(exportHtmlBtn).toBeVisible();
@@ -773,18 +772,18 @@ test.describe('Developer Controls Tests', () => {
   test('@ui save defaults button works', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Developer' }).click();
+    await page.getByRole('tab', { name: 'Developer' }).click();
     
     const saveDefaultsBtn = page.locator('#saveDefaultsBtn');
     await expect(saveDefaultsBtn).toBeVisible();
     
     // Change a setting first
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     await page.locator('#audioMaster').fill('0.7');
     await page.dispatchEvent('#audioMaster', 'input');
     
     // Save defaults
-    await page.getByRole('button', { name: 'Developer' }).click();
+    await page.getByRole('tab', { name: 'Developer' }).click();
     await saveDefaultsBtn.click();
     
     // Verify localStorage was updated - saveDefaults saves individual keys, not 'errlDefaults'
@@ -800,7 +799,7 @@ test.describe('Developer Controls Tests', () => {
   test('@ui reset defaults button works', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Developer' }).click();
+    await page.getByRole('tab', { name: 'Developer' }).click();
     
     // Save defaults first
     const saveDefaultsBtn = page.locator('#saveDefaultsBtn');
@@ -851,7 +850,7 @@ test.describe('Effects System Tests - Extended', () => {
   test('@ui all hue targets are selectable', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Hue' }).click();
+    await page.getByRole('tab', { name: 'Hue' }).click();
     
     const hueTarget = page.locator('#hueTarget');
     const targets = ['nav', 'riseBubbles', 'bgBubbles', 'background', 'glOverlay'];
@@ -880,7 +879,7 @@ test.describe('Edge Cases & Error Handling', () => {
   test('@ui slider values clamp correctly', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     
     const audioMaster = page.locator('#audioMaster');
     // Try to set value outside range - use evaluate to set it directly
@@ -896,7 +895,7 @@ test.describe('Edge Cases & Error Handling', () => {
   test('@ui invalid inputs handled gracefully', async ({ page, baseURL }) => {
     await page.goto(baseURL! + '/index.html');
     await ensurePanelOpen(page);
-    await page.getByRole('button', { name: 'Errl' }).click();
+    await page.getByRole('tab', { name: 'Errl' }).click();
     
     const errlSize = page.locator('#errlSize');
     // Try invalid input - use evaluate to set it directly (browser will clamp to valid range)
@@ -919,12 +918,12 @@ test.describe('Edge Cases & Error Handling', () => {
     await ensurePanelOpen(page);
     
     // Change tab
-    await page.getByRole('button', { name: 'Errl' }).click();
-    await expect(page.getByRole('button', { name: 'Errl' })).toHaveAttribute('class', /active/);
+    await page.getByRole('tab', { name: 'Errl' }).click();
+    await expect(page.getByRole('tab', { name: 'Errl' })).toHaveAttribute('class', /active/);
     
     // Change another tab
-    await page.getByRole('button', { name: 'Nav' }).click();
-    await expect(page.getByRole('button', { name: 'Nav' })).toHaveAttribute('class', /active/);
+    await page.getByRole('tab', { name: 'Nav' }).click();
+    await expect(page.getByRole('tab', { name: 'Nav' })).toHaveAttribute('class', /active/);
     
     // Panel should still be open
     await expect(page.locator('#panelTabs')).toBeVisible();

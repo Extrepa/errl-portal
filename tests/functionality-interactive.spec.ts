@@ -95,7 +95,7 @@ test.describe('Interactive Controls Tests', () => {
       await ensurePanelOpen(page);
 
       // Switch to GLB tab where bgSpeed, bgDensity, glAlpha are located
-      const glbTab = page.getByRole('button', { name: /GL Bubbles/i });
+      const glbTab = page.getByRole('tab', { name: /GL Bubbles/i });
       await glbTab.click();
       await page.waitForTimeout(300);
 
@@ -125,7 +125,7 @@ test.describe('Interactive Controls Tests', () => {
       await ensurePanelOpen(page);
 
       // Switch to HUD tab where audio controls are
-      const hudTab = page.getByRole('button', { name: /HUD/i });
+      const hudTab = page.getByRole('tab', { name: /HUD/i });
       await hudTab.click();
       await page.waitForTimeout(300);
 

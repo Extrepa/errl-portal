@@ -293,10 +293,10 @@ test.describe('Classic Goo Controls', () => {
   });
 });
 
-test.describe('Navigation Goo Controls', () => {
+test.describe('WebGL Goo (Errl) controls', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.locator('[data-tab="nav"]').first().click();
+    await page.locator('[data-tab="errl"]').first().click();
   });
 
   test('should have nav goo controls', async ({ page }) => {
@@ -411,9 +411,9 @@ test.describe('Phone Panel Tabs', () => {
   test('should show correct tab content for each tab', async ({ page }) => {
     const tabContentMap: Record<string, string[]> = {
       hud: ['burstBtn', 'prefReduce'],
-      errl: ['classicGooEnabled', 'classicGooStrength'],
+      errl: ['classicGooEnabled', 'classicGooStrength', 'navWiggle'],
       pin: ['pinWidgetFrame', '[data-colorizer-action="inject"]'],
-      nav: ['navOrbitSpeed', 'navWiggle'],
+      nav: ['navOrbitSpeed', 'navOrbSize'],
       rb: ['rbSpeed', 'rbDensity', 'rbScale'],
       glb: ['bgSpeed', 'glAlpha'],
       bg: [], // BG tab is intentionally empty

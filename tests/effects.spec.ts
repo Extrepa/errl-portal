@@ -43,7 +43,7 @@ test.describe('Effects Systems Tests', () => {
       const p = document.getElementById('errlPanel');
       if (p && p.classList.contains('minimized')) p.click();
     });
-    await page.getByRole('button', { name: 'HUD' }).click();
+    await page.getByRole('tab', { name: 'HUD' }).click();
     
     const burstBtn = page.locator('#burstBtn');
     await expect(burstBtn).toBeVisible();
@@ -109,7 +109,7 @@ test.describe('Effects Systems Tests', () => {
       const p = document.getElementById('errlPanel');
       if (p && p.classList.contains('minimized')) p.click();
     });
-    await page.getByRole('button', { name: 'Hue' }).click();
+    await page.getByRole('tab', { name: 'Hue' }).click();
     
     const hueTarget = page.locator('#hueTarget');
     const hueEnabled = page.locator('#hueEnabled');
@@ -147,7 +147,7 @@ test.describe('Effects Systems Tests', () => {
       const p = document.getElementById('errlPanel');
       if (p && p.classList.contains('minimized')) p.click();
     });
-    await page.getByRole('button', { name: 'Hue' }).click();
+    await page.getByRole('tab', { name: 'Hue' }).click();
     
     const huePlayPause = page.locator('#huePlayPause');
     await expect(huePlayPause).toBeVisible();
@@ -228,7 +228,7 @@ test.describe('Effects Systems Tests', () => {
         const p = document.getElementById('errlPanel');
         if (p && p.classList.contains('minimized')) p.click();
       });
-      await page.getByRole('button', { name: 'Errl' }).click();
+      await page.getByRole('tab', { name: 'Errl' }).click();
       await page.waitForTimeout(500);
 
       const gooEnabled = page.locator('#classicGooEnabled');
@@ -293,7 +293,6 @@ test.describe('Effects Systems Tests', () => {
   test.describe('Navigation Goo Effects', () => {
     test.beforeEach(async ({ page }) => {
       await ensurePhonePanelOpen(page);
-      await openPhoneTab(page, 'nav');
     });
 
     test('@ui nav goo filter nodes exist and update', async ({ page }) => {
@@ -309,6 +308,7 @@ test.describe('Effects Systems Tests', () => {
     });
 
     test('@ui nav goo+ WebGL controls work', async ({ page }) => {
+      await openPhoneTab(page, 'errl');
       const controls = ['navWiggle', 'navFlow', 'navGrip', 'navDrip', 'navVisc'];
       
       for (const controlId of controls) {

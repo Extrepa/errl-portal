@@ -197,7 +197,8 @@ test.describe('Errl Phone Controls Tests', () => {
     expect(parseFloat(await getControlValue(page, 'navRadius') || '0')).toBeCloseTo(1.3, 1);
     expect(parseFloat(await getControlValue(page, 'navOrbSize') || '0')).toBeCloseTo(1.1, 1);
 
-    // Test nav goo+ controls
+    await openPhoneTab(page, 'errl');
+    // WebGL goo (Errl body) — same ids, now on Errl tab
     const navWiggle = page.locator('#navWiggle');
     const navFlow = page.locator('#navFlow');
     const navGrip = page.locator('#navGrip');

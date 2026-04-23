@@ -205,7 +205,7 @@ test.describe('Settings Persistence', () => {
     await openPhoneTab(page, 'hue');
     await setControlValue(page, 'hueShift', '180');
     
-    await openPhoneTab(page, 'nav');
+    await openPhoneTab(page, 'errl');
     await setControlValue(page, 'navWiggle', '0.5');
     
     await page.waitForTimeout(1000);

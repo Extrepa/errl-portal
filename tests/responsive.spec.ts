@@ -43,7 +43,7 @@ test.describe('Responsive Design Tests', () => {
     await expect(panelTabs).toBeVisible();
     
     // Tabs should be clickable
-    const hudTab = page.getByRole('button', { name: 'HUD' });
+    const hudTab = page.getByRole('tab', { name: 'HUD' });
     await expect(hudTab).toBeVisible();
     await hudTab.click();
   });
