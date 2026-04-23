@@ -1,0 +1,35 @@
+# Copy to .github/workflows/playwright-against-prod.yml (or merge in GitHub UI) if the OAuth
+# app used by your IDE cannot push new workflow files—GitHub requires `workflow` scope.
+#
+# Run fast Playwright smoke tests against a public URL (default https://errl.wtf) in GitHub.
+# Triggers: manual. Optional: add push: branches: [ main ]
+name: Playwright smoke (public URL)
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Install Playwright (Chromium only)
+        run: npx playwright install --with-deps chromium
+
+      - name: Smoke test
+        env:
+          PLAYWRIGHT_BASE_URL: https://errl.wtf
+        run: npx playwright test tests/production-smoke.spec.ts

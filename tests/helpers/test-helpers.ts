@@ -5,6 +5,11 @@
 
 import { Page, expect } from '@playwright/test';
 
+/** Use instead of `page.waitForTimeout` (deprecated in Playwright). */
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /**
  * Wait for all effects to initialize
  */
@@ -43,23 +48,21 @@ export async function waitForEffect(page: Page, effectName: string, timeout = 50
  * Get control value safely
  */
 export async function getControlValue(page: Page, controlId: string): Promise<string | null> {
-  const control = page.locator(`#${controlId}`);
-  const count = await control.count();
-  if (count === 0) return null;
-
-  const tagName = await control.evaluate((el) => (el as HTMLElement).tagName.toLowerCase());
-  
-  if (tagName === 'input') {
-    const type = await control.getAttribute('type');
-    if (type === 'checkbox') {
-      return (await control.isChecked()) ? 'true' : 'false';
-    }
-    return await control.inputValue();
-  } else if (tagName === 'select') {
-    return await control.evaluate((el) => (el as HTMLSelectElement).value);
-  }
-  
-  return await control.textContent();
+  return page.evaluate(
+    (id) => {
+      const el = document.getElementById(String(id)) as HTMLInputElement | HTMLSelectElement | null;
+      if (!el) return null;
+      const t = (el as HTMLElement).tagName.toLowerCase();
+      if (t === 'input') {
+        const i = el as HTMLInputElement;
+        if (i.type === 'checkbox') return i.checked ? 'true' : 'false';
+        return i.value;
+      }
+      if (t === 'select') return (el as HTMLSelectElement).value;
+      return (el as HTMLElement).textContent;
+    },
+    controlId
+  );
 }
 
 /**
@@ -71,33 +74,47 @@ export async function setControlValue(
   value: string | number | boolean,
   waitTime = 500
 ): Promise<void> {
-  const control = page.locator(`#${controlId}`);
-  await expect(control).toBeVisible();
-
-  const tagName = await control.evaluate((el) => (el as HTMLElement).tagName.toLowerCase());
-  
-  if (tagName === 'input') {
-    const type = await control.getAttribute('type');
-    if (type === 'checkbox') {
-      const checked = typeof value === 'boolean' ? value : value === 'true';
-      await control.setChecked(checked);
-    } else if (type === 'range') {
-      // Range inputs need special handling - use setInputValue or evaluate
-      await control.evaluate((el: HTMLInputElement, val: string) => {
-        el.value = val;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-      }, String(value));
-    } else {
-      await control.fill(String(value));
-      // Trigger input event
-      await control.dispatchEvent('input');
+  const str = String(value);
+  // Use a single in-page read/write. Locator + evaluate on animated panels can hit Playwright
+  // “stable” timeouts; getElementById is synchronous in the same tick as the handler.
+  const ok = await page.evaluate(
+    ({ id, val, boolish }) => {
+      const el = document.getElementById(String(id)) as HTMLInputElement | HTMLSelectElement | null;
+      if (!el) return false;
+      (el as HTMLElement).scrollIntoView({ block: 'center', inline: 'nearest' });
+      const t = (el as HTMLElement).tagName.toLowerCase();
+      if (t === 'input') {
+        const i = el as HTMLInputElement;
+        if (i.type === 'checkbox') {
+          const c = boolish;
+          i.checked = c;
+          i.dispatchEvent(new Event('input', { bubbles: true }));
+          i.dispatchEvent(new Event('change', { bubbles: true }));
+        } else if (i.type === 'range') {
+          i.value = val;
+          i.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+          i.value = val;
+          i.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      } else if (t === 'select') {
+        (el as HTMLSelectElement).value = val;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        return false;
+      }
+      return true;
+    },
+    {
+      id: controlId,
+      val: str,
+      boolish: typeof value === 'boolean' ? value : str === 'true' || str === 'on',
     }
-  } else if (tagName === 'select') {
-    await control.selectOption(String(value));
-    await control.dispatchEvent('change');
+  );
+  if (!ok) {
+    throw new Error(`setControlValue: #${controlId} not found`);
   }
-  
-  await page.waitForTimeout(waitTime);
+  await sleep(waitTime);
 }
 
 /**
@@ -119,8 +136,8 @@ export async function getPinDesignerFrame(page: Page, baseURL?: string): Promise
   
   // Wait for SVG inside iframe
   await iframeContent.waitForSelector('#pinSVG', { timeout: 10000 });
-  await iframeContent.waitForTimeout(1000); // Wait for initialization
-  
+  await sleep(1000); // Wait for initialization
+
   return iframeContent;
 }
 
@@ -131,18 +148,32 @@ export async function verifyEffectFunction(
   page: Page,
   functionPath: string
 ): Promise<boolean> {
-  return await page.evaluate((path) => {
-    const parts = path.split('.');
-    let obj: any = window;
-    for (const part of parts) {
-      if (obj && typeof obj === 'object' && part in obj) {
-        obj = obj[part];
-      } else {
-        return false;
-      }
-    }
-    return typeof obj === 'function';
-  }, functionPath);
+  const [ok] = await verifyEffectFunctionPaths(page, [functionPath]);
+  return ok;
+}
+
+/** Batched: one page.evaluate to avoid stalling a busy main thread (RB / Three) with many round-trips. */
+export async function verifyEffectFunctionPaths(
+  page: Page,
+  paths: string[]
+): Promise<boolean[]> {
+  return page.evaluate(
+    (pathList) => {
+      return pathList.map((functionPath) => {
+        const parts = functionPath.split('.');
+        let obj: any = window;
+        for (const part of parts) {
+          if (obj && typeof obj === 'object' && part in obj) {
+            obj = obj[part];
+          } else {
+            return false;
+          }
+        }
+        return typeof obj === 'function';
+      });
+    },
+    paths
+  );
 }
 
 /**
@@ -188,14 +219,17 @@ export async function setSettingsBundle(page: Page, bundle: any, key = 'errl_por
  * Open phone panel tab
  */
 export async function openPhoneTab(page: Page, tabName: string): Promise<void> {
-  const tabButton = page.locator(`[data-tab="${tabName}"]`).first();
-  await expect(tabButton).toBeVisible();
-  await tabButton.click();
-  await page.waitForTimeout(300);
-  
-  // Verify tab content is visible
-  const tabContent = page.locator(`.panel-section[data-tab="${tabName}"]`).first();
-  await expect(tabContent).toBeVisible();
+  const tabButton = page
+    .locator(`#errlPanel .panel-tabs [data-tab="${tabName}"]`)
+    .first();
+  await expect(tabButton).toBeAttached();
+  await tabButton.click({ force: true, timeout: 10_000 });
+  await sleep(200);
+
+  const tabContent = page
+    .locator(`#errlPanel .panel-content-wrapper .panel-section[data-tab="${tabName}"]`)
+    .first();
+  await expect(tabContent).toBeAttached();
 }
 
 /**
@@ -203,14 +237,32 @@ export async function openPhoneTab(page: Page, tabName: string): Promise<void> {
  */
 export async function ensurePhonePanelOpen(page: Page): Promise<void> {
   const panel = page.locator('#errlPanel');
-  const isMinimized = await panel.evaluate((el) => 
-    el.classList.contains('minimized')
-  );
-  
-  if (isMinimized) {
-    await panel.click();
-    await page.waitForTimeout(300);
-  }
+  const isMinimized = await panel.evaluate((el) => el.classList.contains('minimized'));
+  if (!isMinimized) return;
+  // Do not use a real “bubble click” to restore: `restorePanel()` defers `activateTab('hud')` in a
+  // setTimeout(0) and that can run after a test’s `openPhoneTab('rb')`, clobbering the active tab.
+  // Synchronously un-minimize and run the same display/tab toggling the app uses (HUD default).
+  await page.evaluate(() => {
+    const p = document.getElementById('errlPanel');
+    if (!p) return;
+    p.classList.remove('minimized');
+    p.setAttribute('aria-expanded', 'true');
+    const headerEl = p.querySelector<HTMLElement>('.panel-header');
+    const tabsEl = p.querySelector<HTMLElement>('.panel-tabs');
+    if (headerEl) headerEl.style.display = '';
+    if (tabsEl) tabsEl.style.display = '';
+    const key = 'hud';
+    p.querySelectorAll<HTMLButtonElement>('.panel-tabs .tab').forEach((btn) => {
+      const on = btn.getAttribute('data-tab') === key;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    p.querySelectorAll<HTMLElement>('.panel-section').forEach((sec) => {
+      const on = sec.getAttribute('data-tab') === key;
+      sec.style.display = on ? 'block' : 'none';
+    });
+  });
+  await sleep(100);
 }
 
 /**

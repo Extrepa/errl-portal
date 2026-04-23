@@ -16,6 +16,7 @@
     "rbAttractIntensity": "0.4",
     "rbRipples": false,
     "rbRippleIntensity": "0.8",
+    "rbInteractionMode": "classic",
     "rbAdvAnimSpeed": "0.10",
 
     "classicGooEnabled": true,
@@ -89,7 +90,8 @@
     "attract": false,
     "attractIntensity": 0.4,
     "ripples": false,
-    "rippleIntensity": 0.8
+    "rippleIntensity": 0.8,
+    "interactionMode": "classic"
   },
   "gl": {
     "bubbles": {

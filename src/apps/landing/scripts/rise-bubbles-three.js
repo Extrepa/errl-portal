@@ -14,20 +14,35 @@
     
     let scene, camera, renderer;
     let bubbles = [];
-    // Count actual navigation bubbles (8 total: 7 visible + 1 hidden)
+    function getVisibleNavSlice() {
+      try {
+        if (typeof window !== 'undefined' && typeof window.__errlGetVisibleNavBubbles === 'function') {
+          const v = window.__errlGetVisibleNavBubbles();
+          if (v && v.length) return Array.from(v);
+        }
+      } catch (_) {}
+      return Array.from(document.querySelectorAll('.nav-orbit .bubble')).filter((b) => {
+        if (!b) return false;
+        if (b.getAttribute('hidden') != null) return false;
+        try {
+          const st = window.getComputedStyle(b);
+          if (st.display === 'none' || st.visibility === 'hidden') return false;
+        } catch (_) { return false; }
+        return true;
+      });
+    }
+    // Match visible nav bubbles (hidden Design is excluded when not shown)
     function countNavBubbles() {
-      const navBubbles = document.querySelectorAll('.nav-orbit .bubble:not(.hidden-bubble)');
-      const hidden = document.querySelector('.nav-orbit .bubble.hidden-bubble');
-      return navBubbles.length + (hidden && hidden.style.display !== 'none' ? 1 : 0);
+      return Math.max(1, getVisibleNavSlice().length);
     }
 
     // Create multiple bubbles per nav position for richer effect
-    // Match the 8 navigation bubble pages/positions
+    const bubblesPerNav = 2; // 2 bubbles per nav position
     const navCount = Math.max(8, countNavBubbles());
-    const bubblesPerNav = 2; // 2 bubbles per nav position = 16 total bubbles (more visually interesting)
     const baseBubbleCount = navCount * bubblesPerNav;
-    const maxCountMultiplier = 2; // matches Errl Phone rbDensity max
-    const bubblePoolCount = Math.ceil(baseBubbleCount * maxCountMultiplier);
+    // max density slider matches Errl Phone; collect mode can raise the effective cap
+    const maxDensityForMode = (mode) => (mode === 'collect' ? 2.5 : 2);
+    const bubblePoolCount = Math.ceil(baseBubbleCount * maxDensityForMode('collect'));
 
     // Shader materials for iridescent bubbles
     const vertexShader = `
@@ -119,8 +134,8 @@
         side: T.DoubleSide
       });
 
-      // Get nav bubble orbital data from actual DOM elements
-      const navBubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble:not(.hidden-bubble)'));
+      // Get nav bubble orbital data from actual visible DOM elements
+      const navBubbles = getVisibleNavSlice();
       const navAngles = navBubbles.map(b => parseFloat(b.dataset.angle || '0'));
       const navDists = navBubbles.map(b => parseFloat(b.dataset.dist || '180'));
       
@@ -215,7 +230,7 @@
 
     function resetBubble(bubble, index) {
       // Reset bubble to bottom maintaining its layer and nav association
-      const navBubbles = Array.from(document.querySelectorAll('.nav-orbit .bubble:not(.hidden-bubble)'));
+      const navBubbles = getVisibleNavSlice();
       const navAngles = navBubbles.map(b => parseFloat(b.dataset.angle || '0'));
       const navDists = navBubbles.map(b => parseFloat(b.dataset.dist || '180'));
       const bubblesPerNav = Math.ceil(bubblePoolCount / Math.max(navAngles.length, 1));
@@ -295,12 +310,36 @@
       sizeHz: 0.0,  // 0..1 Hz
       jumboPct: 0.1,
       jumboScale: 1.6,
-      attract: true,
+      attract: false,
       attractIntensity: 1.0,
       ripples: false,
       rippleIntensity: 1.2,
       interactionMode: 'classic'
     };
+
+    const collectPointer = { x: 0, y: 0, active: false };
+    let collectScore = 0;
+    cvs.addEventListener('pointermove', (e) => {
+      const r = cvs.getBoundingClientRect();
+      collectPointer.x = e.clientX - r.left;
+      collectPointer.y = e.clientY - r.top;
+      collectPointer.active = true;
+    }, { passive: true });
+    cvs.addEventListener('pointerleave', () => { collectPointer.active = false; }, { passive: true });
+    cvs.addEventListener('pointerenter', (e) => {
+      const r = cvs.getBoundingClientRect();
+      collectPointer.x = e.clientX - r.left;
+      collectPointer.y = e.clientY - r.top;
+      collectPointer.active = true;
+    }, { passive: true });
+
+    function emitCollectScore() {
+      try {
+        window.dispatchEvent(new CustomEvent('errl:rb-collect-score', {
+          detail: { score: collectScore, mode: controls.interactionMode }
+        }));
+      } catch (_) {}
+    }
 
     function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
     function safeNum(v, fallback){
@@ -413,7 +452,8 @@
     }
 
     function getActiveCount(){
-      const mult = clamp(safeNum(controls.density, 1.0), 0, maxCountMultiplier);
+      const cap = maxDensityForMode(controls.interactionMode);
+      const mult = clamp(safeNum(controls.density, 1.0), 0, cap);
       return clamp(Math.round(baseBubbleCount * mult), 0, bubblePoolCount);
     }
 
@@ -548,7 +588,7 @@
     window.addEventListener('pointerdown', (e) => {
       // If another handler intentionally consumed this press (e.g. grab/throw), don't emit ripples.
       try { if (e && e.defaultPrevented) return; } catch(_) {}
-      if (!controls.ripples) return;
+      if (controls.interactionMode === 'collect' || !controls.ripples) return;
       if (!camera) return;
       const w = window.innerWidth || 1;
       const h = window.innerHeight || 1;
@@ -571,6 +611,7 @@
       try {
         // Only primary contact
         if (e.isPrimary === false) return;
+        if (controls.interactionMode === 'collect') return;
         // Prevent ripple handler + browser gestures during active interaction
         if (e.pointerType === 'touch' || e.pointerType === 'pen') {
           try { e.preventDefault(); } catch(_) {}
@@ -769,7 +810,7 @@
       // Precompute pointer ray for attract (we project onto per-bubble z planes)
       let rayDir = null;
       let rayOrg = null;
-      if (controls.attract && pointer.active && camera) {
+      if (controls.attract && pointer.active && camera && controls.interactionMode !== 'collect') {
         raycaster.setFromCamera(pointer, camera);
         rayDir = raycaster.ray.direction;
         rayOrg = raycaster.ray.origin;
@@ -834,8 +875,8 @@
         oldOff.x = nextOffX;
         oldOff.z = nextOffZ;
 
-        // Ripple impulses (radial push)
-        if (controls.ripples && rippleEvents.length) {
+        // Ripple impulses (radial push) — not in collect mode
+        if (controls.ripples && rippleEvents.length && controls.interactionMode !== 'collect') {
           for (let i = 0; i < rippleEvents.length; i++) {
             const r = rippleEvents[i];
             const age = elapsedTime - r.t;
@@ -856,9 +897,37 @@
           }
         }
 
+        // Collect: overlap pointer with screen-projected bubble
+        if (controls.interactionMode === 'collect' && collectPointer.active && camera) {
+          tmpPoint.copy(bubble.position);
+          tmpPoint.project(camera);
+          const rect = cvs.getBoundingClientRect();
+          const sx = (tmpPoint.x * 0.5 + 0.5) * rect.width;
+          const sy = (-tmpPoint.y * 0.5 + 0.5) * rect.height;
+          const dx = sx - collectPointer.x;
+          const dy = sy - collectPointer.y;
+          const sPx = (bubble.scale && Number.isFinite(bubble.scale.x) ? bubble.scale.x : 1) * 28;
+          const hitR = 28 + sPx;
+          if (dx * dx + dy * dy < hitR * hitR) {
+            const cd = bubble.userData && bubble.userData._collectCd;
+            if (!cd || (elapsedTime - cd) > 0.1) {
+              if (!bubble.userData) bubble.userData = {};
+              bubble.userData._collectCd = elapsedTime;
+              collectScore += 1;
+              emitCollectScore();
+              resetBubble(bubble, index);
+              refreshBubbleBaseScale(bubble, { reroll: true });
+              if (bubble.material && bubble.material.uniforms && bubble.material.uniforms.uTime) {
+                bubble.material.uniforms.uTime.value = elapsedTime;
+              }
+            }
+            return;
+          }
+        }
+
         // Pointer attract (gentle drift toward cursor ray intersection)
         const thrownRecently = !!(bubble.userData && bubble.userData.isThrown && (elapsedTime - safeNum(bubble.userData.thrownAt, 0)) < 0.75);
-        if (!thrownRecently && rayDir && rayOrg) {
+        if (!thrownRecently && controls.interactionMode !== 'collect' && rayDir && rayOrg) {
           const dz = rayDir.z;
           if (Math.abs(dz) > 1e-6) {
             const t = (bubble.position.z - tmpOrigin.z) / dz;
@@ -992,7 +1061,19 @@
         controls.rippleIntensity = clamp(safeNum(value, 1.2), 0, 2);
       },
       setInteractionMode(value) {
-        controls.interactionMode = (value === 'pop') ? 'pop' : 'classic';
+        const v = String(value || 'classic');
+        if (v === 'pop') controls.interactionMode = 'pop';
+        else if (v === 'collect') controls.interactionMode = 'collect';
+        else controls.interactionMode = 'classic';
+        updateBubbleVisibility();
+        emitCollectScore();
+      },
+      getCollectScore() {
+        return collectScore;
+      },
+      setCollectScore(n) {
+        collectScore = Math.max(0, n | 0);
+        emitCollectScore();
       },
       popAnyVisible() {
         return popAnyVisibleBubble();
@@ -1007,6 +1088,7 @@
       getStats() {
         return {
           popCount,
+          collectScore,
           interactionMode: controls.interactionMode
         };
       },

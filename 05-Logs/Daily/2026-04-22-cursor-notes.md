@@ -65,3 +65,12 @@
 - **Deploy:** Changes committed and **pushed to `origin/main`**; production follows your usual path (e.g. Cloudflare Pages) from `main`.
 - **Other branches:** Local only-not-merged-into-`main` (backups / old work): `archive/legacy-kits`, `backup/pre-push-2025-11-12*`, `checkpoint/20251111-015458`, `erc-20251030-082458`, `feature/bubble-labels-and-phone-face`. **Not** merged (would risk regressions); `main` is the shipped line. Delete or keep as archives as you prefer.
 - **Pre-ship test:** `npx playwright test tests/errl-phone-controls.spec.ts -g "Design nav"` — 1 passed (wrap-up run).
+- **Production check:** Fetched `https://errl.wtf` (2026-04-22): home page and nav content load; site is publicly reachable.
+
+### Testing workflow: deploy-first, no heavy local E2E
+
+- **`precommit`:** `typecheck` + `portal:build` only (full `npm test` / Playwright removed from pre-commit; use CI or a deliberate command).
+- **`postinstall`:** `SKIP_PLAYWRIGHT_INSTALL=1` skips `playwright install` to speed local `npm install`.
+- **Remote Playwright:** `playwright.config.ts` reads `PLAYWRIGHT_BASE_URL`; if set, Vite `webServer` is not started. `npm run test:smoke:prod` runs `tests/production-smoke.spec.ts` against `https://errl.wtf` (or set `PLAYWRIGHT_BASE_URL` for another URL). Optional GitHub Action: [`.github/workflows/playwright-against-prod.yml`](../.github/workflows/playwright-against-prod.yml) — **Run workflow** manually; hits production URL, Chromium only, minutes not hours on your machine.
+- **Human verification:** After deploy, open the site in a normal browser (or Cursor’s browser / MCP) and spot-check what changed; the automated smoke is a small safety net, not a full duplicate of the old 40+ file suite.
+- **Verify (proceed):** `npm run typecheck` + `npm run portal:build` both exit 0; `npm run test:smoke:prod` (against `https://errl.wtf`) **1 passed** in ~3s.

@@ -692,17 +692,27 @@
   W.enableErrlGL = function(){ if (!started) init(); else enable(); };
   W.disableErrlGL = function(){ disable(); };
   W.errlGLBurst = function(x, y, count){
-    const c = (count != null && isFinite(count)) ? Math.max(1, Math.min(5000, count|0)) : 600;
     if (!getCanvas() || !W.PIXI) {
       try { W.dispatchEvent(new CustomEvent('errl:webgl-unavailable', { bubbles: true, detail: { reason: 'no-canvas' } })); } catch (_) {}
       return;
     }
     if (!started) init();
+    const w = (x != null && isFinite(x)) ? x : (W.innerWidth * 0.5);
+    const h = (y != null && isFinite(y)) ? y : (W.innerHeight * 0.5);
+    let n = 0;
+    if (bubblesFXLayers) {
+      bubblesFXLayers.forEach((L) => {
+        if (L && typeof L.burstAt === 'function') n += (L.burstAt(w, h, { strength: 1.15 }) | 0);
+      });
+    }
+    if (n > 0) return;
+    // Fallback: legacy additive burst if Bubbles layer missing
+    const c = (count != null && isFinite(count)) ? Math.max(1, Math.min(5000, count|0)) : 200;
     if (!particles) {
-      pendingBursts.push({ x, y, c });
+      pendingBursts.push({ x: w, y: h, c: Math.min(c, 200) });
       return;
     }
-    spawnBurstGL(c, x, y);
+    spawnBurstGL(c, w, h);
   };
   W.errlGLSetMood = function(name){
     if (!started) init();

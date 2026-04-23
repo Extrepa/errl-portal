@@ -1494,3 +1494,116 @@ body.reduced-motion .errl-panel.minimized::after {
     min-height: calc(22px * var(--panel-scale));
   }
 }
+
+/* Custom underlay: behind L0 star canvas */
+.errl-custom-base-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: var(--errl-bg, #000);
+}
+
+/* RB collect mode score (viewport HUD) */
+.rb-collect-score {
+  position: fixed;
+  right: 12px;
+  top: max(10px, env(safe-area-inset-top, 0px));
+  z-index: 5;
+  font: 600 16px/1.2 system-ui, sans-serif;
+  color: #e5eef7;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
+}
+.rb-collect-score__value { color: #7df9ff; }
+.rb-collect-score__high { font-size: 11px; opacity: 0.85; margin-left: 4px; }
+
+/* Undo / tab reset row */
+.settings-history-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  padding: 6px 8px 10px 8px;
+  border-top: 1px solid rgba(0, 229, 255, 0.15);
+  min-width: 0;
+  font-size: 9px;
+  box-sizing: border-box;
+  width: 100%;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.2);
+  /* Do not use sticky: bottom strip must not sit over long tab content (e.g. RB adv) or it steals clicks. */
+  margin-top: calc(6px * var(--panel-scale, 1));
+}
+.settings-tab-reset__label {
+  opacity: 0.7;
+  margin: 0 2px 0 6px;
+}
+button.settings-history-btn, button.tab-reset-mini {
+  min-height: 32px;
+  min-width: 32px;
+  font-size: 8px;
+  line-height: 1.1;
+  padding: 2px 6px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #c8e0f0;
+  cursor: pointer;
+}
+button.tab-reset-mini { min-width: 28px; }
+button.settings-history-btn:hover, button.tab-reset-mini:hover {
+  background: rgba(0, 229, 255, 0.12);
+}
+
+#phone-expand-button {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #f0f4fa;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 1px rgba(0, 229, 255, 0.5) inset;
+}
+
+.hud-preset-gate__label, .hud-preset-gate__label input {
+  cursor: pointer;
+}
+
+/* Prevent label clipping: wrap long control labels */
+#errlPanel .sliderRow > label.errl-noclip,
+#errlPanel .sliderRow label.errl-noclip,
+#errlPanel .panel-section .errl-noclip {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+  max-width: 100% !important;
+  line-height: 1.25;
+}
+#errlPanel .sliderRow {
+  min-width: 0;
+}
+#errlPanel .panel-content-wrapper,
+#errlPanel .panel-content-wrapper * {
+  min-width: 0;
+}
+#errlPanel .panel-section[data-tab="errl"] .sliderRow > label[for] {
+  width: auto;
+  min-width: min(120px, 38%);
+  max-width: 100%;
+}
+#errlPanel .panel-section[data-tab="errl"] .sliderRow > label[for] {
+  flex: 1 1 45%;
+}
+#errlPanel .panel-section[data-tab="dev"] .sliderRow > label[for="portalShowDesignNav"] {
+  min-width: 0;
+  flex: 1 1 60%;
+  max-width: 100%;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+.mini-reset {
+  flex-shrink: 0;
+}

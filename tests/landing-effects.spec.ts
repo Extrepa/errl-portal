@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { sleep } from './helpers/test-helpers';
 
 // Helper: Verify design system is loaded
 async function testDesignSystem(page: Page): Promise<boolean> {
@@ -22,7 +23,7 @@ async function ensurePanelOpen(page: Page): Promise<void> {
     // Panel starts minimized - click on it to restore
     // The panel click handler checks if minimized and restores it
     await panel.click({ force: true });
-    await page.waitForTimeout(500);
+    await sleep(500);
     
     // Verify it's now open
     const stillMinimized = await panel.evaluate((el) => {
@@ -34,7 +35,7 @@ async function ensurePanelOpen(page: Page): Promise<void> {
       const closeBtn = page.locator('#phone-close-button');
       if (await closeBtn.count() > 0) {
         await closeBtn.click({ force: true });
-        await page.waitForTimeout(500);
+        await sleep(500);
       }
     }
   }
@@ -115,19 +116,19 @@ async function verifySliderWorks(
   
   // Set to min
   await slider.fill(String(min));
-  await page.waitForTimeout(100);
+  await sleep(100);
   const minValue = parseFloat((await slider.inputValue()) || '0');
   expect(minValue).toBeCloseTo(min, 1);
   
   // Set to max
   await slider.fill(String(max));
-  await page.waitForTimeout(100);
+  await sleep(100);
   const maxValue = parseFloat((await slider.inputValue()) || '0');
   expect(maxValue).toBeCloseTo(max, 1);
   
   // Reset to initial
   await slider.fill(String(initialValue));
-  await page.waitForTimeout(100);
+  await sleep(100);
 }
 
 // Helper: Verify checkbox works
@@ -143,19 +144,19 @@ async function verifyCheckboxWorks(
   // Toggle off
   if (initialChecked) {
     await checkbox.uncheck();
-    await page.waitForTimeout(100);
+    await sleep(100);
     expect(await checkbox.isChecked()).toBe(false);
   }
   
   // Toggle on
   await checkbox.check();
-  await page.waitForTimeout(100);
+  await sleep(100);
   expect(await checkbox.isChecked()).toBe(true);
   
   // Restore initial state
   if (!initialChecked) {
     await checkbox.uncheck();
-    await page.waitForTimeout(100);
+    await sleep(100);
   }
 }
 
@@ -181,7 +182,7 @@ test.describe('Landing Page Effects Tests', () => {
     await page.goto(baseURL! + '/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
     // Wait for effects to initialize
-    await page.waitForTimeout(2000);
+    await sleep(2000);
   });
 
   test('Page loads and initial state is correct', async ({ page }) => {
@@ -211,7 +212,7 @@ test.describe('Landing Page Effects Tests', () => {
     page.on('console', (msg) => {
       if (msg.type() === 'error') errors.push(msg.text());
     });
-    await page.waitForTimeout(1000);
+    await sleep(1000);
     const criticalErrors = errors.filter(
       (err) => !err.includes('favicon') && !err.includes('404')
     );
@@ -284,7 +285,7 @@ test.describe('Landing Page Effects Tests', () => {
       // Click tab
       const tab = page.locator(`button[data-tab="${tabName}"]`);
       await tab.click();
-      await page.waitForTimeout(300);
+      await sleep(300);
 
       // Verify tab is active
       const isActive = await tab.evaluate((el) =>
@@ -309,7 +310,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Switch to RB tab
     await page.locator('button[data-tab="rb"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     // Test basic controls
     await verifyCheckboxWorks(page, '#rbAttract');
@@ -340,7 +341,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Switch to RB tab
     await page.locator('button[data-tab="rb"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     // Test advanced controls
     await verifySliderWorks(page, '#rbWobble', 0, 2);
@@ -350,13 +351,13 @@ test.describe('Landing Page Effects Tests', () => {
     const rbMin = page.locator('#rbMin');
     await expect(rbMin).toBeVisible();
     await rbMin.fill('20');
-    await page.waitForTimeout(100);
+    await sleep(100);
     expect(await rbMin.inputValue()).toBe('20');
 
     const rbMax = page.locator('#rbMax');
     await expect(rbMax).toBeVisible();
     await rbMax.fill('50');
-    await page.waitForTimeout(100);
+    await sleep(100);
     expect(await rbMax.inputValue()).toBe('50');
 
     await verifySliderWorks(page, '#rbJumboPct', 0, 0.6);
@@ -367,17 +368,17 @@ test.describe('Landing Page Effects Tests', () => {
     const loopBtn = page.locator('#rbAdvModeLoop');
     await expect(loopBtn).toBeVisible();
     await loopBtn.click();
-    await page.waitForTimeout(100);
+    await sleep(100);
 
     const pingBtn = page.locator('#rbAdvModePing');
     await expect(pingBtn).toBeVisible();
     await pingBtn.click();
-    await page.waitForTimeout(100);
+    await sleep(100);
 
     const animateBtn = page.locator('#rbAdvPlayPause');
     await expect(animateBtn).toBeVisible();
     await animateBtn.click();
-    await page.waitForTimeout(500);
+    await sleep(500);
   });
 
   test('GL Particles (GLB) controls work', async ({ page }) => {
@@ -385,7 +386,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Switch to GLB tab
     await page.locator('button[data-tab="glb"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     // Test controls
     await verifySliderWorks(page, '#bgSpeed', 0, 3);
@@ -396,7 +397,7 @@ test.describe('Landing Page Effects Tests', () => {
     const randomBtn = page.locator('#glbRandom');
     await expect(randomBtn).toBeVisible();
     await randomBtn.click();
-    await page.waitForTimeout(200);
+    await sleep(200);
 
     // Verify particles canvas exists
     const particlesCanvas = page.locator('#bgParticles');
@@ -415,7 +416,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Switch to Errl tab
     await page.locator('button[data-tab="errl"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     // Test size slider
     await verifySliderWorks(page, '#errlSize', 0.8, 1.6);
@@ -442,7 +443,7 @@ test.describe('Landing Page Effects Tests', () => {
     const randomBtn = page.locator('#classicGooRandom');
     await expect(randomBtn).toBeVisible();
     await randomBtn.click();
-    await page.waitForTimeout(200);
+    await sleep(200);
 
     // Verify Errl is visible
     await expect(page.locator('#errl')).toBeVisible();
@@ -453,7 +454,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Switch to Nav tab
     await page.locator('button[data-tab="nav"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     // Test basic nav controls
     await verifySliderWorks(page, '#navOrbitSpeed', 0, 2);
@@ -467,7 +468,7 @@ test.describe('Landing Page Effects Tests', () => {
     const rotateBtn = page.locator('#rotateSkins');
     await expect(rotateBtn).toBeVisible();
     await rotateBtn.click();
-    await page.waitForTimeout(200);
+    await sleep(200);
 
     // Test Nav Goo+ controls
     await verifySliderWorks(page, '#navWiggle', 0, 1);
@@ -480,12 +481,12 @@ test.describe('Landing Page Effects Tests', () => {
     const slowGradientBtn = page.locator('#navSlowGradient');
     await expect(slowGradientBtn).toBeVisible();
     await slowGradientBtn.click();
-    await page.waitForTimeout(200);
+    await sleep(200);
 
     const randomBtn = page.locator('#navRandom');
     await expect(randomBtn).toBeVisible();
     await randomBtn.click();
-    await page.waitForTimeout(200);
+    await sleep(200);
 
     // Verify nav orbit exists
     const navOrbit = page.locator('#navOrbit');
@@ -503,13 +504,13 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Switch to HUD tab
     await page.locator('button[data-tab="hud"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     // Test burst button
     const burstBtn = page.locator('#burstBtn');
     await expect(burstBtn).toBeVisible();
     await burstBtn.click();
-    await page.waitForTimeout(500); // Wait for burst effect
+    await sleep(500); // Wait for burst effect
 
     // Test audio controls if present
     const audioEnabled = page.locator('#audioEnabled');
@@ -523,7 +524,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Switch to Hue tab
     await page.locator('button[data-tab="hue"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     // Test hue enabled checkbox
     await verifyCheckboxWorks(page, '#hueEnabled');
@@ -535,7 +536,7 @@ test.describe('Landing Page Effects Tests', () => {
     const options = ['nav', 'riseBubbles', 'bgBubbles', 'background', 'glOverlay'];
     for (const option of options) {
       await hueTarget.selectOption(option);
-      await page.waitForTimeout(100);
+      await sleep(100);
       const selected = await hueTarget.inputValue();
       expect(selected).toBe(option);
     }
@@ -550,7 +551,7 @@ test.describe('Landing Page Effects Tests', () => {
     const playPauseBtn = page.locator('#huePlayPause');
     await expect(playPauseBtn).toBeVisible();
     await playPauseBtn.click();
-    await page.waitForTimeout(500);
+    await sleep(500);
   });
 
   test('Viewport and positioning edge cases', async ({ page }) => {
@@ -562,7 +563,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Test at mobile size
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.waitForTimeout(500);
+    await sleep(500);
     const mobilePanelBounds = await getElementBounds(page, '#errlPanel');
     if (mobilePanelBounds) {
       expect(mobilePanelBounds.right).toBeLessThanOrEqual(375);
@@ -574,7 +575,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Test at tablet size
     await page.setViewportSize({ width: 768, height: 1024 });
-    await page.waitForTimeout(500);
+    await sleep(500);
     const tabletPanelBounds = await getElementBounds(page, '#errlPanel');
     if (tabletPanelBounds) {
       expect(tabletPanelBounds.right).toBeLessThanOrEqual(768);
@@ -586,7 +587,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Test at desktop size
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.waitForTimeout(500);
+    await sleep(500);
 
     // Check for horizontal scroll
     const hasHorizontalScroll = await page.evaluate(() => {
@@ -635,7 +636,7 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Test a few key sliders with drag interaction
     await page.locator('button[data-tab="rb"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     const speedSlider = page.locator('#rbSpeed');
     const initialValue = parseFloat((await speedSlider.inputValue()) || '1');
@@ -653,7 +654,7 @@ test.describe('Landing Page Effects Tests', () => {
         sliderBox.y + sliderBox.height * 0.5
       );
       await page.mouse.up();
-      await page.waitForTimeout(200);
+      await sleep(200);
 
       const newValue = parseFloat((await speedSlider.inputValue()) || '1');
       // Value should have changed (may be higher or lower depending on direction)
@@ -666,17 +667,17 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Test checkbox toggles
     await page.locator('button[data-tab="rb"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     const attractCheckbox = page.locator('#rbAttract');
     const initialState = await attractCheckbox.isChecked();
 
     await attractCheckbox.click();
-    await page.waitForTimeout(100);
+    await sleep(100);
     expect(await attractCheckbox.isChecked()).toBe(!initialState);
 
     await attractCheckbox.click();
-    await page.waitForTimeout(100);
+    await sleep(100);
     expect(await attractCheckbox.isChecked()).toBe(initialState);
   });
 
@@ -685,20 +686,20 @@ test.describe('Landing Page Effects Tests', () => {
 
     // Test randomize buttons
     await page.locator('button[data-tab="glb"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     const randomBtn = page.locator('#glbRandom');
     await randomBtn.click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     // Test animate button
     await page.locator('button[data-tab="rb"]').click();
-    await page.waitForTimeout(300);
+    await sleep(300);
 
     const animateBtn = page.locator('#rbAdvPlayPause');
     await expect(animateBtn).toBeVisible();
     await animateBtn.click();
-    await page.waitForTimeout(500);
+    await sleep(500);
   });
 
   test('Performance and visual stability', async ({ page }) => {
@@ -714,25 +715,25 @@ test.describe('Landing Page Effects Tests', () => {
     const tabs = ['hud', 'errl', 'nav', 'rb', 'glb', 'hue'];
     for (const tab of tabs) {
       await page.locator(`button[data-tab="${tab}"]`).click();
-      await page.waitForTimeout(200);
+      await sleep(200);
 
       // Interact with a control
       if (tab === 'rb') {
         const slider = page.locator('#rbSpeed');
         if (await slider.count() > 0) {
           await slider.fill('1.5');
-          await page.waitForTimeout(100);
+          await sleep(100);
         }
       } else if (tab === 'errl') {
         const checkbox = page.locator('#classicGooEnabled');
         if (await checkbox.count() > 0) {
           await checkbox.click();
-          await page.waitForTimeout(100);
+          await sleep(100);
         }
       }
     }
 
-    await page.waitForTimeout(1000);
+    await sleep(1000);
 
     // Check for critical errors
     const criticalErrors = errors.filter(

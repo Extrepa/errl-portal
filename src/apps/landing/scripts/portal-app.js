@@ -53,13 +53,65 @@
   function setBundle(bundle){
     return writeJson(SETTINGS_KEY, normalizeBundle(bundle));
   }
+  const HISTORY_MAX = 25;
+  const historyUndo = [];
+  const historyRedo = [];
+  let historyDebounce = null;
+  let historyPreState = null;
+  function scheduleHistorySnapshot(beforeJson){
+    if (window.__errlHistorySkip) return;
+    if (historyPreState === null) historyPreState = beforeJson;
+    clearTimeout(historyDebounce);
+    historyDebounce = setTimeout(() => {
+      if (historyPreState != null) {
+        historyUndo.push(historyPreState);
+        if (historyUndo.length > HISTORY_MAX) historyUndo.shift();
+        historyRedo.length = 0;
+      }
+      historyPreState = null;
+    }, 420);
+  }
   function updateBundle(mutator){
+    const skip = !!window.__errlHistorySkip;
+    const before = skip ? null : JSON.stringify(getBundle());
     const bundle = getBundle();
     try{ mutator && mutator(bundle); }catch(_){}
     bundle.version = 1;
     setBundle(bundle);
+    const after = JSON.stringify(getBundle());
+    if (!skip && before != null && after !== before) scheduleHistorySnapshot(before);
     return bundle;
   }
+  function settingsUndo(){
+    if (!historyUndo.length) return false;
+    const cur = JSON.stringify(getBundle());
+    const prev = historyUndo.pop();
+    historyRedo.push(cur);
+    try {
+      window.__errlHistorySkip = true;
+      setBundle(JSON.parse(prev));
+      applyUiSnapshot(getBundle().ui || {});
+      if (getBundle().rb && window.__errlApplyRbBundle) window.__errlApplyRbBundle(getBundle().rb);
+    } catch (_) {}
+    delete window.__errlHistorySkip;
+    return true;
+  }
+  function settingsRedo(){
+    if (!historyRedo.length) return false;
+    const cur = JSON.stringify(getBundle());
+    const next = historyRedo.pop();
+    historyUndo.push(cur);
+    try {
+      window.__errlHistorySkip = true;
+      setBundle(JSON.parse(next));
+      applyUiSnapshot(getBundle().ui || {});
+      if (getBundle().rb && window.__errlApplyRbBundle) window.__errlApplyRbBundle(getBundle().rb);
+    } catch (_) {}
+    delete window.__errlHistorySkip;
+    return true;
+  }
+  window.__errlSettingsUndo = settingsUndo;
+  window.__errlSettingsRedo = settingsRedo;
   function deepMerge(base, override){
     if (!override || typeof override !== 'object') return base;
     if (!base || typeof base !== 'object') base = Array.isArray(override) ? [] : {};
@@ -2022,10 +2074,12 @@
     }
 
     function applyInteractionMode(nextMode, { persist = true } = {}) {
-      const normalized = nextMode === 'pop' ? 'pop' : 'classic';
+      const isPop = nextMode === 'pop';
+      const isCollect = nextMode === 'collect';
+      const normalized = isPop ? 'pop' : (isCollect ? 'collect' : 'classic');
       if (mode) mode.value = normalized;
       withRB((RB)=> { if (RB.setInteractionMode) RB.setInteractionMode(normalized); });
-      if (normalized === 'pop') {
+      if (isPop) {
         if (attract) {
           attract.checked = false;
           withRB((RB)=> RB.setAttract && RB.setAttract(false));
@@ -2040,15 +2094,24 @@
         }
         setModeStatus('Pop Mode: tap bubbles on canvas to pop. Attract is disabled to avoid overload.');
         if (modeLegend) modeLegend.textContent = 'Pop = tap a bubble on the #riseBubbles canvas to pop it (audio + light feedback).';
-      } else {
+      } else if (isCollect) {
         if (attract) {
-          attract.checked = true;
-          withRB((RB)=> RB.setAttract && RB.setAttract(true));
+          attract.checked = false;
+          withRB((RB)=> RB.setAttract && RB.setAttract(false));
         }
         if (ripples) {
           ripples.checked = false;
           withRB((RB)=> RB.setRipples && RB.setRipples(false));
         }
+        withRB((RB)=> { if (typeof RB.setCollectScore === 'function') RB.setCollectScore(0); });
+        setModeStatus('Collect: move over bubbles on the #riseBubbles canvas to score. Grab/throw disabled.');
+        if (modeLegend) modeLegend.textContent = 'Collect = pointer/finger sweeps; higher max bubble count. Reset score when leaving this mode or use Reset score below.';
+      } else {
+        if (ripples) {
+          ripples.checked = false;
+          withRB((RB)=> RB.setRipples && RB.setRipples(false));
+        }
+        withRB((RB)=> { if (RB.setAttract) RB.setAttract(!!attract?.checked); });
         setModeStatus('Classic Throw: drag/flick controls are prioritized.');
         if (modeLegend) modeLegend.textContent = 'Classic = grab and throw bubbles, or flick near one to kick it.';
       }
@@ -2100,7 +2163,10 @@
       setNum(jumboScale, rb.jumboScale);
       setNum(attractIntensity, rb.attractIntensity);
       setNum(rippleIntensity, rb.rippleIntensity);
-      if (mode && rb.interactionMode) mode.value = rb.interactionMode === 'pop' ? 'pop' : 'classic';
+      if (mode && rb.interactionMode) {
+        const m = rb.interactionMode;
+        mode.value = m === 'pop' ? 'pop' : (m === 'collect' ? 'collect' : 'classic');
+      }
       try { if (mode) mode.dispatchEvent(new Event('change', { bubbles: true })); } catch(_) {}
       if (attract && rb.attract !== undefined) {
         attract.checked = !!rb.attract;
@@ -2130,7 +2196,6 @@
     if (jumboScale) on(jumboScale, 'input', ()=> { withRB(RB=> RB.setJumboScale && RB.setJumboScale(jumboScale.value)); persistRB(); });
     if (attract) on(attract, 'change', ()=> {
       withRB(RB=> RB.setAttract && RB.setAttract(attract.checked));
-      if (attract.checked) applyInteractionMode('classic', { persist: false });
       syncInteractionLocks();
       persistRB();
     });
@@ -2142,7 +2207,13 @@
       persistRB();
     });
     if (rippleIntensity) on(rippleIntensity, 'input', ()=> { withRB(RB=> RB.setRippleIntensity && RB.setRippleIntensity(rippleIntensity.value)); persistRB(); });
-    if (mode) on(mode, 'change', ()=> { applyInteractionMode(mode.value, { persist: true }); });
+    if (mode) on(mode, 'change', ()=> {
+      if (density) {
+        const collect = mode.value === 'collect';
+        density.setAttribute('max', collect ? '2.5' : '2');
+      }
+      applyInteractionMode(mode.value, { persist: true });
+    });
 
     // Apply initial values on load
     setTimeout(()=> {
@@ -2301,6 +2372,7 @@
       if (statusEl) statusEl.textContent = text;
     }
     function applyPreset(name){
+      if (!window.confirm('Apply scene preset? This changes multiple systems (Rising Bubbles, Nav, Hue). Use Back in the panel footer to undo.')) return;
       if (name === 'clean') {
         setControlValue('rbWobble', '0.40');
         setControlValue('rbFreq', '0.55');
@@ -2376,6 +2448,7 @@
       if (typeof H.applyAllCSS === 'function') H.applyAllCSS();
       if (typeof H.persist === 'function') H.persist();
     }
+    try { window.__errlApplyHueLayers = applyHueLayers; } catch (_) {}
     function applySnapshot(snap){
       if (!snap) return;
       updateBundle((b)=>{
@@ -2410,6 +2483,7 @@
         if (st) st.textContent = `Saved custom preset: ${label}`;
       });
       on(applyEl, 'click', ()=>{
+        if (!window.confirm('Apply custom preset from this slot? This overwrites many panel and effect settings. Use Back to undo.')) return;
         const b = getBundle();
         const slot = b.customPresets && b.customPresets[zero];
         if (!slot || !slot.snap) {
@@ -3174,7 +3248,7 @@
     function applyExpandedState(){
       panel.classList.toggle('expanded', expanded);
       if (expandBtn) {
-        expandBtn.textContent = expanded ? '⤡' : '⤢';
+        expandBtn.textContent = expanded ? '⤢' : '⤡';
         expandBtn.title = expanded ? 'Collapse to corner' : 'Expand (desktop drag)';
       }
       if (!expanded) {
@@ -3652,6 +3726,200 @@
     import('@shared/devpanel/runtime.ts')
       .then((mod) => mod.mountDevPanel())
       .catch((err) => console.warn('[devpanel] failed to mount', err));
+  })();
+
+  (function errlSettingsChromeAndResets(){
+    const COLLECT_HI = 'errl_rb_collect_high_v1';
+    function readHi(){
+      try { return parseInt(localStorage.getItem(COLLECT_HI) || '0', 10) || 0; } catch (_) { return 0; }
+    }
+    function writeHi(n) {
+      try { localStorage.setItem(COLLECT_HI, String(Math.max(0, n | 0))); } catch (_) {}
+    }
+    function applyCustomBaseFromBundle() {
+      const u = (getBundle().ui) || {};
+      const url = u.customBaseDataUrl;
+      const el = document.getElementById('errlCustomBaseBg');
+      if (!el) return;
+      if (url && String(url).length < 3e6) {
+        el.style.backgroundImage = 'url(' + JSON.stringify(String(url)) + ')';
+        el.style.backgroundSize = 'cover';
+        el.style.backgroundPosition = 'center';
+        el.hidden = false;
+      } else {
+        el.style.backgroundImage = '';
+        el.hidden = true;
+      }
+    }
+    function syncPresetGates() {
+      const a = document.getElementById('hudUnlockPresetScenes');
+      const b = document.getElementById('hudUnlockMyPresets');
+      const b1 = document.getElementById('hudPresetScenesBody');
+      const h1 = document.getElementById('hudPresetScenesHead');
+      const b2 = document.getElementById('hudMyPresetsBody');
+      const h2 = document.getElementById('hudMyPresetsHead');
+      const on1 = a && a.checked;
+      const on2 = b && b.checked;
+      if (b1) b1.style.display = on1 ? 'block' : 'none';
+      if (h1) h1.style.display = on1 ? 'block' : 'none';
+      if (b2) b2.style.display = on2 ? 'block' : 'none';
+      if (h2) h2.style.display = on2 ? 'block' : 'none';
+    }
+    async function applyRepoTabReset(tab) {
+      const repo = await loadRepoDefaults();
+      if (!repo) { try { alert('Defaults not available.'); } catch (_) {} return; }
+      if (!window.confirm('Reset ' + String(tab).toUpperCase() + ' tab to shipped defaults in this browser?')) return;
+      const t = String(tab).toLowerCase();
+      if (t === 'rb' && repo.rb) {
+        const rbr = { ...repo.rb, interactionMode: (repo.rb.interactionMode) || 'classic' };
+        updateBundle((B) => { B.rb = rbr; });
+        const ids = ['rbSpeed', 'rbDensity', 'rbScale', 'rbAlpha', 'rbWobble', 'rbFreq', 'rbMin', 'rbMax', 'rbSizeHz', 'rbJumboPct', 'rbJumboScale', 'rbAttract', 'rbAttractIntensity', 'rbRipples', 'rbRippleIntensity', 'rbInteractionMode', 'rbAdvAnimSpeed'];
+        const u = {};
+        ids.forEach((id) => { if (repo.ui && repo.ui[id] !== undefined) u[id] = repo.ui[id]; });
+        u.rbInteractionMode = (repo.ui && repo.ui.rbInteractionMode) || rbr.interactionMode || 'classic';
+        applyUiSnapshot(u);
+        if (window.__errlApplyRbBundle) window.__errlApplyRbBundle(getBundle().rb);
+        return;
+      }
+      if (t === 'glb' && repo.gl && repo.gl.bubbles) {
+        updateBundle((B) => {
+          B.gl = B.gl || {};
+          B.gl.bubbles = { ...repo.gl.bubbles };
+        });
+        applyUiSnapshot({ bgSpeed: repo.ui.bgSpeed, bgDensity: repo.ui.bgDensity, glAlpha: repo.ui.glAlpha });
+        return;
+      }
+      if (t === 'bg') {
+        applyUiSnapshot({
+          shimmerToggle: repo.ui.shimmerToggle,
+          vignetteToggle: repo.ui.vignetteToggle,
+          glOverlayAlpha: repo.ui.glOverlayAlpha,
+          glOverlayDX: repo.ui.glOverlayDX,
+          glOverlayDY: repo.ui.glOverlayDY
+        });
+        updateBundle((B) => { B.ui = B.ui || {}; delete B.ui.customBaseDataUrl; });
+        applyCustomBaseFromBundle();
+        return;
+      }
+      if (t === 'errl' && repo.goo) {
+        updateBundle((B) => { B.goo = JSON.parse(JSON.stringify(repo.goo)); });
+        applyUiSnapshot({
+          errlSize: repo.ui.errlSize,
+          errlOutlineThickness: repo.ui.errlOutlineThickness,
+          classicGooEnabled: repo.ui.classicGooEnabled,
+          classicGooStrength: repo.ui.classicGooStrength,
+          classicGooWobble: repo.ui.classicGooWobble,
+          classicGooSpeed: repo.ui.classicGooSpeed,
+          classicGooStrengthAuto: repo.ui.classicGooStrengthAuto,
+          classicGooWobbleAuto: repo.ui.classicGooWobbleAuto,
+          classicGooSpeedAuto: repo.ui.classicGooSpeedAuto,
+          classicGooAutoSpeed: repo.ui.classicGooAutoSpeed,
+          classicGooMouseReact: repo.ui.classicGooMouseReact
+        });
+        return;
+      }
+      if (t === 'nav' && repo.ui) {
+        if (repo.nav) updateBundle((B) => { B.nav = deepMerge(B.nav || { goo: {} }, repo.nav); });
+        applyUiSnapshot({
+          navOrbitSpeed: repo.ui.navOrbitSpeed, navRadius: repo.ui.navRadius, navOrbSize: repo.ui.navOrbSize,
+          navWiggle: repo.ui.navWiggle, navFlow: repo.ui.navFlow, navGrip: repo.ui.navGrip,
+          navDrip: repo.ui.navDrip, navVisc: repo.ui.navVisc, glOrbsToggle: repo.ui.glOrbsToggle
+        });
+        if (window.__errlRefreshNavSkins) window.__errlRefreshNavSkins();
+        return;
+      }
+      if (t === 'hue' && repo.hue) {
+        updateBundle((B) => { B.hue = JSON.parse(JSON.stringify(repo.hue)); });
+        if (window.__errlApplyHueLayers && repo.hue.layers) window.__errlApplyHueLayers(repo.hue.layers);
+        applyUiSnapshot({
+          hueEnabled: repo.ui.hueEnabled, hueShift: repo.ui.hueShift, hueSat: repo.ui.hueSat,
+          hueInt: repo.ui.hueInt, hueTimeline: repo.ui.hueTimeline, hueTarget: repo.ui.hueTarget
+        });
+        return;
+      }
+      if (t === 'hud' && repo.ui) {
+        applyUiSnapshot({
+          audioEnabled: repo.ui.audioEnabled, audioMaster: repo.ui.audioMaster, audioBass: repo.ui.audioBass,
+          prefReduce: repo.ui.prefReduce, prefContrast: repo.ui.prefContrast, prefInvert: repo.ui.prefInvert
+        });
+        return;
+      }
+      if (t === 'dev' && repo.ui) {
+        applyUiSnapshot({ portalShowDesignNav: repo.ui.portalShowDesignNav });
+        return;
+      }
+    }
+    window.addEventListener('errl:rb-collect-score', (ev) => {
+      const d = ev && ev.detail ? ev.detail : {};
+      const mode = (function () {
+        const m = document.getElementById('rbInteractionMode');
+        return m && m.value;
+      })();
+      const on = d.mode === 'collect' || mode === 'collect';
+      const w = document.getElementById('rbCollectScoreWrap');
+      const s = document.getElementById('rbCollectScore');
+      const h = document.getElementById('rbCollectHigh');
+      if (w) w.hidden = !on;
+      if (on && s) s.textContent = String(d.score != null ? d.score : 0);
+      const sc = d.score != null ? d.score : 0;
+      if (on && sc > readHi()) { writeHi(sc); if (h) h.textContent = ' (best ' + sc + ')'; }
+      else if (on && h) { const hi = readHi(); h.textContent = hi ? (' (best ' + hi + ')') : ''; }
+    });
+    const uBtn = document.getElementById('settingsUndoBtn');
+    const rBtn = document.getElementById('settingsRedoBtn');
+    if (uBtn) uBtn.addEventListener('click', () => { if (window.__errlSettingsUndo) window.__errlSettingsUndo(); });
+    if (rBtn) rBtn.addEventListener('click', () => { if (window.__errlSettingsRedo) window.__errlSettingsRedo(); });
+    const rbReset = document.getElementById('rbCollectResetBtn');
+    if (rbReset) {
+      rbReset.addEventListener('click', () => {
+        const R = window.errlRisingBubblesThree;
+        if (R && typeof R.setCollectScore === 'function') R.setCollectScore(0);
+      });
+    }
+    document.querySelectorAll('.tab-reset-mini').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const k = btn.getAttribute('data-tab-reset');
+        if (k) void applyRepoTabReset(k);
+      });
+    });
+    const up = document.getElementById('errlCustomBaseUpload');
+    if (up) {
+      on(up, 'change', (e) => {
+        const f = e.target && e.target.files && e.target.files[0];
+        if (!f) return;
+        if (f.size > 2.5e6) { try { alert('Image too large; try a smaller file.'); } catch (_) {} return; }
+        const rdr = new FileReader();
+        rdr.onload = () => {
+          const u = rdr.result;
+          updateBundle((B) => { B.ui = B.ui || {}; B.ui.customBaseDataUrl = u; });
+          applyCustomBaseFromBundle();
+        };
+        rdr.readAsDataURL(f);
+      });
+    }
+    const clr = document.getElementById('errlCustomBaseClear');
+    if (clr) {
+      on(clr, 'click', () => {
+        const up2 = document.getElementById('errlCustomBaseUpload');
+        if (up2) up2.value = '';
+        updateBundle((B) => { if (B.ui) delete B.ui.customBaseDataUrl; });
+        applyCustomBaseFromBundle();
+      });
+    }
+    const g1 = document.getElementById('hudUnlockPresetScenes');
+    const g2 = document.getElementById('hudUnlockMyPresets');
+    if (g1) on(g1, 'change', () => { updateBundle((B) => { B.ui = B.ui || {}; B.ui.hudUnlockPresetScenes = !!g1.checked; }); syncPresetGates(); });
+    if (g2) on(g2, 'change', () => { updateBundle((B) => { B.ui = B.ui || {}; B.ui.hudUnlockMyPresets = !!g2.checked; }); syncPresetGates(); });
+    settingsReady.then(() => {
+      applyCustomBaseFromBundle();
+      const bu = (getBundle().ui) || {};
+      if (g1) g1.checked = !!bu.hudUnlockPresetScenes;
+      if (g2) g2.checked = !!bu.hudUnlockMyPresets;
+      syncPresetGates();
+      const m = document.getElementById('rbInteractionMode');
+      const d = document.getElementById('rbDensity');
+      if (m && d && m.value === 'collect') d.setAttribute('max', '2.5');
+    });
   })();
 
   (function errlIdleStreakLayer(){

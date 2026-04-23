@@ -147,7 +147,16 @@
     var j;
     for (j = 0; j < bubbles.length; j++) {
       var bel = bubbles[j];
-      if (bel && bel.style.display !== 'none') active.push(bel);
+      if (!bel) continue;
+      var vis = true;
+      try {
+        if (bel.getAttribute && bel.getAttribute('hidden') != null) vis = false;
+        if (vis) {
+          var st = window.getComputedStyle(bel);
+          if (st.display === 'none' || st.visibility === 'hidden') vis = false;
+        }
+      } catch (eVis) { vis = false; }
+      if (vis) active.push(bel);
     }
     var orbitFront = $('navOrbit');
     var orbitBehind = $('navOrbitBehind');

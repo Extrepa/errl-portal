@@ -54,10 +54,15 @@
   <script type="module" src="./apps/static/dev/debug.ts"></script>
 </head>
 <body data-errlMode="stable" class="errl-dark">
+  <div id="errlCustomBaseBg" class="errl-custom-base-bg" aria-hidden="true"></div>
   <!-- Background shimmer via ErrlBG -->
   <canvas id="bgParticles"></canvas>
   <!-- Rising bubbles (Stable mode + fallback) -->
   <canvas id="riseBubbles"></canvas>
+  <div id="rbCollectScoreWrap" class="rb-collect-score" hidden>
+    <span class="rb-collect-score__label">Score</span> <span id="rbCollectScore" class="rb-collect-score__value">0</span>
+    <span id="rbCollectHigh" class="rb-collect-score__high" aria-label="High score"></span>
+  </div>
   <div id="errlIdleStreak" class="errl-idle-streak" aria-hidden="true"><span class="errl-idle-streak__line"></span></div>
 
   <!-- WebGL layer (hidden in Stable mode) -->
@@ -147,7 +152,7 @@
     <div id="phone-close-button" title="Close">×</div>
 
     <!-- Expand button (desktop) -->
-    <div id="phone-expand-button" title="Expand (desktop drag)">⤢</div>
+    <div id="phone-expand-button" title="Expand (desktop drag)">⤡</div>
 
     <!-- Original header (hidden, kept for drag functionality) -->
     <div class="panel-header" id="errlPhoneHeader" title="Drag to move" style="display:none;">
@@ -174,8 +179,16 @@
     <div class="panel-content-wrapper">
     <div class="panel-section" data-tab="bg">
       <div class="sectionLabel" title="Background decorations">Background</div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35; flex-wrap:wrap; min-width:0;">
+        <span title="Shimmer, vignette, and GL in front. Optional custom image is the underlay; stars/GL still draw on top.">Shimmer, vignette, and GL in front. <strong>Custom base</strong> (optional) sits <em>under</em> the stars. Clear to remove. Other settings persist in local storage.</span>
+      </div>
+      <div class="sliderRow" style="flex-wrap:wrap; gap:8px; min-width:0; align-items:center">
+        <label for="errlCustomBaseUpload" class="errl-noclip" title="Image behind the star/GL stack">Custom base</label>
+        <input type="file" id="errlCustomBaseUpload" accept="image/*" title="Image under star field" />
+        <button type="button" id="errlCustomBaseClear" style="min-height:32px; font-size:8px;">Clear</button>
+      </div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
-        <span title="Shimmer=animated highlight sheet on the ErrlBG layer. Vignette=darken edges. GL overlay=warp+opacity on the pre-composited WebGL gradient. All persist. Turn on Shimmer to mount ErrlBG.">Shimmer: optional animated highlight. Vignette: edge darkening. These mount the static background when enabled. GL overlay: wobble the screen-space gradient in WebGL (set Enabled + Alpha if you do not see it). Settings persist in local storage.</span>
+        <span title="Shimmer=animated highlight sheet on the ErrlBG layer. Vignette=darken edges. GL overlay=warp+opacity. Turn on Shimmer to mount ErrlBG.">Shimmer: optional animated highlight. Vignette: edge darkening. These mount the static background when enabled. GL overlay: wobble the screen-space gradient in WebGL (set Enabled + Alpha if you do not see it).</span>
       </div>
       <div class="sliderRow">
         <label for="shimmerToggle" title="Enable shimmer animation layer (mounts Errl background)">Shimmer</label>
@@ -253,7 +266,9 @@
         <select id="rbInteractionMode" title="Choose rising bubble interaction mode">
           <option value="classic">Classic Throw</option>
           <option value="pop">Pop Mode</option>
+          <option value="collect">Collect</option>
         </select>
+        <button type="button" id="rbCollectResetBtn" class="mini-reset" title="Reset collect mode score" style="min-height:32px; font-size:8px; padding:4px 6px">Reset score</button>
       </div>
       <div class="sliderRow" style="opacity:.8; font-size:9px; line-height:1.35;">
         <span id="rbModeLegend" class="rb-mode-legend">Classic = grab and throw / flick. Pop = tap a bubble on the canvas to pop it.</span>
@@ -368,7 +383,7 @@
         <button id="classicGooAutoPlayPause" class="btn-animate" title="Play/Pause auto-fade animation" aria-pressed="false" style="min-width:60px; padding:4px 12px; font-size:11px; font-weight:600;">Play</button>
       </div>
       <div class="sliderRow">
-        <label for="classicGooMouseReact" title="Let Errl goo respond to cursor proximity">Mouse Reactive</label>
+        <label for="classicGooMouseReact" class="errl-noclip" title="Let Errl goo respond to cursor proximity">Mouse reactive</label>
         <input type="checkbox" id="classicGooMouseReact" checked>
       </div>
       <div class="sliderRow" style="justify-content:flex-end">
@@ -448,22 +463,34 @@
 
     <div class="panel-section" data-tab="hud">
       <div class="sectionLabel" title="Quick particle interactions">Particles</div>
-      <button id="burstBtn" title="Emit a short burst of WebGL particles at the center of the screen. Requires a working WebGL layer.">Burst</button>
+      <div class="sliderRow" style="font-size:9px; line-height:1.35; min-width:0; flex-wrap:wrap;">
+        <span class="errl-noclip" title="Burst nudges the small GL background field (GLB tab) where available; otherwise a short WebGL ring.">Short impulse on the <strong>GL background</strong> bubbles. Uses WebGL. Adjust GL Particles (GLB) for density/alpha.</span>
+      </div>
+      <button id="burstBtn" type="button" class="errl-burst-btn" title="GL background bubble kick (ErrlFX). Needs WebGL.">Burst</button>
       <div id="errlGlHint" class="errl-gl-hint" role="status" aria-live="polite" hidden></div>
       <div class="sectionDivider"></div>
-      <div class="sectionLabel" title="Quick multi-control style snapshots">Preset Scenes</div>
+      <div class="sliderRow" style="font-size:9px; min-width:0; flex-wrap:wrap;">
+        <label class="hud-preset-gate__label errl-noclip"><input type="checkbox" id="hudUnlockPresetScenes" style="width:auto" /> <span>Enable Preset Scenes (changes multiple systems&mdash;confirm on apply. Undo/Redo below.)</span></label>
+      </div>
+      <div class="sectionLabel" id="hudPresetScenesHead" title="Quick multi-control style snapshots" style="display:none">Preset Scenes</div>
+      <div class="hud-preset-scene-body" id="hudPresetScenesBody" style="display:none">
       <div class="sliderRow" style="justify-content:flex-end; gap:6px; flex-wrap:wrap;">
-        <button id="presetClean" title="Lower intensity, cleaner look">Clean</button>
-        <button id="presetEpic" title="Boost dramatic effects">Epic</button>
-        <button id="presetTrippy" title="High color motion and wobble">Trippy</button>
+        <button type="button" id="presetClean" title="Lower intensity, cleaner look">Clean</button>
+        <button type="button" id="presetEpic" title="Boost dramatic effects">Epic</button>
+        <button type="button" id="presetTrippy" title="High color motion and wobble">Trippy</button>
       </div>
       <div class="sliderRow" style="opacity:.8; font-size:9px;">
         <span id="presetStatus">No preset applied yet.</span>
       </div>
+      </div>
       <div class="sectionDivider"></div>
-      <div class="sectionLabel" title="Save your own combinations">My presets (3 slots)</div>
+      <div class="sliderRow" style="font-size:9px; min-width:0; flex-wrap:wrap;">
+        <label class="hud-preset-gate__label errl-noclip"><input type="checkbox" id="hudUnlockMyPresets" style="width:auto" /> <span>Show My Presets (save/apply 3 custom bundles)</span></label>
+      </div>
+      <div class="sectionLabel" id="hudMyPresetsHead" title="Save your own combinations" style="display:none">My presets (3 slots)</div>
+      <div class="hud-mypresets-body" id="hudMyPresetsBody" style="display:none">
       <div class="sliderRow" style="opacity:.85; font-size:9px; line-height:1.3;">
-        <span title="Saves Rising Bubbles, Hue layers, Nav skins, and panel controls in this slot.">Saves RB + Hue + Nav skins + panel controls.</span>
+        <span class="errl-noclip" title="Saves Rising Bubbles, Hue layers, Nav skins, and panel controls in this slot.">Saves RB + Hue + Nav skins + panel controls. Confirm on Apply; use presets gate above first.</span>
       </div>
       <div class="sliderRow" style="flex-wrap:wrap; gap:6px; align-items:center;">
         <input id="customPresetSlot1Name" type="text" maxlength="24" placeholder="Slot 1 name" style="flex:1; min-width:90px; font-size:9px;" aria-label="Custom preset slot 1 name" />
@@ -482,6 +509,7 @@
         <button type="button" id="customPresetSlot3Save" title="Overwrite slot 3">Save 3</button>
         <button type="button" id="customPresetSlot3Apply">Apply 3</button>
         <button type="button" id="customPresetSlot3Clear">Clear 3</button>
+      </div>
       </div>
     </div>
 
@@ -551,7 +579,7 @@
         <span title="Toggles the Design item in the orbiting nav and pill-style headers (stored in this browser, local only).">Preview the Design entry when the route is not ready. Off by default.</span>
       </div>
       <div class="sliderRow">
-        <label for="portalShowDesignNav" title="Show Design in portal navigation (local only)">Show Design in navigation</label>
+        <label for="portalShowDesignNav" class="errl-noclip" title="Show Design in portal navigation (local only)">Show Design in navigation</label>
         <input type="checkbox" id="portalShowDesignNav" title="When off, the Design link is hidden everywhere it shares this key">
       </div>
       <div class="sectionDivider"></div>
@@ -589,6 +617,20 @@
       <div id="devLogViewer" style="background:#0a0a0c; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:8px; max-height:300px; overflow-y:auto; font-family:monospace; font-size:9px; line-height:1.4; color:#e5eef7;">
         <div style="opacity:0.6; text-align:center; padding:8px;">Logs will appear here...</div>
       </div>
+    </div>
+    <div class="settings-history-row" role="group" aria-label="Undo and quick tab reset">
+      <button type="button" id="settingsUndoBtn" class="settings-history-btn" title="Undo last settings change">Back</button>
+      <button type="button" id="settingsRedoBtn" class="settings-history-btn" title="Redo">Fwd</button>
+      <span class="settings-tab-reset__label" title="Load repo defaults for that tab (browser only)">Reset</span>
+      <button type="button" class="tab-reset-mini" data-tab-reset="hud" title="Reset HUD">HUD</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="errl" title="Reset Errl">E</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="pin" title="Reset Pin">P</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="nav" title="Reset Nav">N</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="rb" title="Reset Rising Bubbles">R</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="glb" title="Reset GLB">G</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="bg" title="Reset background">B</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="dev" title="Reset dev toggles in defaults">D</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="hue" title="Reset Hue">H</button>
     </div>
     <button id="panelScrollTop" title="Return to top">↑</button>
     </div>

@@ -270,6 +270,18 @@
           s.y = H + Math.random() * 120;
           s.x = Math.random() * W;
         }
+        // Short burst velocity (separate from pointer attract)
+        const u = s as any;
+        if (u && (u.burstVX || u.burstVY)) {
+          s.x += (u.burstVX || 0) * dtSec;
+          s.y += (u.burstVY || 0) * dtSec;
+          u.burstVX = (u.burstVX || 0) * 0.9;
+          u.burstVY = (u.burstVY || 0) * 0.9;
+          if (Math.hypot(u.burstVX, u.burstVY) < 0.05) {
+            u.burstVX = 0;
+            u.burstVY = 0;
+          }
+        }
       }
     }
 
@@ -356,6 +368,32 @@
       this._influencer = null;
       this._influenceRadius = null;
       this._influenceForce = null;
+    }
+    /**
+     * Impulse for background GL bubbles: prefers `far` (small / parallax) layer.
+     * appX/appY in stage pixel space.
+     */
+    burstAt(appX: number, appY: number, options: { strength?: number } = {}) {
+      if (!this.app || !this.sprites.length) return 0;
+      const strength = Math.max(0.1, options.strength != null ? +options.strength : 1.1);
+      const px = (appX != null && isFinite(appX as number)) ? (appX as number) : this.app.screen.width * 0.5;
+      const py = (appY != null && isFinite(appY as number)) ? (appY as number) : this.app.screen.height * 0.5;
+      let n = 0;
+      for (const s of this.sprites) {
+        if (!s) continue;
+        const onFar = s.parent === this.far;
+        if (!onFar && Math.random() > 0.35) continue;
+        const dx = s.x - px;
+        const dy = s.y - py;
+        const d = Math.hypot(dx, dy) + 4;
+        const f = (strength * 140) / Math.pow(d, 0.55) * (onFar ? 1.25 : 0.7);
+        if (!s.userData) s.userData = {} as any;
+        const uu = s.userData as any;
+        uu.burstVX = (uu.burstVX || 0) + (dx / d) * f;
+        uu.burstVY = (uu.burstVY || 0) + (dy / d) * f;
+        n += 1;
+      }
+      return n;
     }
     pause() {
       this._running = false;
