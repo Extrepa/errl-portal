@@ -32,6 +32,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
   const portalHome = '/';
 
   const [comingSoonVisible, setComingSoonVisible] = useState(false);
+  const [pendingExternalHref, setPendingExternalHref] = useState<string | null>(null);
   const [showDesignInNav, setShowDesignInNav] = useState(() => {
     try {
       return localStorage.getItem(SHOW_DESIGN_NAV_KEY) === 'true';
@@ -141,10 +142,17 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
                 aria-disabled={item.key === 'design' ? 'true' : undefined}
                 title={item.key === 'design' ? 'Coming soon' : undefined}
                 onClick={(e) => {
-                  if (item.key !== 'design') return;
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setComingSoonVisible(true);
+                  if (item.key === 'design') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setComingSoonVisible(true);
+                    return;
+                  }
+                  if (item.key === 'forum') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setPendingExternalHref(item.href);
+                  }
                 }}
               >
                 {item.label}
@@ -177,6 +185,42 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
           }}
         >
           Design — coming soon
+        </div>
+      ) : null}
+
+      {pendingExternalHref ? (
+        <div className="errl-external-modal">
+          <div
+            className="errl-external-modal__overlay"
+            onClick={() => setPendingExternalHref(null)}
+            aria-hidden
+          />
+          <div className="errl-external-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="errl-forum-leave-title">
+            <h2 id="errl-forum-leave-title" className="errl-external-modal__title">
+              Leave portal?
+            </h2>
+            <p className="errl-external-modal__copy">You are leaving the Errl Portal and heading to the forum.</p>
+            <div className="errl-external-modal__actions">
+              <button
+                type="button"
+                className="errl-external-modal__btn"
+                onClick={() => setPendingExternalHref(null)}
+              >
+                Stay here
+              </button>
+              <button
+                type="button"
+                className="errl-external-modal__btn errl-external-modal__btn--confirm"
+                onClick={() => {
+                  const href = pendingExternalHref;
+                  setPendingExternalHref(null);
+                  if (href) window.location.assign(href);
+                }}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </header>

@@ -93,3 +93,30 @@
 - Archived root screenshots + test logs into `05-Logs/Implementation/Cleanup-Archive/2026-04-22/errl-portal/`.
 - Removed regenerable artifacts: `test-results` in portal repo, and `.next/.open-next/.npm-cache/.npm-logs/.wrangler` in forum docs repo.
 - Restored tracked `.npm`/`.npm-logs` files where deletion would have removed tracked history; left those under needs-confirmation.
+
+### Portal header + forum warning + phone docking pass (2026-04-22)
+
+- Hardened Errl phone corner lock in `src/apps/landing/scripts/portal-app.js`: minimized state now always clears expanded mode and docks with safe-area aware offsets; startup also forces minimized + non-expanded consistency.
+- Updated `src/apps/landing/styles/styles.css` to use safe-area-aware bottom/right anchors for both default and minimized phone panel positioning.
+- Added shared external-nav modal styles and stronger header-size normalization in `src/shared/styles/errlPortalHeader.css` so legacy static page header CSS does not drift by tab/page.
+- Added shared forum external warning flow in `src/shared/scripts/portal-nav-visibility.mjs`: forum links get a custom in-theme confirm modal before leaving portal.
+- Updated React header (`src/apps/studio/src/app/components/PortalHeader.tsx`) to show the same custom forum warning modal on `Forum` clicks.
+
+### Errl phone tab help minimization (2026-04-22)
+
+- Reworked phone tab descriptions to default to minimal one-line summaries per tab in `src/apps/landing/scripts/portal-app.js`.
+- Added a small `?` toggle per tab that reveals fuller details only when requested (generated from existing intro copy).
+- Added compact styles for the summary/help disclosure block in `src/apps/landing/styles/styles.css`; original verbose intro paragraphs are now hidden in-panel.
+
+### Errl phone bottom utility row cleanup (2026-04-22)
+
+- Audited bottom row controls and kept them as advanced tools only (undo/redo + per-tab reset).
+- Updated naming in `src/index.html` to be clearer/consistent (`Undo`, `Redo`, `Tab reset`, standardized tab abbreviations).
+- Reduced visual noise: `settings-history-row` now appears only on the `DEV` tab via `activateTab()` in `src/apps/landing/scripts/portal-app.js`.
+- Tightened row spacing in `src/apps/landing/styles/styles.css` so it occupies less space when shown.
+
+### Errl tab overlap cleanup (2026-04-22)
+
+- Fixed label/control collisions in dense `ERRL` slider rows by tightening grid columns and label widths for auto-toggle rows in `src/apps/landing/styles/styles.css`.
+- Normalized non-auto `ERRL` row label widths to prevent long labels from intruding into sliders.
+- Shortened verbose inline helper copy in `src/index.html` (`Errl Goo` sections) to avoid text crowding over nearby controls.

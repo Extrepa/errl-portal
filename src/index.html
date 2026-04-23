@@ -355,8 +355,8 @@
       <div class="sliderRow"><label for="errlOutlineThickness" title="Thickness of face, eyes, and mouth outlines">Outlines</label><input id="errlOutlineThickness" type="range" min="1" max="8" step="0.5" value="2.5" title="Drag to adjust outlines"></div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel" title="Classic Goo is the SVG-based wobble on the Errl shape; WebGL Goo is a separate block below">Errl Goo (Classic)</div>
-      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
-        <span title="Classic Goo controls the Errl SVG wobble. The Auto toggles animate each slider over time (Play/Pause controls that timeline).">Classic Goo = Errl SVG wobble. Auto toggles animate each slider; Play/Pause controls the auto timeline.</span>
+      <div class="sliderRow" style="opacity:.85; font-size:9px; line-height:1.3;">
+        <span title="Classic Goo controls the Errl SVG wobble. Auto toggles animate each slider over time. Play/Pause controls that timeline.">Classic Goo controls Errl SVG wobble. Auto animates sliders; Play/Pause controls timeline.</span>
       </div>
       <div class="sliderRow"><label for="classicGooEnabled" title="Enable/disable the classic SVG goo wobble on Errl">Goo Enabled</label><input type="checkbox" id="classicGooEnabled" checked title="Toggle classic SVG goo"></div>
       <div class="sliderRow sliderRow--auto">
@@ -397,8 +397,8 @@
       </div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel" title="Pixi/WebGL melty shader on the Errl texture (not the menu orbits)">WebGL Goo (Errl)</div>
-      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
-        <span title="Drives errlGLSetGoo: displacement on the central character in the WebGL layer. Does not move menu bubbles.">These sliders set the <strong>Errl body</strong> WebGL displacement (goo), not the floating navigation bubbles. For menu ring layout use the Nav tab (Orbit / Radius / Size).</span>
+      <div class="sliderRow" style="opacity:.85; font-size:9px; line-height:1.3;">
+        <span title="Drives errlGLSetGoo: displacement on the central character in the WebGL layer. Does not move menu bubbles.">WebGL Goo affects the <strong>Errl body</strong> only. Menu bubble layout stays in the Nav tab.</span>
       </div>
       <div class="sliderRow"><label for="navWiggle" title="Displacement noise amplitude on Errl WebGL">Wiggle</label><input type="range" id="navWiggle" min="0" max="1" step="0.01" value="0.57" title="Errl WebGL wiggle"></div>
       <div class="sliderRow"><label for="navFlow" title="Shader animation speed (when gradient play is on)">Flow speed</label><input type="range" id="navFlow" min="0" max="2" step="0.01" value="1.07" title="WebGL flow speed"></div>
@@ -637,19 +637,19 @@
         <div style="opacity:0.6; text-align:center; padding:8px;">Logs will appear here...</div>
       </div>
     </div>
-    <div class="settings-history-row" role="group" aria-label="Undo and quick tab reset">
-      <button type="button" id="settingsUndoBtn" class="settings-history-btn" title="Undo last settings change">Back</button>
-      <button type="button" id="settingsRedoBtn" class="settings-history-btn" title="Redo">Fwd</button>
-      <span class="settings-tab-reset__label" title="Load repo defaults for that tab (browser only)">Reset</span>
+    <div class="settings-history-row" id="settingsHistoryRow" role="group" aria-label="Undo and tab reset tools">
+      <button type="button" id="settingsUndoBtn" class="settings-history-btn" title="Undo last settings change">Undo</button>
+      <button type="button" id="settingsRedoBtn" class="settings-history-btn" title="Redo last undone change">Redo</button>
+      <span class="settings-tab-reset__label" title="Load shipped defaults for a tab (browser only)">Tab reset</span>
       <button type="button" class="tab-reset-mini" data-tab-reset="hud" title="Reset Heads-up (HUD) tab to shipped defaults" aria-label="Reset Heads-up tab">HUD</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="errl" title="Reset Errl tab to shipped defaults" aria-label="Reset Errl tab">Errl</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="pin" title="Reset Pin tab to shipped defaults" aria-label="Reset Pin tab">Pin</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="nav" title="Reset Nav tab to shipped defaults" aria-label="Reset Nav tab">Nav</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="errl" title="Reset Errl tab to shipped defaults" aria-label="Reset Errl tab">ERRL</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="pin" title="Reset Pin tab to shipped defaults" aria-label="Reset Pin tab">PIN</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="nav" title="Reset Nav tab to shipped defaults" aria-label="Reset Nav tab">NAV</button>
       <button type="button" class="tab-reset-mini" data-tab-reset="rb" title="Reset Rising Bubbles tab to shipped defaults" aria-label="Reset Rising Bubbles tab">RB</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="glb" title="Reset GL Particles tab to shipped defaults" aria-label="Reset GL Particles tab">GLB</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="glb" title="Reset GL Particles tab to shipped defaults" aria-label="Reset GL Particles tab">GL</button>
       <button type="button" class="tab-reset-mini" data-tab-reset="bg" title="Reset Background tab to shipped defaults" aria-label="Reset Background tab">BG</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="dev" title="Reset Developer tab to shipped defaults" aria-label="Reset Developer tab">Dev</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="hue" title="Reset Color (Hue) tab to shipped defaults" aria-label="Reset Color tab">Hue</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="dev" title="Reset Developer tab to shipped defaults" aria-label="Reset Developer tab">DEV</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="hue" title="Reset Color (Hue) tab to shipped defaults" aria-label="Reset Color tab">HUE</button>
     </div>
     <button id="panelScrollTop" title="Return to top">↑</button>
     </div>

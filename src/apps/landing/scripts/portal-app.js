@@ -3259,6 +3259,18 @@
     const sections = Array.from(panel.querySelectorAll('.panel-section'));
     const toTop = document.getElementById('panelScrollTop');
     const contentWrapper = panel.querySelector('.panel-content-wrapper');
+    const settingsHistoryRow = document.getElementById('settingsHistoryRow');
+    const TAB_HELP_SUMMARIES = {
+      hud: 'Quick controls and comfort settings.',
+      errl: 'Character size and goo behavior.',
+      pin: 'Pin widget editing and inject tools.',
+      nav: 'Orbit menu bubbles and skins.',
+      rb: 'Rising bubble field controls.',
+      glb: 'Background WebGL particle layer.',
+      bg: 'Backdrop, shimmer, and overlay.',
+      dev: 'Advanced tools and debug controls.',
+      hue: 'Layer color and animation tuning.',
+    };
     const PHONE_SIZE_KEY = 'errl_phone_size_v1';
     const PHONE_SIZE_SCALES = [0.88, 1, 1.12];
     const sizeInput = $('errlPhonePanelSize');
@@ -3309,8 +3321,8 @@
     function lockPanelToCorner() {
       panel.style.left = 'auto';
       panel.style.top = 'auto';
-      panel.style.right = '10px';
-      panel.style.bottom = '10px';
+      panel.style.right = 'calc(10px + env(safe-area-inset-right, 0px))';
+      panel.style.bottom = 'calc(10px + env(safe-area-inset-bottom, 0px))';
     }
 
     function enforcePanelInViewport(margin){
@@ -3403,6 +3415,70 @@
         try { contentWrapper.scrollTo({ top: 0, behavior: 'auto' }); } catch (_) { contentWrapper.scrollTop = 0; }
         if (toTop) toTop.style.display = 'none';
       }
+      if (settingsHistoryRow) {
+        // Keep reset/undo utilities out of normal tabs; show only in DEV.
+        settingsHistoryRow.hidden = key !== 'dev';
+      }
+    }
+
+    function setupTabHelpNotes() {
+      const tabDetails = new Map();
+      const firstSectionByTab = new Map();
+      const intros = Array.from(panel.querySelectorAll('.panel-tab-intro'));
+
+      sections.forEach((section) => {
+        const key = section.getAttribute('data-tab');
+        if (!key) return;
+        if (!firstSectionByTab.has(key)) firstSectionByTab.set(key, section);
+      });
+
+      intros.forEach((intro) => {
+        const section = intro.closest('.panel-section');
+        const key = section && section.getAttribute ? section.getAttribute('data-tab') : '';
+        if (!key) return;
+        const html = String(intro.innerHTML || '').trim();
+        if (!html) return;
+        if (!tabDetails.has(key)) tabDetails.set(key, []);
+        tabDetails.get(key).push(html);
+      });
+
+      tabDetails.forEach((detailItems, key) => {
+        const host = firstSectionByTab.get(key);
+        if (!host || !detailItems.length) return;
+        if (host.querySelector('.panel-tab-help')) return;
+
+        const summary = TAB_HELP_SUMMARIES[key] || 'Quick controls for this tab.';
+        const helpId = `panel-tab-help-${key}`;
+        const listHtml = detailItems.map((item) => `<li>${item}</li>`).join('');
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'panel-tab-help';
+        wrapper.innerHTML = `
+          <div class="panel-tab-help__row">
+            <span class="panel-tab-help__summary">${summary}</span>
+            <button type="button" class="panel-tab-help__btn" aria-expanded="false" aria-controls="${helpId}" title="More info">?</button>
+          </div>
+          <div id="${helpId}" class="panel-tab-help__details" hidden>
+            <ul class="panel-tab-help__list">${listHtml}</ul>
+          </div>
+        `;
+
+        host.insertBefore(wrapper, host.firstChild);
+        const helpBtn = wrapper.querySelector('.panel-tab-help__btn');
+        const helpDetails = wrapper.querySelector('.panel-tab-help__details');
+        if (helpBtn && helpDetails) {
+          helpBtn.addEventListener('click', () => {
+            const open = helpBtn.getAttribute('aria-expanded') === 'true';
+            helpBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
+            helpDetails.hidden = open;
+          });
+        }
+      });
+
+      intros.forEach((intro) => {
+        intro.hidden = true;
+        intro.setAttribute('aria-hidden', 'true');
+      });
     }
 
     // Helper: clear any inline minimized constraints (from previous versions or HTML)
@@ -3410,6 +3486,7 @@
       const props = ['width','height','padding','border-radius','overflow','right','top','left','bottom','min-width','max-width','max-height'];
       props.forEach(p => { try { panel.style.removeProperty(p); } catch(_) {} });
     }
+    setupTabHelpNotes();
     // initial tab
     activateTab('hud');
     // tab clicks
@@ -3448,6 +3525,9 @@
 
     // Helper function to minimize the panel
     function minimizePanel() {
+      expanded = false;
+      panel.classList.remove('expanded');
+      try { localStorage.setItem(EXPANDED_KEY, '0'); } catch(_) {}
       panel.classList.add('minimized');
       panel.setAttribute('aria-expanded', 'false');
       try { panel.style.removeProperty('--phone-user-scale'); } catch (_) {}
@@ -3522,6 +3602,10 @@
     // Keep the main phone panel locked to the corner.
     // Load persisted expanded state (best-effort)
     try { expanded = localStorage.getItem(EXPANDED_KEY) === '1'; } catch(_) { expanded = false; }
+    if (panel.classList.contains('minimized')) {
+      expanded = false;
+      try { localStorage.setItem(EXPANDED_KEY, '0'); } catch(_) {}
+    }
     applyExpandedState();
     if (!expanded) lockPanelToCorner();
     function selfHealPhoneIfTiny() {
