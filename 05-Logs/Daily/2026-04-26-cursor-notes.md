@@ -1,12 +1,17 @@
 ## 2026-04-26 Cursor Notes
 
-- Implemented phone panel reset UX cleanup: replaced multi-tab mini reset cluster with a single active-tab reset action in the bottom row.
-- Added two-step inline reset safety flow: arm state, confirm state, warning text, timeout auto-disarm, and blur disarm.
-- Kept reset scope strictly tab-local by wiring the active tab key into `applyRepoTabReset`.
-- Simplified always-visible Rising Bubbles copy and kept detailed guidance behind the tab `?` help disclosures.
-- Reworked RB scoring UI/state to support per-mode score + overall total, with ERRL neon-themed score visuals.
-- Added active-tab-driven help panel accent styling via `data-active-tab` on the phone panel.
-- Fixed minimized phone regression where controls could leak into the bubble due later CSS overrides; added a final minimized lock rule.
-- Updated tests for reset safety behavior, RB score aggregation, and minimized bubble control hiding.
-- Verified the minimized bubble regression test passes:
-  - `npm test -- tests/errl-phone-controls.spec.ts -g "Minimized phone bubble shows Customize CTA and restores"`
+- Implemented Rising Bubbles multi-mode scoring reducer with normalized score events.
+- Added local-first score persistence in `errl_rb_score_state_v3` with migration from legacy score keys.
+- Added engine score hooks for Classic throw/flick events and richer Pop event metadata.
+- Implemented mode-specific scoring behavior:
+  - Classic: off-screen throws + flick hits + combo multiplier.
+  - Pop: cadence multiplier based on pop speed.
+  - Collect: streak multiplier with inactivity reset.
+- Updated RB HUD to show mode score, mode high, lifetime total, and mode badge.
+- Updated RB HUD top label to show active mode name (`Classic Throw`, `Pop`, `Collect`) instead of generic score wording.
+- Updated RB copy for concise on-screen guidance and retained deeper details behind help (`?`) blocks.
+- Added tests for score aggregation and legacy migration handling.
+- Updated reference docs with new score keys, scoring behavior, and architecture touchpoints.
+- Verification pass:
+  - `npm test -- tests/errl-phone-controls.spec.ts -g "RB interaction mode is mutually exclusive|RB scoring reducer aggregates per-mode and lifetime totals|RB score state persists and migrates from legacy keys|Pop mode exposes pop interaction in RB engine"`
+  - `npm test -- tests/errl-phone-controls.spec.ts -g "RB scoring reducer aggregates per-mode and lifetime totals|RB interaction mode is mutually exclusive"`

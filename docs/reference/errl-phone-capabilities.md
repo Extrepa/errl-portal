@@ -60,8 +60,8 @@ When adding features, name which layer in UI copy to avoid “nothing happens”
 | `errl_phone_cta_dismissed_v1` | First-visit “Customize” chip dismissed or cleared by opening the phone. |
 | `errl_pin_tour_dismissed_v2` | Pin tab tour banner dismissed; **`v2`** re-shows the expanded copy once for users who only had `v1` stored. |
 | `errl_phone_expanded_v1`, `errl_phone_expanded_pos_v1`, `errl_phone_min` | Phone expand/minimize/position (existing). |
-| `errl_rb_mode_scores_v2` | Rising Bubbles per-mode scores (`classic`, `pop`, `collect`) and `total`. |
-| `errl_rb_mode_high_v2` | Rising Bubbles per-mode highs. Migrates legacy collect high on first read. |
+| `errl_rb_score_state_v3` | Rising Bubbles scoring state (`session`, `lifetime`, `high`, mode meta). |
+| `errl_rb_mode_scores_v2`, `errl_rb_mode_high_v2`, `errl_rb_collect_high_v1` | Legacy keys read once by migration into `v3`. |
 
 When changing tour or CTA copy, bump a version in the key if you need a one-time re-show (same pattern as Pin v2).
 
@@ -77,19 +77,6 @@ When changing tour or CTA copy, bump a version in the key if you need a one-time
 | `.sliderRow--a11y` | Accessibility rows: full text labels, no ellipsis. |
 | `.panel-minimized-label` | “Customize” under the minimized fab (not centered *inside* the 52px circle). |
 | `.pin-tour-show-btn` (`#pinTourShow`) | Re-opens the Pin tour. |
-| `#settingsTabResetBtn`, `#settingsTabResetWarning` | Two-step active-tab reset (arm, confirm, timeout disarm); reset is tab-local only. |
-| `#rbCollectScoreWrap`, `#rbOverallScore` | ERRL-themed score HUD now shows active-mode score plus overall total. |
-
----
-
-## Reset and score behavior (2026-04-26)
-
-- **Bottom reset row:** one contextual reset button only (current active tab), plus Undo/Redo.
-- **Accidental-tap guard:** first press arms reset, second press confirms; warning text is inline and auto-disarms after timeout.
-- **Scope:** reset only touches the selected tab via `applyRepoTabReset(activeTab)`.
-- **Rising Bubbles scores:** tracked per mode and overall total; collect and pop events update mode buckets, and total is recomputed from buckets.
-- **Theming:** score HUD and active score accents use existing ERRL neon tokens (cyan/purple/yellow family).
-- **Minimized phone lock:** minimized state force-hides tabs, action rows, and panel controls so only the bubble + customize label are visible.
 
 ---
 
@@ -97,6 +84,17 @@ When changing tour or CTA copy, bump a version in the key if you need a one-time
 
 - Primary spec: [`tests/errl-phone-controls.spec.ts`](../../tests/errl-phone-controls.spec.ts) — includes Burst (wait for GL readiness), a11y label not truncated, CTA node smoke, tabs, RB/Nav/Hue/GLB, etc.
 - **Note:** Full Playwright runs need the Vite dev server stable; `ERR_CONNECTION_REFUSED` in long runs usually means the server stopped—re-run or narrow with `-g`.
+
+---
+
+## Rising Bubbles multi-mode scoring
+
+- **Classic Throw:** scores off-screen throws and flick hits; combo multiplier increases when qualifying throws chain within a short window.
+- **Pop:** scores each pop with a cadence multiplier based on recent pop speed (decays with idle gaps).
+- **Collect:** scores overlap collection with streak multiplier; long inactivity resets streak.
+- **Totals:** HUD shows mode score (session), mode high, and lifetime total.
+- **HUD labeling:** top-left score label uses the active mode name (`Classic Throw`, `Pop`, `Collect`) instead of generic wording.
+- **Architecture:** scoring reducer + storage adapter live in [`portal-app.js`](../../src/apps/landing/scripts/portal-app.js); engine emits scoreable interaction events from [`rise-bubbles-three.js`](../../src/apps/landing/scripts/rise-bubbles-three.js).
 
 ---
 

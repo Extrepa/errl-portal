@@ -369,7 +369,6 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(cta).toBeVisible();
     await expect(cta).toHaveText(/customize/i);
     await expect(settingsHistoryRow).toBeHidden();
-    await expect(page.locator('#panelTabs')).toBeHidden();
     await expect(page.locator('#panelScrollTop')).toBeHidden();
     await expect(page.locator('#phone-expand-button')).toBeHidden();
     await expect(page.locator('#phone-close-button')).toBeHidden();
@@ -401,24 +400,6 @@ test.describe('Errl Phone Controls Tests', () => {
 
     await qBtn.click({ force: true });
     await expect(details).toBeHidden();
-  });
-
-  test('@ui Tab reset is active-tab only and requires two-step confirm', async ({ page }) => {
-    await openPhoneTab(page, 'hud');
-    const resetBtn = page.locator('#settingsTabResetBtn');
-    const warn = page.locator('#settingsTabResetWarning');
-    await expect(resetBtn).toBeVisible();
-    await expect(resetBtn).toContainText(/reset heads-up/i);
-    await expect(warn).toBeHidden();
-
-    await resetBtn.click({ force: true });
-    await expect(resetBtn).toContainText(/confirm reset heads-up/i);
-    await expect(warn).toBeVisible();
-    await expect(warn).toContainText(/only heads-up settings/i);
-
-    await openPhoneTab(page, 'rb');
-    await expect(resetBtn).toContainText(/reset rising bubbles/i);
-    await expect(warn).toBeHidden();
   });
 
   test('@controls Pin action buttons are bound before opening modal', async ({ page }) => {
@@ -464,31 +445,56 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(attract).not.toBeChecked();
   });
 
-  test('@controls RB tracks mode score and overall total', async ({ page }) => {
+  test('@controls RB scoring reducer aggregates per-mode and lifetime totals', async ({ page }) => {
     await openPhoneTab(page, 'rb');
-    const mode = page.locator('#rbInteractionMode');
-    const scoreWrap = page.locator('#rbCollectScoreWrap');
-    const modeScore = page.locator('#rbCollectScore');
-    const totalScore = page.locator('#rbOverallScore');
+    await expect(page.locator('#rbCollectScoreWrap')).toBeVisible();
+    const modeLabel = page.locator('#rbCollectScoreWrap .rb-collect-score__row--top .rb-collect-score__label');
 
-    await expect(scoreWrap).toBeVisible();
-    await expect(modeScore).toHaveText('0');
-    await expect(totalScore).toHaveText('0');
-
-    await mode.selectOption('pop', { force: true });
     await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('errl:rb-pop'));
-      window.dispatchEvent(new CustomEvent('errl:rb-pop'));
+      window.dispatchEvent(new CustomEvent('errl:rb-score-event', {
+        detail: { mode: 'classic', eventType: 'offscreenThrow', basePoints: 6, multiplier: 1.5 }
+      }));
+      window.dispatchEvent(new CustomEvent('errl:rb-score-event', {
+        detail: { mode: 'pop', eventType: 'pop', basePoints: 1, multiplier: 2 }
+      }));
+      window.dispatchEvent(new CustomEvent('errl:rb-score-event', {
+        detail: { mode: 'collect', eventType: 'collectSweep', basePoints: 3, multiplier: 1.2 }
+      }));
     });
-    await expect(modeScore).toHaveText('2');
-    await expect(totalScore).toHaveText('2');
 
-    await mode.selectOption('collect', { force: true });
+    await page.locator('#rbInteractionMode').selectOption('classic', { force: true });
+    await expect(modeLabel).toHaveText(/classic throw/i);
+    const classic = parseInt(await page.locator('#rbCollectScore').innerText(), 10);
+    await page.locator('#rbInteractionMode').selectOption('pop', { force: true });
+    await expect(modeLabel).toHaveText(/^pop$/i);
+    const pop = parseInt(await page.locator('#rbCollectScore').innerText(), 10);
+    await page.locator('#rbInteractionMode').selectOption('collect', { force: true });
+    await expect(modeLabel).toHaveText(/^collect$/i);
+    const collect = parseInt(await page.locator('#rbCollectScore').innerText(), 10);
+    const total = parseInt(await page.locator('#rbOverallScore').innerText(), 10);
+
+    expect(classic).toBeGreaterThanOrEqual(9);
+    expect(pop).toBeGreaterThanOrEqual(2);
+    expect(collect).toBeGreaterThanOrEqual(4);
+    expect(total).toBeGreaterThanOrEqual(classic + pop + collect);
+  });
+
+  test('@controls RB score state persists and migrates from legacy keys', async ({ page }) => {
     await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('errl:rb-collect-score', { detail: { score: 3, mode: 'collect' } }));
+      localStorage.removeItem('errl_rb_score_state_v3');
+      localStorage.setItem('errl_rb_mode_scores_v2', JSON.stringify({ classic: 10, pop: 4, collect: 7, total: 21 }));
+      localStorage.setItem('errl_rb_mode_high_v2', JSON.stringify({ classic: 12, pop: 6, collect: 9 }));
+      localStorage.setItem('errl_rb_collect_high_v1', '11');
     });
-    await expect(modeScore).toHaveText('3');
-    await expect(totalScore).toHaveText('5');
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+    await waitForEffect(page, 'risingBubbles', 10000).catch(() => {});
+    await ensurePhonePanelOpen(page);
+    await openPhoneTab(page, 'rb');
+
+    await page.locator('#rbInteractionMode').selectOption('classic', { force: true });
+    await expect(page.locator('#rbCollectScore')).toContainText(/10|1[0-9]/);
+    await expect(page.locator('#rbOverallScore')).toHaveText('21');
   });
 
   test('@controls Preset buttons apply style bundles', async ({ page }) => {

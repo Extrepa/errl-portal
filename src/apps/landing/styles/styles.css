@@ -1179,10 +1179,6 @@ body.reduced-motion .errl-panel.minimized::after {
   border-color: rgba(var(--errl-neon-blue-rgb), 0.35);
   box-shadow: inset 0 0 10px rgba(var(--errl-neon-cyan-rgb), 0.12);
 }
-.errl-panel[data-active-tab="dev"] .panel-tab-help {
-  border-color: rgba(var(--errl-neon-yellow-rgb), 0.35);
-  box-shadow: inset 0 0 10px rgba(var(--errl-neon-yellow-rgb), 0.1);
-}
 .errl-panel .panel-tab-help__row {
   display: flex;
   align-items: center;
@@ -1641,19 +1637,6 @@ body.reduced-motion .errl-panel.minimized::after {
   }
 }
 
-/* Final minimized lock: keep the bubble clean even after later tab/layout rules. */
-.errl-panel.minimized .panel-header,
-.errl-panel.minimized .panel-tabs,
-.errl-panel.minimized .panel-section,
-.errl-panel.minimized .panel-content-wrapper,
-.errl-panel.minimized #settingsHistoryRow,
-.errl-panel.minimized #panelScrollTop,
-.errl-panel.minimized #phone-vibe-bar,
-.errl-panel.minimized #phone-close-button,
-.errl-panel.minimized #phone-expand-button {
-  display: none !important;
-}
-
 /* Custom underlay: behind L0 star canvas */
 .errl-custom-base-bg {
   position: fixed;
@@ -1671,12 +1654,12 @@ body.reduced-motion .errl-panel.minimized::after {
   z-index: 5;
   display: grid;
   gap: 2px;
-  font: 600 14px/1.2 system-ui, sans-serif;
+  font: 600 13px/1.2 system-ui, sans-serif;
   color: rgba(var(--errl-text-rgb), 0.95);
   text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
   pointer-events: none;
   padding: 6px 10px;
-  background: linear-gradient(140deg, rgba(4, 20, 34, 0.8), rgba(18, 10, 34, 0.72));
+  background: linear-gradient(140deg, rgba(4, 20, 34, 0.82), rgba(18, 10, 34, 0.72));
   border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.38);
   box-shadow: 0 0 12px rgba(var(--errl-neon-cyan-rgb), 0.35), 0 0 20px rgba(var(--errl-neon-purple-rgb), 0.2);
   border-radius: 6px;
@@ -1685,12 +1668,14 @@ body.reduced-motion .errl-panel.minimized::after {
   display: flex;
   align-items: baseline;
   gap: 6px;
+  white-space: nowrap;
 }
 .rb-collect-score__label {
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(var(--errl-neon-blue-rgb), 0.95);
+  flex: 0 0 auto;
 }
 .rb-collect-score__value {
   color: rgba(var(--errl-neon-cyan-rgb), 1);
@@ -1703,8 +1688,17 @@ body.reduced-motion .errl-panel.minimized::after {
 .rb-collect-score__high {
   font-size: 10px;
   opacity: 0.9;
-  margin-left: 4px;
   color: rgba(var(--errl-neon-yellow-rgb), 0.95);
+}
+.rb-collect-score__badge {
+  font-size: 10px;
+  color: rgba(var(--errl-neon-yellow-rgb), 0.92);
+}
+.rb-collect-score[data-mode="classic"] .rb-collect-score__badge {
+  color: rgba(var(--errl-neon-magenta-rgb), 0.94);
+}
+.rb-collect-score[data-mode="pop"] .rb-collect-score__badge {
+  color: rgba(var(--errl-neon-cyan-rgb), 0.95);
 }
 
 /* Undo / tab reset row */
@@ -1724,7 +1718,11 @@ body.reduced-motion .errl-panel.minimized::after {
   /* Do not use sticky: bottom strip must not sit over long tab content (e.g. RB adv) or it steals clicks. */
   margin-top: calc(4px * var(--panel-scale, 1));
 }
-button.settings-history-btn {
+.settings-tab-reset__label {
+  opacity: 0.7;
+  margin: 0 2px 0 6px;
+}
+button.settings-history-btn, button.tab-reset-mini {
   min-height: 32px;
   min-width: 32px;
   font-size: 8px;
@@ -1736,29 +1734,9 @@ button.settings-history-btn {
   color: #c8e0f0;
   cursor: pointer;
 }
-button.settings-history-btn:hover {
+button.tab-reset-mini { min-width: 28px; }
+button.settings-history-btn:hover, button.tab-reset-mini:hover {
   background: rgba(0, 229, 255, 0.12);
-}
-.settings-tab-reset {
-  display: grid;
-  gap: 4px;
-  margin-left: auto;
-  max-width: 100%;
-}
-.settings-tab-reset__warning {
-  margin: 0;
-  font-size: 8px;
-  line-height: 1.25;
-  color: rgba(var(--errl-neon-yellow-rgb), 0.95);
-}
-button.settings-history-btn--warn {
-  border-color: rgba(var(--errl-neon-magenta-rgb), 0.45);
-}
-button.settings-history-btn--warn[data-state="armed"] {
-  border-color: rgba(var(--errl-neon-yellow-rgb), 0.85);
-  box-shadow: 0 0 12px rgba(var(--errl-neon-yellow-rgb), 0.35);
-  background: rgba(var(--errl-neon-yellow-rgb), 0.12);
-  color: rgba(var(--errl-text-rgb), 0.98);
 }
 
 #phone-expand-button {

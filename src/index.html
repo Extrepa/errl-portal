@@ -61,13 +61,14 @@
   <canvas id="riseBubbles"></canvas>
   <div id="rbCollectScoreWrap" class="rb-collect-score" hidden>
     <div class="rb-collect-score__row rb-collect-score__row--top">
-      <span class="rb-collect-score__label">Mode score</span>
+      <span class="rb-collect-score__label">Classic Throw</span>
       <span id="rbCollectScore" class="rb-collect-score__value">0</span>
       <span id="rbCollectHigh" class="rb-collect-score__high" aria-label="Mode high score"></span>
     </div>
     <div class="rb-collect-score__row rb-collect-score__row--bottom">
-      <span class="rb-collect-score__label">Total</span>
+      <span class="rb-collect-score__label">Total lifetime</span>
       <span id="rbOverallScore" class="rb-collect-score__value rb-collect-score__value--overall">0</span>
+      <span id="rbScoreBadge" class="rb-collect-score__badge" aria-live="polite"></span>
     </div>
   </div>
   <div id="errlIdleStreak" class="errl-idle-streak" aria-hidden="true"><span class="errl-idle-streak__line"></span></div>
@@ -275,7 +276,10 @@
           <option value="pop">Pop Mode</option>
           <option value="collect">Collect</option>
         </select>
-        <button type="button" id="rbCollectResetBtn" class="mini-reset" title="Reset collect mode score" style="min-height:32px; font-size:8px; padding:4px 6px">Reset score</button>
+        <button type="button" id="rbCollectResetBtn" class="mini-reset" title="Reset active mode score" style="min-height:32px; font-size:8px; padding:4px 6px">Reset mode score</button>
+      </div>
+      <div class="sliderRow" style="opacity:.8; font-size:9px; line-height:1.35;">
+        <span id="rbModeLegend" class="rb-mode-legend">Classic = grab and throw / flick. Pop = tap a bubble on the canvas to pop it.</span>
       </div>
       <div class="sliderRow" style="opacity:.8; font-size:9px; line-height:1.2;">
         <span id="rbModeStatus">Classic Throw: drag/flick controls are prioritized.</span>
@@ -638,21 +642,16 @@
     <div class="settings-history-row" id="settingsHistoryRow" role="group" aria-label="Undo and tab reset tools">
       <button type="button" id="settingsUndoBtn" class="settings-history-btn" title="Undo last settings change">Undo</button>
       <button type="button" id="settingsRedoBtn" class="settings-history-btn" title="Redo last undone change">Redo</button>
-      <div class="settings-tab-reset" id="settingsTabResetWrap">
-        <button
-          type="button"
-          id="settingsTabResetBtn"
-          class="settings-history-btn settings-history-btn--warn"
-          data-state="idle"
-          aria-describedby="settingsTabResetWarning"
-          title="Reset the currently active tab to shipped defaults"
-        >
-          Reset tab
-        </button>
-        <p id="settingsTabResetWarning" class="settings-tab-reset__warning" role="status" aria-live="polite" hidden>
-          This resets only the active tab in this browser.
-        </p>
-      </div>
+      <span class="settings-tab-reset__label" title="Load shipped defaults for a tab (browser only)">Tab reset</span>
+      <button type="button" class="tab-reset-mini" data-tab-reset="hud" title="Reset Heads-up (HUD) tab to shipped defaults" aria-label="Reset Heads-up tab">HUD</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="errl" title="Reset Errl tab to shipped defaults" aria-label="Reset Errl tab">ERRL</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="pin" title="Reset Pin tab to shipped defaults" aria-label="Reset Pin tab">PIN</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="nav" title="Reset Nav tab to shipped defaults" aria-label="Reset Nav tab">NAV</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="rb" title="Reset Rising Bubbles tab to shipped defaults" aria-label="Reset Rising Bubbles tab">RB</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="glb" title="Reset GL Particles tab to shipped defaults" aria-label="Reset GL Particles tab">GL</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="bg" title="Reset Background tab to shipped defaults" aria-label="Reset Background tab">BG</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="dev" title="Reset Developer tab to shipped defaults" aria-label="Reset Developer tab">DEV</button>
+      <button type="button" class="tab-reset-mini" data-tab-reset="hue" title="Reset Color (Hue) tab to shipped defaults" aria-label="Reset Color tab">HUE</button>
     </div>
     <button id="panelScrollTop" title="Return to top">↑</button>
     </div>
