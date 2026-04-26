@@ -4244,6 +4244,25 @@
         return;
       }
     }
+    let repoTabResetInFlight = false;
+    function bindRepoTabResetButtons() {
+      const buttons = Array.from(document.querySelectorAll('[data-tab-reset]'));
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const tab = btn.getAttribute('data-tab-reset');
+          if (!tab || repoTabResetInFlight) return;
+          repoTabResetInFlight = true;
+          btn.disabled = true;
+          try {
+            await applyRepoTabReset(tab);
+          } finally {
+            btn.disabled = false;
+            repoTabResetInFlight = false;
+          }
+        });
+      });
+    }
+    bindRepoTabResetButtons();
     let collectRawPrev = 0;
     let lastClassicSig = '';
     let lastClassicAt = 0;

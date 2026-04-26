@@ -19,3 +19,6 @@
 - Fixed GL burst rollout regression in `src/apps/landing/fx/bubbles-pixi.ts` by writing burst impulse to sprite fields consumed by `_advance()` (`burstVX`/`burstVY`), restoring visible radial motion.
 - Added a resilience fallback in `src/apps/landing/scripts/webgl.js`: `errlGLBurst` now falls back to legacy `spawnBurstGL(...)` unless layer bursts report active applied burst velocity.
 - Verified there is a single `#burstBtn` and `#errlGlHint` in markup, and lint checks are clean for all touched files.
+- Fixed Classic throw score reliability in `src/apps/landing/scripts/rise-bubbles-three.js` by extending off-screen throw eligibility timing so legit throws can register points before reset.
+- Restored footer mini tab reset behavior by binding `[data-tab-reset]` controls to `applyRepoTabReset(...)` in `src/apps/landing/scripts/portal-app.js`, with an in-flight guard to prevent reset races.
+- Verification pass: `npm run portal:build` completed successfully.

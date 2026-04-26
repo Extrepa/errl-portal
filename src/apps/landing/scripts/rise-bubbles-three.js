@@ -976,7 +976,8 @@
         const outY = bubble.position.y > (bnd.halfH * 1.35) || bubble.position.y < (-bnd.halfH * 1.35);
         if (bubble.position.y > 30 || outX || outY) {
           const wasThrown = !!(bubble.userData && bubble.userData.isThrown);
-          const justThrown = wasThrown && (elapsedTime - safeNum(bubble.userData.thrownAt, 0)) < 2.5;
+          // Give classic throws enough time to travel off-screen before score eligibility expires.
+          const justThrown = wasThrown && (elapsedTime - safeNum(bubble.userData.thrownAt, 0)) < 10;
           const offscreen = outX || outY;
           if (
             controls.interactionMode === 'classic' &&
