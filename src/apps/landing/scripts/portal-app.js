@@ -2092,8 +2092,8 @@
           rippleIntensity.value = '1.2';
           withRB((RB)=> RB.setRippleIntensity && RB.setRippleIntensity(rippleIntensity.value));
         }
-        setModeStatus('Pop Mode: tap bubbles on canvas to pop.');
-        if (modeLegend) modeLegend.textContent = 'Pop score increases for each bubble popped.';
+        setModeStatus('Pop Mode: tap bubbles quickly to build speed bonus.');
+        if (modeLegend) modeLegend.textContent = 'Pop rewards fast cadence; idle gaps decay your bonus.';
       } else if (isCollect) {
         if (attract) {
           attract.checked = false;
@@ -2103,16 +2103,16 @@
           ripples.checked = false;
           withRB((RB)=> RB.setRipples && RB.setRipples(false));
         }
-        setModeStatus('Collect: move over bubbles on the #riseBubbles canvas to score.');
-        if (modeLegend) modeLegend.textContent = 'Collect score increases when your pointer sweeps through bubbles.';
+        setModeStatus('Collect: sweep bubbles to keep your streak alive.');
+        if (modeLegend) modeLegend.textContent = 'Collect rewards uninterrupted sweeps with a streak multiplier.';
       } else {
         if (ripples) {
           ripples.checked = false;
           withRB((RB)=> RB.setRipples && RB.setRipples(false));
         }
         withRB((RB)=> { if (RB.setAttract) RB.setAttract(!!attract?.checked); });
-        setModeStatus('Classic Throw: drag/flick controls are prioritized.');
-        if (modeLegend) modeLegend.textContent = 'Classic uses throw/flick behavior and keeps score separated by mode.';
+        setModeStatus('Classic Throw: off-screen throws and combo chains score.');
+        if (modeLegend) modeLegend.textContent = 'Classic rewards off-screen throws, flick hits, and short combo chains.';
       }
       syncInteractionLocks();
       if (persist) persistRB();
@@ -3427,7 +3427,10 @@
         try { contentWrapper.scrollTo({ top: 0, behavior: 'auto' }); } catch (_) { contentWrapper.scrollTop = 0; }
         if (toTop) toTop.style.display = 'none';
       }
-      if (settingsHistoryRow) settingsHistoryRow.hidden = false;
+      if (settingsHistoryRow) {
+        // Keep reset/undo utilities out of normal tabs; show only in DEV.
+        settingsHistoryRow.hidden = key !== 'dev';
+      }
     }
 
     function setupTabHelpNotes() {
@@ -3961,39 +3964,172 @@
   })();
 
   (function errlSettingsChromeAndResets(){
-    const RB_MODE_SCORE_KEY = 'errl_rb_mode_scores_v2';
-    const RB_MODE_HI_KEY = 'errl_rb_mode_high_v2';
+    const SCORE_STATE_KEY = 'errl_rb_score_state_v3';
+    const LEGACY_MODE_KEY = 'errl_rb_mode_scores_v2';
+    const LEGACY_HI_KEY = 'errl_rb_mode_high_v2';
     const LEGACY_COLLECT_HI = 'errl_rb_collect_high_v1';
-    const RESET_ARM_MS = 5000;
-    const TAB_RESET_LABELS = { hud: 'Heads-up', errl: 'Errl', pin: 'Pin', nav: 'Nav', rb: 'Rising Bubbles', glb: 'GL Particles', bg: 'Background', dev: 'Developer', hue: 'Color' };
-    function readModeScores() {
-      try {
-        const raw = localStorage.getItem(RB_MODE_SCORE_KEY);
-        if (!raw) return { classic: 0, pop: 0, collect: 0, total: 0 };
-        const parsed = JSON.parse(raw);
-        return { classic: Math.max(0, (parsed.classic | 0)), pop: Math.max(0, (parsed.pop | 0)), collect: Math.max(0, (parsed.collect | 0)), total: Math.max(0, (parsed.total | 0)) };
-      } catch (_) { return { classic: 0, pop: 0, collect: 0, total: 0 }; }
+    const SCORE_MODES = ['classic', 'pop', 'collect'];
+    function nowMs() {
+      return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     }
-    function writeModeScores(next) {
-      const safe = { classic: Math.max(0, (next.classic | 0)), pop: Math.max(0, (next.pop | 0)), collect: Math.max(0, (next.collect | 0)), total: Math.max(0, (next.total | 0)) };
-      try { localStorage.setItem(RB_MODE_SCORE_KEY, JSON.stringify(safe)); } catch (_) {}
-      return safe;
+    function emptyBuckets() {
+      return { classic: 0, pop: 0, collect: 0, total: 0 };
     }
-    function readModeHigh() {
+    function makeDefaultScoreState() {
+      return {
+        version: 3,
+        lifetime: emptyBuckets(),
+        session: emptyBuckets(),
+        high: { classic: 0, pop: 0, collect: 0 },
+        meta: { classicComboCount: 0, classicComboAt: 0, popCadence: 0, collectStreak: 0, collectLastAt: 0 }
+      };
+    }
+    function normalizeBuckets(obj) {
+      const src = obj || {};
+      return {
+        classic: Math.max(0, src.classic | 0),
+        pop: Math.max(0, src.pop | 0),
+        collect: Math.max(0, src.collect | 0),
+        total: 0,
+      };
+    }
+    function normalizeHigh(obj) {
+      const src = obj || {};
+      return {
+        classic: Math.max(0, src.classic | 0),
+        pop: Math.max(0, src.pop | 0),
+        collect: Math.max(0, src.collect | 0),
+      };
+    }
+    function recomputeTotals(state) {
+      state.session.total = Math.max(0, (state.session.classic | 0) + (state.session.pop | 0) + (state.session.collect | 0));
+      state.lifetime.total = Math.max(0, (state.lifetime.classic | 0) + (state.lifetime.pop | 0) + (state.lifetime.collect | 0));
+      return state;
+    }
+    function migrateScoreState(raw) {
+      if (raw && raw.version === 3) {
+        const state = makeDefaultScoreState();
+        state.lifetime = normalizeBuckets(raw.lifetime);
+        state.session = normalizeBuckets(raw.session);
+        state.high = normalizeHigh(raw.high);
+        state.meta = { ...state.meta, ...(raw.meta || {}) };
+        return recomputeTotals(state);
+      }
+      const state = makeDefaultScoreState();
       try {
-        const raw = localStorage.getItem(RB_MODE_HI_KEY);
-        if (!raw) {
-          const legacy = parseInt(localStorage.getItem(LEGACY_COLLECT_HI) || '0', 10) || 0;
-          return { classic: 0, pop: 0, collect: Math.max(0, legacy) };
+        const legacyMode = JSON.parse(localStorage.getItem(LEGACY_MODE_KEY) || '{}');
+        const legacyHigh = JSON.parse(localStorage.getItem(LEGACY_HI_KEY) || '{}');
+        const legacyCollectHi = parseInt(localStorage.getItem(LEGACY_COLLECT_HI) || '0', 10) || 0;
+        state.lifetime = normalizeBuckets(legacyMode);
+        state.session = normalizeBuckets(legacyMode);
+        state.high = normalizeHigh({ ...legacyHigh, collect: Math.max(legacyCollectHi, legacyHigh.collect || 0) });
+      } catch (_) {}
+      return recomputeTotals(state);
+    }
+    function createScoreStore() {
+      return {
+        loadScores() {
+          try {
+            const raw = localStorage.getItem(SCORE_STATE_KEY);
+            return migrateScoreState(raw ? JSON.parse(raw) : null);
+          } catch (_) {
+            return migrateScoreState(null);
+          }
+        },
+        saveScores(snapshot) {
+          try { localStorage.setItem(SCORE_STATE_KEY, JSON.stringify(snapshot)); } catch (_) {}
         }
-        const parsed = JSON.parse(raw);
-        return { classic: Math.max(0, (parsed.classic | 0)), pop: Math.max(0, (parsed.pop | 0)), collect: Math.max(0, (parsed.collect | 0)) };
-      } catch (_) { return { classic: 0, pop: 0, collect: 0 }; }
+      };
     }
-    function writeModeHigh(next) {
-      const safe = { classic: Math.max(0, (next.classic | 0)), pop: Math.max(0, (next.pop | 0)), collect: Math.max(0, (next.collect | 0)) };
-      try { localStorage.setItem(RB_MODE_HI_KEY, JSON.stringify(safe)); } catch (_) {}
-      return safe;
+    const scoreStore = createScoreStore();
+    let scoreState = scoreStore.loadScores();
+    let persistTimer = null;
+    function scheduleScorePersist() {
+      if (persistTimer) clearTimeout(persistTimer);
+      persistTimer = setTimeout(() => {
+        persistTimer = null;
+        scoreStore.saveScores(scoreState);
+      }, 120);
+    }
+    function clampScoreMode(mode) {
+      return SCORE_MODES.includes(mode) ? mode : 'classic';
+    }
+    function getCurrentMode() {
+      const m = document.getElementById('rbInteractionMode');
+      return clampScoreMode((m && m.value) || 'classic');
+    }
+    function isRbTabActive() {
+      const panel = document.getElementById('errlPanel');
+      return panel && panel.getAttribute('data-active-tab') === 'rb';
+    }
+    function renderScoreHud() {
+      const MODE_HUD_LABELS = {
+        classic: 'Classic Throw',
+        pop: 'Pop',
+        collect: 'Collect',
+      };
+      const wrap = document.getElementById('rbCollectScoreWrap');
+      const scoreEl = document.getElementById('rbCollectScore');
+      const totalEl = document.getElementById('rbOverallScore');
+      const highEl = document.getElementById('rbCollectHigh');
+      const badgeEl = document.getElementById('rbScoreBadge');
+      const modeLabelEl = wrap ? wrap.querySelector('.rb-collect-score__row--top .rb-collect-score__label') : null;
+      const mode = getCurrentMode();
+      if (wrap) {
+        wrap.hidden = !isRbTabActive();
+        wrap.setAttribute('data-mode', mode);
+      }
+      if (!isRbTabActive()) return;
+      const modeScore = Math.max(0, scoreState.session[mode] | 0);
+      const modeHigh = Math.max(0, scoreState.high[mode] | 0);
+      if (modeLabelEl) modeLabelEl.textContent = MODE_HUD_LABELS[mode] || 'Classic Throw';
+      if (scoreEl) scoreEl.textContent = String(modeScore);
+      if (totalEl) totalEl.textContent = String(Math.max(0, scoreState.lifetime.total | 0));
+      if (highEl) highEl.textContent = modeHigh ? ('best ' + modeHigh) : '';
+      if (badgeEl) {
+        if (mode === 'classic') {
+          const combo = Math.max(0, scoreState.meta.classicComboCount | 0);
+          badgeEl.textContent = combo > 1 ? ('Combo x' + combo) : '';
+        } else if (mode === 'pop') {
+          const cad = Math.max(0, scoreState.meta.popCadence | 0);
+          badgeEl.textContent = cad > 1 ? ('Speed x' + (1 + Math.min(1.5, (cad - 1) * 0.12)).toFixed(2)) : '';
+        } else {
+          const streak = Math.max(0, scoreState.meta.collectStreak | 0);
+          badgeEl.textContent = streak > 1 ? ('Streak x' + streak) : '';
+        }
+      }
+    }
+    function applyScoreEvent(payload) {
+      const mode = clampScoreMode(payload.mode);
+      const base = Math.max(0, Number(payload.basePoints || payload.pointsAwarded || 0));
+      const multiplier = Math.max(0, Number(payload.multiplier || 1));
+      const pointsAwarded = Math.max(0, Math.round(base * multiplier));
+      if (!pointsAwarded) return;
+      scoreState.session[mode] = Math.max(0, (scoreState.session[mode] | 0) + pointsAwarded);
+      scoreState.lifetime[mode] = Math.max(0, (scoreState.lifetime[mode] | 0) + pointsAwarded);
+      if ((scoreState.session[mode] | 0) > (scoreState.high[mode] | 0)) {
+        scoreState.high[mode] = scoreState.session[mode] | 0;
+      }
+      recomputeTotals(scoreState);
+      scheduleScorePersist();
+      renderScoreHud();
+      try {
+        window.dispatchEvent(new CustomEvent('errl:rb-score-event', {
+          detail: {
+            mode,
+            eventType: String(payload.eventType || 'score'),
+            pointsAwarded,
+            multiplier,
+            runningModeScore: scoreState.session[mode] | 0,
+            runningTotalScore: scoreState.lifetime.total | 0,
+            streakOrCombo: {
+              classicCombo: scoreState.meta.classicComboCount | 0,
+              popCadence: scoreState.meta.popCadence | 0,
+              collectStreak: scoreState.meta.collectStreak | 0,
+            }
+          }
+        }));
+      } catch (_) {}
     }
     function applyCustomBaseFromBundle() {
       const u = (getBundle().ui) || {};
@@ -4026,7 +4162,8 @@
     }
     async function applyRepoTabReset(tab) {
       const repo = await loadRepoDefaults();
-      if (!repo) { try { alert('Defaults not available.'); } catch (_) {} return false; }
+      if (!repo) { try { alert('Defaults not available.'); } catch (_) {} return; }
+      if (!window.confirm('Reset ' + String(tab).toUpperCase() + ' tab to shipped defaults in this browser?')) return;
       const t = String(tab).toLowerCase();
       if (t === 'rb' && repo.rb) {
         const rbr = { ...repo.rb, interactionMode: (repo.rb.interactionMode) || 'classic' };
@@ -4037,7 +4174,7 @@
         u.rbInteractionMode = (repo.ui && repo.ui.rbInteractionMode) || rbr.interactionMode || 'classic';
         applyUiSnapshot(u);
         if (window.__errlApplyRbBundle) window.__errlApplyRbBundle(getBundle().rb);
-        return true;
+        return;
       }
       if (t === 'glb' && repo.gl && repo.gl.bubbles) {
         updateBundle((B) => {
@@ -4045,7 +4182,7 @@
           B.gl.bubbles = { ...repo.gl.bubbles };
         });
         applyUiSnapshot({ bgSpeed: repo.ui.bgSpeed, bgDensity: repo.ui.bgDensity, glAlpha: repo.ui.glAlpha });
-        return true;
+        return;
       }
       if (t === 'bg') {
         applyUiSnapshot({
@@ -4057,7 +4194,7 @@
         });
         updateBundle((B) => { B.ui = B.ui || {}; delete B.ui.customBaseDataUrl; });
         applyCustomBaseFromBundle();
-        return true;
+        return;
       }
       if (t === 'errl' && repo.goo) {
         updateBundle((B) => { B.goo = JSON.parse(JSON.stringify(repo.goo)); });
@@ -4074,7 +4211,7 @@
           classicGooAutoSpeed: repo.ui.classicGooAutoSpeed,
           classicGooMouseReact: repo.ui.classicGooMouseReact
         });
-        return true;
+        return;
       }
       if (t === 'nav' && repo.ui) {
         if (repo.nav) updateBundle((B) => { B.nav = deepMerge(B.nav || { goo: {} }, repo.nav); });
@@ -4084,7 +4221,7 @@
           navDrip: repo.ui.navDrip, navVisc: repo.ui.navVisc, glOrbsToggle: repo.ui.glOrbsToggle
         });
         if (window.__errlRefreshNavSkins) window.__errlRefreshNavSkins();
-        return true;
+        return;
       }
       if (t === 'hue' && repo.hue) {
         updateBundle((B) => { B.hue = JSON.parse(JSON.stringify(repo.hue)); });
@@ -4093,157 +4230,133 @@
           hueEnabled: repo.ui.hueEnabled, hueShift: repo.ui.hueShift, hueSat: repo.ui.hueSat,
           hueInt: repo.ui.hueInt, hueTimeline: repo.ui.hueTimeline, hueTarget: repo.ui.hueTarget
         });
-        return true;
+        return;
       }
       if (t === 'hud' && repo.ui) {
         applyUiSnapshot({
           audioEnabled: repo.ui.audioEnabled, audioMaster: repo.ui.audioMaster, audioBass: repo.ui.audioBass,
           prefReduce: repo.ui.prefReduce, prefContrast: repo.ui.prefContrast, prefInvert: repo.ui.prefInvert
         });
-        return true;
+        return;
       }
       if (t === 'dev' && repo.ui) {
         applyUiSnapshot({ portalShowDesignNav: repo.ui.portalShowDesignNav });
-        return true;
+        return;
       }
-      return false;
     }
-    let rbScores = writeModeScores(readModeScores());
-    let rbHigh = writeModeHigh(readModeHigh());
-    function getCurrentRbMode() {
-      const m = document.getElementById('rbInteractionMode');
-      return (m && m.value) || 'classic';
-    }
-    function isRbTabActive() {
-      const panel = document.getElementById('errlPanel');
-      return panel && panel.getAttribute('data-active-tab') === 'rb';
-    }
-    function recomputeScores() {
-      rbScores.total = Math.max(0, (rbScores.classic | 0) + (rbScores.pop | 0) + (rbScores.collect | 0));
-      rbScores = writeModeScores(rbScores);
-      rbHigh = writeModeHigh(rbHigh);
-    }
-    function syncRbResetButtonLabel() {
-      const rbResetBtn = document.getElementById('rbCollectResetBtn');
-      if (!rbResetBtn) return;
-      const mode = getCurrentRbMode();
-      const modeLabel = mode === 'pop' ? 'Pop' : (mode === 'collect' ? 'Collect' : 'Classic');
-      rbResetBtn.textContent = 'Reset ' + modeLabel + ' score';
-      rbResetBtn.setAttribute('title', 'Reset ' + modeLabel + ' score only');
-    }
-    function renderRbScoreHud() {
-      const mode = getCurrentRbMode();
-      const on = isRbTabActive();
-      const w = document.getElementById('rbCollectScoreWrap');
-      const s = document.getElementById('rbCollectScore');
-      const h = document.getElementById('rbCollectHigh');
-      const total = document.getElementById('rbOverallScore');
-      const label = w ? w.querySelector('.rb-collect-score__row--top .rb-collect-score__label') : null;
-      if (w) w.hidden = !on;
-      if (!on) return;
-      const modeScore = Math.max(0, rbScores[mode] | 0);
-      if (s) s.textContent = String(modeScore);
-      if (total) total.textContent = String(Math.max(0, rbScores.total | 0));
-      if (label) label.textContent = (mode === 'pop' ? 'Pop' : (mode === 'collect' ? 'Collect' : 'Classic')) + ' score';
-      const hi = Math.max(0, rbHigh[mode] | 0);
-      if (h) h.textContent = hi ? (' (best ' + hi + ')') : '';
-    }
+    let collectRawPrev = 0;
+    let lastClassicSig = '';
+    let lastClassicAt = 0;
+    const popCadenceTimes = [];
     window.addEventListener('errl:rb-collect-score', (ev) => {
       const d = ev && ev.detail ? ev.detail : {};
-      const sc = Math.max(0, (d.score | 0));
-      rbScores.collect = sc;
-      if (sc > (rbHigh.collect | 0)) rbHigh.collect = sc;
-      recomputeScores();
-      renderRbScoreHud();
+      const score = Math.max(0, d.score | 0);
+      if (score < collectRawPrev) {
+        collectRawPrev = score;
+        scoreState.meta.collectStreak = 0;
+        scoreState.meta.collectLastAt = 0;
+        renderScoreHud();
+        return;
+      }
+      const delta = score - collectRawPrev;
+      if (delta <= 0) return;
+      collectRawPrev = score;
+      const t = nowMs();
+      const gap = t - (scoreState.meta.collectLastAt || 0);
+      scoreState.meta.collectStreak = (gap > 1800) ? delta : ((scoreState.meta.collectStreak | 0) + delta);
+      scoreState.meta.collectLastAt = t;
+      const mult = 1 + Math.min(1.6, Math.max(0, ((scoreState.meta.collectStreak | 0) - 1) * 0.08));
+      applyScoreEvent({ mode: 'collect', eventType: 'collectSweep', basePoints: delta, multiplier: mult });
     });
-    window.addEventListener('errl:rb-pop', () => {
-      rbScores.pop = Math.max(0, (rbScores.pop | 0) + 1);
-      if ((rbScores.pop | 0) > (rbHigh.pop | 0)) rbHigh.pop = rbScores.pop | 0;
-      recomputeScores();
-      renderRbScoreHud();
+    window.addEventListener('errl:rb-pop', (ev) => {
+      const t = nowMs();
+      popCadenceTimes.push(t);
+      while (popCadenceTimes.length && (t - popCadenceTimes[0]) > 6000) popCadenceTimes.shift();
+      scoreState.meta.popCadence = popCadenceTimes.length;
+      const mult = 1 + Math.min(1.5, Math.max(0, (scoreState.meta.popCadence - 1) * 0.12));
+      const d = ev && ev.detail ? ev.detail : {};
+      applyScoreEvent({ mode: 'pop', eventType: 'pop', basePoints: 1, multiplier: mult, t: d.t || t });
+    });
+    window.addEventListener('errl:rb-classic-flick', (ev) => {
+      const d = ev && ev.detail ? ev.detail : {};
+      const power = Math.max(0, Number(d.throwPower || 0));
+      const sig = 'flick:' + power.toFixed(3) + ':' + Number(d.t || 0).toFixed(3);
+      const t = nowMs();
+      if (sig === lastClassicSig && (t - lastClassicAt) < 120) return;
+      lastClassicSig = sig;
+      lastClassicAt = t;
+      applyScoreEvent({
+        mode: 'classic',
+        eventType: 'flickHit',
+        basePoints: 2,
+        multiplier: 1 + Math.min(0.5, power * 0.5),
+      });
+    });
+    window.addEventListener('errl:rb-classic-throw', (ev) => {
+      const d = ev && ev.detail ? ev.detail : {};
+      const power = Math.max(0, Number(d.throwPower || 0));
+      const t = Number(d.t || nowMs());
+      const sig = 'throw:' + String(d.throwKind || 'grab') + ':' + power.toFixed(3) + ':' + t.toFixed(3);
+      if (sig === lastClassicSig && Math.abs(t - lastClassicAt) < 0.12) return;
+      lastClassicSig = sig;
+      lastClassicAt = t;
+      const comboWindowMs = 4000;
+      const sinceCombo = nowMs() - (scoreState.meta.classicComboAt || 0);
+      scoreState.meta.classicComboCount = (sinceCombo <= comboWindowMs)
+        ? ((scoreState.meta.classicComboCount | 0) + 1)
+        : 1;
+      scoreState.meta.classicComboAt = nowMs();
+      const comboMult = 1 + Math.min(1.5, Math.max(0, ((scoreState.meta.classicComboCount | 0) - 1) * 0.22));
+      const powerMult = Math.min(0.6, power * 0.5);
+      const base = d.throwKind === 'flick' ? 4 : 6;
+      applyScoreEvent({ mode: 'classic', eventType: 'offscreenThrow', basePoints: base, multiplier: comboMult + powerMult });
+    });
+    window.addEventListener('errl:rb-score-event', (ev) => {
+      const d = ev && ev.detail ? ev.detail : {};
+      if (!d || !d.mode) return;
+      if (d.runningModeScore !== undefined && d.runningTotalScore !== undefined) return;
+      applyScoreEvent(d);
     });
     const uBtn = document.getElementById('settingsUndoBtn');
     const rBtn = document.getElementById('settingsRedoBtn');
     if (uBtn) uBtn.addEventListener('click', () => { if (window.__errlSettingsUndo) window.__errlSettingsUndo(); });
     if (rBtn) rBtn.addEventListener('click', () => { if (window.__errlSettingsRedo) window.__errlSettingsRedo(); });
-    const tabResetBtn = document.getElementById('settingsTabResetBtn');
-    const tabResetWarning = document.getElementById('settingsTabResetWarning');
-    let resetArmTimer = null;
-    let resetArmedTab = '';
-    function currentActiveTab() {
-      const panel = document.getElementById('errlPanel');
-      return (panel && panel.getAttribute('data-active-tab')) || 'hud';
-    }
-    function labelForTab(tab) {
-      return TAB_RESET_LABELS[tab] || String(tab || '').toUpperCase();
-    }
-    function disarmTabReset(message) {
-      if (resetArmTimer) {
-        clearTimeout(resetArmTimer);
-        resetArmTimer = null;
-      }
-      resetArmedTab = '';
-      if (!tabResetBtn) return;
-      const active = currentActiveTab();
-      tabResetBtn.dataset.state = 'idle';
-      tabResetBtn.textContent = 'Reset ' + labelForTab(active);
-      if (tabResetWarning) {
-        tabResetWarning.hidden = !message;
-        tabResetWarning.textContent = message || 'This resets only the active tab in this browser.';
-      }
-    }
-    function armTabReset(tab) {
-      if (!tabResetBtn) return;
-      resetArmedTab = tab;
-      tabResetBtn.dataset.state = 'armed';
-      tabResetBtn.textContent = 'Confirm reset ' + labelForTab(tab);
-      if (tabResetWarning) {
-        tabResetWarning.hidden = false;
-        tabResetWarning.textContent = 'Warning: only ' + labelForTab(tab) + ' settings will be reset.';
-      }
-      resetArmTimer = setTimeout(() => disarmTabReset(), RESET_ARM_MS);
-    }
-    if (tabResetBtn) {
-      disarmTabReset();
-      tabResetBtn.addEventListener('click', async () => {
-        const active = currentActiveTab();
-        if (!resetArmedTab || resetArmedTab !== active) return armTabReset(active);
-        tabResetBtn.disabled = true;
-        const ok = await applyRepoTabReset(active);
-        tabResetBtn.disabled = false;
-        disarmTabReset(ok ? (labelForTab(active) + ' tab reset complete.') : 'Reset failed.');
-      });
-      tabResetBtn.addEventListener('blur', () => { if (resetArmedTab) disarmTabReset(); });
-    }
     const rbReset = document.getElementById('rbCollectResetBtn');
     if (rbReset) {
       rbReset.addEventListener('click', () => {
-        const mode = getCurrentRbMode();
-        if (mode === 'collect') {
-          const R = window.errlRisingBubblesThree;
-          if (R && typeof R.setCollectScore === 'function') R.setCollectScore(0);
-          return;
+        const current = getCurrentMode();
+        scoreState.session[current] = 0;
+        if (current === 'classic') {
+          scoreState.meta.classicComboCount = 0;
+          scoreState.meta.classicComboAt = 0;
+        } else if (current === 'pop') {
+          scoreState.meta.popCadence = 0;
+          popCadenceTimes.length = 0;
+        } else {
+          scoreState.meta.collectStreak = 0;
+          scoreState.meta.collectLastAt = 0;
+          collectRawPrev = 0;
         }
-        rbScores[mode] = 0;
-        recomputeScores();
-        renderRbScoreHud();
+        recomputeTotals(scoreState);
+        scheduleScorePersist();
+        renderScoreHud();
+        const R = window.errlRisingBubblesThree;
+        if (current === 'collect' && R && typeof R.setCollectScore === 'function') R.setCollectScore(0);
       });
     }
-    const modeSelectEl = document.getElementById('rbInteractionMode');
-    if (modeSelectEl) modeSelectEl.addEventListener('change', () => {
-      syncRbResetButtonLabel();
-      renderRbScoreHud();
+    const modeEl = document.getElementById('rbInteractionMode');
+    if (modeEl) modeEl.addEventListener('change', () => {
+      const label = getCurrentMode() === 'collect' ? 'Reset Collect score'
+        : (getCurrentMode() === 'pop' ? 'Reset Pop score' : 'Reset Classic score');
+      rbReset && (rbReset.textContent = label);
+      renderScoreHud();
     });
-    const panelForObserver = document.getElementById('errlPanel');
-    if (panelForObserver && window.MutationObserver) {
-      const observer = new MutationObserver(() => {
-        disarmTabReset();
-        renderRbScoreHud();
-      });
-      observer.observe(panelForObserver, { attributes: true, attributeFilter: ['data-active-tab'] });
+    const panelEl = document.getElementById('errlPanel');
+    if (panelEl && window.MutationObserver) {
+      const observer = new MutationObserver(() => { renderScoreHud(); });
+      observer.observe(panelEl, { attributes: true, attributeFilter: ['data-active-tab'] });
     }
-    syncRbResetButtonLabel();
-    renderRbScoreHud();
+    renderScoreHud();
     const up = document.getElementById('errlCustomBaseUpload');
     if (up) {
       on(up, 'change', (e) => {

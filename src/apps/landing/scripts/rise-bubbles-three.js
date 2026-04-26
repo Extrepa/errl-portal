@@ -538,6 +538,7 @@
             x: bubble.position.x,
             y: bubble.position.y,
             popCount,
+            t: lastElapsedTime,
             clientX: cx,
             clientY: cy
           }
@@ -711,7 +712,10 @@
             b.userData.isGrabbed = false;
             // Mark "thrown" briefly so upward clamp doesn't prevent downward throws.
             b.userData.isThrown = true;
+            b.userData.throwKind = 'grab';
             b.userData.thrownAt = lastElapsedTime;
+            b.userData.throwPower = Math.hypot(imp.ix, imp.iy);
+            b.userData.throwScoreEmitted = false;
             if (!b.userData.impulse) b.userData.impulse = new T.Vector3(0, 0, 0);
             b.userData.impulse.x += imp.ix * 0.9;
             b.userData.impulse.y += imp.iy * 0.9;
@@ -763,10 +767,22 @@
               try {
                 b.userData = b.userData || {};
                 b.userData.isThrown = true;
+                b.userData.throwKind = 'flick';
                 b.userData.thrownAt = lastElapsedTime;
+                b.userData.throwPower = Math.hypot(imp.ix, imp.iy);
+                b.userData.throwScoreEmitted = false;
                 if (!b.userData.impulse) b.userData.impulse = new T.Vector3(0, 0, 0);
                 b.userData.impulse.x += imp.ix * 0.8;
                 b.userData.impulse.y += imp.iy * 0.8;
+                if (controls.interactionMode === 'classic') {
+                  window.dispatchEvent(new CustomEvent('errl:rb-classic-flick', {
+                    detail: {
+                      t: lastElapsedTime,
+                      throwKind: 'flick',
+                      throwPower: Math.max(0, b.userData.throwPower || 0),
+                    }
+                  }));
+                }
               } catch(_) {}
             }
           }
@@ -959,12 +975,37 @@
         const outX = Math.abs(bubble.position.x) > (bnd.halfW * 1.25);
         const outY = bubble.position.y > (bnd.halfH * 1.35) || bubble.position.y < (-bnd.halfH * 1.35);
         if (bubble.position.y > 30 || outX || outY) {
+          const wasThrown = !!(bubble.userData && bubble.userData.isThrown);
+          const justThrown = wasThrown && (elapsedTime - safeNum(bubble.userData.thrownAt, 0)) < 2.5;
+          const offscreen = outX || outY;
+          if (
+            controls.interactionMode === 'classic' &&
+            offscreen &&
+            justThrown &&
+            bubble.userData &&
+            !bubble.userData.throwScoreEmitted
+          ) {
+            bubble.userData.throwScoreEmitted = true;
+            try {
+              window.dispatchEvent(new CustomEvent('errl:rb-classic-throw', {
+                detail: {
+                  t: elapsedTime,
+                  throwKind: bubble.userData.throwKind || 'grab',
+                  throwPower: Math.max(0, bubble.userData.throwPower || 0),
+                  offscreen: true
+                }
+              }));
+            } catch (_) {}
+          }
           resetBubble(bubble, index);
           refreshBubbleBaseScale(bubble, { reroll: true });
           try {
             bubble.userData.isThrown = false;
             bubble.userData.thrownAt = 0;
             bubble.userData.isGrabbed = false;
+            bubble.userData.throwKind = '';
+            bubble.userData.throwPower = 0;
+            bubble.userData.throwScoreEmitted = false;
           } catch(_) {}
         }
       });
