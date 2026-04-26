@@ -387,13 +387,21 @@
         const dy = s.y - py;
         const d = Math.hypot(dx, dy) + 4;
         const f = (strength * 140) / Math.pow(d, 0.55) * (onFar ? 1.25 : 0.7);
-        if (!s.userData) s.userData = {} as any;
-        const uu = s.userData as any;
+        const uu = s as any;
         uu.burstVX = (uu.burstVX || 0) + (dx / d) * f;
         uu.burstVY = (uu.burstVY || 0) + (dy / d) * f;
         n += 1;
       }
       return n;
+    }
+    hasBurstVelocity(minMagnitude: number = 0.05) {
+      const floor = Math.max(0, minMagnitude || 0);
+      for (const s of this.sprites) {
+        if (!s) continue;
+        const u = s as any;
+        if (Math.hypot(u.burstVX || 0, u.burstVY || 0) >= floor) return true;
+      }
+      return false;
     }
     pause() {
       this._running = false;

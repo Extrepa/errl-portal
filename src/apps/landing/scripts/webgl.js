@@ -700,12 +700,17 @@
     const w = (x != null && isFinite(x)) ? x : (W.innerWidth * 0.5);
     const h = (y != null && isFinite(y)) ? y : (W.innerHeight * 0.5);
     let n = 0;
+    let hasAppliedVelocity = false;
     if (bubblesFXLayers) {
       bubblesFXLayers.forEach((L) => {
-        if (L && typeof L.burstAt === 'function') n += (L.burstAt(w, h, { strength: 1.15 }) | 0);
+        if (!L) return;
+        if (typeof L.burstAt === 'function') n += (L.burstAt(w, h, { strength: 1.15 }) | 0);
+        if (typeof L.hasBurstVelocity === 'function' && L.hasBurstVelocity(0.05)) {
+          hasAppliedVelocity = true;
+        }
       });
     }
-    if (n > 0) return;
+    if (n > 0 && hasAppliedVelocity) return;
     // Fallback: legacy additive burst if Bubbles layer missing
     const c = (count != null && isFinite(count)) ? Math.max(1, Math.min(5000, count|0)) : 200;
     if (!particles) {

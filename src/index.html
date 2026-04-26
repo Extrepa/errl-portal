@@ -335,6 +335,13 @@
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
         <span title="Drives the multi-layer WebGL background bubbles behind the scene. Requires the WebGL layer. Hue tab Target: Particles tints this layer. Randomize re-rolls the three sliders.">Deep background particle layers (WebGL) behind the scene&mdash;separate from the Rising Bubbles (RB) canvas. <strong>Speed</strong> = travel; <strong>Density</strong> = more/fewer dots; <strong>Alpha</strong> = how visible. Use the Hue tab with Target &quot;Particles&quot; to recolor. <strong>Randomize</strong> re-rolls all three; WebGL can take a second to spin up the first time.</span>
       </div>
+      <div class="sectionLabel" title="Quick particle interactions">Burst</div>
+      <div class="sliderRow" style="font-size:9px; line-height:1.35; min-width:0; flex-wrap:wrap;">
+        <span class="errl-noclip" title="Burst nudges the small GL background field where available; otherwise a short WebGL ring.">Short impulse on the <strong>GL background</strong> bubbles. Uses WebGL.</span>
+      </div>
+      <button id="burstBtn" type="button" class="errl-burst-btn" title="GL background bubble kick (ErrlFX). Needs WebGL.">Burst</button>
+      <div id="errlGlHint" class="errl-gl-hint" role="status" aria-live="polite" hidden></div>
+      <div class="sectionDivider"></div>
       <div class="sliderRow">
         <label for="bgSpeed" title="How fast the GPU bubble layer moves">Speed</label>
         <input type="range" min="0" max="3" step="0.01" value="0.9" id="bgSpeed" title="Particle speed">
@@ -478,12 +485,6 @@
         <input type="range" id="errlPhonePanelSize" min="0" max="2" step="1" value="1" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-label="Control phone size: small, medium, or large" title="S (compact) M (default) L (larger)">
         <span id="errlPhonePanelSizeLabel" class="errl-phone-size-label" aria-hidden="true">M</span>
       </div>
-      <div class="sectionLabel" title="Quick particle interactions">Particles</div>
-      <div class="sliderRow" style="font-size:9px; line-height:1.35; min-width:0; flex-wrap:wrap;">
-        <span class="errl-noclip" title="Burst nudges the small GL background field (GLB tab) where available; otherwise a short WebGL ring.">Short impulse on the <strong>GL background</strong> bubbles. Uses WebGL. Adjust GL Particles (GLB) for density/alpha.</span>
-      </div>
-      <button id="burstBtn" type="button" class="errl-burst-btn" title="GL background bubble kick (ErrlFX). Needs WebGL.">Burst</button>
-      <div id="errlGlHint" class="errl-gl-hint" role="status" aria-live="polite" hidden></div>
       <div class="sectionDivider"></div>
       <div class="sliderRow" style="font-size:9px; min-width:0; flex-wrap:wrap;">
         <label class="hud-preset-gate__label errl-noclip"><input type="checkbox" id="hudUnlockPresetScenes" style="width:auto" /> <span>Enable Preset Scenes (changes multiple systems&mdash;confirm on apply. Undo/Redo below.)</span></label>

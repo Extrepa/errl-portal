@@ -1,4 +1,4 @@
-## 2026-04-26 Cursor Notes
+## Cursor Notes - 2026-04-26
 
 - Implemented Rising Bubbles multi-mode scoring reducer with normalized score events.
 - Added local-first score persistence in `errl_rb_score_state_v3` with migration from legacy score keys.
@@ -15,3 +15,7 @@
 - Verification pass:
   - `npm test -- tests/errl-phone-controls.spec.ts -g "RB interaction mode is mutually exclusive|RB scoring reducer aggregates per-mode and lifetime totals|RB score state persists and migrates from legacy keys|Pop mode exposes pop interaction in RB engine"`
   - `npm test -- tests/errl-phone-controls.spec.ts -g "RB scoring reducer aggregates per-mode and lifetime totals|RB interaction mode is mutually exclusive"`
+- Moved the `Burst` control (`#burstBtn`) and WebGL status hint (`#errlGlHint`) from HUD to the GL Particles tab in `src/index.html`.
+- Fixed GL burst rollout regression in `src/apps/landing/fx/bubbles-pixi.ts` by writing burst impulse to sprite fields consumed by `_advance()` (`burstVX`/`burstVY`), restoring visible radial motion.
+- Added a resilience fallback in `src/apps/landing/scripts/webgl.js`: `errlGLBurst` now falls back to legacy `spawnBurstGL(...)` unless layer bursts report active applied burst velocity.
+- Verified there is a single `#burstBtn` and `#errlGlHint` in markup, and lint checks are clean for all touched files.
