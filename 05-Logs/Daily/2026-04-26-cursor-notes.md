@@ -22,3 +22,4 @@
 - Fixed Classic throw score reliability in `src/apps/landing/scripts/rise-bubbles-three.js` by extending off-screen throw eligibility timing so legit throws can register points before reset.
 - Restored footer mini tab reset behavior by binding `[data-tab-reset]` controls to `applyRepoTabReset(...)` in `src/apps/landing/scripts/portal-app.js`, with an in-flight guard to prevent reset races.
 - Verification pass: `npm run portal:build` completed successfully.
+- Classic Throw: added full-viewport goal rim `#rbClassicGoalFrame` (CSS + `body.rb-classic-goal-edges` toggle from `rise-bubbles-three.js` `setInteractionMode`), off-screen throw flash `rb-classic-goal-flash`, reduced-motion dimming, Playwright test `@controls Classic Throw goal frame is visible only in classic mode`.

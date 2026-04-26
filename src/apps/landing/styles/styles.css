@@ -216,6 +216,47 @@ a { color: inherit; text-decoration: none; }
   background: transparent;
 }
 
+/* Classic Throw: off-screen “goal” rim (Rising Bubbles mode only) */
+.rb-classic-goal-frame {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  z-index: 4; /* above L2/L3; below phone panel and modals */
+  pointer-events: none;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 240, 200, 0.35);
+  box-shadow:
+    0 0 18px rgba(0, 220, 200, 0.22) inset,
+    0 0 28px rgba(120, 200, 255, 0.12);
+  background: transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+body.rb-classic-goal-edges .rb-classic-goal-frame {
+  opacity: 1;
+  visibility: visible;
+}
+body.rb-classic-goal-edges .rb-classic-goal-frame.rb-classic-goal-flash,
+.rb-classic-goal-frame.rb-classic-goal-flash {
+  box-shadow:
+    0 0 26px rgba(0, 255, 220, 0.45) inset,
+    0 0 40px rgba(100, 220, 255, 0.35);
+  border-color: rgba(180, 255, 255, 0.65);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rb-classic-goal-frame {
+    transition: none;
+  }
+  body.rb-classic-goal-edges .rb-classic-goal-frame {
+    box-shadow: 0 0 8px rgba(0, 200, 180, 0.15) inset;
+    border-color: rgba(0, 200, 180, 0.22);
+  }
+}
+
 /* Rare, subtle “shooting” highlight — disabled when user prefers less motion */
 .errl-idle-streak {
   position: fixed;

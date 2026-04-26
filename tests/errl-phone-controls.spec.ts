@@ -445,6 +445,27 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(attract).not.toBeChecked();
   });
 
+  test('@controls Classic Throw goal frame is visible only in classic mode', async ({ page }) => {
+    await openPhoneTab(page, 'rb');
+    const mode = page.locator('#rbInteractionMode');
+    const goal = page.locator('#rbClassicGoalFrame');
+    await expect(goal).toBeAttached();
+
+    await mode.selectOption('classic', { force: true });
+    await expect(page.locator('body')).toHaveClass(/rb-classic-goal-edges/);
+    await expect(goal).toBeVisible();
+
+    await mode.selectOption('pop', { force: true });
+    await expect(page.locator('body')).not.toHaveClass(/rb-classic-goal-edges/);
+    await expect(goal).toBeHidden();
+
+    await mode.selectOption('collect', { force: true });
+    await expect(page.locator('body')).not.toHaveClass(/rb-classic-goal-edges/);
+
+    await mode.selectOption('classic', { force: true });
+    await expect(page.locator('body')).toHaveClass(/rb-classic-goal-edges/);
+  });
+
   test('@controls RB scoring reducer aggregates per-mode and lifetime totals', async ({ page }) => {
     await openPhoneTab(page, 'rb');
     await expect(page.locator('#rbCollectScoreWrap')).toBeVisible();

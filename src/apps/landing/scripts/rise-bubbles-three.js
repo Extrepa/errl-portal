@@ -997,6 +997,7 @@
                 }
               }));
             } catch (_) {}
+            flashClassicGoalFrame();
           }
           resetBubble(bubble, index);
           refreshBubbleBaseScale(bubble, { reroll: true });
@@ -1023,6 +1024,26 @@
 
     window.addEventListener('resize', onWindowResize);
     animate();
+
+    function syncClassicGoalEdges() {
+      try {
+        const body = document.body;
+        if (!body) return;
+        if (controls.interactionMode === 'classic') body.classList.add('rb-classic-goal-edges');
+        else body.classList.remove('rb-classic-goal-edges');
+      } catch (_) {}
+    }
+    function flashClassicGoalFrame() {
+      const el = document.getElementById('rbClassicGoalFrame');
+      if (!el) return;
+      try {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      } catch (_) {}
+      el.classList.add('rb-classic-goal-flash');
+      window.setTimeout(() => {
+        try { el.classList.remove('rb-classic-goal-flash'); } catch (_) {}
+      }, 180);
+    }
 
     // Expose control interface
     window.errlRisingBubblesThree = {
@@ -1092,6 +1113,7 @@
         else controls.interactionMode = 'classic';
         updateBubbleVisibility();
         emitCollectScore();
+        syncClassicGoalEdges();
       },
       getCollectScore() {
         return collectScore;
@@ -1127,6 +1149,7 @@
         // no-op (animation is always running; controls affect motion)
       }
     };
+    syncClassicGoalEdges();
   }).catch(err => {
     console.error('[rise-bubbles-three] Failed to load Three.js:', err);
     // Fallback: keep canvas but hide it
