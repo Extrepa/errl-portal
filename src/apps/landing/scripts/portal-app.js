@@ -2092,8 +2092,8 @@
           rippleIntensity.value = '1.2';
           withRB((RB)=> RB.setRippleIntensity && RB.setRippleIntensity(rippleIntensity.value));
         }
-        setModeStatus('Pop Mode: tap bubbles on canvas to pop. Attract is disabled to avoid overload.');
-        if (modeLegend) modeLegend.textContent = 'Pop = tap a bubble on the #riseBubbles canvas to pop it (audio + light feedback).';
+        setModeStatus('Pop Mode: tap bubbles quickly to build speed bonus.');
+        if (modeLegend) modeLegend.textContent = 'Pop rewards fast cadence; idle gaps decay your bonus.';
       } else if (isCollect) {
         if (attract) {
           attract.checked = false;
@@ -2103,17 +2103,16 @@
           ripples.checked = false;
           withRB((RB)=> RB.setRipples && RB.setRipples(false));
         }
-        withRB((RB)=> { if (typeof RB.setCollectScore === 'function') RB.setCollectScore(0); });
-        setModeStatus('Collect: move over bubbles on the #riseBubbles canvas to score. Grab/throw disabled.');
-        if (modeLegend) modeLegend.textContent = 'Collect = pointer/finger sweeps; higher max bubble count. Reset score when leaving this mode or use Reset score below.';
+        setModeStatus('Collect: sweep bubbles to keep your streak alive.');
+        if (modeLegend) modeLegend.textContent = 'Collect rewards uninterrupted sweeps with a streak multiplier.';
       } else {
         if (ripples) {
           ripples.checked = false;
           withRB((RB)=> RB.setRipples && RB.setRipples(false));
         }
         withRB((RB)=> { if (RB.setAttract) RB.setAttract(!!attract?.checked); });
-        setModeStatus('Classic Throw: drag/flick controls are prioritized.');
-        if (modeLegend) modeLegend.textContent = 'Classic = grab and throw bubbles, or flick near one to kick it.';
+        setModeStatus('Classic Throw: off-screen throws and combo chains score.');
+        if (modeLegend) modeLegend.textContent = 'Classic rewards off-screen throws, flick hits, and short combo chains.';
       }
       syncInteractionLocks();
       if (persist) persistRB();
@@ -3422,6 +3421,7 @@
         const activeTab = tabButtons.find((btn) => btn.getAttribute('data-tab') === key);
         if (activeTab) tabSections[0].setAttribute('aria-labelledby', activeTab.id);
       }
+      try { panel.setAttribute('data-active-tab', key); } catch (_) {}
       if (contentWrapper) {
         contentWrapper.scrollTop = 0;
         try { contentWrapper.scrollTo({ top: 0, behavior: 'auto' }); } catch (_) { contentWrapper.scrollTop = 0; }
@@ -3964,12 +3964,172 @@
   })();
 
   (function errlSettingsChromeAndResets(){
-    const COLLECT_HI = 'errl_rb_collect_high_v1';
-    function readHi(){
-      try { return parseInt(localStorage.getItem(COLLECT_HI) || '0', 10) || 0; } catch (_) { return 0; }
+    const SCORE_STATE_KEY = 'errl_rb_score_state_v3';
+    const LEGACY_MODE_KEY = 'errl_rb_mode_scores_v2';
+    const LEGACY_HI_KEY = 'errl_rb_mode_high_v2';
+    const LEGACY_COLLECT_HI = 'errl_rb_collect_high_v1';
+    const SCORE_MODES = ['classic', 'pop', 'collect'];
+    function nowMs() {
+      return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     }
-    function writeHi(n) {
-      try { localStorage.setItem(COLLECT_HI, String(Math.max(0, n | 0))); } catch (_) {}
+    function emptyBuckets() {
+      return { classic: 0, pop: 0, collect: 0, total: 0 };
+    }
+    function makeDefaultScoreState() {
+      return {
+        version: 3,
+        lifetime: emptyBuckets(),
+        session: emptyBuckets(),
+        high: { classic: 0, pop: 0, collect: 0 },
+        meta: { classicComboCount: 0, classicComboAt: 0, popCadence: 0, collectStreak: 0, collectLastAt: 0 }
+      };
+    }
+    function normalizeBuckets(obj) {
+      const src = obj || {};
+      return {
+        classic: Math.max(0, src.classic | 0),
+        pop: Math.max(0, src.pop | 0),
+        collect: Math.max(0, src.collect | 0),
+        total: 0,
+      };
+    }
+    function normalizeHigh(obj) {
+      const src = obj || {};
+      return {
+        classic: Math.max(0, src.classic | 0),
+        pop: Math.max(0, src.pop | 0),
+        collect: Math.max(0, src.collect | 0),
+      };
+    }
+    function recomputeTotals(state) {
+      state.session.total = Math.max(0, (state.session.classic | 0) + (state.session.pop | 0) + (state.session.collect | 0));
+      state.lifetime.total = Math.max(0, (state.lifetime.classic | 0) + (state.lifetime.pop | 0) + (state.lifetime.collect | 0));
+      return state;
+    }
+    function migrateScoreState(raw) {
+      if (raw && raw.version === 3) {
+        const state = makeDefaultScoreState();
+        state.lifetime = normalizeBuckets(raw.lifetime);
+        state.session = normalizeBuckets(raw.session);
+        state.high = normalizeHigh(raw.high);
+        state.meta = { ...state.meta, ...(raw.meta || {}) };
+        return recomputeTotals(state);
+      }
+      const state = makeDefaultScoreState();
+      try {
+        const legacyMode = JSON.parse(localStorage.getItem(LEGACY_MODE_KEY) || '{}');
+        const legacyHigh = JSON.parse(localStorage.getItem(LEGACY_HI_KEY) || '{}');
+        const legacyCollectHi = parseInt(localStorage.getItem(LEGACY_COLLECT_HI) || '0', 10) || 0;
+        state.lifetime = normalizeBuckets(legacyMode);
+        state.session = normalizeBuckets(legacyMode);
+        state.high = normalizeHigh({ ...legacyHigh, collect: Math.max(legacyCollectHi, legacyHigh.collect || 0) });
+      } catch (_) {}
+      return recomputeTotals(state);
+    }
+    function createScoreStore() {
+      return {
+        loadScores() {
+          try {
+            const raw = localStorage.getItem(SCORE_STATE_KEY);
+            return migrateScoreState(raw ? JSON.parse(raw) : null);
+          } catch (_) {
+            return migrateScoreState(null);
+          }
+        },
+        saveScores(snapshot) {
+          try { localStorage.setItem(SCORE_STATE_KEY, JSON.stringify(snapshot)); } catch (_) {}
+        }
+      };
+    }
+    const scoreStore = createScoreStore();
+    let scoreState = scoreStore.loadScores();
+    let persistTimer = null;
+    function scheduleScorePersist() {
+      if (persistTimer) clearTimeout(persistTimer);
+      persistTimer = setTimeout(() => {
+        persistTimer = null;
+        scoreStore.saveScores(scoreState);
+      }, 120);
+    }
+    function clampScoreMode(mode) {
+      return SCORE_MODES.includes(mode) ? mode : 'classic';
+    }
+    function getCurrentMode() {
+      const m = document.getElementById('rbInteractionMode');
+      return clampScoreMode((m && m.value) || 'classic');
+    }
+    function isRbTabActive() {
+      const panel = document.getElementById('errlPanel');
+      return panel && panel.getAttribute('data-active-tab') === 'rb';
+    }
+    function renderScoreHud() {
+      const MODE_HUD_LABELS = {
+        classic: 'Classic Throw',
+        pop: 'Pop',
+        collect: 'Collect',
+      };
+      const wrap = document.getElementById('rbCollectScoreWrap');
+      const scoreEl = document.getElementById('rbCollectScore');
+      const totalEl = document.getElementById('rbOverallScore');
+      const highEl = document.getElementById('rbCollectHigh');
+      const badgeEl = document.getElementById('rbScoreBadge');
+      const modeLabelEl = wrap ? wrap.querySelector('.rb-collect-score__row--top .rb-collect-score__label') : null;
+      const mode = getCurrentMode();
+      if (wrap) {
+        wrap.hidden = !isRbTabActive();
+        wrap.setAttribute('data-mode', mode);
+      }
+      if (!isRbTabActive()) return;
+      const modeScore = Math.max(0, scoreState.session[mode] | 0);
+      const modeHigh = Math.max(0, scoreState.high[mode] | 0);
+      if (modeLabelEl) modeLabelEl.textContent = MODE_HUD_LABELS[mode] || 'Classic Throw';
+      if (scoreEl) scoreEl.textContent = String(modeScore);
+      if (totalEl) totalEl.textContent = String(Math.max(0, scoreState.lifetime.total | 0));
+      if (highEl) highEl.textContent = modeHigh ? ('best ' + modeHigh) : '';
+      if (badgeEl) {
+        if (mode === 'classic') {
+          const combo = Math.max(0, scoreState.meta.classicComboCount | 0);
+          badgeEl.textContent = combo > 1 ? ('Combo x' + combo) : '';
+        } else if (mode === 'pop') {
+          const cad = Math.max(0, scoreState.meta.popCadence | 0);
+          badgeEl.textContent = cad > 1 ? ('Speed x' + (1 + Math.min(1.5, (cad - 1) * 0.12)).toFixed(2)) : '';
+        } else {
+          const streak = Math.max(0, scoreState.meta.collectStreak | 0);
+          badgeEl.textContent = streak > 1 ? ('Streak x' + streak) : '';
+        }
+      }
+    }
+    function applyScoreEvent(payload) {
+      const mode = clampScoreMode(payload.mode);
+      const base = Math.max(0, Number(payload.basePoints || payload.pointsAwarded || 0));
+      const multiplier = Math.max(0, Number(payload.multiplier || 1));
+      const pointsAwarded = Math.max(0, Math.round(base * multiplier));
+      if (!pointsAwarded) return;
+      scoreState.session[mode] = Math.max(0, (scoreState.session[mode] | 0) + pointsAwarded);
+      scoreState.lifetime[mode] = Math.max(0, (scoreState.lifetime[mode] | 0) + pointsAwarded);
+      if ((scoreState.session[mode] | 0) > (scoreState.high[mode] | 0)) {
+        scoreState.high[mode] = scoreState.session[mode] | 0;
+      }
+      recomputeTotals(scoreState);
+      scheduleScorePersist();
+      renderScoreHud();
+      try {
+        window.dispatchEvent(new CustomEvent('errl:rb-score-event', {
+          detail: {
+            mode,
+            eventType: String(payload.eventType || 'score'),
+            pointsAwarded,
+            multiplier,
+            runningModeScore: scoreState.session[mode] | 0,
+            runningTotalScore: scoreState.lifetime.total | 0,
+            streakOrCombo: {
+              classicCombo: scoreState.meta.classicComboCount | 0,
+              popCadence: scoreState.meta.popCadence | 0,
+              collectStreak: scoreState.meta.collectStreak | 0,
+            }
+          }
+        }));
+      } catch (_) {}
     }
     function applyCustomBaseFromBundle() {
       const u = (getBundle().ui) || {};
@@ -4084,21 +4244,78 @@
         return;
       }
     }
+    let collectRawPrev = 0;
+    let lastClassicSig = '';
+    let lastClassicAt = 0;
+    const popCadenceTimes = [];
     window.addEventListener('errl:rb-collect-score', (ev) => {
       const d = ev && ev.detail ? ev.detail : {};
-      const mode = (function () {
-        const m = document.getElementById('rbInteractionMode');
-        return m && m.value;
-      })();
-      const on = d.mode === 'collect' || mode === 'collect';
-      const w = document.getElementById('rbCollectScoreWrap');
-      const s = document.getElementById('rbCollectScore');
-      const h = document.getElementById('rbCollectHigh');
-      if (w) w.hidden = !on;
-      if (on && s) s.textContent = String(d.score != null ? d.score : 0);
-      const sc = d.score != null ? d.score : 0;
-      if (on && sc > readHi()) { writeHi(sc); if (h) h.textContent = ' (best ' + sc + ')'; }
-      else if (on && h) { const hi = readHi(); h.textContent = hi ? (' (best ' + hi + ')') : ''; }
+      const score = Math.max(0, d.score | 0);
+      if (score < collectRawPrev) {
+        collectRawPrev = score;
+        scoreState.meta.collectStreak = 0;
+        scoreState.meta.collectLastAt = 0;
+        renderScoreHud();
+        return;
+      }
+      const delta = score - collectRawPrev;
+      if (delta <= 0) return;
+      collectRawPrev = score;
+      const t = nowMs();
+      const gap = t - (scoreState.meta.collectLastAt || 0);
+      scoreState.meta.collectStreak = (gap > 1800) ? delta : ((scoreState.meta.collectStreak | 0) + delta);
+      scoreState.meta.collectLastAt = t;
+      const mult = 1 + Math.min(1.6, Math.max(0, ((scoreState.meta.collectStreak | 0) - 1) * 0.08));
+      applyScoreEvent({ mode: 'collect', eventType: 'collectSweep', basePoints: delta, multiplier: mult });
+    });
+    window.addEventListener('errl:rb-pop', (ev) => {
+      const t = nowMs();
+      popCadenceTimes.push(t);
+      while (popCadenceTimes.length && (t - popCadenceTimes[0]) > 6000) popCadenceTimes.shift();
+      scoreState.meta.popCadence = popCadenceTimes.length;
+      const mult = 1 + Math.min(1.5, Math.max(0, (scoreState.meta.popCadence - 1) * 0.12));
+      const d = ev && ev.detail ? ev.detail : {};
+      applyScoreEvent({ mode: 'pop', eventType: 'pop', basePoints: 1, multiplier: mult, t: d.t || t });
+    });
+    window.addEventListener('errl:rb-classic-flick', (ev) => {
+      const d = ev && ev.detail ? ev.detail : {};
+      const power = Math.max(0, Number(d.throwPower || 0));
+      const sig = 'flick:' + power.toFixed(3) + ':' + Number(d.t || 0).toFixed(3);
+      const t = nowMs();
+      if (sig === lastClassicSig && (t - lastClassicAt) < 120) return;
+      lastClassicSig = sig;
+      lastClassicAt = t;
+      applyScoreEvent({
+        mode: 'classic',
+        eventType: 'flickHit',
+        basePoints: 2,
+        multiplier: 1 + Math.min(0.5, power * 0.5),
+      });
+    });
+    window.addEventListener('errl:rb-classic-throw', (ev) => {
+      const d = ev && ev.detail ? ev.detail : {};
+      const power = Math.max(0, Number(d.throwPower || 0));
+      const t = Number(d.t || nowMs());
+      const sig = 'throw:' + String(d.throwKind || 'grab') + ':' + power.toFixed(3) + ':' + t.toFixed(3);
+      if (sig === lastClassicSig && Math.abs(t - lastClassicAt) < 0.12) return;
+      lastClassicSig = sig;
+      lastClassicAt = t;
+      const comboWindowMs = 4000;
+      const sinceCombo = nowMs() - (scoreState.meta.classicComboAt || 0);
+      scoreState.meta.classicComboCount = (sinceCombo <= comboWindowMs)
+        ? ((scoreState.meta.classicComboCount | 0) + 1)
+        : 1;
+      scoreState.meta.classicComboAt = nowMs();
+      const comboMult = 1 + Math.min(1.5, Math.max(0, ((scoreState.meta.classicComboCount | 0) - 1) * 0.22));
+      const powerMult = Math.min(0.6, power * 0.5);
+      const base = d.throwKind === 'flick' ? 4 : 6;
+      applyScoreEvent({ mode: 'classic', eventType: 'offscreenThrow', basePoints: base, multiplier: comboMult + powerMult });
+    });
+    window.addEventListener('errl:rb-score-event', (ev) => {
+      const d = ev && ev.detail ? ev.detail : {};
+      if (!d || !d.mode) return;
+      if (d.runningModeScore !== undefined && d.runningTotalScore !== undefined) return;
+      applyScoreEvent(d);
     });
     const uBtn = document.getElementById('settingsUndoBtn');
     const rBtn = document.getElementById('settingsRedoBtn');
@@ -4107,16 +4324,39 @@
     const rbReset = document.getElementById('rbCollectResetBtn');
     if (rbReset) {
       rbReset.addEventListener('click', () => {
+        const current = getCurrentMode();
+        scoreState.session[current] = 0;
+        if (current === 'classic') {
+          scoreState.meta.classicComboCount = 0;
+          scoreState.meta.classicComboAt = 0;
+        } else if (current === 'pop') {
+          scoreState.meta.popCadence = 0;
+          popCadenceTimes.length = 0;
+        } else {
+          scoreState.meta.collectStreak = 0;
+          scoreState.meta.collectLastAt = 0;
+          collectRawPrev = 0;
+        }
+        recomputeTotals(scoreState);
+        scheduleScorePersist();
+        renderScoreHud();
         const R = window.errlRisingBubblesThree;
-        if (R && typeof R.setCollectScore === 'function') R.setCollectScore(0);
+        if (current === 'collect' && R && typeof R.setCollectScore === 'function') R.setCollectScore(0);
       });
     }
-    document.querySelectorAll('.tab-reset-mini').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const k = btn.getAttribute('data-tab-reset');
-        if (k) void applyRepoTabReset(k);
-      });
+    const modeEl = document.getElementById('rbInteractionMode');
+    if (modeEl) modeEl.addEventListener('change', () => {
+      const label = getCurrentMode() === 'collect' ? 'Reset Collect score'
+        : (getCurrentMode() === 'pop' ? 'Reset Pop score' : 'Reset Classic score');
+      rbReset && (rbReset.textContent = label);
+      renderScoreHud();
     });
+    const panelEl = document.getElementById('errlPanel');
+    if (panelEl && window.MutationObserver) {
+      const observer = new MutationObserver(() => { renderScoreHud(); });
+      observer.observe(panelEl, { attributes: true, attributeFilter: ['data-active-tab'] });
+    }
+    renderScoreHud();
     const up = document.getElementById('errlCustomBaseUpload');
     if (up) {
       on(up, 'change', (e) => {
