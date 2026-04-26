@@ -2092,8 +2092,8 @@
           rippleIntensity.value = '1.2';
           withRB((RB)=> RB.setRippleIntensity && RB.setRippleIntensity(rippleIntensity.value));
         }
-        setModeStatus('Pop Mode: tap bubbles on canvas to pop. Attract is disabled to avoid overload.');
-        if (modeLegend) modeLegend.textContent = 'Pop = tap a bubble on the #riseBubbles canvas to pop it (audio + light feedback).';
+        setModeStatus('Pop Mode: tap bubbles on canvas to pop.');
+        if (modeLegend) modeLegend.textContent = 'Pop score increases for each bubble popped.';
       } else if (isCollect) {
         if (attract) {
           attract.checked = false;
@@ -2103,9 +2103,8 @@
           ripples.checked = false;
           withRB((RB)=> RB.setRipples && RB.setRipples(false));
         }
-        withRB((RB)=> { if (typeof RB.setCollectScore === 'function') RB.setCollectScore(0); });
-        setModeStatus('Collect: move over bubbles on the #riseBubbles canvas to score. Grab/throw disabled.');
-        if (modeLegend) modeLegend.textContent = 'Collect = pointer/finger sweeps; higher max bubble count. Reset score when leaving this mode or use Reset score below.';
+        setModeStatus('Collect: move over bubbles on the #riseBubbles canvas to score.');
+        if (modeLegend) modeLegend.textContent = 'Collect score increases when your pointer sweeps through bubbles.';
       } else {
         if (ripples) {
           ripples.checked = false;
@@ -2113,7 +2112,7 @@
         }
         withRB((RB)=> { if (RB.setAttract) RB.setAttract(!!attract?.checked); });
         setModeStatus('Classic Throw: drag/flick controls are prioritized.');
-        if (modeLegend) modeLegend.textContent = 'Classic = grab and throw bubbles, or flick near one to kick it.';
+        if (modeLegend) modeLegend.textContent = 'Classic uses throw/flick behavior and keeps score separated by mode.';
       }
       syncInteractionLocks();
       if (persist) persistRB();
@@ -3243,12 +3242,17 @@
     }
     setTimeout(() => { maybeShowPhoneCta(); }, 500);
     
-    // Initialize: ALWAYS start minimized by default (user must click to expand)
-    // Rely on CSS for minimized styling; avoid inline !important that can block restoring.
+    // Initialize: ALWAYS start minimized and docked in the bottom-right corner.
+    // Clear stale inline position/scale from previous sessions before first paint.
     try { localStorage.removeItem('errl_phone_min'); } catch(_) {}
+    panel.classList.remove('expanded');
     panel.classList.add('minimized');
     panel.setAttribute('aria-expanded', 'false');
-    // no inline size constraints; CSS .errl-panel.minimized handles the bubble look
+    panel.style.removeProperty('--phone-user-scale');
+    panel.style.left = 'auto';
+    panel.style.top = 'auto';
+    panel.style.right = 'calc(10px + env(safe-area-inset-right, 0px))';
+    panel.style.bottom = 'calc(10px + env(safe-area-inset-bottom, 0px))';
     
     const header = document.getElementById('errlPhoneHeader');
     const tabsWrap = document.getElementById('panelTabs');
@@ -3318,7 +3322,14 @@
     let dragPid = null;
     let dragSX = 0, dragSY = 0, startLeft = 0, startTop = 0;
 
+    // This panel should never restore to a floating position on new page loads.
+    try {
+      localStorage.setItem(EXPANDED_KEY, '0');
+      localStorage.removeItem(POS_KEY);
+    } catch (_) {}
+
     function lockPanelToCorner() {
+      panel.classList.remove('expanded');
       panel.style.left = 'auto';
       panel.style.top = 'auto';
       panel.style.right = 'calc(10px + env(safe-area-inset-right, 0px))';
@@ -3410,15 +3421,13 @@
         const activeTab = tabButtons.find((btn) => btn.getAttribute('data-tab') === key);
         if (activeTab) tabSections[0].setAttribute('aria-labelledby', activeTab.id);
       }
+      try { panel.setAttribute('data-active-tab', key); } catch (_) {}
       if (contentWrapper) {
         contentWrapper.scrollTop = 0;
         try { contentWrapper.scrollTo({ top: 0, behavior: 'auto' }); } catch (_) { contentWrapper.scrollTop = 0; }
         if (toTop) toTop.style.display = 'none';
       }
-      if (settingsHistoryRow) {
-        // Keep reset/undo utilities out of normal tabs; show only in DEV.
-        settingsHistoryRow.hidden = key !== 'dev';
-      }
+      if (settingsHistoryRow) settingsHistoryRow.hidden = false;
     }
 
     function setupTabHelpNotes() {
@@ -3533,6 +3542,8 @@
       try { panel.style.removeProperty('--phone-user-scale'); } catch (_) {}
       clearMinimizedInlineStyles();
       lockPanelToCorner();
+      if (settingsHistoryRow) settingsHistoryRow.hidden = true;
+      if (toTop) toTop.style.display = 'none';
       try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
     }
 
@@ -3553,6 +3564,7 @@
       setTimeout(() => {
         activateTab('hud');
         syncPhoneUserScale();
+        if (!expanded) lockPanelToCorner();
       }, 0);
       try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
     }
@@ -3649,7 +3661,10 @@
       if (expanded) enforcePanelInViewport(10);
       else lockPanelToCorner();
     });
-    requestAnimationFrame(selfHealPhoneIfTiny);
+    requestAnimationFrame(() => {
+      if (panel.classList.contains('minimized') || !expanded) lockPanelToCorner();
+      selfHealPhoneIfTiny();
+    });
     setTimeout(selfHealPhoneIfTiny, 500);
 
     // Drag handle (desktop): vibe bar
@@ -3946,12 +3961,39 @@
   })();
 
   (function errlSettingsChromeAndResets(){
-    const COLLECT_HI = 'errl_rb_collect_high_v1';
-    function readHi(){
-      try { return parseInt(localStorage.getItem(COLLECT_HI) || '0', 10) || 0; } catch (_) { return 0; }
+    const RB_MODE_SCORE_KEY = 'errl_rb_mode_scores_v2';
+    const RB_MODE_HI_KEY = 'errl_rb_mode_high_v2';
+    const LEGACY_COLLECT_HI = 'errl_rb_collect_high_v1';
+    const RESET_ARM_MS = 5000;
+    const TAB_RESET_LABELS = { hud: 'Heads-up', errl: 'Errl', pin: 'Pin', nav: 'Nav', rb: 'Rising Bubbles', glb: 'GL Particles', bg: 'Background', dev: 'Developer', hue: 'Color' };
+    function readModeScores() {
+      try {
+        const raw = localStorage.getItem(RB_MODE_SCORE_KEY);
+        if (!raw) return { classic: 0, pop: 0, collect: 0, total: 0 };
+        const parsed = JSON.parse(raw);
+        return { classic: Math.max(0, (parsed.classic | 0)), pop: Math.max(0, (parsed.pop | 0)), collect: Math.max(0, (parsed.collect | 0)), total: Math.max(0, (parsed.total | 0)) };
+      } catch (_) { return { classic: 0, pop: 0, collect: 0, total: 0 }; }
     }
-    function writeHi(n) {
-      try { localStorage.setItem(COLLECT_HI, String(Math.max(0, n | 0))); } catch (_) {}
+    function writeModeScores(next) {
+      const safe = { classic: Math.max(0, (next.classic | 0)), pop: Math.max(0, (next.pop | 0)), collect: Math.max(0, (next.collect | 0)), total: Math.max(0, (next.total | 0)) };
+      try { localStorage.setItem(RB_MODE_SCORE_KEY, JSON.stringify(safe)); } catch (_) {}
+      return safe;
+    }
+    function readModeHigh() {
+      try {
+        const raw = localStorage.getItem(RB_MODE_HI_KEY);
+        if (!raw) {
+          const legacy = parseInt(localStorage.getItem(LEGACY_COLLECT_HI) || '0', 10) || 0;
+          return { classic: 0, pop: 0, collect: Math.max(0, legacy) };
+        }
+        const parsed = JSON.parse(raw);
+        return { classic: Math.max(0, (parsed.classic | 0)), pop: Math.max(0, (parsed.pop | 0)), collect: Math.max(0, (parsed.collect | 0)) };
+      } catch (_) { return { classic: 0, pop: 0, collect: 0 }; }
+    }
+    function writeModeHigh(next) {
+      const safe = { classic: Math.max(0, (next.classic | 0)), pop: Math.max(0, (next.pop | 0)), collect: Math.max(0, (next.collect | 0)) };
+      try { localStorage.setItem(RB_MODE_HI_KEY, JSON.stringify(safe)); } catch (_) {}
+      return safe;
     }
     function applyCustomBaseFromBundle() {
       const u = (getBundle().ui) || {};
@@ -3984,8 +4026,7 @@
     }
     async function applyRepoTabReset(tab) {
       const repo = await loadRepoDefaults();
-      if (!repo) { try { alert('Defaults not available.'); } catch (_) {} return; }
-      if (!window.confirm('Reset ' + String(tab).toUpperCase() + ' tab to shipped defaults in this browser?')) return;
+      if (!repo) { try { alert('Defaults not available.'); } catch (_) {} return false; }
       const t = String(tab).toLowerCase();
       if (t === 'rb' && repo.rb) {
         const rbr = { ...repo.rb, interactionMode: (repo.rb.interactionMode) || 'classic' };
@@ -3996,7 +4037,7 @@
         u.rbInteractionMode = (repo.ui && repo.ui.rbInteractionMode) || rbr.interactionMode || 'classic';
         applyUiSnapshot(u);
         if (window.__errlApplyRbBundle) window.__errlApplyRbBundle(getBundle().rb);
-        return;
+        return true;
       }
       if (t === 'glb' && repo.gl && repo.gl.bubbles) {
         updateBundle((B) => {
@@ -4004,7 +4045,7 @@
           B.gl.bubbles = { ...repo.gl.bubbles };
         });
         applyUiSnapshot({ bgSpeed: repo.ui.bgSpeed, bgDensity: repo.ui.bgDensity, glAlpha: repo.ui.glAlpha });
-        return;
+        return true;
       }
       if (t === 'bg') {
         applyUiSnapshot({
@@ -4016,7 +4057,7 @@
         });
         updateBundle((B) => { B.ui = B.ui || {}; delete B.ui.customBaseDataUrl; });
         applyCustomBaseFromBundle();
-        return;
+        return true;
       }
       if (t === 'errl' && repo.goo) {
         updateBundle((B) => { B.goo = JSON.parse(JSON.stringify(repo.goo)); });
@@ -4033,7 +4074,7 @@
           classicGooAutoSpeed: repo.ui.classicGooAutoSpeed,
           classicGooMouseReact: repo.ui.classicGooMouseReact
         });
-        return;
+        return true;
       }
       if (t === 'nav' && repo.ui) {
         if (repo.nav) updateBundle((B) => { B.nav = deepMerge(B.nav || { goo: {} }, repo.nav); });
@@ -4043,7 +4084,7 @@
           navDrip: repo.ui.navDrip, navVisc: repo.ui.navVisc, glOrbsToggle: repo.ui.glOrbsToggle
         });
         if (window.__errlRefreshNavSkins) window.__errlRefreshNavSkins();
-        return;
+        return true;
       }
       if (t === 'hue' && repo.hue) {
         updateBundle((B) => { B.hue = JSON.parse(JSON.stringify(repo.hue)); });
@@ -4052,53 +4093,157 @@
           hueEnabled: repo.ui.hueEnabled, hueShift: repo.ui.hueShift, hueSat: repo.ui.hueSat,
           hueInt: repo.ui.hueInt, hueTimeline: repo.ui.hueTimeline, hueTarget: repo.ui.hueTarget
         });
-        return;
+        return true;
       }
       if (t === 'hud' && repo.ui) {
         applyUiSnapshot({
           audioEnabled: repo.ui.audioEnabled, audioMaster: repo.ui.audioMaster, audioBass: repo.ui.audioBass,
           prefReduce: repo.ui.prefReduce, prefContrast: repo.ui.prefContrast, prefInvert: repo.ui.prefInvert
         });
-        return;
+        return true;
       }
       if (t === 'dev' && repo.ui) {
         applyUiSnapshot({ portalShowDesignNav: repo.ui.portalShowDesignNav });
-        return;
+        return true;
       }
+      return false;
     }
-    window.addEventListener('errl:rb-collect-score', (ev) => {
-      const d = ev && ev.detail ? ev.detail : {};
-      const mode = (function () {
-        const m = document.getElementById('rbInteractionMode');
-        return m && m.value;
-      })();
-      const on = d.mode === 'collect' || mode === 'collect';
+    let rbScores = writeModeScores(readModeScores());
+    let rbHigh = writeModeHigh(readModeHigh());
+    function getCurrentRbMode() {
+      const m = document.getElementById('rbInteractionMode');
+      return (m && m.value) || 'classic';
+    }
+    function isRbTabActive() {
+      const panel = document.getElementById('errlPanel');
+      return panel && panel.getAttribute('data-active-tab') === 'rb';
+    }
+    function recomputeScores() {
+      rbScores.total = Math.max(0, (rbScores.classic | 0) + (rbScores.pop | 0) + (rbScores.collect | 0));
+      rbScores = writeModeScores(rbScores);
+      rbHigh = writeModeHigh(rbHigh);
+    }
+    function syncRbResetButtonLabel() {
+      const rbResetBtn = document.getElementById('rbCollectResetBtn');
+      if (!rbResetBtn) return;
+      const mode = getCurrentRbMode();
+      const modeLabel = mode === 'pop' ? 'Pop' : (mode === 'collect' ? 'Collect' : 'Classic');
+      rbResetBtn.textContent = 'Reset ' + modeLabel + ' score';
+      rbResetBtn.setAttribute('title', 'Reset ' + modeLabel + ' score only');
+    }
+    function renderRbScoreHud() {
+      const mode = getCurrentRbMode();
+      const on = isRbTabActive();
       const w = document.getElementById('rbCollectScoreWrap');
       const s = document.getElementById('rbCollectScore');
       const h = document.getElementById('rbCollectHigh');
+      const total = document.getElementById('rbOverallScore');
+      const label = w ? w.querySelector('.rb-collect-score__row--top .rb-collect-score__label') : null;
       if (w) w.hidden = !on;
-      if (on && s) s.textContent = String(d.score != null ? d.score : 0);
-      const sc = d.score != null ? d.score : 0;
-      if (on && sc > readHi()) { writeHi(sc); if (h) h.textContent = ' (best ' + sc + ')'; }
-      else if (on && h) { const hi = readHi(); h.textContent = hi ? (' (best ' + hi + ')') : ''; }
+      if (!on) return;
+      const modeScore = Math.max(0, rbScores[mode] | 0);
+      if (s) s.textContent = String(modeScore);
+      if (total) total.textContent = String(Math.max(0, rbScores.total | 0));
+      if (label) label.textContent = (mode === 'pop' ? 'Pop' : (mode === 'collect' ? 'Collect' : 'Classic')) + ' score';
+      const hi = Math.max(0, rbHigh[mode] | 0);
+      if (h) h.textContent = hi ? (' (best ' + hi + ')') : '';
+    }
+    window.addEventListener('errl:rb-collect-score', (ev) => {
+      const d = ev && ev.detail ? ev.detail : {};
+      const sc = Math.max(0, (d.score | 0));
+      rbScores.collect = sc;
+      if (sc > (rbHigh.collect | 0)) rbHigh.collect = sc;
+      recomputeScores();
+      renderRbScoreHud();
+    });
+    window.addEventListener('errl:rb-pop', () => {
+      rbScores.pop = Math.max(0, (rbScores.pop | 0) + 1);
+      if ((rbScores.pop | 0) > (rbHigh.pop | 0)) rbHigh.pop = rbScores.pop | 0;
+      recomputeScores();
+      renderRbScoreHud();
     });
     const uBtn = document.getElementById('settingsUndoBtn');
     const rBtn = document.getElementById('settingsRedoBtn');
     if (uBtn) uBtn.addEventListener('click', () => { if (window.__errlSettingsUndo) window.__errlSettingsUndo(); });
     if (rBtn) rBtn.addEventListener('click', () => { if (window.__errlSettingsRedo) window.__errlSettingsRedo(); });
+    const tabResetBtn = document.getElementById('settingsTabResetBtn');
+    const tabResetWarning = document.getElementById('settingsTabResetWarning');
+    let resetArmTimer = null;
+    let resetArmedTab = '';
+    function currentActiveTab() {
+      const panel = document.getElementById('errlPanel');
+      return (panel && panel.getAttribute('data-active-tab')) || 'hud';
+    }
+    function labelForTab(tab) {
+      return TAB_RESET_LABELS[tab] || String(tab || '').toUpperCase();
+    }
+    function disarmTabReset(message) {
+      if (resetArmTimer) {
+        clearTimeout(resetArmTimer);
+        resetArmTimer = null;
+      }
+      resetArmedTab = '';
+      if (!tabResetBtn) return;
+      const active = currentActiveTab();
+      tabResetBtn.dataset.state = 'idle';
+      tabResetBtn.textContent = 'Reset ' + labelForTab(active);
+      if (tabResetWarning) {
+        tabResetWarning.hidden = !message;
+        tabResetWarning.textContent = message || 'This resets only the active tab in this browser.';
+      }
+    }
+    function armTabReset(tab) {
+      if (!tabResetBtn) return;
+      resetArmedTab = tab;
+      tabResetBtn.dataset.state = 'armed';
+      tabResetBtn.textContent = 'Confirm reset ' + labelForTab(tab);
+      if (tabResetWarning) {
+        tabResetWarning.hidden = false;
+        tabResetWarning.textContent = 'Warning: only ' + labelForTab(tab) + ' settings will be reset.';
+      }
+      resetArmTimer = setTimeout(() => disarmTabReset(), RESET_ARM_MS);
+    }
+    if (tabResetBtn) {
+      disarmTabReset();
+      tabResetBtn.addEventListener('click', async () => {
+        const active = currentActiveTab();
+        if (!resetArmedTab || resetArmedTab !== active) return armTabReset(active);
+        tabResetBtn.disabled = true;
+        const ok = await applyRepoTabReset(active);
+        tabResetBtn.disabled = false;
+        disarmTabReset(ok ? (labelForTab(active) + ' tab reset complete.') : 'Reset failed.');
+      });
+      tabResetBtn.addEventListener('blur', () => { if (resetArmedTab) disarmTabReset(); });
+    }
     const rbReset = document.getElementById('rbCollectResetBtn');
     if (rbReset) {
       rbReset.addEventListener('click', () => {
-        const R = window.errlRisingBubblesThree;
-        if (R && typeof R.setCollectScore === 'function') R.setCollectScore(0);
+        const mode = getCurrentRbMode();
+        if (mode === 'collect') {
+          const R = window.errlRisingBubblesThree;
+          if (R && typeof R.setCollectScore === 'function') R.setCollectScore(0);
+          return;
+        }
+        rbScores[mode] = 0;
+        recomputeScores();
+        renderRbScoreHud();
       });
     }
-    document.querySelectorAll('.tab-reset-mini').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const k = btn.getAttribute('data-tab-reset');
-        if (k) void applyRepoTabReset(k);
-      });
+    const modeSelectEl = document.getElementById('rbInteractionMode');
+    if (modeSelectEl) modeSelectEl.addEventListener('change', () => {
+      syncRbResetButtonLabel();
+      renderRbScoreHud();
     });
+    const panelForObserver = document.getElementById('errlPanel');
+    if (panelForObserver && window.MutationObserver) {
+      const observer = new MutationObserver(() => {
+        disarmTabReset();
+        renderRbScoreHud();
+      });
+      observer.observe(panelForObserver, { attributes: true, attributeFilter: ['data-active-tab'] });
+    }
+    syncRbResetButtonLabel();
+    renderRbScoreHud();
     const up = document.getElementById('errlCustomBaseUpload');
     if (up) {
       on(up, 'change', (e) => {

@@ -55,6 +55,17 @@ test.describe('Responsive Design Tests', () => {
 
     const panel = page.locator('#errlPanel');
     await expect(panel).toBeVisible();
+    const cornerDocked = await page.evaluate(() => {
+      const p = document.getElementById('errlPanel');
+      if (!p) return false;
+      const r = p.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const rightGap = Math.abs(vw - r.right);
+      const bottomGap = Math.abs(vh - r.bottom);
+      return rightGap <= 24 && bottomGap <= 32;
+    });
+    expect(cornerDocked).toBeTruthy();
     const isMinimized = await panel.evaluate((el) => el.classList.contains('minimized'));
     if (isMinimized) {
       await expect(panel.locator('.panel-minimized-label')).toHaveText(/customize/i);

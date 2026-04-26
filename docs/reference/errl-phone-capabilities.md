@@ -1,6 +1,6 @@
 # Errl Phone: capabilities and extension guide
 
-**Status:** Current as of 2026-04-22  
+**Status:** Current as of 2026-04-26  
 **Audience:** Implementers extending the landing “Errl Phone” control panel, WebGL layer, or related tests.
 
 This document describes behaviors added or hardened in the Errl Phone / portal UX work (reliability, copy, CTA, layers). It is the durable reference; session detail lives in `05-Logs/Daily/2026-04-22-cursor-notes.md`.
@@ -60,6 +60,8 @@ When adding features, name which layer in UI copy to avoid “nothing happens”
 | `errl_phone_cta_dismissed_v1` | First-visit “Customize” chip dismissed or cleared by opening the phone. |
 | `errl_pin_tour_dismissed_v2` | Pin tab tour banner dismissed; **`v2`** re-shows the expanded copy once for users who only had `v1` stored. |
 | `errl_phone_expanded_v1`, `errl_phone_expanded_pos_v1`, `errl_phone_min` | Phone expand/minimize/position (existing). |
+| `errl_rb_mode_scores_v2` | Rising Bubbles per-mode scores (`classic`, `pop`, `collect`) and `total`. |
+| `errl_rb_mode_high_v2` | Rising Bubbles per-mode highs. Migrates legacy collect high on first read. |
 
 When changing tour or CTA copy, bump a version in the key if you need a one-time re-show (same pattern as Pin v2).
 
@@ -75,6 +77,19 @@ When changing tour or CTA copy, bump a version in the key if you need a one-time
 | `.sliderRow--a11y` | Accessibility rows: full text labels, no ellipsis. |
 | `.panel-minimized-label` | “Customize” under the minimized fab (not centered *inside* the 52px circle). |
 | `.pin-tour-show-btn` (`#pinTourShow`) | Re-opens the Pin tour. |
+| `#settingsTabResetBtn`, `#settingsTabResetWarning` | Two-step active-tab reset (arm, confirm, timeout disarm); reset is tab-local only. |
+| `#rbCollectScoreWrap`, `#rbOverallScore` | ERRL-themed score HUD now shows active-mode score plus overall total. |
+
+---
+
+## Reset and score behavior (2026-04-26)
+
+- **Bottom reset row:** one contextual reset button only (current active tab), plus Undo/Redo.
+- **Accidental-tap guard:** first press arms reset, second press confirms; warning text is inline and auto-disarms after timeout.
+- **Scope:** reset only touches the selected tab via `applyRepoTabReset(activeTab)`.
+- **Rising Bubbles scores:** tracked per mode and overall total; collect and pop events update mode buckets, and total is recomputed from buckets.
+- **Theming:** score HUD and active score accents use existing ERRL neon tokens (cyan/purple/yellow family).
+- **Minimized phone lock:** minimized state force-hides tabs, action rows, and panel controls so only the bubble + customize label are visible.
 
 ---
 

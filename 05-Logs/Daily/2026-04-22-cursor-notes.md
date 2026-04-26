@@ -120,3 +120,15 @@
 - Fixed label/control collisions in dense `ERRL` slider rows by tightening grid columns and label widths for auto-toggle rows in `src/apps/landing/styles/styles.css`.
 - Normalized non-auto `ERRL` row label widths to prevent long labels from intruding into sliders.
 - Shortened verbose inline helper copy in `src/index.html` (`Errl Goo` sections) to avoid text crowding over nearby controls.
+
+### Errl Phone polish follow-up (2026-04-22)
+
+- Hardened startup docking in `src/apps/landing/scripts/portal-app.js`: phone now boots minimized, non-expanded, and pinned to the bottom-right; expanded position persistence is reset on fresh loads to avoid mid-screen starts.
+- Tightened minimized behavior in `src/apps/landing/styles/styles.css`: hidden content now includes `.panel-content-wrapper`, `#settingsHistoryRow`, and `#panelScrollTop`, so minimized state only shows the bubble + `Customize` label.
+- Enforced tab-help behavior: `.panel-tab-intro` is forcibly hidden in panel CSS while generated summary + `?` remains visible and details stay collapsed by default.
+- Added focused Playwright coverage:
+  - `tests/errl-phone-controls.spec.ts`: minimized state no-extra-buttons assertions + summary/`?` help toggle behavior.
+  - `tests/responsive.spec.ts`: iOS-like viewport assertion that panel starts docked near bottom-right.
+- Verification run:
+  - `npx playwright test tests/errl-phone-controls.spec.ts -g "Minimized|Tab help"` -> 3 passed.
+  - `npx playwright test tests/responsive.spec.ts -g "iOS-like viewport|mobile viewport - Errl Phone panel usable"` -> 2 passed.

@@ -356,9 +356,11 @@ test.describe('Errl Phone Controls Tests', () => {
   });
 
   test('@ui Minimized phone bubble shows Customize CTA and restores', async ({ page }) => {
-    await ensurePhonePanelOpen(page);
+    await openPhoneTab(page, 'dev');
     const panel = page.locator('#errlPanel');
     const closeBtn = page.locator('#phone-close-button');
+    const settingsHistoryRow = page.locator('#settingsHistoryRow');
+    await expect(settingsHistoryRow).toBeVisible();
 
     await closeBtn.click({ force: true, timeout: 10_000 });
     await expect(panel).toHaveClass(/minimized/);
@@ -366,6 +368,11 @@ test.describe('Errl Phone Controls Tests', () => {
     const cta = page.locator('#errlPanel .panel-minimized-label');
     await expect(cta).toBeVisible();
     await expect(cta).toHaveText(/customize/i);
+    await expect(settingsHistoryRow).toBeHidden();
+    await expect(page.locator('#panelTabs')).toBeHidden();
+    await expect(page.locator('#panelScrollTop')).toBeHidden();
+    await expect(page.locator('#phone-expand-button')).toBeHidden();
+    await expect(page.locator('#phone-close-button')).toBeHidden();
 
     const animationName = await panel.evaluate((el) => getComputedStyle(el).animationName || '');
     expect(animationName.toLowerCase()).toContain('panelctaglow');
@@ -373,6 +380,45 @@ test.describe('Errl Phone Controls Tests', () => {
     await ensurePhonePanelOpen(page);
     await expect(panel).not.toHaveClass(/minimized/);
     await expect(page.locator('#panelTabs')).toBeAttached();
+  });
+
+  test('@ui Tab help keeps summary visible and details behind question button', async ({ page }) => {
+    await openPhoneTab(page, 'hud');
+    const help = page.locator('.panel-section[data-tab="hud"] .panel-tab-help').first();
+    const summary = help.locator('.panel-tab-help__summary');
+    const qBtn = help.locator('.panel-tab-help__btn');
+    const details = help.locator('.panel-tab-help__details');
+    const intro = page.locator('.panel-section[data-tab="hud"] .panel-tab-intro').first();
+
+    await expect(help).toBeVisible();
+    await expect(summary).toBeVisible();
+    await expect(qBtn).toBeVisible();
+    await expect(details).toBeHidden();
+    await expect(intro).toBeHidden();
+
+    await qBtn.click({ force: true });
+    await expect(details).toBeVisible();
+
+    await qBtn.click({ force: true });
+    await expect(details).toBeHidden();
+  });
+
+  test('@ui Tab reset is active-tab only and requires two-step confirm', async ({ page }) => {
+    await openPhoneTab(page, 'hud');
+    const resetBtn = page.locator('#settingsTabResetBtn');
+    const warn = page.locator('#settingsTabResetWarning');
+    await expect(resetBtn).toBeVisible();
+    await expect(resetBtn).toContainText(/reset heads-up/i);
+    await expect(warn).toBeHidden();
+
+    await resetBtn.click({ force: true });
+    await expect(resetBtn).toContainText(/confirm reset heads-up/i);
+    await expect(warn).toBeVisible();
+    await expect(warn).toContainText(/only heads-up settings/i);
+
+    await openPhoneTab(page, 'rb');
+    await expect(resetBtn).toContainText(/reset rising bubbles/i);
+    await expect(warn).toBeHidden();
   });
 
   test('@controls Pin action buttons are bound before opening modal', async ({ page }) => {
@@ -416,6 +462,33 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(ripples).not.toBeChecked();
     // Classic does not force Attract on; it follows the checkbox (defaults and bundle, usually off).
     await expect(attract).not.toBeChecked();
+  });
+
+  test('@controls RB tracks mode score and overall total', async ({ page }) => {
+    await openPhoneTab(page, 'rb');
+    const mode = page.locator('#rbInteractionMode');
+    const scoreWrap = page.locator('#rbCollectScoreWrap');
+    const modeScore = page.locator('#rbCollectScore');
+    const totalScore = page.locator('#rbOverallScore');
+
+    await expect(scoreWrap).toBeVisible();
+    await expect(modeScore).toHaveText('0');
+    await expect(totalScore).toHaveText('0');
+
+    await mode.selectOption('pop', { force: true });
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('errl:rb-pop'));
+      window.dispatchEvent(new CustomEvent('errl:rb-pop'));
+    });
+    await expect(modeScore).toHaveText('2');
+    await expect(totalScore).toHaveText('2');
+
+    await mode.selectOption('collect', { force: true });
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('errl:rb-collect-score', { detail: { score: 3, mode: 'collect' } }));
+    });
+    await expect(modeScore).toHaveText('3');
+    await expect(totalScore).toHaveText('5');
   });
 
   test('@controls Preset buttons apply style bundles', async ({ page }) => {
