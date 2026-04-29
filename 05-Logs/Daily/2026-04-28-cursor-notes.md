@@ -33,3 +33,5 @@
 - **Errl phone:** [src/apps/landing/scripts/portal-app.js](src/apps/landing/scripts/portal-app.js) — `normalizeBundle` clamps `errlPhonePanelSize` (0.85–2), re-persist on load if normalized; `restorePanel` re-activates the current `data-active-tab` instead of forcing HUD; [src/apps/landing/styles/styles.css](src/apps/landing/styles/styles.css) — `max-height` uses `dvh` + safe-area for expanded panel.
 - **Tests:** [tests/errl-phone-panel-size.spec.ts](tests/errl-phone-panel-size.spec.ts) (min panel box); [tests/pages.spec.ts](tests/pages.spec.ts) — nav/back lists use shipped routes (studio, design); back-link test waits for `#errlPanel` on home.
 - **Playwright:** `tests/errl-phone-panel-size.spec.ts` + `tests/pages.spec.ts` — 16 passed.
+
+**Verify + deploy (2026-04-29):** `npm run portal:build` OK. Committed `9fb4715` and pushed `main` → `origin` (triggers [`.github/workflows/deploy-cloudflare.yml`](.github/workflows/deploy-cloudflare.yml) for **errl-portal** on Cloudflare Pages).
