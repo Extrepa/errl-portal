@@ -3225,12 +3225,14 @@
     function setupTabHelpNotes() {
       const tabDetails = new Map();
       const firstSectionByTab = new Map();
+      const lastSectionByTab = new Map();
       const intros = Array.from(panel.querySelectorAll('.panel-tab-intro'));
 
       sections.forEach((section) => {
         const key = section.getAttribute('data-tab');
         if (!key) return;
         if (!firstSectionByTab.has(key)) firstSectionByTab.set(key, section);
+        lastSectionByTab.set(key, section);
       });
 
       intros.forEach((intro) => {
@@ -3265,7 +3267,8 @@
         `;
 
         host.insertBefore(wrapper, host.firstChild);
-        if (!host.querySelector('[data-tab-reset]')) {
+        const tabTail = lastSectionByTab.get(key) || host;
+        if (tabTail && !tabTail.querySelector('[data-tab-reset]')) {
           const resetWrap = document.createElement('div');
           resetWrap.className = 'sliderRow';
           resetWrap.innerHTML = `
@@ -3277,7 +3280,7 @@
               aria-label="Reset ${key.toUpperCase()} tab"
             >Reset ${key.toUpperCase()} tab</button>
           `;
-          host.insertBefore(resetWrap, wrapper.nextSibling);
+          tabTail.appendChild(resetWrap);
         }
         const helpBtn = wrapper.querySelector('.panel-tab-help__btn');
         const helpDetails = wrapper.querySelector('.panel-tab-help__details');

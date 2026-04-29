@@ -1718,10 +1718,19 @@ body.reduced-motion .errl-panel.minimized::after {
 }
 
 .tab-reset-inline {
-  min-height: 26px;
-  font-size: calc(7px * var(--panel-scale));
+  min-height: 22px;
+  font-size: calc(6.5px * var(--panel-scale));
   line-height: 1.1;
-  padding: calc(3px * var(--panel-scale)) calc(6px * var(--panel-scale));
+  padding: calc(2px * var(--panel-scale)) calc(5px * var(--panel-scale));
+  opacity: 0.72;
+  border-color: rgba(var(--errl-neon-cyan-rgb), 0.26);
+  color: rgba(var(--errl-text-rgb), 0.78);
+}
+.tab-reset-inline:hover,
+.tab-reset-inline:focus-visible {
+  opacity: 0.92;
+  border-color: rgba(var(--errl-neon-cyan-rgb), 0.55);
+  color: rgba(var(--errl-text-rgb), 0.95);
 }
 
 #phone-expand-button {

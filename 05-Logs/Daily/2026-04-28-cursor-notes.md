@@ -13,3 +13,4 @@
 - Removed bottom reset strip from `src/index.html` and added per-tab reset controls inline via dynamic tab help injection (`data-tab-reset`) in `portal-app.js`.
 - Lint diagnostics for all touched files: clean.
 - Double-check pass: `npm run portal:build` completed successfully (existing asset-resolution warnings only, no build failure).
+- Moved generated per-tab reset controls to the bottom of each tab's content by appending reset rows to the last section for each tab in `setupTabHelpNotes()` (`src/apps/landing/scripts/portal-app.js`).
