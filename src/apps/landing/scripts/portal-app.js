@@ -385,15 +385,10 @@
   on(audioEnabledToggle, 'change', ()=> audioEngine.setEnabled(!!audioEnabledToggle.checked));
   on(audioMasterSlider, 'input', ()=> audioEngine.setMaster(parseFloat(audioMasterSlider.value || '0')));
   on(audioBassSlider, 'input', ()=> audioEngine.setBass(parseFloat(audioBassSlider.value || '0')));
-  const rbPopFlashOverlay = document.createElement('div');
-  rbPopFlashOverlay.id = 'rbPopFlashOverlay';
-  rbPopFlashOverlay.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(rbPopFlashOverlay);
   const rbPopShardCanvas = document.createElement('canvas');
   rbPopShardCanvas.id = 'rbPopShardCanvas';
   rbPopShardCanvas.setAttribute('aria-hidden', 'true');
   document.body.appendChild(rbPopShardCanvas);
-  let rbPopFlashTimer = null;
   let rbShardRaf = null;
 
   function isReducedMotionUi(){
@@ -459,14 +454,6 @@
     } catch(_) {}
     audioEngine.playPop(intensity);
     const rm = isReducedMotionUi();
-    if (!rm) {
-      rbPopFlashOverlay.classList.add('active');
-      if (rbPopFlashTimer) clearTimeout(rbPopFlashTimer);
-      rbPopFlashTimer = setTimeout(()=>{
-        rbPopFlashOverlay.classList.remove('active');
-        rbPopFlashTimer = null;
-      }, 130);
-    }
     if (!rm) paintRbPopShards(detail.clientX, detail.clientY);
   });
 
@@ -2870,179 +2857,7 @@
   });
   
 
-  // Save/Reset defaults buttons and quick-save
-  function saveDefaults(){
-    try{
-      const bundle = buildBundleFromCurrent();
-      bundle.meta = bundle.meta || {};
-      bundle.meta.savedAt = new Date().toISOString();
-      setBundle(bundle);
-      alert('Defaults saved.');
-    }catch(e){ alert('Could not save defaults.'); }
-  }
-  let resetDefaultsInFlight = false;
-  async function resetDefaults(){
-    try {
-      // Stop all animations first
-      // Stop RB advanced animation
-      if (window.__errlStopRBAnimation) {
-        window.__errlStopRBAnimation();
-      }
-      // Stop nav gradient animation
-      if (window.__errlStopNavGradient) {
-        window.__errlStopNavGradient();
-      }
-      // Stop Errl goo auto-fade
-      if (window.__errlStopGooAuto) {
-        window.__errlStopGooAuto();
-      }
-      // Stop hue timeline
-      if (window.ErrlHueController && window.ErrlHueController.pauseTimeline) {
-        window.ErrlHueController.pauseTimeline();
-      }
-      
-      // Clear unified settings + any legacy keys (best-effort)
-      ['errl_portal_settings_v1','errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings','errl_goo_cfg','errl_a11y','errl_ui_defaults','errl_nav_skin_pref_v1','errl_portal_last_preset_v1','errl_phone_size_v1'].forEach(k=>{
-        try{ localStorage.removeItem(k); }catch(e){}
-      });
-      
-      // Reset hue controller
-      if (window.ErrlHueController) {
-        window.ErrlHueController.reset();
-      }
-      
-      // Reset UI to repo defaults (JSON) when available; fall back to baked defaults
-      let defaults = null;
-      try{
-        const repo = await loadRepoDefaults();
-        defaults = repo && repo.ui ? repo.ui : null;
-      }catch(_){}
-      if (!defaults){
-        defaults = {
-          // RB defaults
-          rbSpeed: '1.03', rbDensity: '1.46', rbScale: '1', rbAlpha: '0.87', rbWobble: '0.98', rbFreq: '0.95',
-          rbMin: '14', rbMax: '36', rbSizeHz: '0.67', rbJumboPct: '0.33', rbJumboScale: '1.95',
-          rbAttract: false, rbAttractIntensity: '0.4',
-          rbRipples: false, rbRippleIntensity: '0.8',
-          rbAdvAnimSpeed: '0.10',
-          // Goo defaults
-          classicGooEnabled: true, classicGooStrength: '0.187', classicGooWobble: '0.432', classicGooSpeed: '0.201',
-          classicGooStrengthAuto: true, classicGooWobbleAuto: true, classicGooSpeedAuto: true,
-          classicGooAutoSpeed: '0.16', classicGooMouseReact: true,
-          // Nav defaults
-          navOrbitSpeed: '1', navRadius: '1.26', navOrbSize: '1.22',
-          navWiggle: '0.57', navFlow: '1.07', navGrip: '0.35', navDrip: '-0.02', navVisc: '0.26',
-          glOrbsToggle: true,
-          // GLB defaults
-          bgSpeed: '0.9', bgDensity: '1.2', glAlpha: '0.85',
-          // BG defaults
-          shimmerToggle: false, vignetteToggle: false,
-          glOverlayAlpha: '0.28', glOverlayDX: '24', glOverlayDY: '18',
-          // Errl defaults
-          errlSize: '1', errlOutlineThickness: '2.5',
-          // Hue defaults
-          hueEnabled: false, hueShift: '158', hueSat: '0.9', hueInt: '1', hueTimeline: '0',
-          // Audio defaults
-          audioEnabled: true, audioMaster: '0.4', audioBass: '0.2',
-          // A11y defaults
-          prefReduce: false, prefContrast: false, prefInvert: false,
-          // Phone frame
-          errlPhonePanelSize: '1'
-        };
-      }
-      
-      // Apply defaults
-      Object.keys(defaults).forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const value = defaults[id];
-        if (el.type === 'checkbox') {
-          el.checked = !!value;
-          el.dispatchEvent(new Event('change', { bubbles: true }));
-        } else {
-          el.value = String(value);
-          el.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-      });
-      
-      // Update play/pause button states and UI after reset
-      setTimeout(() => {
-        // Update hue play/pause button
-        if (window.ErrlHueController && window.ErrlHueController.master) {
-          const huePlayPause = document.getElementById('huePlayPause');
-          if (huePlayPause) {
-            huePlayPause.textContent = 'Play';
-            huePlayPause.setAttribute('aria-pressed', 'false');
-          }
-        }
-        // Reset RB animation mode buttons
-        const rbAdvModeLoop = document.getElementById('rbAdvModeLoop');
-        const rbAdvModePing = document.getElementById('rbAdvModePing');
-        if (rbAdvModeLoop) rbAdvModeLoop.classList.add('active');
-        if (rbAdvModePing) rbAdvModePing.classList.remove('active');
-        // RB, Nav, and Errl play/pause buttons will update via their own update functions
-      }, 100);
-
-      // Persist bundle so Reset behaves like a clean baseline.
-      try{
-        const ui = (defaults && typeof defaults === 'object') ? defaults : {};
-        setBundle({ 
-          version: 1, 
-          ui, 
-          hue: {
-            layers: {
-              background: { hue: 0, saturation: 1, intensity: 1, enabled: false },
-              riseBubbles: { hue: 0, saturation: 1.23, intensity: 0.49, enabled: false },
-              nav: { hue: 0, saturation: 0.9, intensity: 1, enabled: false },
-              glOverlay: { hue: 0, saturation: 1, intensity: 1, enabled: false },
-              bgBubbles: { hue: 0, saturation: 0.46, intensity: 0.68, enabled: false }
-            }
-          },
-          rb: {
-            speed: 1.03, density: 1.46, scale: 1, alpha: 0.87, wobble: 0.98, freq: 0.95,
-            min: 14, max: 36, sizeHz: 0.67, jumboPct: 0.33, jumboScale: 1.95,
-            attract: false, attractIntensity: 0.4, ripples: false, rippleIntensity: 0.8
-          },
-          gl: {
-            bubbles: { speed: 0.9, density: 1.2, alpha: 0.85 }
-          },
-          goo: {
-            auto: { rate: 0.16, strength: true, wobble: true, speed: true },
-            mouseReactive: true
-          },
-          nav: {
-            goo: {},
-            skinMode: 'global',
-            skin: { kind: 'proc', url: null, preset: 'proc' },
-            bubbleSkins: {}
-          },
-          customPresets: [null, null, null]
-        });
-      }catch(_){}
-
-      try { if (window.__errlRefreshNavSkins) window.__errlRefreshNavSkins(); } catch(_) {}
-      
-      alert('Defaults reset. All settings restored to stock values.');
-    } catch(e) {
-      console.error('Reset failed:', e);
-      alert('Reset failed. Please reload the page.');
-    }
-  }
-  async function requestResetDefaults(source){
-    if (resetDefaultsInFlight) return;
-    const via = source === 'secret'
-      ? 'You triggered the hidden reset command.'
-      : 'You are about to reset every panel control.';
-    if (!window.confirm(via + ' Continue and restore all stock defaults in this browser?')) return;
-    resetDefaultsInFlight = true;
-    try {
-      await resetDefaults();
-    } finally {
-      resetDefaultsInFlight = false;
-    }
-  }
-  const saveBtn=document.getElementById('saveDefaultsBtn'); if (saveBtn) saveBtn.addEventListener('click', saveDefaults);
-  const rstBtn=document.getElementById('resetDefaultsBtn'); if (rstBtn) rstBtn.addEventListener('click', ()=>{ requestResetDefaults('button'); });
+  // Export/Import settings bundle (local browser storage)
   const exportBtn = document.getElementById('exportSettingsBtn');
   const importBtn = document.getElementById('importSettingsBtn');
   const importFile = document.getElementById('importSettingsFile');
@@ -3174,38 +2989,17 @@
     panel.addEventListener('change', schedule, true);
   })();
 
-  // Global key commands: keep explicit combos and ignore editable contexts.
+  // Global key commands: ignore editable contexts.
   (function globalPhoneKeyCommands(){
-    const SECRET_ENTER_WINDOW_MS = 1200;
-    let enterBurstCount = 0;
-    let lastEnterAt = 0;
     function isEditableTarget(target){
       if (!target || !target.tagName) return false;
       const tag = String(target.tagName).toUpperCase();
       if (target.isContentEditable) return true;
       return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
     }
-    async function maybeRunSecretReset(){
-      const raw = window.prompt('Secret command', '');
-      if (raw == null) return;
-      if (raw.trim() !== 'errl') return;
-      await requestResetDefaults('secret');
-    }
-    window.addEventListener('keydown', async (e)=>{
+    window.addEventListener('keydown', (e)=>{
       if (e.isComposing || isEditableTarget(e.target)) return;
-      if (e.key === 'S' && e.shiftKey) {
-        saveDefaults();
-        return;
-      }
-      if (e.key !== 'Enter') return;
-      const now = Date.now();
-      if ((now - lastEnterAt) > SECRET_ENTER_WINDOW_MS) enterBurstCount = 0;
-      lastEnterAt = now;
-      enterBurstCount += 1;
-      if (enterBurstCount < 3) return;
-      enterBurstCount = 0;
-      e.preventDefault();
-      await maybeRunSecretReset();
+      // Reserved for non-destructive shortcuts.
     });
   })();
   // ===== Errl Phone UI (tabs, minimize, drag, scroll-to-top) =====
@@ -3263,7 +3057,6 @@
     const sections = Array.from(panel.querySelectorAll('.panel-section'));
     const toTop = document.getElementById('panelScrollTop');
     const contentWrapper = panel.querySelector('.panel-content-wrapper');
-    const settingsHistoryRow = document.getElementById('settingsHistoryRow');
     const TAB_HELP_SUMMARIES = {
       hud: 'Quick controls and comfort settings.',
       errl: 'Character size and goo behavior.',
@@ -3427,10 +3220,6 @@
         try { contentWrapper.scrollTo({ top: 0, behavior: 'auto' }); } catch (_) { contentWrapper.scrollTop = 0; }
         if (toTop) toTop.style.display = 'none';
       }
-      if (settingsHistoryRow) {
-        // Keep reset/undo utilities out of normal tabs; show only in DEV.
-        settingsHistoryRow.hidden = key !== 'dev';
-      }
     }
 
     function setupTabHelpNotes() {
@@ -3476,6 +3265,20 @@
         `;
 
         host.insertBefore(wrapper, host.firstChild);
+        if (!host.querySelector('[data-tab-reset]')) {
+          const resetWrap = document.createElement('div');
+          resetWrap.className = 'sliderRow';
+          resetWrap.innerHTML = `
+            <button
+              type="button"
+              class="tab-reset-inline"
+              data-tab-reset="${key}"
+              title="Reset ${key.toUpperCase()} tab to shipped defaults"
+              aria-label="Reset ${key.toUpperCase()} tab"
+            >Reset ${key.toUpperCase()} tab</button>
+          `;
+          host.insertBefore(resetWrap, wrapper.nextSibling);
+        }
         const helpBtn = wrapper.querySelector('.panel-tab-help__btn');
         const helpDetails = wrapper.querySelector('.panel-tab-help__details');
         if (helpBtn && helpDetails) {
@@ -3545,7 +3348,6 @@
       try { panel.style.removeProperty('--phone-user-scale'); } catch (_) {}
       clearMinimizedInlineStyles();
       lockPanelToCorner();
-      if (settingsHistoryRow) settingsHistoryRow.hidden = true;
       if (toTop) toTop.style.display = 'none';
       try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
     }
@@ -4265,8 +4067,34 @@
     bindRepoTabResetButtons();
     let collectRawPrev = 0;
     let lastClassicSig = '';
-    let lastClassicAt = 0;
+    let lastClassicAtMs = 0;
     const popCadenceTimes = [];
+    function isReducedMotionScoreEffects() {
+      if (document.body && document.body.classList.contains('reduced-motion')) return true;
+      try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (_) { return false; }
+    }
+    function triggerScoreExcitement(detail) {
+      if (isReducedMotionScoreEffects()) return;
+      const points = Math.max(1, Number(detail && detail.pointsAwarded) || 1);
+      const bursts = Math.max(1, Math.min(7, Math.round(points / 4)));
+      const baseCount = Math.max(40, Math.min(180, 40 + Math.round(points * 10)));
+      for (let i = 0; i < bursts; i++) {
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * window.innerHeight;
+        const count = Math.max(24, baseCount + ((Math.random() * 50) | 0));
+        try {
+          if (typeof window.errlGLBurst === 'function') window.errlGLBurst(x, y, count);
+        } catch (_) {}
+      }
+      try {
+        if (typeof window.errlBgParticlesBoost === 'function') {
+          window.errlBgParticlesBoost({
+            amount: Math.max(0.1, Math.min(1.2, 0.2 + points * 0.03)),
+            durationMs: 700 + ((Math.random() * 450) | 0)
+          });
+        }
+      } catch (_) {}
+    }
     window.addEventListener('errl:rb-collect-score', (ev) => {
       const d = ev && ev.detail ? ev.detail : {};
       const score = Math.max(0, d.score | 0);
@@ -4301,9 +4129,9 @@
       const power = Math.max(0, Number(d.throwPower || 0));
       const sig = 'flick:' + power.toFixed(3) + ':' + Number(d.t || 0).toFixed(3);
       const t = nowMs();
-      if (sig === lastClassicSig && (t - lastClassicAt) < 120) return;
+      if (sig === lastClassicSig && (t - lastClassicAtMs) < 120) return;
       lastClassicSig = sig;
-      lastClassicAt = t;
+      lastClassicAtMs = t;
       applyScoreEvent({
         mode: 'classic',
         eventType: 'flickHit',
@@ -4314,11 +4142,11 @@
     window.addEventListener('errl:rb-classic-throw', (ev) => {
       const d = ev && ev.detail ? ev.detail : {};
       const power = Math.max(0, Number(d.throwPower || 0));
-      const t = Number(d.t || nowMs());
+      const t = nowMs();
       const sig = 'throw:' + String(d.throwKind || 'grab') + ':' + power.toFixed(3) + ':' + t.toFixed(3);
-      if (sig === lastClassicSig && Math.abs(t - lastClassicAt) < 0.12) return;
+      if (sig === lastClassicSig && Math.abs(t - lastClassicAtMs) < 120) return;
       lastClassicSig = sig;
-      lastClassicAt = t;
+      lastClassicAtMs = t;
       const comboWindowMs = 4000;
       const sinceCombo = nowMs() - (scoreState.meta.classicComboAt || 0);
       scoreState.meta.classicComboCount = (sinceCombo <= comboWindowMs)
@@ -4336,10 +4164,11 @@
       if (d.runningModeScore !== undefined && d.runningTotalScore !== undefined) return;
       applyScoreEvent(d);
     });
-    const uBtn = document.getElementById('settingsUndoBtn');
-    const rBtn = document.getElementById('settingsRedoBtn');
-    if (uBtn) uBtn.addEventListener('click', () => { if (window.__errlSettingsUndo) window.__errlSettingsUndo(); });
-    if (rBtn) rBtn.addEventListener('click', () => { if (window.__errlSettingsRedo) window.__errlSettingsRedo(); });
+    window.addEventListener('errl:rb-score-event', (ev) => {
+      const d = ev && ev.detail ? ev.detail : {};
+      if (!d || d.runningModeScore === undefined || d.runningTotalScore === undefined) return;
+      triggerScoreExcitement(d);
+    });
     const rbReset = document.getElementById('rbCollectResetBtn');
     if (rbReset) {
       rbReset.addEventListener('click', () => {

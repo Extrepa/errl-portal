@@ -620,9 +620,7 @@
         <button id="exportHtmlBtn" style="font-size:7px; padding:3px 6px;">Snapshot</button>
         <span style="opacity:.8; font-size:7px; align-self:center;">HTML/CSS/JS</span>
       </div>
-      <div class="sliderRow" title="Save all current settings as defaults (local)" style="display:flex; gap:6px; flex-wrap:wrap;">
-        <button id="saveDefaultsBtn" style="font-size:7px; padding:3px 6px;">Save Defaults</button>
-        <button id="resetDefaultsBtn" style="font-size:7px; padding:3px 6px;">Reset Defaults</button>
+      <div class="sliderRow" title="Export or import settings bundle (local)" style="display:flex; gap:6px; flex-wrap:wrap;">
         <button id="exportSettingsBtn" style="font-size:7px; padding:3px 6px;">Export Settings</button>
         <button id="importSettingsBtn" style="font-size:7px; padding:3px 6px;">Import Settings</button>
         <input id="importSettingsFile" type="file" accept="application/json" style="display:none" />
@@ -640,20 +638,6 @@
       <div id="devLogViewer" style="background:#0a0a0c; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:8px; max-height:300px; overflow-y:auto; font-family:monospace; font-size:9px; line-height:1.4; color:#e5eef7;">
         <div style="opacity:0.6; text-align:center; padding:8px;">Logs will appear here...</div>
       </div>
-    </div>
-    <div class="settings-history-row" id="settingsHistoryRow" role="group" aria-label="Undo and tab reset tools">
-      <button type="button" id="settingsUndoBtn" class="settings-history-btn" title="Undo last settings change">Undo</button>
-      <button type="button" id="settingsRedoBtn" class="settings-history-btn" title="Redo last undone change">Redo</button>
-      <span class="settings-tab-reset__label" title="Load shipped defaults for a tab (browser only)">Tab reset</span>
-      <button type="button" class="tab-reset-mini" data-tab-reset="hud" title="Reset Heads-up (HUD) tab to shipped defaults" aria-label="Reset Heads-up tab">HUD</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="errl" title="Reset Errl tab to shipped defaults" aria-label="Reset Errl tab">ERRL</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="pin" title="Reset Pin tab to shipped defaults" aria-label="Reset Pin tab">PIN</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="nav" title="Reset Nav tab to shipped defaults" aria-label="Reset Nav tab">NAV</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="rb" title="Reset Rising Bubbles tab to shipped defaults" aria-label="Reset Rising Bubbles tab">RB</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="glb" title="Reset GL Particles tab to shipped defaults" aria-label="Reset GL Particles tab">GL</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="bg" title="Reset Background tab to shipped defaults" aria-label="Reset Background tab">BG</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="dev" title="Reset Developer tab to shipped defaults" aria-label="Reset Developer tab">DEV</button>
-      <button type="button" class="tab-reset-mini" data-tab-reset="hue" title="Reset Color (Hue) tab to shipped defaults" aria-label="Reset Color tab">HUE</button>
     </div>
     <button id="panelScrollTop" title="Return to top">↑</button>
     </div>

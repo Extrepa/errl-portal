@@ -595,20 +595,19 @@
       s.blendMode = PIXI.BLEND_MODES.ADD;
       s.x = centerX; s.y = centerY;
       
-      // Hose-like effect: particles spread in a circle with vertical variation
-      // Create a cone/spray pattern
-      const baseAngle = (i / count) * Math.PI * 2; // Full circle
-      const angleSpread = (Math.random() - 0.5) * 0.3; // Small spread per particle
+      // Randomized omni-directional spray with uneven energy so bursts feel less patterned.
+      const baseAngle = Math.random() * Math.PI * 2;
+      const angleSpread = (Math.random() - 0.5) * 1.25;
       const angle = baseAngle + angleSpread;
-      const verticalBias = (Math.random() - 0.5) * 0.4; // Up/down variation
-      const speed = 2 + Math.random() * 4; // Faster particles
+      const verticalBias = (Math.random() - 0.5) * 0.85;
+      const speed = 1.4 + Math.random() * 5.6;
       const vx = Math.cos(angle) * speed;
       const vy = Math.sin(angle) * speed + verticalBias * speed;
       
       s.alpha = 0.95;
       particles.addChild(s);
       // Shorter TTL for snappier effect
-      const ttl = 30 + Math.random()*25;
+      const ttl = 22 + Math.random() * 34;
       let t=0;
       app.ticker.add(function tick(delta){
         if (paused) return;

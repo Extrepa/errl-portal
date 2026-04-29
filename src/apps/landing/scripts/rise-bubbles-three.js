@@ -713,6 +713,7 @@
             // Mark "thrown" briefly so upward clamp doesn't prevent downward throws.
             b.userData.isThrown = true;
             b.userData.throwKind = 'grab';
+            b.userData.throwInputType = (e && e.pointerType) ? String(e.pointerType) : 'mouse';
             b.userData.thrownAt = lastElapsedTime;
             b.userData.throwPower = Math.hypot(imp.ix, imp.iy);
             b.userData.throwScoreEmitted = false;
@@ -732,7 +733,7 @@
         if (flickState.active && flickState.pointerId === (e && e.pointerId)) {
           const vel = estimateVelocityWorldPerSec(flickState.history);
           const speed = Math.hypot(vel.vx, vel.vy);
-          const fastEnough = speed > 12; // world/sec threshold
+          const fastEnough = speed > 8.5; // world/sec threshold
           if (fastEnough && camera && ndc) {
             // Prefer a direct hit under finger.
             pickRaycaster.setFromCamera(ndc, camera);
@@ -746,7 +747,7 @@
               const rect = cvs.getBoundingClientRect();
               const px = e.clientX - rect.left;
               const py = e.clientY - rect.top;
-              const maxPx = 70;
+              const maxPx = 95;
               for (let i = 0; i < bubbles.length; i++) {
                 const b = bubbles[i];
                 if (!b || b.visible === false) continue;
@@ -768,6 +769,7 @@
                 b.userData = b.userData || {};
                 b.userData.isThrown = true;
                 b.userData.throwKind = 'flick';
+                b.userData.throwInputType = (e && e.pointerType) ? String(e.pointerType) : 'mouse';
                 b.userData.thrownAt = lastElapsedTime;
                 b.userData.throwPower = Math.hypot(imp.ix, imp.iy);
                 b.userData.throwScoreEmitted = false;
@@ -977,12 +979,14 @@
         if (bubble.position.y > 30 || outX || outY) {
           const wasThrown = !!(bubble.userData && bubble.userData.isThrown);
           // Give classic throws enough time to travel off-screen before score eligibility expires.
-          const justThrown = wasThrown && (elapsedTime - safeNum(bubble.userData.thrownAt, 0)) < 10;
-          const offscreen = outX || outY;
+          const justThrown = wasThrown && (elapsedTime - safeNum(bubble.userData.thrownAt, 0)) < 12;
+          const offscreen = outX || outY || bubble.position.y > 30;
+          const fromMouse = String((bubble.userData && bubble.userData.throwInputType) || '') === 'mouse';
           if (
             controls.interactionMode === 'classic' &&
             offscreen &&
             justThrown &&
+            fromMouse &&
             bubble.userData &&
             !bubble.userData.throwScoreEmitted
           ) {
@@ -997,7 +1001,6 @@
                 }
               }));
             } catch (_) {}
-            flashClassicGoalFrame();
           }
           resetBubble(bubble, index);
           refreshBubbleBaseScale(bubble, { reroll: true });
@@ -1006,6 +1009,7 @@
             bubble.userData.thrownAt = 0;
             bubble.userData.isGrabbed = false;
             bubble.userData.throwKind = '';
+            bubble.userData.throwInputType = '';
             bubble.userData.throwPower = 0;
             bubble.userData.throwScoreEmitted = false;
           } catch(_) {}
@@ -1033,18 +1037,6 @@
         else body.classList.remove('rb-classic-goal-edges');
       } catch (_) {}
     }
-    function flashClassicGoalFrame() {
-      const el = document.getElementById('rbClassicGoalFrame');
-      if (!el) return;
-      try {
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      } catch (_) {}
-      el.classList.add('rb-classic-goal-flash');
-      window.setTimeout(() => {
-        try { el.classList.remove('rb-classic-goal-flash'); } catch (_) {}
-      }, 180);
-    }
-
     // Expose control interface
     window.errlRisingBubblesThree = {
       scene,
@@ -1111,6 +1103,15 @@
         if (v === 'pop') controls.interactionMode = 'pop';
         else if (v === 'collect') controls.interactionMode = 'collect';
         else controls.interactionMode = 'classic';
+        // Clear interaction leftovers so classic starts in a clean throw-ready state.
+        grabState.active = false;
+        grabState.pointerId = null;
+        grabState.bubble = null;
+        grabState.bubbleIndex = -1;
+        grabState.history = [];
+        flickState.active = false;
+        flickState.pointerId = null;
+        flickState.history = [];
         updateBubbleVisibility();
         emitCollectScore();
         syncClassicGoalEdges();
