@@ -500,6 +500,21 @@ test.describe('Errl Phone Controls Tests', () => {
     expect(total).toBeGreaterThanOrEqual(classic + pop + collect);
   });
 
+  test('@controls RB score HUD stays synced when phone tab is not RB', async ({ page }) => {
+    await openPhoneTab(page, 'rb');
+    await page.evaluate(() => {
+      window.dispatchEvent(
+        new CustomEvent('errl:rb-score-event', {
+          detail: { mode: 'classic', eventType: 'offscreenThrow', basePoints: 10, multiplier: 1 },
+        }),
+      );
+    });
+    await expect(page.locator('#rbCollectScore')).toContainText(/10/);
+    await openPhoneTab(page, 'hud');
+    await expect(page.locator('#rbCollectScoreWrap')).toBeVisible();
+    await expect(page.locator('#rbCollectScore')).toContainText(/10/);
+  });
+
   test('@controls RB score state persists and migrates from legacy keys', async ({ page }) => {
     await page.evaluate(() => {
       localStorage.removeItem('errl_rb_score_state_v3');

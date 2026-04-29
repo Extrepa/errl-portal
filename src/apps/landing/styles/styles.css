@@ -755,9 +755,16 @@ body.perf-safe *::after {
   flex-direction: column;
   filter: none; /* Ensure sharp rendering, no blur */
 }
+/* Caps scale with --phone-user-scale so the HUD size slider has room to grow (still bounded by viewport). */
 .errl-panel:not(.minimized) {
-  max-width: min(40vw, 360px);
-  max-height: min(50vh, 480px);
+  max-width: min(96vw, calc(360px * var(--phone-user-scale, 1)));
+  /* Prefer dynamic viewport height on mobile so expanded panel does not overflow under browser chrome. */
+  max-height: min(
+    92vh,
+    92dvh,
+    calc(520px * var(--phone-user-scale, 1)),
+    calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px)
+  );
   box-sizing: border-box;
 }
 .errl-panel:not(.expanded) {
@@ -1604,6 +1611,15 @@ body.reduced-motion .errl-panel.minimized::after {
 
 /* Keep the Errl panel scale consistent across viewports to avoid stretching. */
 
+.errl-phone-mobile-large-row {
+  display: none;
+}
+@media (max-width: 520px) {
+  .errl-phone-mobile-large-row {
+    display: flex;
+  }
+}
+
 /* Ensure minimized state is never scaled */
 .errl-panel.minimized {
   --panel-scale: 1;
@@ -1612,14 +1628,22 @@ body.reduced-motion .errl-panel.minimized::after {
   right: calc(10px + env(safe-area-inset-right, 0px)) !important;
 }
 @media (max-width: 520px) {
+  /* Let base width/height calc(...) drive size; constrain with scaled max-* so --phone-user-scale works (no fixed width/height override). */
   .errl-panel:not(.minimized) {
-    width: min(92vw, 340px) !important;
-    max-width: min(92vw, 340px) !important;
-    height: min(55vh, 520px) !important;
+    max-width: min(92vw, calc(340px * var(--phone-user-scale, 1))) !important;
     max-height: min(
-      55vh,
-      520px,
+      calc(55vh + 10vh * (var(--phone-user-scale, 1) - 1)),
+      calc(520px * var(--phone-user-scale, 1)),
       calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px)
+    ) !important;
+  }
+  /* Optional HUD toggle: larger usable area on narrow touch screens */
+  .errl-panel.errl-panel--mobile-sheet:not(.minimized) {
+    max-width: min(calc(100vw - 16px), calc(380px * var(--phone-user-scale, 1))) !important;
+    max-height: min(
+      88dvh,
+      calc(720px * var(--phone-user-scale, 1)),
+      calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 12px)
     ) !important;
   }
   .panel-tabs .tab {
@@ -1662,12 +1686,12 @@ body.reduced-motion .errl-panel.minimized::after {
   background: var(--errl-bg, #000);
 }
 
-/* RB collect mode score (viewport HUD) */
+/* RB collect mode score (viewport HUD; above errl-panel z-index 10 when layouts overlap) */
 .rb-collect-score {
   position: fixed;
   right: 12px;
   top: max(10px, env(safe-area-inset-top, 0px));
-  z-index: 5;
+  z-index: 15;
   display: grid;
   gap: 2px;
   font: 600 13px/1.2 system-ui, sans-serif;

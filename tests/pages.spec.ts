@@ -231,9 +231,8 @@ test.describe('Static Portal Pages Tests', () => {
       `/about/`,
       `/gallery/`,
       `/assets/`,
-      `/events/`,
-      `/merch/`,
-      `/games/`
+      `/studio/`,
+      `/design/`,
     ];
     
     for (const pagePath of pages) {
@@ -257,9 +256,8 @@ test.describe('Static Portal Pages Tests', () => {
       `/about/`,
       `/gallery/`,
       `/assets/`,
-      `/events/`,
-      `/merch/`,
-      `/games/`
+      `/studio/`,
+      `/design/`,
     ];
     
     for (const pagePath of pages) {
@@ -283,28 +281,15 @@ test.describe('Static Portal Pages Tests', () => {
           await expect(altBackLink).toBeVisible({ timeout: 5000 });
           await altBackLink.click();
         } else {
-          // If no back link found, navigate manually
-          await page.goto(baseURL! + '/index.html');
+          await page.goto(baseURL! + '/', { waitUntil: 'domcontentloaded' });
         }
       }
-      
-      // Wait for navigation to complete - back links go to root
-      const currentUrl = new URL(page.url());
-      if (currentUrl.pathname !== '/' && !currentUrl.pathname.endsWith('/index.html')) {
-        // Wait for navigation with timeout
-        await page.waitForURL(url => {
-          const urlObj = new URL(url);
-          return urlObj.pathname === '/' || urlObj.pathname.endsWith('/index.html');
-        }, { timeout: 10000 }).catch(() => {
-          // If navigation didn't complete, continue - we'll verify panel exists
-        });
-      }
-      
-      // Verify we're back at main portal
-      const isMainPortal = await page.evaluate(() => {
-        return document.getElementById('errlPanel') !== null;
-      });
-      expect(isMainPortal).toBeTruthy();
+
+      // Root HTML can paint before index portal DOM is fully wired; wait for phone shell.
+      await page.waitForFunction(
+        () => document.getElementById('errlPanel') !== null,
+        { timeout: 20000 }
+      );
       
       // Verify design system is loaded on main portal
       const hasDesignSystem = await testDesignSystem(page);

@@ -85,6 +85,11 @@ header.errl-header {
     0 0 20px rgba(52, 225, 255, 0.25);
 }
 
+.errl-home-btn:focus-visible {
+  outline: 2px solid rgba(52, 225, 255, 0.75);
+  outline-offset: 3px;
+}
+
 .errl-home-btn .chevron {
   font-size: 0.9rem;
   line-height: 1;
@@ -180,7 +185,8 @@ header.errl-header {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) inset;
 }
 
-.errl-bubble-btn.active {
+.errl-bubble-btn.active,
+.errl-bubble-btn[aria-current='page'] {
   background: linear-gradient(
     135deg,
     rgba(52, 225, 255, 0.2) 0%,
@@ -194,9 +200,15 @@ header.errl-header {
   box-shadow: 0 0 22px rgba(52, 225, 255, 0.15);
 }
 
-.errl-bubble-btn.active::before {
+.errl-bubble-btn.active::before,
+.errl-bubble-btn[aria-current='page']::before {
   opacity: 0.85;
   animation-duration: 1.2s;
+}
+
+.errl-bubble-btn:focus-visible {
+  outline: 2px solid rgba(52, 225, 255, 0.75);
+  outline-offset: 2px;
 }
 
 @keyframes portal-header-led-flow {

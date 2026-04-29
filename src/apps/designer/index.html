@@ -3,38 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Designer | Errl</title>
+  <title>Designer | Errl Portal</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../shared/styles/errlDesignSystem.css" />
-  <link rel="stylesheet" href="../../fx/errl-bg.css">
-  <style>
-    body { margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; background: var(--errl-bg); color: var(--errl-text); min-height: 100vh; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    h1 { font-size: 2.2rem; margin: 16px 0; text-align: center; opacity:.9; }
-    .coming-soon {
-      margin: 40px auto 60px;
-      max-width: 680px;
-      text-align: center;
-      padding: 40px 28px;
-      border-radius: 16px;
-      border: 1px solid rgba(var(--errl-text-rgb), 0.12);
-      background: rgba(8, 12, 22, 0.7);
-      box-shadow: 0 16px 32px rgba(0,0,0,0.35);
-    }
-    .coming-soon h2 { margin: 0 0 10px; font-size: 1.5rem; }
-    .coming-soon p { margin: 0; opacity: 0.75; }
-  </style>
+  <link rel="stylesheet" href="../../shared/styles/errlStaticPage.css" />
+  <link rel="stylesheet" href="../../apps/landing/fx/errl-bg.css" />
   <link rel="stylesheet" href="../../shared/styles/errlPortalHeader.css" />
   <script>
     (function () { try { if (localStorage.getItem('errl_portal_show_design_nav') !== 'true') { document.documentElement.setAttribute('data-errl-hide-design-nav', ''); } } catch (e) {} })();
   </script>
 </head>
-<body>
+<body class="errl-static-page">
   <header class="errl-header">
     <div class="errl-header-content">
-      <a class="errl-home-btn" href="/">← Back to Portal</a>
-      <nav class="errl-nav">
+      <a class="errl-home-btn" href="/">
+        <span class="chevron">◀</span>
+        <span>Back to Portal</span>
+      </a>
+      <nav class="errl-nav" aria-label="Portal sections">
         <a class="errl-bubble-btn" href="/about/" data-portal-link="about/">About Errl</a>
         <a class="errl-bubble-btn" href="/assets/" data-portal-link="assets/">Assets</a>
         <a class="errl-bubble-btn" href="/design/" data-errl-nav="design" data-portal-link="design/" data-disabled-link="design" aria-disabled="true" tabindex="-1" title="Coming soon">Design</a>

@@ -15,6 +15,9 @@
   // Repo defaults (served from public/)
   const DEFAULTS_URL = './apps/landing/config/errl-defaults.json';
 
+  const PHONE_PANEL_SIZE_MIN = 0.85;
+  const PHONE_PANEL_SIZE_MAX = 2;
+
   function normalizeBundle(bundle){
     const b = (bundle && typeof bundle === 'object') ? bundle : {};
     if (typeof b.version !== 'number') b.version = 1;
@@ -26,6 +29,15 @@
     if (!b.customPresets || !Array.isArray(b.customPresets)) b.customPresets = [null, null, null];
     while (b.customPresets.length < 3) b.customPresets.push(null);
     if (b.customPresets.length > 3) b.customPresets = b.customPresets.slice(0, 3);
+    if (b.ui.errlPhonePanelSize !== undefined && b.ui.errlPhonePanelSize !== '') {
+      const n = parseFloat(String(b.ui.errlPhonePanelSize));
+      if (!Number.isFinite(n)) {
+        delete b.ui.errlPhonePanelSize;
+      } else {
+        const c = Math.min(PHONE_PANEL_SIZE_MAX, Math.max(PHONE_PANEL_SIZE_MIN, n));
+        b.ui.errlPhonePanelSize = String(c);
+      }
+    }
     return b;
   }
 
@@ -225,6 +237,12 @@
           'errl_hue_layers','errl_gl_overlay','errl_gl_bubbles','errl_nav_goo_cfg','errl_rb_settings',
           'errl_goo_cfg','errl_ui_defaults','errl_a11y'
         ].forEach((k)=>{ try{ localStorage.removeItem(k); }catch(_){} });
+      } else {
+        const before = JSON.stringify(bundle);
+        normalizeBundle(bundle);
+        if (JSON.stringify(bundle) !== before) {
+          setBundle(bundle);
+        }
       }
     }catch(_){}
   })();
@@ -3069,40 +3087,74 @@
       hue: 'Layer color and animation tuning.',
     };
     const PHONE_SIZE_KEY = 'errl_phone_size_v1';
-    const PHONE_SIZE_SCALES = [0.88, 1, 1.12];
+    const PHONE_SCALE_MIN = 0.85;
+    const PHONE_SCALE_MAX = 2;
+    const MOBILE_LARGE_KEY = 'errl_phone_mobile_large_v1';
     const sizeInput = $('errlPhonePanelSize');
+    const mobileLargeCb = $('errlPhoneMobileLarge');
+
+    function normalizeStoredPhoneSize(raw) {
+      const t = String(raw ?? '').trim();
+      if (t === '0') return '0.88';
+      if (t === '2') return '1.12';
+      const n = parseFloat(t);
+      if (!Number.isFinite(n)) return '1';
+      return String(clamp(n, PHONE_SCALE_MIN, PHONE_SCALE_MAX));
+    }
 
     function syncPhoneUserScale() {
       if (!sizeInput || !panel) return;
-      let idx = parseInt(String(sizeInput.value).trim(), 10);
-      if (!Number.isFinite(idx)) idx = 1;
-      idx = clamp(idx, 0, 2);
-      if (String(idx) !== sizeInput.value) sizeInput.value = String(idx);
+      const normalizedStr = normalizeStoredPhoneSize(sizeInput.value);
+      if (sizeInput.value !== normalizedStr) sizeInput.value = normalizedStr;
+      let s = parseFloat(normalizedStr);
+      if (!Number.isFinite(s)) s = 1;
+      s = clamp(s, PHONE_SCALE_MIN, PHONE_SCALE_MAX);
+      const normalized = String(s);
+      if (sizeInput.value !== normalized) sizeInput.value = normalized;
       if (panel.classList.contains('minimized')) {
         try { panel.style.removeProperty('--phone-user-scale'); } catch (_) {}
       } else {
-        const s = PHONE_SIZE_SCALES[idx];
-        panel.style.setProperty('--phone-user-scale', String(s));
+        panel.style.setProperty('--phone-user-scale', normalized);
       }
       const lab = $('errlPhonePanelSizeLabel');
-      if (lab) lab.textContent = ['S', 'M', 'L'][idx];
-      sizeInput.setAttribute('aria-valuenow', String(idx));
-      try { localStorage.setItem(PHONE_SIZE_KEY, String(idx)); } catch (_) {}
+      if (lab) lab.textContent = `${Math.round(s * 100)}%`;
+      sizeInput.setAttribute('aria-valuenow', normalized);
+      try { localStorage.setItem(PHONE_SIZE_KEY, normalized); } catch (_) {}
     }
     on(sizeInput, 'input', syncPhoneUserScale);
     on(sizeInput, 'change', syncPhoneUserScale);
     syncPhoneUserScale();
+
+    function syncMobileLargePanel() {
+      if (!panel || !mobileLargeCb) return;
+      panel.classList.toggle('errl-panel--mobile-sheet', !!mobileLargeCb.checked);
+      try { localStorage.setItem(MOBILE_LARGE_KEY, mobileLargeCb.checked ? '1' : '0'); } catch (_) {}
+    }
+    if (mobileLargeCb) {
+      on(mobileLargeCb, 'change', syncMobileLargePanel);
+      on(mobileLargeCb, 'input', syncMobileLargePanel);
+      syncMobileLargePanel();
+    }
+
     settingsReady
       .then(() => {
         try {
           const b = getBundle();
-          if (b && b.ui && b.ui.errlPhonePanelSize !== undefined && b.ui.errlPhonePanelSize !== '') return;
-          const leg = localStorage.getItem(PHONE_SIZE_KEY);
-          if (leg == null) return;
-          const idx = clamp(parseInt(leg, 10) || 1, 0, 2);
-          if (sizeInput) {
-            sizeInput.value = String(idx);
-            sizeInput.dispatchEvent(new Event('input', { bubbles: true }));
+          if (b && b.ui && b.ui.errlPhonePanelSize !== undefined && b.ui.errlPhonePanelSize !== '') {
+            /* bundle owns phone size */
+          } else {
+            const leg = localStorage.getItem(PHONE_SIZE_KEY);
+            if (leg != null && sizeInput) {
+              sizeInput.value = normalizeStoredPhoneSize(leg);
+              sizeInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+          }
+          if (!(b && b.ui && b.ui.errlPhoneMobileLarge !== undefined && String(b.ui.errlPhoneMobileLarge) !== '')) {
+            const legM = localStorage.getItem(MOBILE_LARGE_KEY);
+            if (legM != null && mobileLargeCb) {
+              mobileLargeCb.checked = legM === '1';
+              syncMobileLargePanel();
+            }
           }
         } catch (_) {}
       })
@@ -3353,6 +3405,7 @@
       lockPanelToCorner();
       if (toTop) toTop.style.display = 'none';
       try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
+      try { window.dispatchEvent(new CustomEvent('errl:score-hud-sync')); } catch (_) {}
     }
 
     // Helper function to restore the panel
@@ -3370,11 +3423,13 @@
       // Activate default tab to show content immediately (this will handle section visibility)
       // Use setTimeout to ensure CSS has updated after removing minimized class
       setTimeout(() => {
-        activateTab('hud');
+        const curTab = panel.getAttribute('data-active-tab') || 'hud';
+        activateTab(curTab);
         syncPhoneUserScale();
         if (!expanded) lockPanelToCorner();
       }, 0);
       try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
+      try { window.dispatchEvent(new CustomEvent('errl:score-hud-sync')); } catch (_) {}
     }
 
     // minimize toggle - minimize to bottom right corner
@@ -3863,9 +3918,9 @@
       const m = document.getElementById('rbInteractionMode');
       return clampScoreMode((m && m.value) || 'classic');
     }
-    function isRbTabActive() {
-      const panel = document.getElementById('errlPanel');
-      return panel && panel.getAttribute('data-active-tab') === 'rb';
+    function errlPhoneExpandedForScoreHud() {
+      const el = document.getElementById('errlPanel');
+      return el && !el.classList.contains('minimized');
     }
     function renderScoreHud() {
       const MODE_HUD_LABELS = {
@@ -3881,10 +3936,9 @@
       const modeLabelEl = wrap ? wrap.querySelector('.rb-collect-score__row--top .rb-collect-score__label') : null;
       const mode = getCurrentMode();
       if (wrap) {
-        wrap.hidden = !isRbTabActive();
+        wrap.hidden = !errlPhoneExpandedForScoreHud();
         wrap.setAttribute('data-mode', mode);
       }
-      if (!isRbTabActive()) return;
       const modeScore = Math.max(0, scoreState.session[mode] | 0);
       const modeHigh = Math.max(0, scoreState.high[mode] | 0);
       if (modeLabelEl) modeLabelEl.textContent = MODE_HUD_LABELS[mode] || 'Classic Throw';
@@ -4205,8 +4259,9 @@
     const panelEl = document.getElementById('errlPanel');
     if (panelEl && window.MutationObserver) {
       const observer = new MutationObserver(() => { renderScoreHud(); });
-      observer.observe(panelEl, { attributes: true, attributeFilter: ['data-active-tab'] });
+      observer.observe(panelEl, { attributes: true, attributeFilter: ['data-active-tab', 'class'] });
     }
+    window.addEventListener('errl:score-hud-sync', () => { renderScoreHud(); });
     renderScoreHud();
     const up = document.getElementById('errlCustomBaseUpload');
     if (up) {
