@@ -1,0 +1,56 @@
+export const studioPageContent = {
+  hero: {
+    pill: "Errl Studio Lab",
+    title: "Studio is the live workbench.",
+    subtitle:
+      "Projects here are tracked in public: what exists, what is unstable, and what needs collaborators.",
+    metaTitle: "Status Signal",
+    metaText:
+      "Readiness is scored from 1 to 5. Higher means closer to public-ready, not less experimental.",
+  },
+  readinessScale: {
+    1: "Concept chaos",
+    2: "Prototype exists",
+    3: "Functional but rough",
+    4: "Nearly releasable",
+    5: "Stable / public-ready",
+  },
+  projects: [
+    {
+      slug: "limewire-simulator",
+      title: "LimeWire Simulator",
+      description: "Retro XP-style file sharing simulator with interactive nostalgia and fake downloads.",
+      readinessScore: 4,
+      status: "Playable",
+      tags: ["experimental", "playable", "archive", "visual"],
+      blockers: ["Polish download flow edge cases", "QA on mobile viewport sizing"],
+      contributionIdeas: ["Report UI bugs", "Suggest fake track packs", "Help tune retro copy tone"],
+      links: [{ label: "Open Tool", href: "/studio/limewire-simulator/" }],
+      lastUpdated: "2026-04-30",
+    },
+    {
+      slug: "pin-designer",
+      title: "Pin Designer",
+      description: "Legacy pin builder still online while the new shared asset pipeline is assembled.",
+      readinessScore: 3,
+      status: "Legacy but useful",
+      tags: ["legacy", "utility", "AI-assisted", "unfinished"],
+      blockers: ["Needs shared export pipeline integration", "Needs refreshed UI pass"],
+      contributionIdeas: ["Test export quality", "Share pin style presets", "Propose workflow improvements"],
+      links: [{ label: "Open Tool", href: "/pin-designer/" }],
+      lastUpdated: "2026-04-30",
+    },
+    {
+      slug: "face-designer",
+      title: "Face Designer",
+      description: "Focused face/eyes/mouth customizer for quick iteration and character variants.",
+      readinessScore: 3,
+      status: "Functional",
+      tags: ["experimental", "visual", "utility", "AI-assisted"],
+      blockers: ["Preset management is basic", "Batch export is missing"],
+      contributionIdeas: ["Submit feature requests", "Propose preset taxonomy", "Share bug sightings"],
+      links: [{ label: "Open Tool", href: "/pin-designer-face-only/" }],
+      lastUpdated: "2026-04-30",
+    },
+  ],
+};
