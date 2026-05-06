@@ -291,7 +291,7 @@
       </div>
       <div class="sliderRow">
         <label for="rbDensity" title="How many bubbles are active (multiplier). 1 = default count, 2 = double.">Count</label>
-        <input type="range" min="0" max="2" step="0.01" value="1.46" id="rbDensity" title="Bubble count multiplier (0 = none)">
+        <input type="range" min="0" max="2" step="0.01" value="1.2" id="rbDensity" title="Bubble count multiplier (0 = none)">
       </div>
       <div class="sliderRow">
         <label for="rbScale" title="Overall bubble size scaling (separate from Count)">Scale</label>
@@ -311,12 +311,12 @@
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
         <span title="Advanced controls change motion style and spawn sizing.">Motion + spawn shaping. Use small changes—some controls amplify each other.</span>
       </div>
-      <div class="sliderRow"><label for="rbWobble" title="Side-to-side motion amplitude (adds lateral drift/oscillation)">Wobble</label><input id="rbWobble" type="range" min="0" max="2" step="0.01" value="0.98"/></div>
+      <div class="sliderRow"><label for="rbWobble" title="Side-to-side motion amplitude (adds lateral drift/oscillation)">Wobble</label><input id="rbWobble" type="range" min="0" max="2" step="0.01" value="0.72"/></div>
       <div class="sliderRow"><label for="rbFreq" title="Oscillation rate for wobble (higher = faster wobble)">Frequency</label><input id="rbFreq" type="range" min="0" max="2" step="0.01" value="0.95"/></div>
       <div class="sliderRow"><label for="rbMin" title="Smallest bubble size">Min size</label><input id="rbMin" type="number" min="6" max="256" step="1" value="14" title="Smallest bubble size in pixels"/> <label for="rbMax" title="Largest bubble size">Max</label><input id="rbMax" type="number" min="6" max="256" step="1" value="36" title="Largest bubble size in pixels"/></div>
       <div class="sliderRow"><label for="rbJumboPct" title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles.">Jumbo Percent</label><input id="rbJumboPct" type="range" min="0" max="0.6" step="0.01" value="0.33" title="Probability (0-60%) that a bubble spawns as a larger 'jumbo' bubble. Higher = more big bubbles."/></div>
       <div class="sliderRow"><label for="rbJumboScale" title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size.">Jumbo Scale</label><input id="rbJumboScale" type="range" min="1.0" max="2.5" step="0.05" value="1.95" title="Size multiplier for jumbo bubbles. 1.0 = same as max, 2.5 = 2.5x larger than max size."/></div>
-      <div class="sliderRow"><label for="rbSizeHz" title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing.">Size Hertz</label><input id="rbSizeHz" type="range" min="0" max="1" step="0.01" value="0.67" title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing."/></div>
+      <div class="sliderRow"><label for="rbSizeHz" title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing.">Size Hertz</label><input id="rbSizeHz" type="range" min="0" max="1" step="0.01" value="0.42" title="Speed of bubble size pulsing animation (0 = disabled). Higher values = faster pulsing."/></div>
       <div class="sectionDivider"></div>
       <div class="sliderRow" style="justify-content:flex-end; gap:8px; flex-wrap:wrap">
         <div style="display:flex; gap:4px">
@@ -345,11 +345,11 @@
       <div class="sectionDivider"></div>
       <div class="sliderRow">
         <label for="bgSpeed" title="How fast the GPU bubble layer moves">Speed</label>
-        <input type="range" min="0" max="3" step="0.01" value="0.9" id="bgSpeed" title="Particle speed">
+        <input type="range" min="0" max="3" step="0.01" value="0.72" id="bgSpeed" title="Particle speed">
       </div>
       <div class="sliderRow">
         <label for="bgDensity" title="How many particles are spawned">Density</label>
-        <input type="range" min="0" max="1.5" step="0.01" value="1.2" id="bgDensity" title="Particle count">
+        <input type="range" min="0" max="1.5" step="0.01" value="0.95" id="bgDensity" title="Particle count">
       </div>
       <div class="sliderRow">
         <label for="glAlpha" title="Opacity of the GPU bubble layer">Alpha</label>
@@ -430,11 +430,11 @@
       </div>
 <div class="sliderRow">
         <label for="navOrbitSpeed" title="How fast bubbles orbit around Errl">Orbit</label>
-<input type="range" min="0" max="2" step="0.01" value="1" id="navOrbitSpeed" title="Orbit speed">
+<input type="range" min="0" max="2" step="0.01" value="0.82" id="navOrbitSpeed" title="Orbit speed">
       </div>
       <div class="sliderRow">
         <label for="navRadius" title="Distance of bubbles from Errl">Radius</label>
-        <input type="range" min="0.6" max="1.6" step="0.01" value="1.26" id="navRadius" title="Orbit radius">
+        <input type="range" min="0.6" max="1.6" step="0.01" value="1.12" id="navRadius" title="Orbit radius">
       </div>
       <div class="sliderRow">
         <label for="navOrbSize" title="Overall size of nav bubbles">Size</label>

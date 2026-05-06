@@ -14,11 +14,31 @@
     
     let scene, camera, renderer;
     let bubbles = [];
-    // Fixed sectors for spawn/reset (decoupled from live Nav menu layout so Orbit/Radius/Size do not reshape this field).
-    const RB_SPAWN_SECTORS = 6;
+    // Match visible home-orbit nav bubbles (e.g. Design hidden via data-errl-hide-design-nav).
+    function countVisibleNavOrbitBubbles() {
+      try {
+        let n = 0;
+        document.querySelectorAll('#navOrbit .bubble').forEach((el) => {
+          if (!el) return;
+          if (el.getAttribute('hidden') != null) return;
+          try {
+            const st = window.getComputedStyle(el);
+            if (st.display === 'none' || st.visibility === 'hidden') return;
+          } catch (_) {
+            return;
+          }
+          n++;
+        });
+        return Math.max(3, n || 5);
+      } catch (_) {
+        return 6;
+      }
+    }
+    const RB_SPAWN_SECTOR_COUNT = countVisibleNavOrbitBubbles();
     const RB_DEFAULT_BASE_DIST = 180;
     const rbSpawn = (function buildRbSpawn() {
-      const angles = Array.from({ length: RB_SPAWN_SECTORS }, (_, i) => (360 * i) / RB_SPAWN_SECTORS);
+      const n = RB_SPAWN_SECTOR_COUNT;
+      const angles = Array.from({ length: n }, (_, i) => (360 * i) / n);
       const dists = angles.map(() => RB_DEFAULT_BASE_DIST);
       return { angles, dists, count: Math.max(1, angles.length) };
     })();
@@ -299,6 +319,16 @@
       rippleIntensity: 1.2,
       interactionMode: 'classic'
     };
+
+    let classicPlayEngaged = false;
+    function emitClassicPlayEngaged() {
+      if (classicPlayEngaged) return;
+      classicPlayEngaged = true;
+      try {
+        window.dispatchEvent(new CustomEvent('errl:rb-play-engaged'));
+      } catch (_) {}
+      syncClassicGoalEdges();
+    }
 
     const collectPointer = { x: 0, y: 0, active: false };
     let collectScore = 0;
@@ -634,6 +664,7 @@
               hit.object.userData.thrownAt = 0;
               if (hit.object.userData.impulse && hit.object.userData.impulse.set) hit.object.userData.impulse.set(0, 0, 0);
             } catch(_) {}
+            if (controls.interactionMode === 'classic') emitClassicPlayEngaged();
             // Capture pointer so release is reliable.
             try { cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId); } catch(_) {}
             // Seed history with current position on grab plane.
@@ -644,6 +675,7 @@
         }
 
         // No bubble hit: track for flick impulse.
+        if (controls.interactionMode === 'classic') emitClassicPlayEngaged();
         flickState.active = true;
         flickState.pointerId = e.pointerId;
         flickState.history = [];
@@ -1033,10 +1065,14 @@
       try {
         const body = document.body;
         if (!body) return;
-        if (controls.interactionMode === 'classic') body.classList.add('rb-classic-goal-edges');
+        if (controls.interactionMode === 'classic' && classicPlayEngaged) body.classList.add('rb-classic-goal-edges');
         else body.classList.remove('rb-classic-goal-edges');
       } catch (_) {}
     }
+    window.addEventListener('errl:rb-play-engaged', () => {
+      classicPlayEngaged = true;
+      syncClassicGoalEdges();
+    });
     // Expose control interface
     window.errlRisingBubblesThree = {
       scene,
@@ -1145,6 +1181,10 @@
       },
       getPoolSize() {
         return bubblePoolCount;
+      },
+      setClassicPlayEngaged(on) {
+        classicPlayEngaged = !!on;
+        syncClassicGoalEdges();
       },
       stopAnimation() {
         // no-op (animation is always running; controls affect motion)

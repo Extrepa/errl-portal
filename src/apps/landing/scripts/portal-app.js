@@ -3903,6 +3903,7 @@
     }
     const scoreStore = createScoreStore();
     let scoreState = scoreStore.loadScores();
+    let rbScoreHudUnlocked = false;
     let persistTimer = null;
     function scheduleScorePersist() {
       if (persistTimer) clearTimeout(persistTimer);
@@ -3936,7 +3937,9 @@
       const modeLabelEl = wrap ? wrap.querySelector('.rb-collect-score__row--top .rb-collect-score__label') : null;
       const mode = getCurrentMode();
       if (wrap) {
-        wrap.hidden = !errlPhoneExpandedForScoreHud();
+        const show = errlPhoneExpandedForScoreHud() && rbScoreHudUnlocked;
+        wrap.hidden = !show;
+        wrap.classList.toggle('rb-collect-score--compact', show);
         wrap.setAttribute('data-mode', mode);
       }
       const modeScore = Math.max(0, scoreState.session[mode] | 0);
@@ -3964,6 +3967,7 @@
       const multiplier = Math.max(0, Number(payload.multiplier || 1));
       const pointsAwarded = Math.max(0, Math.round(base * multiplier));
       if (!pointsAwarded) return;
+      rbScoreHudUnlocked = true;
       scoreState.session[mode] = Math.max(0, (scoreState.session[mode] | 0) + pointsAwarded);
       scoreState.lifetime[mode] = Math.max(0, (scoreState.lifetime[mode] | 0) + pointsAwarded);
       if ((scoreState.session[mode] | 0) > (scoreState.high[mode] | 0)) {
@@ -4262,6 +4266,10 @@
       observer.observe(panelEl, { attributes: true, attributeFilter: ['data-active-tab', 'class'] });
     }
     window.addEventListener('errl:score-hud-sync', () => { renderScoreHud(); });
+    window.addEventListener('errl:rb-play-engaged', () => {
+      rbScoreHudUnlocked = true;
+      renderScoreHud();
+    });
     renderScoreHud();
     const up = document.getElementById('errlCustomBaseUpload');
     if (up) {
@@ -4317,6 +4325,7 @@
       el.classList.add('errl-idle-streak--on');
     }
     const baseMs = 26000;
+    let streakStarted = false;
     function scheduleNext(){
       setTimeout(()=>{
         if (isReduced() || (typeof document.hidden === 'boolean' && document.hidden)) {
@@ -4327,6 +4336,11 @@
         scheduleNext();
       }, baseMs + Math.random() * 14000);
     }
-    setTimeout(scheduleNext, 12000 + Math.random() * 8000);
+    function startIdleStreak(){
+      if (streakStarted) return;
+      streakStarted = true;
+      setTimeout(scheduleNext, 12000 + Math.random() * 8000);
+    }
+    window.addEventListener('errl:rb-play-engaged', startIdleStreak);
   })();
 })();

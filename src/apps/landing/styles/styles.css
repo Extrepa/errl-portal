@@ -1741,6 +1741,35 @@ body.reduced-motion .errl-panel.minimized::after {
   color: rgba(var(--errl-neon-cyan-rgb), 0.95);
 }
 
+/* Minimal corner HUD after Rising Bubbles play engagement */
+.rb-collect-score.rb-collect-score--compact {
+  right: 8px;
+  top: max(8px, env(safe-area-inset-top, 0px));
+  gap: 1px;
+  padding: 4px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 4px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.45);
+}
+.rb-collect-score.rb-collect-score--compact .rb-collect-score__row {
+  gap: 4px;
+}
+.rb-collect-score.rb-collect-score--compact .rb-collect-score__label {
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+.rb-collect-score.rb-collect-score--compact .rb-collect-score__value {
+  text-shadow: 0 0 4px rgba(var(--errl-neon-cyan-rgb), 0.45);
+}
+.rb-collect-score.rb-collect-score--compact .rb-collect-score__value--overall {
+  text-shadow: 0 0 4px rgba(var(--errl-neon-purple-rgb), 0.45);
+}
+.rb-collect-score.rb-collect-score--compact .rb-collect-score__high,
+.rb-collect-score.rb-collect-score--compact .rb-collect-score__badge {
+  font-size: 8px;
+}
+
 .tab-reset-inline {
   min-height: 22px;
   font-size: calc(6.5px * var(--panel-scale));

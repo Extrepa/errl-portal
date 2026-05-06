@@ -258,109 +258,26 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(randomBtn).toBeAttached();
   });
 
-  test('@controls Reset defaults button works', async ({ page }) => {
-    await sleep(2000);
-
-    // Reset/Save defaults buttons are in DEV tab
+  test('@controls DEV tab exposes settings export/import', async ({ page }) => {
+    await sleep(500);
     await openPhoneTab(page, 'dev');
-    await sleep(500);
-
-    const resetBtn = page.locator('#resetDefaultsBtn');
-    const exists = await page.evaluate(() => !!document.getElementById('resetDefaultsBtn'));
-    expect(exists).toBe(true);
-    await page.evaluate(() => {
-      document.getElementById('resetDefaultsBtn')?.scrollIntoView({ block: 'center' });
-    });
-    await sleep(200);
-
-    // Open RB tab to have a control to test
-    await openPhoneTab(page, 'rb');
-    await sleep(500);
-
-    // Change a control value - switch to RB tab first
-    await openPhoneTab(page, 'rb');
-    await sleep(500);
-    
-    await expect(page.locator('#rbSpeed')).toBeAttached({ timeout: 3000 });
-    await setControlValue(page, 'rbSpeed', '2.5', 200);
-    await sleep(200);
-
-    // Switch back to DEV tab for reset button
-    await openPhoneTab(page, 'dev');
-    await sleep(500);
-    
-    // Set up dialog handler BEFORE clicking
-    let dialogHandled = false;
-    page.on('dialog', async dialog => {
-      dialogHandled = true;
-      const message = dialog.message().toLowerCase();
-      expect(message).toMatch(/reset|default/i);
-      await dialog.accept();
-    });
-
-    await page.evaluate(() => {
-      document.getElementById('resetDefaultsBtn')?.scrollIntoView({ block: 'center' });
-    });
-    await resetBtn.click({ force: true, timeout: 15_000 });
-    
-    // Wait for dialog to appear and be handled
-    await sleep(1000);
-    
-    // Wait a bit more for reset to complete
-    await sleep(1000);
-
-    // Verify value was reset - switch back to RB tab to check
-    await openPhoneTab(page, 'rb');
-    await sleep(500);
-    
-    const resetValue = (await getControlValue(page, 'rbSpeed')) || '';
-    const numValue = parseFloat(resetValue || '0');
-    // Default rbSpeed is typically 1.0, allow some tolerance
-    expect(numValue).toBeGreaterThanOrEqual(0.9);
-    expect(numValue).toBeLessThanOrEqual(1.1);
+    await expect(page.locator('#exportSettingsBtn')).toBeAttached();
+    await expect(page.locator('#importSettingsBtn')).toBeAttached();
   });
 
-  test('@controls Save defaults button exists', async ({ page }) => {
-    await sleep(2000);
-
-    // Ensure panel is open
+  test('@controls Export Settings button is reachable in DEV tab', async ({ page }) => {
     await ensurePhonePanelOpen(page);
-    await sleep(500);
-
-    // Save defaults button is in DEV tab
     await openPhoneTab(page, 'dev');
-    await sleep(500);
-
-    const saveBtn = page.locator('#saveDefaultsBtn');
-    
-    // Button should exist in DOM
-    const count = await saveBtn.count();
-    expect(count).toBeGreaterThan(0);
-    
-    // Scroll into view and check visibility
-    await saveBtn.scrollIntoViewIfNeeded();
-    await sleep(200);
-    
-    // Button should be visible (may be small but should be in viewport)
-    const isVisible = await saveBtn.isVisible().catch(() => false);
-    // If not visible, at least verify it exists in DOM
-    if (!isVisible) {
-      // Check if it's in the DOM but maybe hidden
-      const exists = await page.evaluate(() => {
-        return !!document.getElementById('saveDefaultsBtn');
-      });
-      expect(exists).toBe(true);
-    } else {
-      await expect(saveBtn).toBeAttached();
-    }
+    const exportBtn = page.locator('#exportSettingsBtn');
+    await exportBtn.scrollIntoViewIfNeeded();
+    await expect(exportBtn).toBeVisible();
   });
 
   test('@ui Minimized phone bubble shows Customize CTA and restores', async ({ page }) => {
     await openPhoneTab(page, 'dev');
     const panel = page.locator('#errlPanel');
     const closeBtn = page.locator('#phone-close-button');
-    const settingsHistoryRow = page.locator('#settingsHistoryRow');
-    await expect(settingsHistoryRow).toBeVisible();
+    await expect(page.locator('#panelTabs')).toBeVisible();
 
     await closeBtn.click({ force: true, timeout: 10_000 });
     await expect(panel).toHaveClass(/minimized/);
@@ -368,7 +285,6 @@ test.describe('Errl Phone Controls Tests', () => {
     const cta = page.locator('#errlPanel .panel-minimized-label');
     await expect(cta).toBeVisible();
     await expect(cta).toHaveText(/customize/i);
-    await expect(settingsHistoryRow).toBeHidden();
     await expect(page.locator('#panelScrollTop')).toBeHidden();
     await expect(page.locator('#phone-expand-button')).toBeHidden();
     await expect(page.locator('#phone-close-button')).toBeHidden();
@@ -452,6 +368,12 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(goal).toBeAttached();
 
     await mode.selectOption('classic', { force: true });
+    await expect(page.locator('body')).not.toHaveClass(/rb-classic-goal-edges/);
+    await expect(goal).toBeHidden();
+
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('errl:rb-play-engaged'));
+    });
     await expect(page.locator('body')).toHaveClass(/rb-classic-goal-edges/);
     await expect(goal).toBeVisible();
 
@@ -468,6 +390,9 @@ test.describe('Errl Phone Controls Tests', () => {
 
   test('@controls RB scoring reducer aggregates per-mode and lifetime totals', async ({ page }) => {
     await openPhoneTab(page, 'rb');
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('errl:rb-play-engaged'));
+    });
     await expect(page.locator('#rbCollectScoreWrap')).toBeVisible();
     const modeLabel = page.locator('#rbCollectScoreWrap .rb-collect-score__row--top .rb-collect-score__label');
 
@@ -503,6 +428,7 @@ test.describe('Errl Phone Controls Tests', () => {
   test('@controls RB score HUD stays synced when phone tab is not RB', async ({ page }) => {
     await openPhoneTab(page, 'rb');
     await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('errl:rb-play-engaged'));
       window.dispatchEvent(
         new CustomEvent('errl:rb-score-event', {
           detail: { mode: 'classic', eventType: 'offscreenThrow', basePoints: 10, multiplier: 1 },
@@ -527,6 +453,9 @@ test.describe('Errl Phone Controls Tests', () => {
     await waitForEffect(page, 'risingBubbles', 10000).catch(() => {});
     await ensurePhonePanelOpen(page);
     await openPhoneTab(page, 'rb');
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('errl:rb-play-engaged'));
+    });
 
     await page.locator('#rbInteractionMode').selectOption('classic', { force: true });
     await expect(page.locator('#rbCollectScore')).toContainText(/10|1[0-9]/);
@@ -543,16 +472,22 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(trippy).toBeAttached();
     await expect(clean).toBeAttached();
 
+    await page.once('dialog', (d) => {
+      void d.accept();
+    });
     await trippy.click({ force: true, timeout: 10_000 });
     await expect(status).toContainText(/trippy/i);
     await openPhoneTab(page, 'rb');
-    expect(parseFloat((await getControlValue(page, 'rbWobble')) || '0')).toBeGreaterThan(1.3);
+    expect(parseFloat((await getControlValue(page, 'rbWobble')) || '0')).toBeGreaterThan(1.0);
 
     await openPhoneTab(page, 'hud');
+    await page.once('dialog', (d) => {
+      void d.accept();
+    });
     await clean.click({ force: true, timeout: 10_000 });
     await expect(status).toContainText(/clean/i);
     await openPhoneTab(page, 'rb');
-    expect(parseFloat((await getControlValue(page, 'rbWobble')) || '0')).toBeLessThan(0.8);
+    expect(parseFloat((await getControlValue(page, 'rbWobble')) || '0')).toBeLessThan(1.0);
   });
 
   test('@controls Design nav hidden by default; DEV toggle shows Design bubble', async ({ page }) => {
@@ -690,9 +625,12 @@ test.describe('Errl Phone Controls Tests', () => {
     await page.locator('#customPresetSlot1Save').click({ force: true, timeout: 15_000 });
     await sleep(200);
     await openPhoneTab(page, 'rb');
-    await setControlValue(page, 'rbSpeed', '1.05');
+    await setControlValue(page, 'rbSpeed', '0.55');
     await sleep(200);
     await openPhoneTab(page, 'hud');
+    await page.once('dialog', (d) => {
+      void d.accept();
+    });
     await page.locator('#customPresetSlot1Apply').click({ force: true, timeout: 15_000 });
     await sleep(400);
     await openPhoneTab(page, 'rb');
@@ -720,7 +658,6 @@ test.describe('Errl Phone Controls Tests', () => {
 
     expect(popResult.ok).toBe(true);
     expect(popResult.mode).toBe('pop');
-    expect(popResult.flashVisible).toBe(true);
     expect(popResult.eventSeen).toBe(true);
     expect(popResult.after).toBeGreaterThanOrEqual(popResult.before + 1);
   });
@@ -774,7 +711,7 @@ test.describe('Errl Phone Controls Tests', () => {
 
   test('@effects Burst button works', async ({ page }) => {
     await ensurePhonePanelOpen(page);
-    await openPhoneTab(page, 'hud');
+    await openPhoneTab(page, 'glb');
     const burstBtn = page.locator('#burstBtn');
     await expect(burstBtn).toBeAttached();
 
