@@ -199,37 +199,130 @@ a { color: inherit; text-decoration: none; }
   background: transparent;
 }
 
-/* Classic Throw: off-screen “goal” rim (Rising Bubbles mode only) */
-.rb-classic-goal-frame {
+/* Classic Throw: moving edge goals (Rising Bubbles; gated by body.rb-classic-goal-edges) */
+.rb-classic-goals {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
   max-width: 100vw;
   max-height: 100vh;
-  z-index: 4; /* above L2/L3; below phone panel and modals */
+  z-index: 4;
   pointer-events: none;
   box-sizing: border-box;
-  border: 1px solid rgba(0, 240, 200, 0.35);
-  box-shadow:
-    0 0 18px rgba(0, 220, 200, 0.22) inset,
-    0 0 28px rgba(120, 200, 255, 0.12);
-  background: transparent;
+  padding:
+    env(safe-area-inset-top, 0)
+    env(safe-area-inset-right, 0)
+    env(safe-area-inset-bottom, 0)
+    env(safe-area-inset-left, 0);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+  transition: opacity 0.2s ease;
 }
-body.rb-classic-goal-edges .rb-classic-goal-frame {
+.rb-classic-goals__inset {
+  position: absolute;
+  inset: 0;
+}
+body.rb-classic-goal-edges .rb-classic-goals {
   opacity: 1;
   visibility: visible;
 }
+
+.rb-classic-goal {
+  position: absolute;
+  box-sizing: border-box;
+  width: clamp(36px, 11vw, 56px);
+  height: clamp(10px, 2.4vmin, 16px);
+  border-radius: 999px;
+  border: 1px solid rgba(0, 240, 200, 0.45);
+  background: rgba(0, 40, 48, 0.35);
+  box-shadow:
+    0 0 12px rgba(0, 220, 200, 0.35),
+    0 0 22px rgba(120, 200, 255, 0.18);
+  transform: translateZ(0);
+  will-change: transform, left, top;
+}
+
+.rb-classic-goal--top {
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+.rb-classic-goal--bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+.rb-classic-goal--left {
+  left: 0;
+  top: 50%;
+  width: clamp(10px, 2.4vmin, 16px);
+  height: clamp(36px, 11vw, 56px);
+  transform: translate(0, -50%);
+}
+.rb-classic-goal--right {
+  right: 0;
+  top: 50%;
+  width: clamp(10px, 2.4vmin, 16px);
+  height: clamp(36px, 11vw, 56px);
+  transform: translate(0, -50%);
+}
+
+.rb-classic-goal--patrol-h {
+  animation: rbClassicGoalPatrolH var(--rb-goal-patrol-dur, 14s) linear infinite;
+}
+.rb-classic-goal--patrol-v {
+  animation: rbClassicGoalPatrolV var(--rb-goal-patrol-dur, 14s) linear infinite;
+}
+.rb-classic-goal--shift-b.rb-classic-goal--patrol-h {
+  animation-delay: -7s;
+}
+.rb-classic-goal--shift-b.rb-classic-goal--patrol-v {
+  animation-delay: -7s;
+}
+
+@keyframes rbClassicGoalPatrolH {
+  0% {
+    left: 14%;
+    transform: translate(-50%, 0);
+  }
+  50% {
+    left: 86%;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    left: 14%;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes rbClassicGoalPatrolV {
+  0% {
+    top: 18%;
+    transform: translate(0, -50%);
+  }
+  50% {
+    top: 82%;
+    transform: translate(0, -50%);
+  }
+  100% {
+    top: 18%;
+    transform: translate(0, -50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .rb-classic-goal-frame {
+  .rb-classic-goals {
     transition: none;
   }
-  body.rb-classic-goal-edges .rb-classic-goal-frame {
-    box-shadow: 0 0 8px rgba(0, 200, 180, 0.15) inset;
-    border-color: rgba(0, 200, 180, 0.22);
+  .rb-classic-goal {
+    border-color: rgba(0, 200, 180, 0.28);
+    box-shadow: 0 0 8px rgba(0, 200, 180, 0.2);
+  }
+  .rb-classic-goal--patrol-h,
+  .rb-classic-goal--patrol-v {
+    animation-duration: 42s;
+    animation-timing-function: ease-in-out;
   }
 }
 

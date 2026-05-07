@@ -464,6 +464,67 @@
       return { halfW, halfH };
     }
 
+    function worldToCanvasClient(worldVec){
+      tmpPoint.copy(worldVec).project(camera);
+      const rect = cvs.getBoundingClientRect();
+      const sx = (tmpPoint.x * 0.5 + 0.5) * rect.width + rect.left;
+      const sy = (-tmpPoint.y * 0.5 + 0.5) * rect.height + rect.top;
+      return { sx, sy, rect };
+    }
+    function screenInsideCanvasInset(sx, sy, rect, inset){
+      return sx >= rect.left + inset &&
+        sx <= rect.right - inset &&
+        sy >= rect.top + inset &&
+        sy <= rect.bottom - inset;
+    }
+    function segmentBoundaryExit(ax, ay, bx, by, rect){
+      function insideStrict(x, y){
+        return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
+      }
+      if (!insideStrict(ax, ay)) {
+        return {
+          x: clamp(ax, rect.left, rect.right),
+          y: clamp(ay, rect.top, rect.bottom)
+        };
+      }
+      if (insideStrict(bx, by)) {
+        return { x: bx, y: by };
+      }
+      let lo = 0;
+      let hi = 1;
+      for (let i = 0; i < 16; i++) {
+        const mid = (lo + hi) / 2;
+        const x = ax + (bx - ax) * mid;
+        const y = ay + (by - ay) * mid;
+        if (insideStrict(x, y)) lo = mid;
+        else hi = mid;
+      }
+      const t = (lo + hi) / 2;
+      return {
+        x: ax + (bx - ax) * t,
+        y: ay + (by - ay) * t
+      };
+    }
+    function exitPointHitsGoal(clientX, clientY){
+      try {
+        const nodes = document.querySelectorAll('.rb-classic-goal');
+        const pad = 2;
+        for (let i = 0; i < nodes.length; i++) {
+          const r = nodes[i].getBoundingClientRect();
+          if (
+            clientX >= r.left - pad &&
+            clientX <= r.right + pad &&
+            clientY >= r.top - pad &&
+            clientY <= r.bottom + pad
+          ) return true;
+        }
+      } catch (_) {}
+      return false;
+    }
+    function pointerEligibleForClassicScore(ptr){
+      return ptr === 'mouse' || ptr === 'touch' || ptr === 'pen';
+    }
+
     function getActiveCount(){
       const cap = maxDensityForMode(controls.interactionMode);
       const mult = clamp(safeNum(controls.density, 1.0), 0, cap);
@@ -1004,6 +1065,23 @@
         }
         bubble.scale.set(s, s, s);
 
+        // Classic throw: screen-space path for edge-goal hit testing (canvas-aligned projection)
+        if (
+          controls.interactionMode === 'classic' &&
+          bubble.userData &&
+          bubble.userData.isThrown &&
+          camera
+        ) {
+          const { sx, sy, rect } = worldToCanvasClient(bubble.position);
+          bubble.userData.rbScreenCx = sx;
+          bubble.userData.rbScreenCy = sy;
+          const inset = 3;
+          if (screenInsideCanvasInset(sx, sy, rect, inset)) {
+            bubble.userData.rbLastInsideCx = sx;
+            bubble.userData.rbLastInsideCy = sy;
+          }
+        }
+
         // Reset if out of bounds (top or flung off-screen)
         const bnd = computeBoundsAtZ(bubble.position.z);
         const outX = Math.abs(bubble.position.x) > (bnd.halfW * 1.25);
@@ -1013,15 +1091,38 @@
           // Give classic throws enough time to travel off-screen before score eligibility expires.
           const justThrown = wasThrown && (elapsedTime - safeNum(bubble.userData.thrownAt, 0)) < 12;
           const offscreen = outX || outY || bubble.position.y > 30;
-          const fromMouse = String((bubble.userData && bubble.userData.throwInputType) || '') === 'mouse';
+          const ptr = String((bubble.userData && bubble.userData.throwInputType) || '');
+          const fromPointer = pointerEligibleForClassicScore(ptr);
+          let classicGoalHit = false;
           if (
             controls.interactionMode === 'classic' &&
             offscreen &&
             justThrown &&
-            fromMouse &&
+            fromPointer &&
             bubble.userData &&
             !bubble.userData.throwScoreEmitted
           ) {
+            const rect = cvs.getBoundingClientRect();
+            const ax = bubble.userData.rbLastInsideCx;
+            const ay = bubble.userData.rbLastInsideCy;
+            const bx = bubble.userData.rbScreenCx;
+            const by = bubble.userData.rbScreenCy;
+            let exitX = bx;
+            let exitY = by;
+            if (
+              Number.isFinite(ax) && Number.isFinite(ay) &&
+              Number.isFinite(bx) && Number.isFinite(by)
+            ) {
+              const exit = segmentBoundaryExit(ax, ay, bx, by, rect);
+              exitX = exit.x;
+              exitY = exit.y;
+            } else if (Number.isFinite(bx) && Number.isFinite(by)) {
+              exitX = clamp(bx, rect.left, rect.right);
+              exitY = clamp(by, rect.top, rect.bottom);
+            }
+            classicGoalHit = exitPointHitsGoal(exitX, exitY);
+          }
+          if (classicGoalHit) {
             bubble.userData.throwScoreEmitted = true;
             try {
               window.dispatchEvent(new CustomEvent('errl:rb-classic-throw', {
@@ -1044,6 +1145,10 @@
             bubble.userData.throwInputType = '';
             bubble.userData.throwPower = 0;
             bubble.userData.throwScoreEmitted = false;
+            bubble.userData.rbScreenCx = undefined;
+            bubble.userData.rbScreenCy = undefined;
+            bubble.userData.rbLastInsideCx = undefined;
+            bubble.userData.rbLastInsideCy = undefined;
           } catch(_) {}
         }
       });

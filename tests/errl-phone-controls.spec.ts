@@ -361,25 +361,27 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(attract).not.toBeChecked();
   });
 
-  test('@controls Classic Throw goal frame is visible only in classic mode', async ({ page }) => {
+  test('@controls Classic Throw edge goals visible only in classic mode', async ({ page }) => {
     await openPhoneTab(page, 'rb');
     const mode = page.locator('#rbInteractionMode');
-    const goal = page.locator('#rbClassicGoalFrame');
-    await expect(goal).toBeAttached();
+    const goals = page.locator('#rbClassicGoals');
+    const markers = page.locator('#rbClassicGoals .rb-classic-goal');
+    await expect(goals).toBeAttached();
+    await expect(markers).toHaveCount(6);
 
     await mode.selectOption('classic', { force: true });
     await expect(page.locator('body')).not.toHaveClass(/rb-classic-goal-edges/);
-    await expect(goal).toBeHidden();
+    await expect(goals).toBeHidden();
 
     await page.evaluate(() => {
       window.dispatchEvent(new CustomEvent('errl:rb-play-engaged'));
     });
     await expect(page.locator('body')).toHaveClass(/rb-classic-goal-edges/);
-    await expect(goal).toBeVisible();
+    await expect(goals).toBeVisible();
 
     await mode.selectOption('pop', { force: true });
     await expect(page.locator('body')).not.toHaveClass(/rb-classic-goal-edges/);
-    await expect(goal).toBeHidden();
+    await expect(goals).toBeHidden();
 
     await mode.selectOption('collect', { force: true });
     await expect(page.locator('body')).not.toHaveClass(/rb-classic-goal-edges/);

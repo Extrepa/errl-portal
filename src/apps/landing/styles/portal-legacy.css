@@ -7,7 +7,7 @@
 html.portal-legacy #bgParticles,
 html.portal-legacy #riseBubbles,
 html.portal-legacy #errlWebGL,
-html.portal-legacy #rbClassicGoalFrame {
+html.portal-legacy #rbClassicGoals {
   display: none !important;
 }
 
