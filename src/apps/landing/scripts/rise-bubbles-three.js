@@ -507,7 +507,7 @@
     }
     function exitPointHitsGoal(clientX, clientY){
       try {
-        const nodes = document.querySelectorAll('.rb-classic-goal');
+        const nodes = document.querySelectorAll('[data-rb-classic-goal]');
         const pad = 2;
         for (let i = 0; i < nodes.length; i++) {
           const r = nodes[i].getBoundingClientRect();

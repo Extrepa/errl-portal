@@ -60,13 +60,24 @@
   <!-- Rising bubbles (Stable mode + fallback) -->
   <canvas id="riseBubbles"></canvas>
   <div id="rbClassicGoals" class="rb-classic-goals" aria-hidden="true">
+    <div class="rb-classic-goals__veil" aria-hidden="true"></div>
     <div class="rb-classic-goals__inset">
-      <span class="rb-classic-goal rb-classic-goal--top rb-classic-goal--patrol-h rb-classic-goal--shift-a"></span>
-      <span class="rb-classic-goal rb-classic-goal--top rb-classic-goal--patrol-h rb-classic-goal--shift-b"></span>
-      <span class="rb-classic-goal rb-classic-goal--bottom rb-classic-goal--patrol-h rb-classic-goal--shift-a"></span>
-      <span class="rb-classic-goal rb-classic-goal--bottom rb-classic-goal--patrol-h rb-classic-goal--shift-b"></span>
-      <span class="rb-classic-goal rb-classic-goal--left rb-classic-goal--patrol-v rb-classic-goal--shift-a"></span>
-      <span class="rb-classic-goal rb-classic-goal--right rb-classic-goal--patrol-v rb-classic-goal--shift-b"></span>
+      <div class="rb-classic-gate rb-classic-gate--top rb-classic-gate--patrol-h rb-classic-gate--shift-a">
+        <div class="rb-classic-gate__frame"></div>
+        <div class="rb-classic-gate__hit" data-rb-classic-goal="1"></div>
+      </div>
+      <div class="rb-classic-gate rb-classic-gate--bottom rb-classic-gate--patrol-h rb-classic-gate--shift-b">
+        <div class="rb-classic-gate__frame"></div>
+        <div class="rb-classic-gate__hit" data-rb-classic-goal="1"></div>
+      </div>
+      <div class="rb-classic-gate rb-classic-gate--left rb-classic-gate--patrol-v rb-classic-gate--shift-a">
+        <div class="rb-classic-gate__frame"></div>
+        <div class="rb-classic-gate__hit" data-rb-classic-goal="1"></div>
+      </div>
+      <div class="rb-classic-gate rb-classic-gate--right rb-classic-gate--patrol-v rb-classic-gate--shift-b">
+        <div class="rb-classic-gate__frame"></div>
+        <div class="rb-classic-gate__hit" data-rb-classic-goal="1"></div>
+      </div>
     </div>
   </div>
   <div id="rbCollectScoreWrap" class="rb-collect-score" hidden>

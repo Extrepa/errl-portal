@@ -365,9 +365,9 @@ test.describe('Errl Phone Controls Tests', () => {
     await openPhoneTab(page, 'rb');
     const mode = page.locator('#rbInteractionMode');
     const goals = page.locator('#rbClassicGoals');
-    const markers = page.locator('#rbClassicGoals .rb-classic-goal');
+    const markers = page.locator('#rbClassicGoals [data-rb-classic-goal]');
     await expect(goals).toBeAttached();
-    await expect(markers).toHaveCount(6);
+    await expect(markers).toHaveCount(4);
 
     await mode.selectOption('classic', { force: true });
     await expect(page.locator('body')).not.toHaveClass(/rb-classic-goal-edges/);

@@ -3929,22 +3929,35 @@
         pop: 'Pop',
         collect: 'Collect',
       };
+      const MODE_HUD_LABELS_NARROW = {
+        classic: 'CT',
+        pop: 'Pop',
+        collect: 'Col',
+      };
       const wrap = document.getElementById('rbCollectScoreWrap');
       const scoreEl = document.getElementById('rbCollectScore');
       const totalEl = document.getElementById('rbOverallScore');
       const highEl = document.getElementById('rbCollectHigh');
       const badgeEl = document.getElementById('rbScoreBadge');
       const modeLabelEl = wrap ? wrap.querySelector('.rb-collect-score__row--top .rb-collect-score__label') : null;
+      const totalLabelEl = wrap ? wrap.querySelector('.rb-collect-score__row--bottom .rb-collect-score__label') : null;
       const mode = getCurrentMode();
+      let narrowHud = false;
+      try {
+        narrowHud = !!(window.matchMedia && window.matchMedia('(max-width: 480px)').matches);
+      } catch (_) {}
       if (wrap) {
         const show = errlPhoneExpandedForScoreHud() && rbScoreHudUnlocked;
         wrap.hidden = !show;
         wrap.classList.toggle('rb-collect-score--compact', show);
+        wrap.classList.toggle('rb-collect-score--micro', show);
         wrap.setAttribute('data-mode', mode);
       }
       const modeScore = Math.max(0, scoreState.session[mode] | 0);
       const modeHigh = Math.max(0, scoreState.high[mode] | 0);
-      if (modeLabelEl) modeLabelEl.textContent = MODE_HUD_LABELS[mode] || 'Classic Throw';
+      const modeLabels = narrowHud ? MODE_HUD_LABELS_NARROW : MODE_HUD_LABELS;
+      if (modeLabelEl) modeLabelEl.textContent = modeLabels[mode] || 'Classic Throw';
+      if (totalLabelEl) totalLabelEl.textContent = narrowHud ? 'Life' : 'Total lifetime';
       if (scoreEl) scoreEl.textContent = String(modeScore);
       if (totalEl) totalEl.textContent = String(Math.max(0, scoreState.lifetime.total | 0));
       if (highEl) highEl.textContent = modeHigh ? ('best ' + modeHigh) : '';
