@@ -18,11 +18,12 @@ import {
   ensurePhonePanelOpen,
   waitForCanvasContent,
   getFilterNodeAttribute,
+  gotoPortalLanding,
 } from './helpers/test-helpers';
 
 test.describe('Home Page Structure', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await page.goto(`${baseURL!}/?skipIntro=1`, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
     // Wait for effects to initialize
     await waitForEffects(page, 15000).catch(() => {
@@ -60,13 +61,17 @@ test.describe('Home Page Structure', () => {
     }
   });
 
-  test('should have Errl phone panel', async ({ page }) => {
+  test('should have Errl phone panel', async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
+    await ensurePhonePanelOpen(page);
     const panel = page.locator('#errlPanel');
     await expect(panel).toBeVisible();
   });
 
-  test('should have all phone panel tabs', async ({ page }) => {
-    const tabs = ['hud', 'errl', 'pin', 'nav', 'rb', 'glb', 'bg', 'dev', 'hue'];
+  test('should have all phone panel tabs', async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
+    await ensurePhonePanelOpen(page);
+    const tabs = ['hud', 'errl', 'pin', 'nav', 'scene', 'rb', 'glb', 'bg', 'dev', 'hue'];
     for (const tab of tabs) {
       const tabButton = page.locator(`[data-tab="${tab}"]`).first();
       await expect(tabButton).toBeVisible({ timeout: 5000 });
@@ -88,8 +93,8 @@ test.describe('Home Page Structure', () => {
 });
 
 test.describe('Rising Bubbles Controls', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
     await waitForEffect(page, 'risingBubbles', 10000).catch(() => {});
     await ensurePhonePanelOpen(page);
     await openPhoneTab(page, 'rb');
@@ -164,8 +169,8 @@ test.describe('Rising Bubbles Controls', () => {
 });
 
 test.describe('Hue Controller', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
     await waitForEffect(page, 'hueController', 10000).catch(() => {});
     await ensurePhonePanelOpen(page);
     await openPhoneTab(page, 'hue');
@@ -265,8 +270,9 @@ test.describe('Hue Controller', () => {
 });
 
 test.describe('Classic Goo Controls', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
+    await ensurePhonePanelOpen(page);
     await page.locator('[data-tab="errl"]').first().click();
   });
 
@@ -294,8 +300,9 @@ test.describe('Classic Goo Controls', () => {
 });
 
 test.describe('WebGL Goo (Errl) controls', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
+    await ensurePhonePanelOpen(page);
     await page.locator('[data-tab="errl"]').first().click();
   });
 
@@ -312,8 +319,8 @@ test.describe('WebGL Goo (Errl) controls', () => {
 });
 
 test.describe('Settings Persistence', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
     await waitForEffects(page, 15000).catch(() => {});
     await clearLocalStorage(page);
   });
@@ -387,14 +394,14 @@ test.describe('Settings Persistence', () => {
 });
 
 test.describe('Phone Panel Tabs', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
     await waitForEffects(page, 15000).catch(() => {});
     await ensurePhonePanelOpen(page);
   });
 
   test('should switch between all tabs', async ({ page }) => {
-    const tabs = ['hud', 'errl', 'pin', 'nav', 'rb', 'glb', 'bg', 'dev', 'hue'];
+    const tabs = ['hud', 'errl', 'pin', 'nav', 'scene', 'rb', 'glb', 'bg', 'dev', 'hue'];
     
     for (const tab of tabs) {
       await openPhoneTab(page, tab);
@@ -414,6 +421,7 @@ test.describe('Phone Panel Tabs', () => {
       errl: ['classicGooEnabled', 'classicGooStrength', 'navWiggle'],
       pin: ['pinWidgetFrame', '[data-colorizer-action="inject"]'],
       nav: ['navOrbitSpeed', 'navOrbSize'],
+      scene: ['sceneNavModeDom', 'sceneMetaballGlow'],
       rb: ['rbSpeed', 'rbDensity', 'rbScale'],
       glb: ['bgSpeed', 'glAlpha'],
       bg: [], // BG tab is intentionally empty
@@ -471,8 +479,9 @@ test.describe('Phone Panel Tabs', () => {
 });
 
 test.describe('WebGL Effects', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
+    await ensurePhonePanelOpen(page);
     await page.locator('[data-tab="glb"]').first().click();
   });
 
@@ -487,8 +496,8 @@ test.describe('WebGL Effects', () => {
 });
 
 test.describe('Pin Widget', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
     await ensurePhonePanelOpen(page);
     await openPhoneTab(page, 'pin');
   });
@@ -529,8 +538,8 @@ test.describe('Pin Widget', () => {
 });
 
 test.describe('Developer Tools', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  test.beforeEach(async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
     await ensurePhonePanelOpen(page);
     await openPhoneTab(page, 'dev');
   });

@@ -144,6 +144,24 @@ function bindScenePresets() {
   } catch (_) {}
 }
 
+function bindCopySceneLink() {
+  const btn = document.getElementById('sceneCopyLink');
+  if (!btn || btn.dataset.sceneBound === '1') return;
+  btn.dataset.sceneBound = '1';
+  btn.addEventListener('click', async () => {
+    const api = window.errlSceneControls;
+    if (!api) return;
+    const qs = api.buildSceneQuery();
+    const url = `${window.location.origin}${window.location.pathname}${qs ? `?${qs}` : ''}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setPresetStatus('Scene link copied to clipboard.');
+    } catch (_) {
+      setPresetStatus('Copy failed — select and copy the address bar manually.');
+    }
+  });
+}
+
 function init() {
   mountSceneControlsGlobal();
   bindNavMode();
@@ -151,6 +169,7 @@ function init() {
   bindSculptureControls();
   bindScenePresets();
   bindOpenLab();
+  bindCopySceneLink();
   hydrateFromBus();
   window.addEventListener(SCENE_CONTROLS_EVENT, hydrateFromBus);
 }

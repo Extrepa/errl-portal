@@ -3192,6 +3192,7 @@
             }
           }
         } catch (_) {}
+        requestAnimationFrame(() => recoverCorruptedPanelSize(true));
       })
       .catch(() => {});
 
@@ -3391,6 +3392,33 @@
       const props = ['width','height','padding','border-radius','overflow','right','top','left','bottom','min-width','max-width','max-height'];
       props.forEach(p => { try { panel.style.removeProperty(p); } catch(_) {} });
     }
+
+    const PANEL_SIZE_FLOOR_PX = 120;
+
+    function recoverCorruptedPanelSize(reloadOnFailure) {
+      if (!panel || panel.classList.contains('minimized')) return false;
+      const r = panel.getBoundingClientRect();
+      if (r.width >= PANEL_SIZE_FLOOR_PX && r.height >= PANEL_SIZE_FLOOR_PX) return false;
+      try {
+        localStorage.removeItem(SETTINGS_KEY);
+        localStorage.removeItem(PHONE_SIZE_KEY);
+        localStorage.removeItem(EXPANDED_KEY);
+        localStorage.removeItem(POS_KEY);
+      } catch (_) {}
+      clearMinimizedInlineStyles();
+      panel.classList.remove('expanded');
+      try { panel.style.removeProperty('--phone-user-scale'); } catch (_) {}
+      if (sizeInput) {
+        sizeInput.value = '1';
+        syncPhoneUserScale();
+      }
+      lockPanelToCorner();
+      if (reloadOnFailure) {
+        window.location.reload();
+        return true;
+      }
+      return true;
+    }
     setupTabHelpNotes();
     // initial tab
     activateTab('hud');
@@ -3461,6 +3489,7 @@
         const curTab = panel.getAttribute('data-active-tab') || 'hud';
         activateTab(curTab);
         syncPhoneUserScale();
+        recoverCorruptedPanelSize(false);
         if (!expanded) lockPanelToCorner();
       }, 0);
       try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}

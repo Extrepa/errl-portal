@@ -99,4 +99,12 @@ test.describe('Scene tab (Phase 2–3)', () => {
 
     expect(after).not.toBe(before);
   });
+
+  test('@controls scenePreset URL hydrates on load', async ({ page, baseURL }) => {
+    await page.goto(`${baseURL!}/?dev=1&skipIntro=1&scenePreset=atmospheric`, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+
+    const preset = await page.evaluate(() => window.errlSceneControls?.getSceneSettings().preset);
+    expect(preset).toBe('atmospheric');
+  });
 });

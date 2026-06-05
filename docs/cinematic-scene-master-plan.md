@@ -1,6 +1,7 @@
 # ERRL cinematic + Scene controls — master plan & audit
 
-**Last updated:** 2026-05-28  
+**Last updated:** 2026-06-05  
+**Deployed:** `1f8ce18` on [https://errl.wtf](https://errl.wtf) (2026-06-05)
 **Purpose:** Single checklist for everything built across the cinematic redesign and Scene/Phone control work. Use this to verify behavior, finish gaps, and pick next tasks.  
 **Session log:** `05-Logs/Daily/2026-05-28-cursor-notes.md`
 
@@ -59,7 +60,7 @@
 | **2** Control bus + shader | Done | `sceneControls.ts`, `errlSceneControls`, `metaballSDF` uniforms, `MetaballNavCanvas` |
 | **3** Scene tab | Done | `data-tab="scene"`, `scene-phone-controls.ts` |
 | **4** Presets | Done | Portal / Metaball / Atmospheric in `scene-presets.ts` |
-| **5** URLs + persistence | Partial | `buildSceneQuery()` only; no load-from-`?scenePreset=` on boot |
+| **5** URLs + persistence | Done | `buildSceneQuery()`, `?scenePreset=` boot hydration, Copy scene link in Scene tab |
 
 ### Scene bundle shape (`bundle.scene`)
 
@@ -126,8 +127,8 @@ tests/scene-phone-controls.spec.ts   — 6 tests, passing
 
 | Suite | Status | Notes |
 |-------|--------|-------|
-| `tests/scene-phone-controls.spec.ts` | **6/6 pass** | Nav mode, Scene tab, presets, scroll bus |
-| `tests/home-page-verification.test.ts` (nav/RB subset) | **4 fail / 9 pass** | Failures use `/` without `?dev=1` — phone hidden, cannot open RB/Errl tabs |
+| `tests/scene-phone-controls.spec.ts` | **7/7 pass** | Nav mode, Scene tab, presets, scroll bus, URL hydration |
+| `tests/home-page-verification.test.ts` (nav/RB subset) | Updated | Uses `gotoPortalLanding()` + Scene tab |
 | `tests/errl-phone-controls.spec.ts` | Mixed | RB **score** tests intentionally `test.skip` |
 | Full repo Playwright | Not run in last audit | Run before production deploy |
 
@@ -192,13 +193,14 @@ Use this before calling the work “done” on main.
 ### P0 — Stabilize & document (you are here)
 
 - [x] Master plan (this doc)
-- [ ] Fix `home-page-verification` dev-phone assumptions
+- [x] Fix `home-page-verification` dev-phone assumptions
+- [x] Deploy to errl.wtf (`1f8ce18`)
 - [ ] Run full `npx playwright test` once; file failures in this doc or 05-Logs
 
 ### P1 — Finish Scene phase 5
 
-- [ ] On boot: read `?scenePreset=` and apply via `applyScenePreset` (optional confirm off for URL)
-- [ ] “Copy scene link” button in Scene tab (`buildSceneQuery()` + clipboard)
+- [x] On boot: read `?scenePreset=` and apply via `applyScenePreset`
+- [x] “Copy scene link” button in Scene tab (`buildSceneQuery()` + clipboard)
 - [ ] `portal-app` `setBundle` / load: sync Scene tab sliders from `bundle.scene`
 
 ### P2 — Cinematic scroll (deeper)
