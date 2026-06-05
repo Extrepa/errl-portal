@@ -1,0 +1,170 @@
+/* Cinematic arrival + scene phases */
+body.errl-scene-arrival .scene-layer {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.errl-scene-arrival #navOrbit,
+body.errl-scene-arrival #navOrbitBehind {
+  visibility: hidden;
+}
+
+body.errl-scene-entering .scene-layer {
+  pointer-events: none;
+}
+
+body.errl-scene-main .scene-layer {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 1.2s ease;
+}
+
+body.errl-phone-hidden #errlPanel,
+body.errl-phone-hidden #errlPhoneCtaHint {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+#errl-scene-root {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+#errl-scene-root.errl-scene-root--interactive {
+  pointer-events: auto;
+}
+
+.errl-arrival {
+  position: fixed;
+  inset: 0;
+  z-index: 13;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  background: radial-gradient(ellipse 80% 60% at 50% 45%, rgba(18, 22, 38, 0.55) 0%, rgba(6, 8, 14, 0.98) 70%);
+  pointer-events: auto;
+}
+
+.errl-arrival--exiting {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+
+.errl-arrival__errl {
+  opacity: 0;
+  transform: scale(0.96);
+  filter: blur(4px);
+  max-width: min(42vw, 280px);
+  transition: opacity 2.5s ease, transform 2.5s ease, filter 2.5s ease;
+}
+
+.errl-arrival__errl--visible {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+  animation: errl-arrival-breathe 6s ease-in-out infinite;
+}
+
+@keyframes errl-arrival-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.errl-arrival__enter {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
+  font-weight: 500;
+  letter-spacing: 0.45em;
+  text-indent: 0.45em;
+  text-transform: uppercase;
+  color: rgba(220, 230, 255, 0.72);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem 1.5rem;
+  opacity: 0;
+  transition: opacity 1.2s ease 1.5s, color 0.25s ease, text-shadow 0.25s ease;
+}
+
+.errl-arrival__enter--visible {
+  opacity: 1;
+}
+
+.errl-arrival__enter:hover,
+.errl-arrival__enter:focus-visible {
+  color: rgba(240, 248, 255, 0.95);
+  text-shadow: 0 0 24px rgba(120, 200, 255, 0.45);
+  outline: none;
+}
+
+body.reduced-motion .errl-arrival__errl,
+body.reduced-motion .errl-arrival__errl--visible {
+  animation: none;
+  transition-duration: 0.01ms;
+}
+
+body.reduced-motion .errl-arrival__enter {
+  transition-duration: 0.01ms;
+}
+
+.errl-scene-3d-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.errl-scene-3d-nav canvas {
+  pointer-events: auto;
+}
+
+body.errl-nav-mode-metaball #navOrbit .bubble,
+body.errl-nav-mode-metaball #navOrbitBehind .bubble,
+body.errl-scene-3d-nav #navOrbit .bubble,
+body.errl-scene-3d-nav #navOrbitBehind .bubble {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nav-metaball-notice {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(120, 200, 255, 0.25);
+  background: rgba(8, 14, 28, 0.75);
+  font-size: 10px;
+  line-height: 1.45;
+  color: rgba(220, 230, 255, 0.88);
+}
+
+.nav-metaball-notice__title {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(140, 210, 255, 0.95);
+}
+
+.nav-metaball-notice__copy {
+  margin: 0 0 8px;
+}
+
+.nav-metaball-notice__actions {
+  margin: 0;
+}
+
+.nav-metaball-notice code {
+  font-size: 9px;
+  opacity: 0.9;
+}

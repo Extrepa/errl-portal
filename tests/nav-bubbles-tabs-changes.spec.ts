@@ -1,9 +1,14 @@
 import { test, expect } from '@playwright/test';
+import { gotoPortalLanding } from './helpers/test-helpers';
 
 test.describe('Nav Bubbles & Tabs Changes Verification', () => {
   test.beforeEach(async ({ page, baseURL }) => {
-    await page.goto(baseURL! + '/index.html');
-    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+    await gotoPortalLanding(page, baseURL!);
+  });
+
+  test('@ui exactly four nav orbit bubbles', async ({ page }) => {
+    const count = await page.locator('#navOrbit .bubble[data-nav-bubble-key], #navOrbitBehind .bubble[data-nav-bubble-key]').count();
+    expect(count).toBe(4);
   });
 
   test('@ui nav bubbles are larger (60% increase)', async ({ page }) => {
@@ -168,7 +173,7 @@ test.describe('Nav Bubbles & Tabs Changes Verification', () => {
     expect(isActive).toBe(true);
   });
 
-  test('@ui all 9 tabs are visible in panel layout', async ({ page }) => {
+  test('@ui all 10 tabs are visible in panel layout', async ({ page }) => {
     const panel = page.locator('#errlPanel');
     const isMinimized = await panel.evaluate((el) => 
       el.classList.contains('minimized')
@@ -180,10 +185,10 @@ test.describe('Nav Bubbles & Tabs Changes Verification', () => {
     }
 
     const tabs = page.locator('.panel-tabs .tab');
-    await expect(tabs).toHaveCount(9);
+    await expect(tabs).toHaveCount(10);
     
     // Verify all tabs are visible
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 10; i++) {
       await expect(tabs.nth(i)).toBeVisible();
     }
   });

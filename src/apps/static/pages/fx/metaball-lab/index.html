@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metaball Lab | Errl FX</title>
+  <link rel="stylesheet" href="../../../../shared/styles/errlDesignSystem.css" />
+  <style>
+    html, body { margin: 0; height: 100%; background: #06080f; color: #c8d4ef; font-family: Inter, system-ui, sans-serif; }
+    .lab-shell { display: flex; flex-direction: column; height: 100%; }
+    .lab-header { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; gap: 1rem; align-items: center; }
+    .lab-header a { color: #8ec8ff; text-decoration: none; }
+    #metaball-lab-root { flex: 1; min-height: 0; }
+  </style>
+</head>
+<body>
+  <div class="lab-shell">
+    <header class="lab-header">
+      <a href="/">← Portal</a>
+      <span>Metaball SDF Lab — hover to magnetize the field</span>
+    </header>
+    <div id="metaball-lab-root"></div>
+  </div>
+  <script type="module" src="./main.tsx"></script>
+</body>
+</html>

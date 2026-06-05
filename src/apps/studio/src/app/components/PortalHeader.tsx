@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import { resolvePortalPageUrl } from '../utils/portalPaths';
 import './portal-header.css';
 
-const SHOW_DESIGN_NAV_KEY = 'errl_portal_show_design_nav';
-
-type NavItemKey = 'about' | 'assets' | 'design' | 'forum' | 'gallery' | 'studio';
+type NavItemKey = 'about' | 'forum' | 'gallery' | 'studio';
 
 export type PortalNavKey = NavItemKey | 'code-lab';
 
@@ -31,46 +29,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
   // Landing page is at root, not under /portal
   const portalHome = '/';
 
-  const [comingSoonVisible, setComingSoonVisible] = useState(false);
   const [pendingExternalHref, setPendingExternalHref] = useState<string | null>(null);
-  const [showDesignInNav, setShowDesignInNav] = useState(() => {
-    try {
-      return localStorage.getItem(SHOW_DESIGN_NAV_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    if (showDesignInNav) document.documentElement.removeAttribute('data-errl-hide-design-nav');
-    else document.documentElement.setAttribute('data-errl-hide-design-nav', '');
-  }, [showDesignInNav]);
-
-  useEffect(() => {
-    const read = () => {
-      try {
-        setShowDesignInNav(localStorage.getItem(SHOW_DESIGN_NAV_KEY) === 'true');
-      } catch {
-        setShowDesignInNav(false);
-      }
-    };
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === SHOW_DESIGN_NAV_KEY) read();
-    };
-    const onVis = () => read();
-    window.addEventListener('storage', onStorage);
-    window.addEventListener('errl-design-nav-visibility', onVis as EventListener);
-    return () => {
-      window.removeEventListener('storage', onStorage);
-      window.removeEventListener('errl-design-nav-visibility', onVis as EventListener);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!comingSoonVisible) return;
-    const t = window.setTimeout(() => setComingSoonVisible(false), 1400);
-    return () => window.clearTimeout(t);
-  }, [comingSoonVisible]);
 
   const derivedKeyFromLocation = (): NavItemKey | undefined => {
     if (typeof window === 'undefined') return undefined;
@@ -78,11 +37,8 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
     const normalizedPath = pathname.toLowerCase();
     const normalizedHref = href.toLowerCase();
 
-    if (normalizedHref.includes('/pages/assets/')) return 'assets';
     if (normalizedHref.includes('/pages/gallery/')) return 'gallery';
     if (normalizedHref.includes('/pages/about/')) return 'about';
-    if (normalizedHref.includes('/pages/design/')) return 'design';
-    if (normalizedPath === '/design' || normalizedPath === '/design/' || normalizedPath.startsWith('/design/')) return 'design';
     if (
       normalizedPath === '/studio' ||
       normalizedPath === '/studio/' ||
@@ -101,14 +57,12 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
   })();
 
   const navItems: NavItem[] = [
-    { key: 'about', label: 'About Errl', href: resolvePortalPageUrl('pages/about/index.html'), type: 'external' },
-    { key: 'assets', label: 'Assets', href: resolvePortalPageUrl('pages/assets/index.html'), type: 'external' },
-    { key: 'design', label: 'Design', href: resolvePortalPageUrl('pages/design/index.html'), type: 'external' },
     { key: 'forum', label: 'Forum', href: 'https://forum.errl.wtf', type: 'external' },
+    { key: 'about', label: 'About', href: resolvePortalPageUrl('pages/about/index.html'), type: 'external' },
     { key: 'gallery', label: 'Gallery', href: resolvePortalPageUrl('pages/gallery/index.html'), type: 'external' },
     { key: 'studio', label: 'Studio', to: '/', type: 'internal' },
   ];
-  const visibleNavItems = navItems.filter((item) => item.key !== 'design' || showDesignInNav);
+  const visibleNavItems = navItems;
 
   return (
     <header className="errl-header">
@@ -138,16 +92,7 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
                 key={item.key}
                 href={item.href}
                 className={className}
-                data-errl-nav={item.key === 'design' ? 'design' : undefined}
-                aria-disabled={item.key === 'design' ? 'true' : undefined}
-                title={item.key === 'design' ? 'Coming soon' : undefined}
                 onClick={(e) => {
-                  if (item.key === 'design') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setComingSoonVisible(true);
-                    return;
-                  }
                   if (item.key === 'forum') {
                     e.preventDefault();
                     e.stopPropagation();
@@ -161,32 +106,6 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
           })}
         </nav>
       </div>
-
-      {comingSoonVisible ? (
-        <div
-          aria-live="polite"
-          style={{
-            position: 'fixed',
-            left: '50%',
-            bottom: 18,
-            transform: 'translateX(-50%)',
-            zIndex: 9999,
-            maxWidth: 'min(92vw, 520px)',
-            padding: '10px 14px',
-            borderRadius: 999,
-            border: '1px solid rgba(255,255,255,0.22)',
-            background: 'rgba(10, 14, 24, 0.88)',
-            backdropFilter: 'blur(10px)',
-            color: 'rgba(240, 245, 255, 0.96)',
-            font: "600 12px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif",
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            boxShadow: '0 10px 24px rgba(0,0,0,0.45)',
-          }}
-        >
-          Design — coming soon
-        </div>
-      ) : null}
 
       {pendingExternalHref ? (
         <div className="errl-external-modal">

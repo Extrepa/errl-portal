@@ -1,6 +1,6 @@
 # Errl Phone: capabilities and extension guide
 
-**Status:** Current as of 2026-04-26  
+**Status:** Current as of 2026-05-28  
 **Audience:** Implementers extending the landing “Errl Phone” control panel, WebGL layer, or related tests.
 
 This document describes behaviors added or hardened in the Errl Phone / portal UX work (reliability, copy, CTA, layers). It is the durable reference; session detail lives in `05-Logs/Daily/2026-04-22-cursor-notes.md`.
@@ -9,7 +9,7 @@ This document describes behaviors added or hardened in the Errl Phone / portal U
 
 ## What the Errl Phone is
 
-- **UI:** `aside#errlPanel` — tabbed control surface (HUD, Nav, RB, GLB, BG, Pin, Hue, Dev, etc.).
+- **UI:** `aside#errlPanel` — tabbed control surface (HUD, Nav, **Scene**, RB, GLB, BG, Pin, Hue, Dev, etc.).
 - **Code:** Markup in [`src/index.html`](../../src/index.html), behavior in [`src/apps/landing/scripts/portal-app.js`](../../src/apps/landing/scripts/portal-app.js), layout in [`src/apps/landing/styles/styles.css`](../../src/apps/landing/styles/styles.css).
 
 The phone can start **minimized** (bottom-right “bubble”); see CTA and discoverability below.
@@ -29,6 +29,28 @@ The phone can start **minimized** (bottom-right “bubble”); see CTA and disco
 **Hue tab:** Use **Target** to pick which material layer to tint (e.g. `Particles` = GLB background bubbles, not RB).
 
 When adding features, name which layer in UI copy to avoid “nothing happens” reports.
+
+---
+
+## Scene tab (cinematic nav + metaball bus)
+
+**Requires** `?dev=1` (or long-press unlock on Errl) to open the phone. Implementation: [`scene-phone-controls.ts`](../../src/apps/landing/scripts/scene-phone-controls.ts), [`sceneControls.ts`](../../src/apps/landing/scene/bridge/sceneControls.ts).
+
+| Concern | Behavior |
+|---------|----------|
+| **Nav render mode** | `dom` (default DOM bubbles) vs `metaball` (R3F SDF overlay). Metaball enables `?scene3d=1` and reloads. URL flag wins over stored bundle. |
+| **Nav tab (DOM)** | Orbit/radius/skins disabled while metaball is active; notice points to Scene tab. |
+| **`window.errlSceneControls`** | Read/write `bundle.scene` (metaball shader + sculpture physics). Event: `errl:scene-controls-changed`. |
+| **Scene presets** | **Portal** (DOM + ambient RB), **Metaball** (SDF nav + stronger merge/bloom), **Atmospheric** (slow drift + vignette). Confirm dialog; panel **Back** can undo via history. |
+| **Metaball lab** | `/fx/metaball-lab/` shares [`MetaballNavCanvas.tsx`](../../src/apps/landing/scene/effects/MetaballNavCanvas.tsx) and the same control bus. |
+
+**Body classes:** `errl-nav-mode-dom` | `errl-nav-mode-metaball` (+ `errl-scene-3d-nav` when metaball).
+
+**Shareable URLs (partial):** `buildSceneQuery()` emits `scene3d=1` and `scenePreset=` when set. Full slider encoding is future work.
+
+**Do not** duplicate metaball sliders on the Nav tab; Nav stays DOM/GL goo only.
+
+**Scroll → nav motion:** After the cinematic ENTER (or `skipIntro`), wheel / touch on the landing page drives `window.errlSceneScroll` — orbit angle, radius wobble, and metaball label physics. Tune **Scroll pull** on the Scene tab; disable with `?scrollNav=0`. Respects `prefers-reduced-motion`.
 
 ---
 

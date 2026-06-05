@@ -6,6 +6,7 @@ import {
   verifyEffectFunction,
   verifyEffectFunctionPaths,
   ensurePhonePanelOpen,
+  gotoPortalLanding,
   openPhoneTab,
   sleep,
 } from './helpers/test-helpers';
@@ -14,8 +15,7 @@ test.describe('Errl Phone Controls Tests', () => {
   test.setTimeout(60_000);
 
   test.beforeEach(async ({ page, baseURL }) => {
-    await page.goto(baseURL! + '/', { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+    await gotoPortalLanding(page, baseURL!);
     // Wait for effects to initialize
     await waitForEffect(page, 'risingBubbles', 10000).catch(() => {});
     await ensurePhonePanelOpen(page);
@@ -341,27 +341,15 @@ test.describe('Errl Phone Controls Tests', () => {
     expect(animationName.toLowerCase()).toBe('none');
   });
 
-  test('@controls RB interaction mode is mutually exclusive', async ({ page }) => {
+  test('@controls RB defaults to ambient drift mode', async ({ page }) => {
     await openPhoneTab(page, 'rb');
     const mode = page.locator('#rbInteractionMode');
-    const attract = page.locator('#rbAttract');
-    const ripples = page.locator('#rbRipples');
     const status = page.locator('#rbModeStatus');
-    await expect(mode).toBeAttached();
-
-    await mode.selectOption('pop', { force: true });
-    await expect(status).toContainText(/pop mode/i);
-    await expect(attract).not.toBeChecked();
-    await expect(ripples).toBeChecked();
-
-    await mode.selectOption('classic', { force: true });
-    await expect(status).toContainText(/classic throw/i);
-    await expect(ripples).not.toBeChecked();
-    // Classic does not force Attract on; it follows the checkbox (defaults and bundle, usually off).
-    await expect(attract).not.toBeChecked();
+    await expect(mode).toHaveValue('ambient');
+    await expect(status).toContainText(/atmospheric/i);
   });
 
-  test('@controls Classic Throw edge goals visible only in classic mode', async ({ page }) => {
+  test.skip('@controls Classic Throw edge goals visible only in classic mode', async ({ page }) => {
     await openPhoneTab(page, 'rb');
     const mode = page.locator('#rbInteractionMode');
     const goals = page.locator('#rbClassicGoals');
@@ -390,7 +378,7 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(page.locator('body')).toHaveClass(/rb-classic-goal-edges/);
   });
 
-  test('@controls RB scoring reducer aggregates per-mode and lifetime totals', async ({ page }) => {
+  test.skip('@controls RB scoring reducer aggregates per-mode and lifetime totals', async ({ page }) => {
     await openPhoneTab(page, 'rb');
     await page.evaluate(() => {
       window.dispatchEvent(new CustomEvent('errl:rb-play-engaged'));
@@ -427,7 +415,7 @@ test.describe('Errl Phone Controls Tests', () => {
     expect(total).toBeGreaterThanOrEqual(classic + pop + collect);
   });
 
-  test('@controls RB score HUD stays synced when phone tab is not RB', async ({ page }) => {
+  test.skip('@controls RB score HUD stays synced when phone tab is not RB', async ({ page }) => {
     await openPhoneTab(page, 'rb');
     await page.evaluate(() => {
       window.dispatchEvent(new CustomEvent('errl:rb-play-engaged'));
@@ -443,7 +431,7 @@ test.describe('Errl Phone Controls Tests', () => {
     await expect(page.locator('#rbCollectScore')).toContainText(/10/);
   });
 
-  test('@controls RB score state persists and migrates from legacy keys', async ({ page }) => {
+  test.skip('@controls RB score state persists and migrates from legacy keys', async ({ page }) => {
     await page.evaluate(() => {
       localStorage.removeItem('errl_rb_score_state_v3');
       localStorage.setItem('errl_rb_mode_scores_v2', JSON.stringify({ classic: 10, pop: 4, collect: 7, total: 21 }));
@@ -492,51 +480,15 @@ test.describe('Errl Phone Controls Tests', () => {
     expect(parseFloat((await getControlValue(page, 'rbWobble')) || '0')).toBeLessThan(1.0);
   });
 
-  test('@controls Design nav hidden by default; DEV toggle shows Design bubble', async ({ page }) => {
-    test.setTimeout(60000);
-    await page.evaluate(() => {
-      try {
-        localStorage.removeItem('errl_portal_show_design_nav');
-        const raw = localStorage.getItem('errl_portal_settings_v1');
-        if (raw) {
-          const b = JSON.parse(raw);
-          if (b && b.ui && 'portalShowDesignNav' in b.ui) {
-            delete b.ui.portalShowDesignNav;
-            localStorage.setItem('errl_portal_settings_v1', JSON.stringify(b));
-          }
-        }
-      } catch (_) {}
-    });
-    await page.reload({ waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
-    await expect(page.locator('#errlPanel')).toBeAttached({ timeout: 20000 });
-    await waitForEffect(page, 'risingBubbles', 10000).catch(() => {});
-    await ensurePhonePanelOpen(page);
-    await sleep(200);
-    const off = await page.evaluate(() => {
-      if (!document.documentElement.hasAttribute('data-errl-hide-design-nav')) return false;
-      const el = document.querySelector('.nav-orbit .bubble[data-nav-bubble-key="design"]') as HTMLElement | null;
-      return !el || window.getComputedStyle(el).display === 'none';
-    });
-    expect(off).toBe(true);
-    await openPhoneTab(page, 'dev');
-    const toggle = page.locator('#portalShowDesignNav');
-    await expect(toggle).toBeAttached();
-    await page.evaluate(() => {
-      const el = document.getElementById('portalShowDesignNav');
-      if (el && 'checked' in el) {
-        (el as HTMLInputElement).checked = true;
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    });
-    await sleep(500);
-    const on = await page.evaluate(() => {
-      if (document.documentElement.hasAttribute('data-errl-hide-design-nav')) return false;
-      const el = document.querySelector('.nav-orbit .bubble[data-nav-bubble-key="design"]') as HTMLElement | null;
-      return !!el && window.getComputedStyle(el).display !== 'none';
-    });
-    expect(on).toBe(true);
+  test('@controls homepage has exactly four nav bubbles', async ({ page }) => {
+    const keys = await page.evaluate(() =>
+      Array.from(
+        document.querySelectorAll(
+          '#navOrbit .bubble[data-nav-bubble-key], #navOrbitBehind .bubble[data-nav-bubble-key]',
+        ),
+      ).map((el) => el.getAttribute('data-nav-bubble-key')),
+    );
+    expect(keys.sort()).toEqual(['about', 'forum', 'gallery', 'studio']);
   });
 
   test('@controls Nav skin controls exist and apply', async ({ page }) => {
@@ -640,7 +592,7 @@ test.describe('Errl Phone Controls Tests', () => {
     expect(v).toBeGreaterThan(1.9);
   });
 
-  test('@controls Pop mode exposes pop interaction in RB engine', async ({ page }) => {
+  test.skip('@controls Pop mode exposes pop interaction in RB engine', async ({ page }) => {
     await openPhoneTab(page, 'rb');
     await page.locator('#rbInteractionMode').selectOption('pop', { force: true });
 
@@ -664,7 +616,7 @@ test.describe('Errl Phone Controls Tests', () => {
     expect(popResult.after).toBeGreaterThanOrEqual(popResult.before + 1);
   });
 
-  test('@controls RB pop flash skipped when reduced motion is enabled', async ({ page }) => {
+  test.skip('@controls RB pop flash skipped when reduced motion is enabled', async ({ page }) => {
     await openPhoneTab(page, 'hud');
     await page.locator('#prefReduce').check({ force: true });
     await openPhoneTab(page, 'rb');

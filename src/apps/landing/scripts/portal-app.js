@@ -26,6 +26,15 @@
     if (!b.hue.layers || typeof b.hue.layers !== 'object') b.hue.layers = {};
     if (!b.nav || typeof b.nav !== 'object') b.nav = {};
     if (!b.nav.goo || typeof b.nav.goo !== 'object') b.nav.goo = {};
+    if (!b.scene || typeof b.scene !== 'object') {
+      b.scene = {
+        navRenderMode: 'dom',
+        metaball: { steps: 48, bloomIntensity: 0.4, bloomThreshold: 0.6, vignetteDarkness: 0.7, glow: 1, mergeK: 0.35, pointerPull: 0.15 },
+        sculpture: { magneticRadius: 0.35, separation: 0.42, floatSpeed: 1, scrollInfluence: 1 },
+      };
+    } else {
+      if (b.scene.navRenderMode !== 'dom' && b.scene.navRenderMode !== 'metaball') b.scene.navRenderMode = 'dom';
+    }
     if (!b.customPresets || !Array.isArray(b.customPresets)) b.customPresets = [null, null, null];
     while (b.customPresets.length < 3) b.customPresets.push(null);
     if (b.customPresets.length > 3) b.customPresets = b.customPresets.slice(0, 3);
@@ -763,8 +772,11 @@
     if (rect.width === 0 || rect.height === 0) {
       return requestAnimationFrame(updateBubbles);
     }
+    const scrollNav = window.errlSceneScroll && typeof window.errlSceneScroll.getState === 'function'
+      ? window.errlSceneScroll.getState()
+      : null;
     const cx = rect.left + rect.width/2;
-    const cy = rect.top + rect.height/2;
+    const cy = rect.top + rect.height/2 + (scrollNav ? scrollNav.centerOffsetY : 0);
     const minViewport = Math.min(window.innerWidth, window.innerHeight);
     const viewportScale = clamp(minViewport / 900, 0.55, 1.05);
 
@@ -833,12 +845,16 @@
 
       const baseAngleDeg = parseFloat((el.dataset && el.dataset.angle) || '');
       const baseDist = parseFloat((el.dataset && el.dataset.dist) || '160');
+      const scrollAngle = scrollNav ? scrollNav.angleOffsetDeg : 0;
+      const scrollRadius = scrollNav ? scrollNav.radiusOffset : 0;
       const angleDeg = (Number.isFinite(baseAngleDeg) ? baseAngleDeg : ((index / Math.max(1, count)) * 360))
         + (tSec * speedDegPerSec)
-        + Math.sin(tSec * 0.65 + index * 1.7) * wobbleAmpDeg;
+        + Math.sin(tSec * 0.65 + index * 1.7) * wobbleAmpDeg
+        + scrollAngle;
       const rad = angleDeg * Math.PI / 180;
       const dist = (Number.isFinite(baseDist) ? baseDist : 160) * navRadius * viewportScale
-        + Math.sin(tSec * 0.9 + index * 1.3) * radiusWobble;
+        + Math.sin(tSec * 0.9 + index * 1.3) * radiusWobble
+        + scrollRadius;
 
       const rawX = cx + Math.cos(rad) * dist;
       const rawY = cy + Math.sin(rad) * dist;
@@ -2081,10 +2097,22 @@
     function applyInteractionMode(nextMode, { persist = true } = {}) {
       const isPop = nextMode === 'pop';
       const isCollect = nextMode === 'collect';
-      const normalized = isPop ? 'pop' : (isCollect ? 'collect' : 'classic');
+      const isAmbient = nextMode === 'ambient';
+      const normalized = isPop ? 'pop' : (isCollect ? 'collect' : (isAmbient ? 'ambient' : 'classic'));
       if (mode) mode.value = normalized;
       withRB((RB)=> { if (RB.setInteractionMode) RB.setInteractionMode(normalized); });
-      if (isPop) {
+      if (isAmbient) {
+        if (attract) {
+          attract.checked = false;
+          withRB((RB)=> RB.setAttract && RB.setAttract(false));
+        }
+        if (ripples) {
+          ripples.checked = true;
+          withRB((RB)=> RB.setRipples && RB.setRipples(true));
+        }
+        setModeStatus('Atmospheric motion only.');
+        if (modeLegend) modeLegend.textContent = 'Ambient drift — bubbles rise and float without game scoring.';
+      } else if (isPop) {
         if (attract) {
           attract.checked = false;
           withRB((RB)=> RB.setAttract && RB.setAttract(false));
@@ -2142,7 +2170,7 @@
           attractIntensity: parseFloat(attractIntensity?.value || '1.0'),
           ripples: !!ripples?.checked,
           rippleIntensity: parseFloat(rippleIntensity?.value || '1.2'),
-          interactionMode: mode?.value || 'classic'
+          interactionMode: mode?.value || 'ambient'
         };
         updateBundle((b)=> { b.rb = obj; });
       }catch(e){}
@@ -2169,7 +2197,14 @@
       setNum(rippleIntensity, rb.rippleIntensity);
       if (mode && rb.interactionMode) {
         const m = rb.interactionMode;
-        mode.value = m === 'pop' ? 'pop' : (m === 'collect' ? 'collect' : 'classic');
+        const allowed = m === 'pop' || m === 'collect' || m === 'classic' || m === 'ambient';
+        mode.value = allowed ? m : 'ambient';
+        if (m !== 'ambient' && m !== 'pop' && m !== 'collect' && m !== 'classic') {
+          applyInteractionMode('ambient', { persist: false });
+        }
+      } else if (mode) {
+        mode.value = 'ambient';
+        applyInteractionMode('ambient', { persist: false });
       }
       try { if (mode) mode.dispatchEvent(new Event('change', { bubbles: true })); } catch(_) {}
       if (attract && rb.attract !== undefined) {
@@ -2206,7 +2241,7 @@
     if (attractIntensity) on(attractIntensity, 'input', ()=> { withRB(RB=> RB.setAttractIntensity && RB.setAttractIntensity(attractIntensity.value)); persistRB(); });
     if (ripples) on(ripples, 'change', ()=> {
       withRB(RB=> RB.setRipples && RB.setRipples(ripples.checked));
-      if (ripples.checked) applyInteractionMode('pop', { persist: false });
+      if (ripples.checked && mode && mode.value !== 'ambient') applyInteractionMode('pop', { persist: false });
       syncInteractionLocks();
       persistRB();
     });
@@ -2238,7 +2273,7 @@
         if (ripples && RB.setRipples) RB.setRipples(ripples.checked);
         if (rippleIntensity && RB.setRippleIntensity) RB.setRippleIntensity(rippleIntensity.value);
       });
-      applyInteractionMode(mode?.value || 'classic', { persist: false });
+      applyInteractionMode(mode?.value || 'ambient', { persist: false });
       syncInteractionLocks();
     }, 500);
 
@@ -3924,6 +3959,7 @@
       return el && !el.classList.contains('minimized');
     }
     function renderScoreHud() {
+      return;
       const MODE_HUD_LABELS = {
         classic: 'Classic Throw',
         pop: 'Pop',
@@ -4042,12 +4078,12 @@
       if (!window.confirm('Reset ' + String(tab).toUpperCase() + ' tab to shipped defaults in this browser?')) return;
       const t = String(tab).toLowerCase();
       if (t === 'rb' && repo.rb) {
-        const rbr = { ...repo.rb, interactionMode: (repo.rb.interactionMode) || 'classic' };
+        const rbr = { ...repo.rb, interactionMode: (repo.rb.interactionMode) || 'ambient' };
         updateBundle((B) => { B.rb = rbr; });
         const ids = ['rbSpeed', 'rbDensity', 'rbScale', 'rbAlpha', 'rbWobble', 'rbFreq', 'rbMin', 'rbMax', 'rbSizeHz', 'rbJumboPct', 'rbJumboScale', 'rbAttract', 'rbAttractIntensity', 'rbRipples', 'rbRippleIntensity', 'rbInteractionMode', 'rbAdvAnimSpeed'];
         const u = {};
         ids.forEach((id) => { if (repo.ui && repo.ui[id] !== undefined) u[id] = repo.ui[id]; });
-        u.rbInteractionMode = (repo.ui && repo.ui.rbInteractionMode) || rbr.interactionMode || 'classic';
+        u.rbInteractionMode = (repo.ui && repo.ui.rbInteractionMode) || rbr.interactionMode || 'ambient';
         applyUiSnapshot(u);
         if (window.__errlApplyRbBundle) window.__errlApplyRbBundle(getBundle().rb);
         return;
@@ -4169,7 +4205,8 @@
         }
       } catch (_) {}
     }
-    window.addEventListener('errl:rb-collect-score', (ev) => {
+    /* Score HUD removed — cinematic redesign uses ambient RB only */
+    if (false) window.addEventListener('errl:rb-collect-score', (ev) => {
       const d = ev && ev.detail ? ev.detail : {};
       const score = Math.max(0, d.score | 0);
       if (score < collectRawPrev) {

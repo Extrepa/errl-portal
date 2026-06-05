@@ -232,11 +232,37 @@ export async function openPhoneTab(page: Page, tabName: string): Promise<void> {
   await expect(tabContent).toBeAttached();
 }
 
+/** Query string for landing tests: dev phone unlock + skip cinematic intro */
+export function portalLandingQuery(): string {
+  return '?dev=1&skipIntro=1';
+}
+
+export async function gotoPortalLanding(page: Page, baseURL: string): Promise<void> {
+  const q = portalLandingQuery();
+  await page.goto(`${baseURL!}/${q}`, { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+  await page.evaluate(() => {
+    try {
+      const raw = localStorage.getItem('errl_portal_settings_v1');
+      if (!raw) return;
+      const b = JSON.parse(raw);
+      if (b.rb) b.rb.interactionMode = 'ambient';
+      if (b.ui) b.ui.rbInteractionMode = 'ambient';
+      localStorage.setItem('errl_portal_settings_v1', JSON.stringify(b));
+    } catch (_) {}
+  });
+}
+
 /**
  * Ensure phone panel is open
  */
 export async function ensurePhonePanelOpen(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    document.body.classList.remove('errl-phone-hidden');
+    document.body.classList.add('errl-phone-unlocked');
+  });
   const panel = page.locator('#errlPanel');
+  await expect(panel).toBeAttached({ timeout: 20000 });
   const isMinimized = await panel.evaluate((el) => el.classList.contains('minimized'));
   if (!isMinimized) return;
   // Do not use a real “bubble click” to restore: `restorePanel()` defers `activateTab('hud')` in a

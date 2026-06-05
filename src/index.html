@@ -39,54 +39,20 @@
   <link rel="stylesheet" href="./apps/landing/fx/effects.css" />
   <link rel="stylesheet" href="./apps/landing/fx/hue-effects.css" />
   <link rel="stylesheet" href="./apps/landing/fx/errl-bg.css" />
+  <link rel="stylesheet" href="./apps/landing/styles/arrival.css" />
   <link rel="stylesheet" href="./shared/styles/errlPortalHeader.css" />
-  <script>
-    (function () {
-      try {
-        if (localStorage.getItem('errl_portal_show_design_nav') !== 'true') {
-          document.documentElement.setAttribute('data-errl-hide-design-nav', '');
-        }
-      } catch (e) {}
-    })();
-  </script>
+  <script src="./apps/landing/scripts/dev-phone-unlock.js"></script>
   <script type="module" src="./apps/landing/scripts/assets.js"></script>
   <!-- Debug harness: runtime layer toggles (safe no-op unless used) -->
   <script type="module" src="./apps/static/dev/debug.ts"></script>
 </head>
 <body data-errlMode="stable" class="errl-dark">
+  <div id="errl-scene-root" aria-hidden="true"></div>
   <div id="errlCustomBaseBg" class="errl-custom-base-bg" aria-hidden="true"></div>
   <!-- Background shimmer via ErrlBG -->
   <canvas id="bgParticles"></canvas>
   <!-- Rising bubbles (Stable mode + fallback) -->
   <canvas id="riseBubbles"></canvas>
-  <div id="rbClassicGoals" class="rb-classic-goals" aria-hidden="true">
-    <div class="rb-classic-goals__inset">
-      <div class="rb-classic-gate rb-classic-gate--top">
-        <div class="rb-classic-gate__hit" data-rb-classic-goal="1"></div>
-      </div>
-      <div class="rb-classic-gate rb-classic-gate--bottom">
-        <div class="rb-classic-gate__hit" data-rb-classic-goal="1"></div>
-      </div>
-      <div class="rb-classic-gate rb-classic-gate--left">
-        <div class="rb-classic-gate__hit" data-rb-classic-goal="1"></div>
-      </div>
-      <div class="rb-classic-gate rb-classic-gate--right">
-        <div class="rb-classic-gate__hit" data-rb-classic-goal="1"></div>
-      </div>
-    </div>
-  </div>
-  <div id="rbCollectScoreWrap" class="rb-collect-score" hidden>
-    <div class="rb-collect-score__row rb-collect-score__row--top">
-      <span class="rb-collect-score__label">Classic Throw</span>
-      <span id="rbCollectScore" class="rb-collect-score__value">0</span>
-      <span id="rbCollectHigh" class="rb-collect-score__high" aria-label="Mode high score"></span>
-    </div>
-    <div class="rb-collect-score__row rb-collect-score__row--bottom">
-      <span class="rb-collect-score__label">Total lifetime</span>
-      <span id="rbOverallScore" class="rb-collect-score__value rb-collect-score__value--overall">0</span>
-      <span id="rbScoreBadge" class="rb-collect-score__badge" aria-live="polite"></span>
-    </div>
-  </div>
   <div id="errlIdleStreak" class="errl-idle-streak" aria-hidden="true"><span class="errl-idle-streak__line"></span></div>
 
   <!-- WebGL layer (hidden in Stable mode) -->
@@ -119,12 +85,10 @@
       <div id="errlPool" class="errl-pool" style="filter:url(#poolRipple)"></div>
     </div>
 
-    <!-- Orbiting nav bubbles (7 visible + 1 hidden) -->
+    <!-- Orbiting nav bubbles (4 destinations) -->
     <div id="navOrbit" class="nav-orbit nav-orbit--front">
-      <a class="bubble menuOrb" data-nav-bubble-key="about" data-angle="210" data-dist="180" href="/about/" data-portal-link="about/"><span class="label">About</span></a>
-      <a class="bubble menuOrb" data-nav-bubble-key="assets" data-angle="320" data-dist="160" href="/assets/" data-portal-link="assets/"><span class="label">Assets</span></a>
-      <a class="bubble menuOrb" data-nav-bubble-key="design" data-errl-nav="design" data-angle="75" data-dist="150" href="/design/" data-portal-link="design/" data-disabled-link="design" aria-disabled="true" tabindex="-1" title="Coming soon"><span class="label">Design</span></a>
       <a class="bubble menuOrb" data-nav-bubble-key="forum" data-angle="140" data-dist="180" href="https://forum.errl.wtf"><span class="label">Forum</span></a>
+      <a class="bubble menuOrb" data-nav-bubble-key="about" data-angle="210" data-dist="180" href="/about/" data-portal-link="about/"><span class="label">About</span></a>
       <a class="bubble menuOrb" data-nav-bubble-key="gallery" data-angle="260" data-dist="175" href="/gallery/" data-portal-link="gallery/"><span class="label">Gallery</span></a>
       <a class="bubble menuOrb" data-nav-bubble-key="studio" data-angle="20" data-dist="200" href="/studio/" data-portal-link="studio/"><span class="label">Studio</span></a>
     </div>
@@ -192,6 +156,7 @@
       <button data-tab="errl" class="tab tab-icon" title="Errl: body scale, classic goo, and WebGL goo on the character" aria-label="Errl tab: character size and goo effects" role="tab" type="button"><span class="label"><span class="tab__line">Errl</span><span class="tab__line tab__line--sub">body</span></span></button>
       <button data-tab="pin" class="tab tab-icon" title="Pin: home SVG editor and inject tools" aria-label="Pin tab: widget and inject to home" role="tab" type="button"><span class="label"><span class="tab__line">Pin</span><span class="tab__line tab__line--sub">widget</span></span></button>
       <button data-tab="nav" class="tab tab-icon" title="Navigation: orbiting menu bubbles, skins, and WebGL orbs" aria-label="Navigation tab: menu ring and skins" role="tab" type="button"><span class="label"><span class="tab__line">Nav</span><span class="tab__line tab__line--sub">menu</span></span></button>
+      <button data-tab="scene" class="tab tab-icon" title="Scene: metaball nav, SDF merge, and bubble physics" aria-label="Scene tab: cinematic nav and metaball controls" role="tab" type="button"><span class="label"><span class="tab__line">Scene</span><span class="tab__line tab__line--sub">3D nav</span></span></button>
       <button data-tab="rb" class="tab tab-icon" title="Rising Bubbles: 3D bubble field on the foreground canvas" aria-label="Rising Bubbles tab: 3D bubble layer" role="tab" type="button"><span class="label"><span class="tab__line">Rising</span><span class="tab__line tab__line--sub">bubbles</span></span></button>
       <button data-tab="glb" class="tab tab-icon" title="GL Particles: GPU background particles behind the scene" aria-label="GL Bubbles / GL Particles: background WebGL layer behind the scene" role="tab" type="button"><span class="label"><span class="tab__line">GL</span><span class="tab__line tab__line--sub">particles</span></span></button>
       <button data-tab="bg" class="tab tab-icon" title="Background: stars, shimmer, vignette, and custom base underlay" aria-label="Background tab: scene backdrop and overlay" role="tab" type="button"><span class="label"><span class="tab__line">Back</span><span class="tab__line tab__line--sub">ground</span></span></button>
@@ -287,18 +252,15 @@
       <div class="sectionLabel" title="3D iridescent bubbles rendered on the #riseBubbles canvas behind the scene">Rising Bubbles (Basic)</div>
       <div class="sliderRow">
         <label for="rbInteractionMode" title="Only one interaction profile can be active at a time">Mode</label>
-        <select id="rbInteractionMode" title="Choose rising bubble interaction mode">
-          <option value="classic">Classic Throw</option>
-          <option value="pop">Pop Mode</option>
-          <option value="collect">Collect</option>
+        <select id="rbInteractionMode" title="Rising bubble atmosphere mode">
+          <option value="ambient" selected>Ambient drift</option>
         </select>
-        <button type="button" id="rbCollectResetBtn" class="mini-reset" title="Reset active mode score" style="min-height:32px; font-size:8px; padding:4px 6px">Reset mode score</button>
       </div>
       <div class="sliderRow" style="opacity:.8; font-size:9px; line-height:1.35;">
-        <span id="rbModeLegend" class="rb-mode-legend">Classic = grab and throw / flick. Pop = tap a bubble on the canvas to pop it.</span>
+        <span id="rbModeLegend" class="rb-mode-legend">Ambient drift — bubbles rise and float without game scoring.</span>
       </div>
       <div class="sliderRow" style="opacity:.8; font-size:9px; line-height:1.2;">
-        <span id="rbModeStatus">Classic Throw: drag/flick controls are prioritized.</span>
+        <span id="rbModeStatus">Atmospheric motion only.</span>
       </div>
       <div class="sliderRow">
         <label for="rbSpeed" title="How fast bubbles rise upward (vertical motion)">Rise Speed</label>
@@ -438,8 +400,16 @@
     </div>
 
     <div class="panel-section" data-tab="nav">
-      <p class="panel-tab-intro" role="note">About this tab: <strong>Nav</strong> &mdash; orbit, radius, size, GL orbs, and bubble skins. Does not change Rising Bubbles.</p>
-      <div class="sectionLabel" title="Floating menu bubbles around Errl">Nav Bubbles</div>
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Nav</strong> &mdash; DOM orbit, radius, size, GL orbs, and bubble skins (when nav mode is DOM). Metaball nav uses the <strong>Scene</strong> tab or <code>?scene3d=1</code>.</p>
+      <div id="navMetaballNotice" class="nav-metaball-notice" hidden>
+        <p class="nav-metaball-notice__title">Metaball navigation active</p>
+        <p class="nav-metaball-notice__copy">Orbit, GL orbs, and skins apply to <strong>DOM bubbles only</strong>. They are disabled while <code>?scene3d=1</code> is on.</p>
+        <p class="nav-metaball-notice__actions">
+          <button type="button" id="navMetaballOpenLab" class="mini-reset">Open metaball lab</button>
+        </p>
+      </div>
+      <div id="navDomControls">
+      <div class="sectionLabel" title="Floating menu bubbles around Errl">Nav Bubbles (DOM)</div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.3;">
         <span title="Orbit/Radius/Size change the nav bubble layout. GL Orbs toggles the WebGL render layer that matches the DOM bubbles.">Layout controls for the menu bubbles; GL Orbs toggles the WebGL render layer.</span>
       </div>
@@ -464,10 +434,8 @@
         <label for="navSkinTarget" title="Apply skin to every bubble or one label">Apply to</label>
         <select id="navSkinTarget" title="All nav bubbles or a single bubble" aria-label="Nav skin target">
           <option value="__all__">All bubbles</option>
-          <option value="about">About</option>
-          <option value="assets">Assets</option>
-          <option value="design">Design</option>
           <option value="forum">Forum</option>
+          <option value="about">About</option>
           <option value="gallery">Gallery</option>
           <option value="studio">Studio</option>
         </select>
@@ -490,6 +458,46 @@
       <div class="sliderRow" style="justify-content:flex-end; gap:6px; flex-wrap:wrap;">
         <input id="navSkinUpload" type="file" accept="image/*,.gif" />
         <button id="navSkinReset" title="Reset to procedural bubbles">Reset Skin</button>
+      </div>
+      </div>
+    </div>
+
+    <div class="panel-section" data-tab="scene">
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Scene</strong> &mdash; cinematic nav mode (DOM vs metaball SDF), shader merge/glow, and label physics. Requires <code>?dev=1</code> to open the phone.</p>
+      <div class="sectionLabel" title="How navigation is rendered">Nav render mode</div>
+      <div class="sliderRow" style="flex-wrap:wrap; gap:8px;">
+        <button type="button" id="sceneNavModeDom" class="mini-reset" aria-pressed="true">DOM bubbles</button>
+        <button type="button" id="sceneNavModeMetaball" class="mini-reset" aria-pressed="false">Metaball SDF</button>
+        <button type="button" id="sceneOpenMetaballLab" class="mini-reset" style="margin-left:auto">Metaball lab</button>
+      </div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
+        <span>Metaball mode reloads with <code>?scene3d=1</code>. DOM controls on the Nav tab are disabled while metaball is active.</span>
+      </div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel" title="One-click cinematic bundles">Scene presets</div>
+      <div class="sliderRow" style="flex-wrap:wrap; gap:6px;">
+        <button type="button" id="scenePresetPortal" class="mini-reset" data-scene-preset="portal" title="DOM nav + ambient RB">Portal</button>
+        <button type="button" id="scenePresetMetaball" class="mini-reset" data-scene-preset="metaball" title="SDF nav + glow">Metaball</button>
+        <button type="button" id="scenePresetAtmospheric" class="mini-reset" data-scene-preset="atmospheric" title="Slow drift + vignette">Atmospheric</button>
+      </div>
+      <div class="sliderRow" style="opacity:.85; font-size:9px; line-height:1.3;">
+        <span id="scenePresetStatus">No scene preset applied yet.</span>
+      </div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel" title="Ray-marched metaball shader">Metaball shader</div>
+      <div class="sliderRow"><label for="sceneMetaballGlow" title="Surface glow intensity">Glow</label><input type="range" id="sceneMetaballGlow" min="0" max="2" step="0.01" value="1"></div>
+      <div class="sliderRow"><label for="sceneMetaballMergeK" title="Smooth-min merge distance">Merge</label><input type="range" id="sceneMetaballMergeK" min="0.05" max="0.8" step="0.01" value="0.35"></div>
+      <div class="sliderRow"><label for="sceneMetaballPointerPull" title="Pointer magnetic pull on SDF">Pointer pull</label><input type="range" id="sceneMetaballPointerPull" min="0" max="0.5" step="0.01" value="0.15"></div>
+      <div class="sliderRow"><label for="sceneMetaballSteps" title="Ray march steps (quality)">March steps</label><input type="range" id="sceneMetaballSteps" min="16" max="96" step="1" value="48"></div>
+      <div class="sliderRow"><label for="sceneMetaballBloom" title="Post bloom intensity">Bloom</label><input type="range" id="sceneMetaballBloom" min="0" max="1.2" step="0.01" value="0.4"></div>
+      <div class="sectionDivider"></div>
+      <div class="sectionLabel" title="HTML label positions around metaballs">Nav sculpture</div>
+      <div class="sliderRow"><label for="sceneSculptureSeparation" title="Minimum distance between labels">Separation</label><input type="range" id="sceneSculptureSeparation" min="0.2" max="0.9" step="0.01" value="0.42"></div>
+      <div class="sliderRow"><label for="sceneSculptureMagnetic" title="Pointer attraction radius">Magnetic</label><input type="range" id="sceneSculptureMagnetic" min="0.1" max="0.8" step="0.01" value="0.35"></div>
+      <div class="sliderRow"><label for="sceneSculptureFloat" title="Orbit animation speed multiplier">Float speed</label><input type="range" id="sceneSculptureFloat" min="0.2" max="2.5" step="0.01" value="1"></div>
+      <div class="sliderRow"><label for="sceneSculptureScroll" title="Wheel / touch scroll shifts nav orbit">Scroll pull</label><input type="range" id="sceneSculptureScroll" min="0" max="2" step="0.01" value="1"></div>
+      <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
+        <span>Scroll or swipe on the landing page (after ENTER) to carousel the nav bubbles around Errl. Disable with <code>?scrollNav=0</code>.</span>
       </div>
     </div>
 
@@ -878,6 +886,10 @@
   <script type="module" src="./apps/landing/fx/hue-controller.ts"></script>
   <!-- WebGL runtime and app glue -->
   <script type="module" src="./apps/landing/scripts/webgl.js"></script>
+  <script type="module" src="./apps/landing/scene/bridge/scene-controls-init.ts"></script>
+  <script type="module" src="./apps/landing/scene/main.tsx"></script>
+  <script type="module" src="./apps/landing/scripts/nav-render-mode-phone.ts"></script>
+  <script type="module" src="./apps/landing/scripts/scene-phone-controls.ts"></script>
   <script type="module" src="./apps/landing/scripts/portal-app.js"></script>
   <script type="module" src="./apps/static/app-legacy.js"></script>
 

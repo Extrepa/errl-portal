@@ -317,7 +317,7 @@
       attractIntensity: 1.0,
       ripples: false,
       rippleIntensity: 1.2,
-      interactionMode: 'classic'
+      interactionMode: 'ambient'
     };
 
     let classicPlayEngaged = false;
@@ -686,7 +686,7 @@
       try {
         // Only primary contact
         if (e.isPrimary === false) return;
-        if (controls.interactionMode === 'collect') return;
+        if (controls.interactionMode === 'ambient' || controls.interactionMode === 'collect') return;
         // Prevent ripple handler + browser gestures during active interaction
         if (e.pointerType === 'touch' || e.pointerType === 'pen') {
           try { e.preventDefault(); } catch(_) {}
@@ -1240,10 +1240,11 @@
         controls.rippleIntensity = clamp(safeNum(value, 1.2), 0, 2);
       },
       setInteractionMode(value) {
-        const v = String(value || 'classic');
+        const v = String(value || 'ambient');
         if (v === 'pop') controls.interactionMode = 'pop';
         else if (v === 'collect') controls.interactionMode = 'collect';
-        else controls.interactionMode = 'classic';
+        else if (v === 'classic') controls.interactionMode = 'classic';
+        else controls.interactionMode = 'ambient';
         // Clear interaction leftovers so classic starts in a clean throw-ready state.
         grabState.active = false;
         grabState.pointerId = null;

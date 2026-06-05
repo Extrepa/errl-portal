@@ -16,7 +16,7 @@
     "rbAttractIntensity": "0.4",
     "rbRipples": false,
     "rbRippleIntensity": "0.8",
-    "rbInteractionMode": "classic",
+    "rbInteractionMode": "ambient",
     "rbAdvAnimSpeed": "0.10",
 
     "classicGooEnabled": true,
@@ -94,7 +94,7 @@
     "attractIntensity": 0.4,
     "ripples": false,
     "rippleIntensity": 0.8,
-    "interactionMode": "classic"
+    "interactionMode": "ambient"
   },
   "gl": {
     "bubbles": {
@@ -114,5 +114,23 @@
   },
   "nav": {
     "goo": {}
+  },
+  "scene": {
+    "navRenderMode": "dom",
+    "metaball": {
+      "steps": 48,
+      "bloomIntensity": 0.4,
+      "bloomThreshold": 0.6,
+      "vignetteDarkness": 0.7,
+      "glow": 1,
+      "mergeK": 0.35,
+      "pointerPull": 0.15
+    },
+    "sculpture": {
+      "magneticRadius": 0.35,
+      "separation": 0.42,
+      "floatSpeed": 1,
+      "scrollInfluence": 1
+    }
   }
 }

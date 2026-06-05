@@ -110,8 +110,8 @@ test.describe('Core Portal Tests', () => {
     await page.goBack();
 
     // Test Assets link
-    await page.locator('#navOrbit a[href*="assets"]').first().click({ force: true });
-    await page.waitForURL(`**/assets/**`);
+    await page.locator('#navOrbit a[href*="gallery"]').first().click({ force: true });
+    await page.waitForURL(`**/gallery/**`);
     await expect(page.locator('a.errl-home-btn')).toBeVisible();
     await page.goBack();
 

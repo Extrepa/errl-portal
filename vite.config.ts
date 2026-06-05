@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import { resolve, dirname, dirname as pathDirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cpSync, existsSync, mkdirSync, rmSync, renameSync, readdirSync, statSync } from 'node:fs';
@@ -14,7 +15,7 @@ const portalPagesRewritePlugin = () => ({
       if (req.url && req.method === 'GET') {
         // Rewrite root-level portal pages to source location
         // Match paths like /about/, /gallery/, /assets/errl-head-coin/, etc.
-        if (req.url.match(/^\/(about|gallery|assets|games|studio|design|pin-designer|pin-designer-face-only)(\/|$)/)) {
+        if (req.url.match(/^\/(about|gallery|assets|games|studio|design|pin-designer|pin-designer-face-only|fx)(\/|$)/)) {
           req.url = `/apps/static/pages${req.url}`;
         }
         // Rewrite /chat to chatbot app
@@ -289,6 +290,7 @@ export default defineConfig(({ command }) => ({
   // Repo-root `public/` (legacy bootstrap, config JSON). Default with root: 'src' would be src/public.
   publicDir: resolve(__dirname, 'public'),
   plugins: [
+    react(),
     portalPagesRewritePlugin(), 
     copyShapeMadnessContentPlugin(),
     copySharedAssetsPlugin(), 
@@ -354,6 +356,7 @@ export default defineConfig(({ command }) => ({
         'pin-designer-face-only/index': resolve(process.cwd(), 'src/apps/static/pages/pin-designer-face-only/index.html'),
         'chat': resolve(process.cwd(), 'src/apps/chatbot/index.html'),
         'fx/hue-examples': resolve(process.cwd(), 'src/apps/landing/fx/hue-examples.html'),
+        'fx/metaball-lab/index': resolve(process.cwd(), 'src/apps/static/pages/fx/metaball-lab/index.html'),
       },
     },
   },

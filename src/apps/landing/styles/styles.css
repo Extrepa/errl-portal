@@ -153,7 +153,10 @@ input, textarea, select, button { -webkit-user-select: auto; user-select: auto; 
 ::selection { background: transparent; }
 
 /* force dark base even if external CSS sets transparent */
-body.errl-dark { background: var(--errl-bg) !important; }
+body.errl-dark {
+  background: #06080f !important;
+  background-image: radial-gradient(ellipse 120% 80% at 50% 40%, rgba(12, 18, 32, 0.9) 0%, #06080f 65%) !important;
+}
 
 a { color: inherit; text-decoration: none; }
 
@@ -697,7 +700,7 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   opacity: 1 !important;
   animation: none !important;
 }
-.bubble:hover{ color:#fff; animation: wobble 3s ease-in-out infinite; animation-duration: calc(3s * var(--motionMultiplier, 1)); }
+.bubble:hover{ color:#fff; animation: wobble 4.2s ease-in-out infinite; animation-duration: calc(4.2s * var(--motionMultiplier, 1)); }
 .bubble.hidden-bubble { display: none !important; }
 .bubble.has-custom-media {
   background-image:
@@ -1413,6 +1416,7 @@ body.reduced-motion .errl-panel.minimized::after {
 .panel-tabs .tab[data-tab="hud"]::after{ background-image:url('./assets/portal/ui/phone-tabs/hud_300.png'); }
 .panel-tabs .tab[data-tab="errl"]::after{ background-image:url('./assets/portal/ui/phone-tabs/errl_300.png'); }
 .panel-tabs .tab[data-tab="nav"]::after{ background-image:url('./assets/portal/ui/phone-tabs/nav_300.png'); }
+.panel-tabs .tab[data-tab="scene"]::after{ background-image:url('./assets/portal/ui/phone-tabs/nav_300.png'); }
 .panel-tabs .tab[data-tab="rb"]::after{ background-image:url('./assets/portal/ui/phone-tabs/rb_300.png'); }
 .panel-tabs .tab[data-tab="glb"]::after{ background-image:url('./assets/portal/ui/phone-tabs/glb_300.png'); }
 .panel-tabs .tab[data-tab="bg"]::after{ background-image:url('./assets/portal/ui/phone-tabs/bg_300.png'); }

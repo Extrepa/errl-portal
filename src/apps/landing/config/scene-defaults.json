@@ -1,0 +1,29 @@
+{
+  "phase": "arrival",
+  "rbInteractionMode": "ambient",
+  "navBubbleCount": 4,
+  "navKeys": ["forum", "about", "gallery", "studio"],
+  "navRenderMode": "dom",
+  "scene": {
+    "navRenderMode": "dom",
+    "metaball": {
+      "steps": 48,
+      "bloomIntensity": 0.4,
+      "bloomThreshold": 0.6,
+      "vignetteDarkness": 0.7,
+      "glow": 1,
+      "mergeK": 0.35,
+      "pointerPull": 0.15
+    },
+    "sculpture": {
+      "magneticRadius": 0.35,
+      "separation": 0.42,
+      "floatSpeed": 1
+    }
+  },
+  "devPhoneUnlock": {
+    "urlParam": "dev=1",
+    "gesture": "longPressErrlMs",
+    "longPressMs": 2000
+  }
+}
