@@ -21,3 +21,7 @@
 ### Build fix
 - `vite.config.ts`: copy `apps/landing/scripts|styles|config|fx` to dist (was deleted by reorganize plugin)
 - `build-output.spec.ts`: assert `portal-app.js` + orbit helpers in dist
+
+### Deploy verify (10934cf on errl.wtf)
+- Prod `portal-app.js` serves 200 with `getMinOrbitDistPx`
+- `live-visual-audit.spec.ts` 12/12 pass against https://errl.wtf
