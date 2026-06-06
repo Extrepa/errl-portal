@@ -61,6 +61,13 @@ export function initSceneControls() {
   emit(cached);
 }
 
+/** Re-read bundle.scene from localStorage after portal-app setBundle (no write). */
+export function reloadFromStorage() {
+  cached = readFromStorage();
+  emit(cached);
+  return cached;
+}
+
 export function getSceneSettings(): SceneSettings {
   return cached;
 }
@@ -118,6 +125,7 @@ export function buildSceneControlsApi() {
     patchSceneSettings,
     buildSceneQuery,
     subscribe: subscribeSceneControls,
+    reloadFromStorage,
   };
 }
 

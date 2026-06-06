@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { getSculpture, subscribeSceneControls } from '../bridge/sceneControls';
+import { getMetaball, getSculpture, subscribeSceneControls } from '../bridge/sceneControls';
 import type { SceneSculptureSettings } from '../sceneTypes';
 import { getScene3dBubbleRadiusPx, isErrlLayoutReady } from './orbitLayout';
 import { NAV_ITEMS } from './navConfig';
@@ -18,6 +18,7 @@ export default function MetaballNavLinks({ className = 'errl-metaball-nav' }: Me
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const readyRef = useRef(false);
   const sculptureRef = useRef<SceneSculptureSettings>(getSculpture());
+  const [orbGlow, setOrbGlow] = useState(() => getMetaball().glow);
   const [viewportWidth, setViewportWidth] = useState(
     () => (typeof window !== 'undefined' ? window.innerWidth : 1440),
   );
@@ -27,6 +28,7 @@ export default function MetaballNavLinks({ className = 'errl-metaball-nav' }: Me
   useEffect(() => {
     const unsub = subscribeSceneControls((s) => {
       sculptureRef.current = s.sculpture;
+      setOrbGlow(s.metaball.glow);
     });
     return () => {
       unsub();
@@ -77,7 +79,11 @@ export default function MetaballNavLinks({ className = 'errl-metaball-nav' }: Me
 
   return (
     <div className={`${className} errl-scene-3d-nav`} aria-hidden={false}>
-      <div className="errl-scene-3d-labels errl-metaball-nav__links" aria-hidden={false}>
+      <div
+        className="errl-scene-3d-labels errl-metaball-nav__links"
+        aria-hidden={false}
+        style={{ '--nav-orb-glow': String(orbGlow) } as CSSProperties}
+      >
         {NAV_ITEMS.map((item, i) => (
           <a
             key={item.key}

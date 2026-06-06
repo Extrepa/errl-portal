@@ -100,6 +100,36 @@ test.describe('Scene tab (Phase 2–3)', () => {
     expect(after).not.toBe(before);
   });
 
+  test('@controls setBundle reload syncs scene tab sliders', async ({ page, baseURL }) => {
+    await gotoPortalLanding(page, baseURL!);
+    await ensurePhonePanelOpen(page);
+    await openPhoneTab(page, 'scene');
+
+    await page.evaluate(() => {
+      const key = 'errl_portal_settings_v1';
+      const raw = localStorage.getItem(key);
+      const bundle = raw ? JSON.parse(raw) : { version: 1, ui: {} };
+      bundle.scene = bundle.scene || {};
+      bundle.scene.metaball = bundle.scene.metaball || {};
+      bundle.scene.sculpture = bundle.scene.sculpture || {};
+      bundle.scene.metaball.glow = 1.42;
+      bundle.scene.sculpture.separation = 0.61;
+      localStorage.setItem(key, JSON.stringify(bundle));
+      const api = window.errlSceneControls;
+      if (api && typeof api.reloadFromStorage === 'function') api.reloadFromStorage();
+    });
+
+    const values = await page.evaluate(() => ({
+      glow: (document.getElementById('sceneMetaballGlow') as HTMLInputElement | null)?.value,
+      separation: (document.getElementById('sceneSculptureSeparation') as HTMLInputElement | null)?.value,
+      busGlow: window.errlSceneControls?.getMetaball().glow,
+    }));
+
+    expect(parseFloat(values.glow || '0')).toBeCloseTo(1.42, 2);
+    expect(parseFloat(values.separation || '0')).toBeCloseTo(0.61, 2);
+    expect(values.busGlow).toBeCloseTo(1.42, 2);
+  });
+
   test('@controls scenePreset URL hydrates on load', async ({ page, baseURL }) => {
     await page.goto(`${baseURL!}/?dev=1&skipIntro=1&scenePreset=atmospheric`, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});

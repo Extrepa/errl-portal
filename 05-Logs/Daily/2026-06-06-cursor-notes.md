@@ -86,3 +86,15 @@
 - Tests: boot-shell panel hidden + scene3d legacy nav hidden; responsive/performance use `gotoPortalLanding`
 - `portal-app.js`: Scene tab in `TAB_HELP_SUMMARIES`
 - Verify: `test:local` 22/23 pass (metaball-lab snapshot 1% drift pre-existing); scene-phone 8/8; build includes `boot-shell.js`
+
+### Local-only follow-up (post prod freeze)
+- `sceneControls.reloadFromStorage()` — Scene tab sliders sync when `portal-app` `setBundle` writes
+- Scene tab intro copy: DOM vs CSS 3D orbs, long-press unlock, glow affects landing orbs
+- `MetaballNavLinks` + `arrival.css`: `--nav-orb-glow` wired to Scene **Glow** slider
+- Tests: `setBundle reload syncs scene tab sliders`, bundle write + reload panel size
+
+### Production hotfix (errl.wtf broken state)
+- Prod was serving old bundle: `MetaballNavCanvas` on landing + DOM bubbles + missing Errl (dual nav flash)
+- Added `errl-layout-ready` gating so nav only shows after Errl has measurable layout
+- Mobile menuOrb labels: slightly larger bubbles, no ellipsis truncation on `.menuOrb .label`
+- Committed `9036ca3` and pushed `main` → Cloudflare Pages deploy

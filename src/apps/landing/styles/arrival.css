@@ -212,6 +212,10 @@ body.errl-scene-3d-nav #riseBubbles {
   opacity: 1;
 }
 
+.errl-metaball-nav__links {
+  --nav-orb-glow: 1;
+}
+
 .errl-metaball-link__orb {
   position: absolute;
   inset: 0;
@@ -224,8 +228,8 @@ body.errl-scene-3d-nav #riseBubbles {
       color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 55%, #000) 100%
     );
   box-shadow:
-    0 0 18px color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 70%, transparent),
-    0 0 36px color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 35%, transparent),
+    0 0 calc(18px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 70%, transparent),
+    0 0 calc(36px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 35%, transparent),
     inset 0 -5px 14px rgba(0, 0, 0, 0.45),
     inset 0 4px 10px rgba(255, 255, 255, 0.18);
 }
@@ -239,8 +243,8 @@ body.errl-scene-3d-nav #riseBubbles {
 .errl-metaball-link:focus-visible .errl-metaball-link__orb {
   filter: brightness(1.12);
   box-shadow:
-    0 0 24px color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 85%, transparent),
-    0 0 48px color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 45%, transparent),
+    0 0 calc(24px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 85%, transparent),
+    0 0 calc(48px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 45%, transparent),
     inset 0 -5px 14px rgba(0, 0, 0, 0.45),
     inset 0 4px 10px rgba(255, 255, 255, 0.22);
 }

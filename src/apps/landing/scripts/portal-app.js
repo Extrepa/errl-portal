@@ -72,7 +72,12 @@
     return normalizeBundle(readJson(SETTINGS_KEY));
   }
   function setBundle(bundle){
-    return writeJson(SETTINGS_KEY, normalizeBundle(bundle));
+    const ok = writeJson(SETTINGS_KEY, normalizeBundle(bundle));
+    try {
+      const api = window.errlSceneControls;
+      if (api && typeof api.reloadFromStorage === 'function') api.reloadFromStorage();
+    } catch (_) {}
+    return ok;
   }
   const HISTORY_MAX = 25;
   const historyUndo = [];
