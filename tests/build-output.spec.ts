@@ -22,6 +22,14 @@ test.describe('build output', () => {
     expect(js).toContain('getMinOrbitDistPx');
   });
 
+  test('dist includes gallery manifest for floating hall', async () => {
+    const manifestPath = resolve(process.cwd(), 'dist/gallery/manifest.json');
+    expect(existsSync(manifestPath)).toBe(true);
+    const raw = readFileSync(manifestPath, 'utf8');
+    const data = JSON.parse(raw) as { albums?: unknown[] };
+    expect(Array.isArray(data.albums)).toBe(true);
+  });
+
   test('dist includes games hub with liquid light link', async () => {
     const gamesHtml = resolve(process.cwd(), 'dist/games/index.html');
     expect(existsSync(gamesHtml)).toBe(true);

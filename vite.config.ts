@@ -74,6 +74,18 @@ const copyUnityGamesPlugin = () => ({
   },
 });
 
+const copyGalleryManifestPlugin = () => ({
+  name: 'gallery-manifest-copy',
+  apply: 'build',
+  closeBundle() {
+    const source = resolve(process.cwd(), 'src/apps/static/pages/gallery/manifest.json');
+    if (!existsSync(source)) return;
+    const destDir = resolve(process.cwd(), 'dist/gallery');
+    mkdirSync(destDir, { recursive: true });
+    cpSync(source, resolve(destDir, 'manifest.json'));
+  },
+});
+
 const copySharedAssetsPlugin = () => ({
   name: 'shared-assets-copy',
   apply: 'build',
@@ -338,6 +350,7 @@ export default defineConfig(({ command }) => ({
     copyShapeMadnessContentPlugin(),
     copyUnityGamesPlugin(),
     copySharedAssetsPlugin(), 
+    copyGalleryManifestPlugin(),
     copySharedStylesPlugin(), 
     copyRedirectsPlugin(), 
     replaceBaseUrlPlugin(), 
