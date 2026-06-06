@@ -1,5 +1,4 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
 import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
@@ -8,7 +7,12 @@ import type { SceneMetaballSettings, SceneSculptureSettings } from '../sceneType
 import { detectQualityTier, maxDpr, sdfMarchSteps } from '../quality';
 import { metaballFragmentShader, metaballVertexShader, physicsToBall } from './shaders/metaballSDF';
 import { NAV_ITEMS } from '../nav/navConfig';
-import { clampNormToViewport, getOrbitWorldScale } from '../nav/orbitLayout';
+import {
+  clampNormToViewport,
+  getMetaballBallRadius,
+  getOrbitWorldScale,
+  orbitNormToScreen,
+} from '../nav/orbitLayout';
 import { useNavPhysics, type NavPhysicsApi } from '../nav/useNavPhysics';
 
 function vec4Uniform(ball: { x: number; y: number; z: number; w: number }) {
@@ -19,9 +23,10 @@ type MetaballQuadProps = {
   steps: number;
   physics: NavPhysicsApi;
   worldScale: number;
+  ballRadius: number;
 };
 
-function MetaballQuad({ steps, physics, worldScale }: MetaballQuadProps) {
+function MetaballQuad({ steps, physics, worldScale, ballRadius }: MetaballQuadProps) {
   const matRef = useRef<THREE.ShaderMaterial>(null);
   const { size, pointer } = useThree();
   const metaballRef = useRef<SceneMetaballSettings>(getMetaball());
@@ -45,15 +50,15 @@ function MetaballQuad({ steps, physics, worldScale }: MetaballQuadProps) {
       uPointer: { value: new THREE.Vector2(0.5, 0.5) },
       uPointerActive: { value: 0 },
       uSteps: { value: steps },
-      uBall0: { value: vec4Uniform(physicsToBall(0, 0.1, 0, 0.2, worldScale)) },
-      uBall1: { value: vec4Uniform(physicsToBall(0.5, 0.2, 0, 0.2, worldScale)) },
-      uBall2: { value: vec4Uniform(physicsToBall(-0.5, 0.2, 0, 0.2, worldScale)) },
-      uBall3: { value: vec4Uniform(physicsToBall(0, -0.4, 0, 0.2, worldScale)) },
+      uBall0: { value: vec4Uniform(physicsToBall(0, 0.1, 0, ballRadius, worldScale)) },
+      uBall1: { value: vec4Uniform(physicsToBall(0.5, 0.2, 0, ballRadius, worldScale)) },
+      uBall2: { value: vec4Uniform(physicsToBall(-0.5, 0.2, 0, ballRadius, worldScale)) },
+      uBall3: { value: vec4Uniform(physicsToBall(0, -0.4, 0, ballRadius, worldScale)) },
       uMergeK: { value: metaballRef.current.mergeK },
       uGlow: { value: metaballRef.current.glow },
       uPointerPull: { value: metaballRef.current.pointerPull },
     }),
-    [steps, worldScale],
+    [steps, worldScale, ballRadius],
   );
 
   useFrame((state) => {
@@ -72,7 +77,7 @@ function MetaballQuad({ steps, physics, worldScale }: MetaballQuadProps) {
     const balls = [u.uBall0, u.uBall1, u.uBall2, u.uBall3];
     states.forEach((s, i) => {
       if (!balls[i]) return;
-      const b = physicsToBall(s.x, s.y, s.z, 0.2, worldScale);
+      const b = physicsToBall(s.x, s.y, s.z, ballRadius, worldScale);
       balls[i].value.set(b.x, b.y, b.z, b.w);
     });
   });
@@ -90,14 +95,13 @@ function MetaballQuad({ steps, physics, worldScale }: MetaballQuadProps) {
   );
 }
 
-type NavLabelsProps = {
+type PhysicsDriverProps = {
   physics: NavPhysicsApi;
   getSculpture: () => SceneSculptureSettings;
-  worldScale: number;
+  onTick: () => void;
 };
 
-function NavLabels({ physics, getSculpture, worldScale }: NavLabelsProps) {
-  const [, tick] = useState(0);
+function PhysicsDriver({ physics, getSculpture, onTick }: PhysicsDriverProps) {
   const sculptureRef = useRef(getSculpture());
 
   useEffect(() => {
@@ -111,36 +115,49 @@ function NavLabels({ physics, getSculpture, worldScale }: NavLabelsProps) {
 
   useFrame((_, dt) => {
     physics.step(Math.min(dt, 0.05), undefined, () => sculptureRef.current);
-    tick((n) => n + 1);
+    onTick();
   });
 
+  return null;
+}
+
+type NavLabelOverlayProps = {
+  physics: NavPhysicsApi;
+  tick: number;
+};
+
+function NavLabelOverlay({ physics, tick }: NavLabelOverlayProps) {
+  void tick;
   const states = physics.getStates();
 
   return (
-    <>
+    <div className="errl-scene-3d-labels" aria-hidden={false}>
       {states.map((s, i) => {
         const item = NAV_ITEMS[i];
-        const clamped = clampNormToViewport(s.x, s.y, worldScale);
+        const clamped = clampNormToViewport(s.x, s.y);
+        const { left, top } = orbitNormToScreen(clamped.x, clamped.y);
         return (
-          <Html
+          <a
             key={item.key}
-            position={[clamped.x * worldScale, clamped.y * worldScale, s.z]}
-            center
-            style={{ pointerEvents: 'auto' }}
+            href={item.href}
+            className="bubble menuOrb errl-scene-3d-label"
+            data-nav-bubble-key={item.key}
+            style={{
+              position: 'fixed',
+              left: `${left}px`,
+              top: `${top}px`,
+              transform: 'translate(-50%, -50%)',
+              textDecoration: 'none',
+              opacity: 0.95,
+              pointerEvents: 'auto',
+            }}
+            {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
           >
-            <a
-              href={item.href}
-              className="bubble menuOrb errl-scene-3d-label"
-              data-nav-bubble-key={item.key}
-              style={{ textDecoration: 'none', opacity: 0.95 }}
-              {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-            >
-              <span className="label">{item.label}</span>
-            </a>
-          </Html>
+            <span className="label">{item.label}</span>
+          </a>
         );
       })}
-    </>
+    </div>
   );
 }
 
@@ -160,7 +177,9 @@ export default function MetaballNavCanvas({
   const dpr = maxDpr(tier);
   const physics = useNavPhysics();
   const worldScale = getOrbitWorldScale(typeof window !== 'undefined' ? window.innerWidth : 1440);
+  const ballRadius = getMetaballBallRadius(typeof window !== 'undefined' ? window.innerWidth : 1440);
   const [post, setPost] = useState({ bloomIntensity: 0.4, bloomThreshold: 0.6, vignetteDarkness: 0.7 });
+  const [labelTick, setLabelTick] = useState(0);
 
   useEffect(() => {
     const unsub = subscribeSceneControls((s) => {
@@ -180,11 +199,14 @@ export default function MetaballNavCanvas({
       <Canvas
         dpr={dpr}
         camera={{ position: [0, 0, 2.2], fov: 50 }}
-        gl={{ alpha: true, antialias: tier !== 'low' }}
+        gl={{ alpha: true, antialias: tier !== 'low', premultipliedAlpha: true }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0);
+        }}
         style={{ width: '100%', height: '100%', background: 'transparent' }}
       >
-        <MetaballQuad steps={steps} physics={physics} worldScale={worldScale} />
-        {showLabels ? <NavLabels physics={physics} getSculpture={getSculpture} worldScale={worldScale} /> : null}
+        <MetaballQuad steps={steps} physics={physics} worldScale={worldScale} ballRadius={ballRadius} />
+        <PhysicsDriver physics={physics} getSculpture={getSculpture} onTick={() => setLabelTick((n) => n + 1)} />
         {showPost && tier !== 'low' ? (
           <EffectComposer>
             <Bloom luminanceThreshold={post.bloomThreshold} intensity={post.bloomIntensity} />
@@ -192,6 +214,7 @@ export default function MetaballNavCanvas({
           </EffectComposer>
         ) : null}
       </Canvas>
+      {showLabels ? <NavLabelOverlay physics={physics} tick={labelTick} /> : null}
     </div>
   );
 }

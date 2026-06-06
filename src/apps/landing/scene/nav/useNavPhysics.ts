@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { DEFAULT_SCENE_SETTINGS, type SceneSculptureSettings } from '../sceneTypes';
 import { NAV_ITEMS, type NavKey } from './navConfig';
-import { ORBIT_CENTER, anchorPosition, getOrbitAnchors, getOrbitDistNormScale } from './orbitLayout';
+import { anchorPosition, getErrlOrbitCenterNorm, getOrbitAnchors, getOrbitRadiusNorm } from './orbitLayout';
 
 export type NavPhysicsState = {
   key: NavKey;
@@ -12,7 +12,22 @@ export type NavPhysicsState = {
   vy: number;
 };
 
-const ORBIT_CENTER_REF = ORBIT_CENTER;
+function orbitTarget(i: number, t: number, scrollPhase: number, scrollInf: number) {
+  const base = NAV_ITEMS[i];
+  const center = getErrlOrbitCenterNorm();
+  const rad = (base.angle * Math.PI) / 180;
+  const r = getOrbitRadiusNorm(base.dist);
+  return {
+    x:
+      center.x +
+      Math.cos(rad + t * 0.15) * r +
+      Math.cos(scrollPhase + i * 0.4) * 0.14 * scrollInf,
+    y:
+      center.y +
+      Math.sin(rad + t * 0.12) * r * 0.85 +
+      Math.sin(scrollPhase + i * 0.35) * 0.12 * scrollInf,
+  };
+}
 
 export type NavPhysicsApi = {
   getStates: () => NavPhysicsState[];
@@ -57,21 +72,10 @@ export function useNavPhysics(initial?: Partial<Record<NavKey, { x: number; y: n
 
         const states = stateRef.current;
         const t = performance.now() * 0.001 * floatMul;
-        const tier = getOrbitDistNormScale();
         states.forEach((s, i) => {
-          const base = NAV_ITEMS[i];
-          const rad = (base.angle * Math.PI) / 180;
-          const r = (base.dist / 220) * tier;
-          const ax =
-            ORBIT_CENTER_REF.x +
-            Math.cos(rad + t * 0.15) * r +
-            Math.cos(scrollPhase + i * 0.4) * 0.14 * scrollInf;
-          const ay =
-            ORBIT_CENTER_REF.y +
-            Math.sin(rad + t * 0.12) * r * 0.85 +
-            Math.sin(scrollPhase + i * 0.35) * 0.12 * scrollInf;
-          s.vx += (ax - s.x) * 1.2 * dt;
-          s.vy += (ay - s.y) * 1.2 * dt;
+          const target = orbitTarget(i, t, scrollPhase, scrollInf);
+          s.vx += (target.x - s.x) * 1.2 * dt;
+          s.vy += (target.y - s.y) * 1.2 * dt;
           if (pointer?.active) {
             const dx = pointer.x - s.x;
             const dy = pointer.y - s.y;

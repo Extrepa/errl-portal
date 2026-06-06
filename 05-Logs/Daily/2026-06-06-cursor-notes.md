@@ -38,3 +38,8 @@
 - `npm run test:local:headed` — same, visible browser
 - `npm run test:prod:audit` — optional post-deploy smoke only
 - `bash tools/portal/local-test.sh [--headed]`
+
+### Scene3d metaball nav fix
+- Shader: transparent alpha + Errl core cutout (was opaque black fullscreen)
+- Labels: screen-space overlay (R3F Html projected off-screen)
+- Orbit: min/max radius from Errl bbox + viewport clamp (matches DOM)

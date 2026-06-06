@@ -131,10 +131,18 @@ body.reduced-motion .errl-arrival__enter {
   inset: 0;
   z-index: 5;
   pointer-events: none;
+  background: transparent;
 }
 
 .errl-scene-3d-nav canvas {
   pointer-events: auto;
+}
+
+.errl-scene-3d-labels {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
 }
 
 body.errl-nav-mode-metaball #navOrbit .bubble,
@@ -181,6 +189,7 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
 .errl-scene-3d-label.bubble.menuOrb {
   pointer-events: auto;
   z-index: 6;
+  position: relative;
   width: clamp(56px, 16vw, 96px) !important;
   height: clamp(56px, 16vw, 96px) !important;
   min-width: clamp(56px, 16vw, 96px) !important;

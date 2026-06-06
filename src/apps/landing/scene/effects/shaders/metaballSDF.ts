@@ -81,7 +81,8 @@ void main() {
     if (t > 6.0) break;
   }
 
-  vec3 col = vec3(0.02, 0.03, 0.06);
+  vec3 col = vec3(0.0);
+  float alpha = 0.0;
   if (t < 6.0 && d < 0.01) {
     vec3 n = calcNormal(p);
     float fres = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
@@ -89,11 +90,18 @@ void main() {
     col = mix(vec3(0.08, 0.2, 0.35), vec3(0.5, 0.75, 1.0), fres);
     col += vec3(0.15, 0.35, 0.55) * glowAmt;
     col *= 0.85 + 0.15 * n.y;
+    alpha = clamp(0.55 + fres * 0.45, 0.0, 0.92);
   }
 
-  float vign = smoothstep(1.2, 0.2, length(uv));
+  // Keep Errl silhouette readable — fade metaball fill in the core viewport disk.
+  float errlCore = length(uv) - 0.38;
+  if (errlCore < 0.0) {
+    alpha *= smoothstep(-0.12, 0.04, errlCore);
+  }
+
+  float vign = smoothstep(1.2, 0.25, length(uv));
   col *= vign;
-  gl_FragColor = vec4(col, 1.0);
+  gl_FragColor = vec4(col * alpha, alpha);
 }
 `;
 
@@ -104,7 +112,7 @@ export function physicsToBall(
   x: number,
   y: number,
   z: number,
-  radius = 0.2,
+  radius = 0.24,
   scale = 2.2,
 ): BallUniform {
   return { x: x * scale, y: y * scale, z, w: radius };
