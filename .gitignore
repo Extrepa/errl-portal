@@ -55,3 +55,12 @@ archive/**/*.tar.gz
 
 .npm-cache/
 debug-bubbles.js
+
+# Local scratch / downloads (not part of the repo)
+drive-download-*/
+chatgptnotes/
+
+# Large archive backups (kept locally or in errl-portal-archive; not in git)
+archive/snapshots/
+archive/site-trim-20251222/
+archive/docs-site-20251031/

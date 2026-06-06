@@ -1,1 +1,0 @@
-Optional transparent WebM shimmer loops or shader assets.

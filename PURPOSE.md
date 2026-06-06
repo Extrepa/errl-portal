@@ -25,7 +25,8 @@ Multi-app portal structure:
 - TypeScript - Type safety
 - Monaco Editor - Code editing
 - Fabric.js - Canvas manipulation
-- Three.js / PixiJS - Graphics rendering
+- Three.js / React Three Fiber - 3D scene and gallery
 - GSAP - Animations
+- Lenis - Smooth scroll
 
 For more details, see the [README](README.md).

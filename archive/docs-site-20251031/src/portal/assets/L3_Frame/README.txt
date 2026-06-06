@@ -1,1 +1,0 @@
-Drip borders, corner blobs, spark dividers (PNG/SVG).

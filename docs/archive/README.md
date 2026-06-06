@@ -1,59 +1,30 @@
-# Archived Documentation
+# Documentation Archive
 
-**Purpose**: Historical and completed documentation  
-**Last Updated**: 2026-01-15
+**Last updated:** 2026-06-06
 
----
+Historical documentation from completed work (launch verification, deployment fixes, test runs).
 
-## Archive Structure
-
-### Verification Documentation (`verification/`)
-All verification and status documents:
-- Final verification reports
-- Comprehensive verification
-- Launch readiness verification
-- Build verification
-- Status reports
-
-### Deployment Documentation (`deployment/`)
-All deployment-related fixes and guides:
-- Individual deployment fixes
-- Deployment summaries
-- Build verification
-- Deployment status
-
-### Testing Documentation (`testing/`)
-All test results and summaries:
-- Test execution summaries
-- Test results
-- Testing checklists (completed)
-- Comprehensive test results
-
-### Implementation Documentation (`implementation/`)
-All implementation summaries:
-- Implementation complete docs
-- Work completed logs
-- Changes summaries
-- Work verification notes
-
-### Fix Documentation (`fixes/`)
-All fix-related documentation:
-- Fixes complete docs
-- Individual fix docs
-- Build fixes
-- Additional fixes
+**For current status:** [../PROJECT_STATUS.md](../PROJECT_STATUS.md)
 
 ---
 
-## Archive Guidelines
+## Structure
 
-See `../ARCHIVE_GUIDE.md` for:
-- What can be archived
-- How to restore archived docs
-- Archive maintenance
+| Folder | Contents |
+|--------|----------|
+| `verification/` | FINAL_*, COMPREHENSIVE_*, LAUNCH_READINESS_* reports |
+| `deployment/` | DEPLOYMENT_FIX_*, deployment status logs |
+| `testing/` | Test result summaries and checklists (completed runs) |
+| `implementation/` | Dated implementation summaries superseded by PROJECT_STATUS |
 
 ---
 
-## Note
+## What stays active
 
-Archived documentation is for reference only. Active work should use docs in `../active/` or root-level core docs.
+- `docs/PROJECT_STATUS.md`
+- `docs/cinematic-scene-master-plan.md`
+- `docs/reference/*`
+- `docs/deployment/cloudflare-setup.md` (operational)
+- `docs/internal/implementation/audit-incomplete-tasks.md` (open gaps)
+
+Guidelines: [../internal/implementation/ARCHIVE_GUIDE.md](../internal/implementation/ARCHIVE_GUIDE.md)

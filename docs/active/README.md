@@ -1,54 +1,55 @@
 # Active Documentation
 
-**Purpose**: Current, actively referenced documentation  
-**Last Updated**: 2026-04-22
+**Purpose:** Current, actively referenced documentation  
+**Last updated:** 2026-06-06
 
 ---
 
-## Core Project Documentation
+## Start here
 
-These files remain in the root directory for easy access:
-
-- `README.md` - Main project entry point
-- `INDEX.md` - Workspace index
-- `PROJECT_STATUS.md` - Current project status
-- `QUICK_START_FOR_FUTURE_WORK.md` - Quick start guide
+- **[../PROJECT_STATUS.md](../PROJECT_STATUS.md)** — North star: routes, active work, legacy, gaps
+- **[../cinematic-scene-master-plan.md](../cinematic-scene-master-plan.md)** — Landing scene audit and roadmap
+- **[../reference/errl-phone-capabilities.md](../reference/errl-phone-capabilities.md)** — Errl Phone
+- **[../reference/static-experiments.md](../reference/static-experiments.md)** — Static HTML labs vs core product
 
 ---
 
-## Current Documentation (docs/active/)
+## Root directory (public-facing)
 
-### Master Documentation
-- `../documentation-index.md` - Complete index of all documentation
-- `../documentation-map.md` - Documentation relationships and structure
-- `../audit-incomplete-tasks.md` - Current audit of incomplete tasks
-- `../action-plan-incomplete-tasks.md` - Action plan for fixes
-
-### Daily Logs
-- `../../05-Logs/Daily/` - Recent logs (last 30 days)
+- `README.md` — Project entry point
+- `PURPOSE.md` — High-level purpose
 
 ---
 
-## Reference Documentation
+## Reference (`docs/reference/`)
 
-See `docs/reference/` for:
-- Architecture documentation
-- **Errl Phone** — `docs/reference/errl-phone-capabilities.md` (control panel, WebGL init, layers, events, tests)
-- Project structure
-- Completion checklists
-- Deployment guides
+Architecture, Errl Phone, static experiments, deployment guides.
 
 ---
 
-## Archived Documentation
+## Internal dev logs (`docs/internal/`)
 
-Historical and completed documentation is in `docs/archive/`:
-- `archive/verification/` - Verification docs
-- `archive/deployment/` - Deployment fixes
-- `archive/testing/` - Test results
-- `archive/implementation/` - Implementation summaries
-- `archive/fixes/` - Fix documentation
+Historical verification reports, deployment fix logs, implementation notes.  
+**Completed work** is being moved to `docs/archive/` — see [../archive/README.md](../archive/README.md).
+
+Still useful for open issues:
+
+- `internal/implementation/audit-incomplete-tasks.md`
+- `internal/implementation/action-plan-incomplete-tasks.md`
+- `internal/implementation/QUICK_START_FOR_FUTURE_WORK.md`
 
 ---
 
-**See `../ARCHIVE_GUIDE.md` for archiving guidelines**
+## Daily logs
+
+- `05-Logs/Daily/` — Session notes (last 30 days most relevant)
+
+---
+
+## Cursor plans
+
+- `.cursor/plans/` — Agent handoff scratch plans (phone UX, scene3d nav)
+
+---
+
+**Archiving guidelines:** [internal/implementation/ARCHIVE_GUIDE.md](../internal/implementation/ARCHIVE_GUIDE.md)

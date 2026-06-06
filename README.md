@@ -17,10 +17,10 @@ Built with modern web technologies:
 - **TypeScript** - Type safety
 - **Monaco Editor** - Code editing
 - **Fabric.js** - Canvas manipulation
-- **Three.js** - 3D graphics
-- **PixiJS** - WebGL rendering
-- **GSAP** - Animations
-- **Playwright** - Testing
+- **Three.js / React Three Fiber** - 3D scene and gallery work
+- **GSAP** - Animations and cinematic transitions
+- **Lenis** - Smooth scroll
+- **Playwright** - End-to-end testing
 
 ## Getting Started
 
@@ -41,13 +41,15 @@ npm run build
 errl-portal/
 ├── src/
 │   ├── apps/
-│   │   ├── landing/     # Portal home page with effects
-│   │   ├── studio/      # Studio application
-│   │   ├── designer/    # Design tool
-│   │   └── static/      # Static pages
-│   └── shared/          # Shared utilities and components
-├── docs/                # Documentation
-└── tests/               # Test files
+│   │   ├── landing/     # Portal home — cinematic scene, Errl Phone, metaball nav
+│   │   ├── studio/      # Studio application (separate Vite entry)
+│   │   ├── designer/    # Design tool (separate Vite entry)
+│   │   ├── chatbot/     # Chat UI
+│   │   ├── gallery/     # Floating hall R3F spike
+│   │   └── static/      # Static HTML pages (about, games, shape-madness lab, etc.)
+│   └── shared/          # Shared utilities, assets, scripts
+├── docs/                # Documentation (see docs/PROJECT_STATUS.md)
+└── tests/               # Playwright specs
 ```
 
 ## Features
@@ -60,9 +62,12 @@ errl-portal/
 
 ## Documentation
 
-Most documentation is internal and focused on development. For questions or contributions, please refer to the source code and inline documentation.
+Start here:
 
-- **Errl Phone (control panel, WebGL, layers):** [docs/reference/errl-phone-capabilities.md](docs/reference/errl-phone-capabilities.md) — how RB, GLB, BG, and overlay differ; init queues and events; storage keys; where to change code and tests.
+- **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** — live routes, active work, known gaps, doc index
+- **[docs/cinematic-scene-master-plan.md](docs/cinematic-scene-master-plan.md)** — landing scene audit and roadmap
+- **[docs/reference/errl-phone-capabilities.md](docs/reference/errl-phone-capabilities.md)** — Errl Phone tabs, layers, events, tests
+- **[docs/reference/static-experiments.md](docs/reference/static-experiments.md)** — shape-madness and other non-core static pages
 
 ---
 

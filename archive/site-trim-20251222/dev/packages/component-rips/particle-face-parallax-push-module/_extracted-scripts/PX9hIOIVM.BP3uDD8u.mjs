@@ -1,1 +1,0 @@
-import{FramerPX9hIOIVM as e,__FramerMetadata__ as t,init_PX9hIOIVM as n}from"./shared-lib.C0mn9W0G.mjs";n();export{t as __FramerMetadata__,e as default};

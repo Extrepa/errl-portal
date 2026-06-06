@@ -1,38 +1,22 @@
 # Snapshots Directory
 
-**Last Updated:** 2027-01-09  
-**Total Size:** 277MB  
-**File Count:** 29 zip files
+**Last updated:** 2026-06-06
 
-## Purpose
+Historical backup snapshots (phase zip files and tar archives). **Not tracked in git** — see root `.gitignore`.
 
-This directory contains historical backup snapshots of the errl-portal project. Snapshots are ZIP archives of the project at specific points in time.
+## Local contents
 
-## Snapshot Files
+If present on disk:
 
-Snapshots are organized by date and contain complete project backups.
+- `phase-*.zip` — Incremental project snapshots (phases 1–26)
+- `2025-11-11-working-state.tar.gz` — Full working state (~290 MB)
 
-**Note:** Individual snapshot details should be documented here as they are reviewed.
+## Restoration
 
-## Restoration Process
+1. Extract the desired zip/tar to a temp folder
+2. Diff against current `src/` before copying anything back
+3. Prefer git history over snapshots when possible
 
-To restore from a snapshot:
+## Storage
 
-1. **Identify Snapshot** - Find the snapshot file for the desired date
-2. **Extract Snapshot** - Unzip the snapshot file
-3. **Review Contents** - Verify snapshot contains what you need
-4. **Restore Files** - Copy files from snapshot to project
-5. **Test** - Verify restored project works
-
-## Cleanup Recommendations
-
-- **Keep:** All snapshots (historical value)
-- **Review:** After 6 months, consider moving to external storage
-- **Document:** Add snapshot dates and purposes to this file
-
-## Notes
-
-- Snapshots are large (277MB total)
-- Consider external storage if disk space is limited
-- Snapshots provide rollback capability
-- Document snapshot purposes for future reference
+Keep on local disk or copy to external / `errl-portal-archive` repo. Do not re-add to git.

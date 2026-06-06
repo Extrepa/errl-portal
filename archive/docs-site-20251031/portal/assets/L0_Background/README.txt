@@ -1,1 +1,0 @@
-Put seamless aurora textures or gradient PNG/WebP here (1024–1600px).

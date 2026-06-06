@@ -1,79 +1,55 @@
 # Archive Directory
 
-**Last Updated:** 2027-01-09  
-**Total Size:** ~505MB
+**Last updated:** 2026-06-06
 
-This directory contains historical backups, legacy code, and temporary files from errl-portal development.
+Historical backups and legacy code. **Not imported by active `src/` code.**
 
-## Structure
+---
 
-### Large Backups
+## Large backups (gitignored — local or external storage only)
 
-- **snapshots/** (277MB) - Historical backup snapshots (29 zip files)
-  - Contains dated snapshots of the project
-  - See snapshots/README.md for details
+These folders may exist on disk but are **not tracked in git** (see root `.gitignore`):
 
-- **site-trim-20251222/** (170MB) - Site backup from December 2025
-  - Contains 374 files (markdown, HTML, JS)
-  - Recent backup, keep for reference
+| Path | ~Size | Notes |
+|------|-------|--------|
+| `snapshots/` | 277 MB | Phase zip/tar snapshots; README kept in git |
+| `site-trim-20251222/` | 94 MB | Full site backup Dec 2025 |
+| `docs-site-20251031/` | 46 MB | Old docs site Oct 2025 |
 
-- **docs-site-20251031/** (46MB) - Documentation site backup from October 2025
-  - Contains 130+ files
-  - Documentation reference material
+To restore: copy from local disk or separate `errl-portal-archive` storage.
 
-### Component Backups
+---
 
-- **component-rips-20251112/** (4.6MB) - Component HTML backups
-  - Contains component rips organized by type (BG, Buttons, Cursors, Modules, Props, Text)
-  - May contain useful component code
+## Tracked backups (still in repo)
 
-### Legacy Code
+| Path | ~Size | Notes |
+|------|-------|--------|
+| `component-rips-20251112/` | 4.5 MB | HTML component rips by category |
+| `legacy-portal-pages-backup/` | 4.5 MB | Old portal HTML pages |
+| `legacy/` | 2.3 MB | Legacy standalone pages |
+| `portal-attic/` | 264 KB | Old portal code |
+| `dev-panel-backup/` | 196 KB | Dev panel CSS backup |
+| `portal-pixi-gl-20251030/` | 180 KB | Pixi portal version |
+| `assets-central-20251101/` | 76 KB | Asset backup |
 
-- **legacy-portal-pages-backup/** (4.6MB) - Old portal pages backup
-  - Contains 141 files (126 HTML pages)
-  - Review before deletion
+Review before deleting; none are referenced from `src/`.
 
-- **legacy/** (2.4MB) - Legacy code
-  - Contains 52 files
-  - Review before deletion
+---
 
-### Small Backups
+## Removed from git (2026-06-06 cleanup)
 
-- **portal-attic/** (280KB) - Old portal code
-- **dev-panel-backup/** (196KB) - Dev panel CSS backup
-- **portal-pixi-gl-20251030/** (188KB) - Portal version backup
-- **assets-central-20251101/** (76KB) - Asset backup
+- `Tools temporary/` — temp tools
+- `duplicate-js-20251030/` — duplicate JS
+- `root-duplicates-20251031/` — root duplicates
+- `redirect-stubs-20251030/` — redirect stubs (redirects live in Vite/build)
+- `unreferenced-20251030/` — unreferenced files
+- `moved/` — files already relocated
+- `snapshots/*.zip` — phase snapshots (local copies may remain)
 
-### Temporary Files (Candidate for Deletion)
+See `ARCHIVE_CLEANUP_EXECUTED.md` for earlier cleanup log.
 
-- **Tools temporary/** (80KB) - Temporary tools
-- **moved/** (64KB) - Files that were moved
-- **unreferenced-20251030/** (48KB) - Unreferenced files
-- **duplicate-js-20251030/** (36KB) - Duplicate JavaScript files
-- **root-duplicates-20251031/** (32KB) - Duplicate files
-- **redirect-stubs-20251030/** (4KB) - Redirect stubs
+---
 
-## File Statistics
+## Documentation archive
 
-- HTML files: 432
-- JavaScript files: 1,057
-- CSS files: 94
-- Other: Various (markdown, images, zip, etc.)
-
-## Cleanup Recommendations
-
-See `ARCHIVE_CLEANUP_PLAN.md` in project root for detailed cleanup recommendations.
-
-### Quick Summary
-
-- **Keep:** snapshots, site-trim, docs-site, component-rips
-- **Review:** legacy-portal-pages-backup, legacy
-- **Delete:** Temporary files, duplicates, unreferenced files (after verification)
-
-## Notes
-
-- Archive contains historical backups and legacy code
-- Most files are from October-December 2025
-- Largest items are snapshots (277MB) and site-trim (170MB)
-- Cleanup should be gradual and verified
-- Consider external storage for large backups
+Completed verification/deployment docs: `docs/archive/` (not this folder).

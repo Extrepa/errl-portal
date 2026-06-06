@@ -1,2 +1,0 @@
-var n=t=>({description:"Made with Framer",title:"My Framer Site"}),a=n;function s(t,e){return{breakpoints:[{hash:"72rtr7"}],description:a(t,e).description,elements:{},robots:"max-image-preview:large",serializationId:"framer-K5jli",title:a(t,e).title||"Home",viewport:"width=1200"}}var _=1,l={exports:{default:{type:"function",annotations:{framerContractVersion:"1"}},metadataVersion:{type:"variable",annotations:{framerContractVersion:"1"}},__FramerMetadata__:{type:"variable"}}};export{s as a,_ as b,l as c};
-//# sourceMappingURL=chunk-C7EXMFQG.mjs.map

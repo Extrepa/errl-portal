@@ -1,1 +1,0 @@
-Optional mote sprites (PNG/SVG). CSS version already included.
