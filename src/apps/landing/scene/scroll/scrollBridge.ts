@@ -59,6 +59,23 @@ function emit() {
     window.dispatchEvent(new CustomEvent(SCROLL_NAV_EVENT, { detail: { ...state } }));
   } catch (_) {}
   listeners.forEach((fn) => fn({ ...state }));
+  try {
+    const rb = (window as Window & { errlRisingBubblesThree?: { setScrollDrift?: (v: number) => void } })
+      .errlRisingBubblesThree;
+    const modeEl = document.getElementById('rbInteractionMode') as HTMLSelectElement | null;
+    if (rb && typeof rb.setScrollDrift === 'function' && modeEl?.value === 'ambient') {
+      rb.setScrollDrift(state.progress);
+    }
+  } catch (_) {}
+}
+
+/** Lenis runway (or other drivers) can set wrapped scroll progress directly. */
+export function setScrollProgress(progress: number, velocity = 0) {
+  if (!enabled && velocity === 0) return;
+  state.progress = ((progress % 1) + 1) % 1;
+  state.velocity = velocity;
+  recomputeOffsets();
+  emit();
 }
 
 function recomputeOffsets() {

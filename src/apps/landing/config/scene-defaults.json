@@ -3,9 +3,9 @@
   "rbInteractionMode": "ambient",
   "navBubbleCount": 4,
   "navKeys": ["forum", "about", "gallery", "studio"],
-  "navRenderMode": "dom",
+  "navRenderMode": "metaball",
   "scene": {
-    "navRenderMode": "dom",
+    "navRenderMode": "metaball",
     "metaball": {
       "steps": 48,
       "bloomIntensity": 0.4,

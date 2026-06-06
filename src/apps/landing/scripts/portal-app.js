@@ -28,12 +28,12 @@
     if (!b.nav.goo || typeof b.nav.goo !== 'object') b.nav.goo = {};
     if (!b.scene || typeof b.scene !== 'object') {
       b.scene = {
-        navRenderMode: 'dom',
+        navRenderMode: 'metaball',
         metaball: { steps: 48, bloomIntensity: 0.4, bloomThreshold: 0.6, vignetteDarkness: 0.7, glow: 1, mergeK: 0.35, pointerPull: 0.15 },
         sculpture: { magneticRadius: 0.35, separation: 0.42, floatSpeed: 1, scrollInfluence: 1 },
       };
     } else {
-      if (b.scene.navRenderMode !== 'dom' && b.scene.navRenderMode !== 'metaball') b.scene.navRenderMode = 'dom';
+      if (b.scene.navRenderMode !== 'dom' && b.scene.navRenderMode !== 'metaball') b.scene.navRenderMode = 'metaball';
     }
     if (!b.customPresets || !Array.isArray(b.customPresets)) b.customPresets = [null, null, null];
     while (b.customPresets.length < 3) b.customPresets.push(null);
@@ -4072,58 +4072,7 @@
       const el = document.getElementById('errlPanel');
       return el && !el.classList.contains('minimized');
     }
-    function renderScoreHud() {
-      return;
-      const MODE_HUD_LABELS = {
-        classic: 'Classic Throw',
-        pop: 'Pop',
-        collect: 'Collect',
-      };
-      const MODE_HUD_LABELS_NARROW = {
-        classic: 'CT',
-        pop: 'Pop',
-        collect: 'Col',
-      };
-      const wrap = document.getElementById('rbCollectScoreWrap');
-      const scoreEl = document.getElementById('rbCollectScore');
-      const totalEl = document.getElementById('rbOverallScore');
-      const highEl = document.getElementById('rbCollectHigh');
-      const badgeEl = document.getElementById('rbScoreBadge');
-      const modeLabelEl = wrap ? wrap.querySelector('.rb-collect-score__row--top .rb-collect-score__label') : null;
-      const totalLabelEl = wrap ? wrap.querySelector('.rb-collect-score__row--bottom .rb-collect-score__label') : null;
-      const mode = getCurrentMode();
-      let narrowHud = false;
-      try {
-        narrowHud = !!(window.matchMedia && window.matchMedia('(max-width: 480px)').matches);
-      } catch (_) {}
-      if (wrap) {
-        const show = errlPhoneExpandedForScoreHud() && rbScoreHudUnlocked;
-        wrap.hidden = !show;
-        wrap.classList.toggle('rb-collect-score--compact', show);
-        wrap.classList.toggle('rb-collect-score--micro', show);
-        wrap.setAttribute('data-mode', mode);
-      }
-      const modeScore = Math.max(0, scoreState.session[mode] | 0);
-      const modeHigh = Math.max(0, scoreState.high[mode] | 0);
-      const modeLabels = narrowHud ? MODE_HUD_LABELS_NARROW : MODE_HUD_LABELS;
-      if (modeLabelEl) modeLabelEl.textContent = modeLabels[mode] || 'Classic Throw';
-      if (totalLabelEl) totalLabelEl.textContent = narrowHud ? 'Life' : 'Total lifetime';
-      if (scoreEl) scoreEl.textContent = String(modeScore);
-      if (totalEl) totalEl.textContent = String(Math.max(0, scoreState.lifetime.total | 0));
-      if (highEl) highEl.textContent = modeHigh ? ('best ' + modeHigh) : '';
-      if (badgeEl) {
-        if (mode === 'classic') {
-          const combo = Math.max(0, scoreState.meta.classicComboCount | 0);
-          badgeEl.textContent = combo > 1 ? ('Combo x' + combo) : '';
-        } else if (mode === 'pop') {
-          const cad = Math.max(0, scoreState.meta.popCadence | 0);
-          badgeEl.textContent = cad > 1 ? ('Speed x' + (1 + Math.min(1.5, (cad - 1) * 0.12)).toFixed(2)) : '';
-        } else {
-          const streak = Math.max(0, scoreState.meta.collectStreak | 0);
-          badgeEl.textContent = streak > 1 ? ('Streak x' + streak) : '';
-        }
-      }
-    }
+    function renderScoreHud() {}
     function applyScoreEvent(payload) {
       const mode = clampScoreMode(payload.mode);
       const base = Math.max(0, Number(payload.basePoints || payload.pointsAwarded || 0));

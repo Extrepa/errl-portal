@@ -214,12 +214,14 @@ body.errl-scene-3d-nav #riseBubbles {
 
 .errl-metaball-nav__links {
   --nav-orb-glow: 1;
+  --nav-orb-merge: 0.35;
 }
 
 .errl-metaball-link__orb {
   position: absolute;
   inset: 0;
   border-radius: 50%;
+  transform: scale(calc(1 + var(--nav-orb-merge, 0.35) * 0.08));
   background:
     radial-gradient(
       circle at 32% 28%,
@@ -228,8 +230,8 @@ body.errl-scene-3d-nav #riseBubbles {
       color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 55%, #000) 100%
     );
   box-shadow:
-    0 0 calc(18px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 70%, transparent),
-    0 0 calc(36px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 35%, transparent),
+    0 0 calc(18px * var(--nav-orb-glow, 1) * (1 + var(--nav-orb-merge, 0.35) * 0.35)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 70%, transparent),
+    0 0 calc(36px * var(--nav-orb-glow, 1) * (1 + var(--nav-orb-merge, 0.35) * 0.5)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 35%, transparent),
     inset 0 -5px 14px rgba(0, 0, 0, 0.45),
     inset 0 4px 10px rgba(255, 255, 255, 0.18);
 }
@@ -338,5 +340,21 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
   .errl-scene-3d-label .label {
     font-size: clamp(7px, 2vw, 10px) !important;
     letter-spacing: 0.06em !important;
+  }
+}
+
+/* Cinematic scroll runway — Lenis drives nav orbit via scrollBridge */
+.errl-scroll-runway {
+  position: relative;
+  width: 100%;
+  height: 300vh;
+  pointer-events: none;
+  visibility: hidden;
+  z-index: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .errl-scroll-runway {
+    display: none;
   }
 }

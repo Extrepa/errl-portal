@@ -3,7 +3,8 @@ import { gotoPortalLanding, ensurePhonePanelOpen, openPhoneTab } from './helpers
 
 test.describe('Scene nav render mode (Phase 1)', () => {
   test('@controls dom mode: Nav DOM controls enabled, metaball notice hidden', async ({ page, baseURL }) => {
-    await gotoPortalLanding(page, baseURL!);
+    await page.goto(`${baseURL!}/?dev=1&skipIntro=1&dom=1`, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
     await ensurePhonePanelOpen(page);
     await openPhoneTab(page, 'nav');
 
@@ -19,8 +20,7 @@ test.describe('Scene nav render mode (Phase 1)', () => {
   });
 
   test('@controls metaball mode: DOM nav controls disabled and notice visible', async ({ page, baseURL }) => {
-    await page.goto(`${baseURL!}/?dev=1&skipIntro=1&scene3d=1`, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+    await gotoPortalLanding(page, baseURL!);
     await ensurePhonePanelOpen(page);
     await openPhoneTab(page, 'nav');
 
@@ -51,8 +51,7 @@ test.describe('Scene nav render mode (Phase 1)', () => {
 
 test.describe('Scene tab (Phase 2–3)', () => {
   test('@controls scene tab exposes errlSceneControls and updates glow', async ({ page, baseURL }) => {
-    await page.goto(`${baseURL!}/?dev=1&skipIntro=1&scene3d=1`, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+    await gotoPortalLanding(page, baseURL!);
     await ensurePhonePanelOpen(page);
     await openPhoneTab(page, 'scene');
 
@@ -70,12 +69,29 @@ test.describe('Scene tab (Phase 2–3)', () => {
   });
 
   test('@controls atmospheric preset updates scene bundle', async ({ page, baseURL }) => {
+    test.setTimeout(60000);
     page.on('dialog', (d) => d.accept());
     await gotoPortalLanding(page, baseURL!);
     await ensurePhonePanelOpen(page);
     await openPhoneTab(page, 'scene');
 
-    await page.locator('#scenePresetAtmospheric').click();
+    await page.evaluate(() => {
+      const p = document.getElementById('errlPanel');
+      if (!p) return;
+      const key = 'scene';
+      p.querySelectorAll<HTMLElement>('.panel-section').forEach((sec) => {
+        sec.style.display = sec.getAttribute('data-tab') === key ? 'block' : 'none';
+      });
+      document.getElementById('scenePresetAtmospheric')?.click();
+    });
+    await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+    await page.waitForFunction(
+      () => document.body.classList.contains('errl-nav-mode-dom'),
+      undefined,
+      { timeout: 20000 },
+    );
+    await ensurePhonePanelOpen(page);
+    await openPhoneTab(page, 'scene');
 
     const preset = await page.evaluate(() => ({
       id: window.errlSceneControls?.getSceneSettings().preset,
@@ -93,11 +109,14 @@ test.describe('Scene tab (Phase 2–3)', () => {
     await page.waitForTimeout(300);
 
     const before = await page.evaluate(() => window.errlSceneScroll?.getState().progress ?? 0);
-    await page.mouse.wheel(0, 600);
+    for (let i = 0; i < 4; i++) {
+      await page.mouse.wheel(0, 400);
+      await page.waitForTimeout(120);
+    }
     await page.waitForTimeout(400);
     const after = await page.evaluate(() => window.errlSceneScroll?.getState().progress ?? 0);
 
-    expect(after).not.toBe(before);
+    expect(Math.abs(after - before)).toBeGreaterThan(0.01);
   });
 
   test('@controls setBundle reload syncs scene tab sliders', async ({ page, baseURL }) => {

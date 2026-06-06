@@ -35,17 +35,58 @@ async function assertBubblesOutsideErrlCore(page: Page) {
   expect(result.labels).toEqual(expect.arrayContaining(['Forum', 'About', 'Gallery', 'Studio']));
 }
 
+async function assertMetaballNavOutsideErrlCore(page: Page) {
+  await page.waitForFunction(
+    () => document.body.classList.contains('errl-layout-ready'),
+    undefined,
+    { timeout: 15000 },
+  );
+  const result = await page.evaluate(() => {
+    const errl = document.getElementById('errl');
+    if (!errl) return { count: 0, inside: 0, labels: [] as string[] };
+    const er = errl.getBoundingClientRect();
+    const coreL = er.left + er.width * 0.2;
+    const coreR = er.right - er.width * 0.2;
+    const coreT = er.top + er.height * 0.2;
+    const coreB = er.bottom - er.height * 0.2;
+    const links = Array.from(document.querySelectorAll('.errl-metaball-link'));
+    const inside = links.filter((el) => {
+      const br = el.getBoundingClientRect();
+      const cx = br.left + br.width / 2;
+      const cy = br.top + br.height / 2;
+      return cx >= coreL && cx <= coreR && cy >= coreT && cy <= coreB;
+    }).length;
+    const labels = links
+      .map((el) => (el.querySelector('.label')?.textContent || '').trim())
+      .filter(Boolean);
+    return { count: links.length, inside, labels };
+  });
+  expect(result.count).toBe(4);
+  expect(result.inside).toBe(0);
+  expect(result.labels).toEqual(expect.arrayContaining(['Forum', 'About', 'Gallery', 'Studio']));
+}
+
 test.describe('Live visual audit routes', () => {
   for (const vp of VIEWPORTS) {
     test(`@ui DOM nav bubbles outside Errl core (${vp.name})`, async ({ page, baseURL }) => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
-      await gotoPortalLanding(page, baseURL!);
+      await page.goto(`${baseURL!}/?dev=1&skipIntro=1&dom=1`, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
       await page.waitForTimeout(1000);
       await assertBubblesOutsideErrlCore(page);
     });
   }
 
-  test('@ui intro enter reveals bubbles outside errl core', async ({ page, baseURL }) => {
+  for (const vp of VIEWPORTS) {
+    test(`@ui default metaball nav outside Errl core (${vp.name})`, async ({ page, baseURL }) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.goto(`${baseURL!}/?dev=1&skipIntro=1`, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
+      await assertMetaballNavOutsideErrlCore(page);
+    });
+  }
+
+  test('@ui intro enter reveals metaball nav outside errl core', async ({ page, baseURL }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${baseURL!}/`, { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => {
@@ -62,12 +103,12 @@ test.describe('Live visual audit routes', () => {
       { timeout: 12000 },
     );
     await page.waitForTimeout(1800);
-    await assertBubblesOutsideErrlCore(page);
+    await assertMetaballNavOutsideErrlCore(page);
   });
 
-  test('@ui scene3d mobile shows four 3d nav labels', async ({ page, baseURL }) => {
+  test('@ui default mobile shows four 3d nav labels', async ({ page, baseURL }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`${baseURL!}/?dev=1&skipIntro=1&scene3d=1`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${baseURL!}/?dev=1&skipIntro=1`, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load').catch(() => {});
     await page.waitForFunction(
       () => document.querySelectorAll('.errl-scene-3d-label .label').length >= 4,
@@ -113,9 +154,9 @@ test.describe('Live visual audit routes', () => {
     await expect(page.locator('#errlPanel')).toBeHidden();
   });
 
-  test('@ui boot shell hides legacy DOM nav in scene3d on load', async ({ page, baseURL }) => {
+  test('@ui boot shell hides legacy DOM nav when metaball default on load', async ({ page, baseURL }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`${baseURL!}/?skipIntro=1&scene3d=1`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${baseURL!}/?skipIntro=1`, { waitUntil: 'domcontentloaded' });
 
     const nav = await page.evaluate(() => {
       const bubble = document.querySelector('#navOrbit .bubble') as HTMLElement | null;
@@ -128,6 +169,19 @@ test.describe('Live visual audit routes', () => {
     expect(nav.metaballClass).toBe(true);
     expect(nav.bubbleVisibility).toBe('hidden');
     expect(parseFloat(String(nav.bubbleOpacity))).toBe(0);
+  });
+
+  test('@ui dom=1 escape hatch shows legacy DOM nav', async ({ page, baseURL }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${baseURL!}/?skipIntro=1&dom=1`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(800);
+
+    const nav = await page.evaluate(() => ({
+      domClass: document.body.classList.contains('errl-nav-mode-dom'),
+      metaballClass: document.body.classList.contains('errl-nav-mode-metaball'),
+    }));
+    expect(nav.domClass).toBe(true);
+    expect(nav.metaballClass).toBe(false);
   });
 
   test('@ui phone unlock hint visible before unlock', async ({ page, baseURL }) => {
@@ -155,18 +209,6 @@ test.describe('Live visual audit routes', () => {
     const box = await hero.boundingBox();
     expect(box).toBeTruthy();
     expect(box!.y).toBeLessThan(600);
-  });
-
-  test('@ui gallery coming soon fills viewport without extra scroll', async ({ page, baseURL }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`${baseURL!}/gallery/`, { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(300);
-    const metrics = await page.evaluate(() => ({
-      scrollHeight: document.documentElement.scrollHeight,
-      innerHeight: window.innerHeight,
-    }));
-    expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.innerHeight + 80);
-    await expect(page.locator('.coming-soon')).toBeVisible();
   });
 
   test('@ui dev mode skips phone unlock hint', async ({ page, baseURL }) => {

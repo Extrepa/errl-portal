@@ -401,10 +401,10 @@
     </div>
 
     <div class="panel-section" data-tab="nav">
-      <p class="panel-tab-intro" role="note">About this tab: <strong>Nav</strong> &mdash; DOM orbit, radius, size, GL orbs, and bubble skins (when nav mode is DOM). Metaball nav uses the <strong>Scene</strong> tab or <code>?scene3d=1</code>.</p>
+      <p class="panel-tab-intro" role="note">About this tab: <strong>Nav</strong> &mdash; legacy DOM orbit, radius, size, GL orbs, and bubble skins. Use <code>?dom=1</code> or the Scene tab to switch modes. Metaball 3D orbit is the default.</p>
       <div id="navMetaballNotice" class="nav-metaball-notice" hidden>
         <p class="nav-metaball-notice__title">Metaball navigation active</p>
-        <p class="nav-metaball-notice__copy">Orbit, GL orbs, and skins apply to <strong>DOM bubbles only</strong>. They are disabled while <code>?scene3d=1</code> is on.</p>
+        <p class="nav-metaball-notice__copy">Orbit, GL orbs, and skins apply to <strong>DOM bubbles only</strong>. They are disabled while metaball nav is active.</p>
         <p class="nav-metaball-notice__actions">
           <button type="button" id="navMetaballOpenLab" class="mini-reset">Open metaball lab</button>
         </p>
@@ -472,7 +472,7 @@
         <button type="button" id="sceneOpenMetaballLab" class="mini-reset" style="margin-left:auto">Metaball lab</button>
       </div>
       <div class="sliderRow" style="opacity:.85; font-size:10px; line-height:1.35;">
-        <span>Metaball mode reloads with <code>?scene3d=1</code>. DOM controls on the Nav tab are disabled while metaball is active.</span>
+        <span>3D orbit is the default. Use <code>?dom=1</code> for legacy DOM bubbles. Nav tab controls are disabled while metaball is active.</span>
       </div>
       <div class="sectionDivider"></div>
       <div class="sectionLabel" title="One-click cinematic bundles">Scene presets</div>

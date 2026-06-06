@@ -1,0 +1,56 @@
+.gallery-hall {
+  position: relative;
+  width: 100%;
+  min-height: 70vh;
+  background: radial-gradient(ellipse at 50% 20%, #0a1428 0%, #06080f 55%, #030408 100%);
+}
+
+.gallery-hall__canvas {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: min(72vh, 720px);
+  z-index: 0;
+}
+
+.gallery-hall__canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.gallery-scroll-spacer {
+  height: 220vh;
+  pointer-events: none;
+}
+
+.gallery-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  color: rgba(200, 220, 255, 0.7);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.errl-gallery-main {
+  max-width: none;
+  padding: 0 0 2rem;
+  text-align: center;
+}
+
+.errl-gallery-title {
+  margin: 1.25rem 1rem 0.35rem;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(220, 235, 255, 0.95);
+}
+
+.errl-gallery-sub {
+  margin: 0 1rem 1rem;
+  font-size: 0.9rem;
+  color: rgba(180, 200, 230, 0.75);
+}

@@ -1,11 +1,17 @@
 import { useCallback, useMemo, useRef } from 'react';
-import { DEFAULT_SCENE_SETTINGS, type SceneSculptureSettings } from '../sceneTypes';
+import {
+  DEFAULT_SCENE_SETTINGS,
+  type SceneMetaballSettings,
+  type SceneSculptureSettings,
+} from '../sceneTypes';
 import { NAV_ITEMS, type NavKey } from './navConfig';
 import {
   clampBubblePositionPx,
   getErrlCenterPx,
+  getMinOrbitDistPx,
   getOrbitDistPx,
   getScene3dBubbleRadiusPx,
+  getViewportScale,
   isErrlLayoutReady,
   pushScreenPointOutsideErrl,
 } from './orbitLayout';
@@ -19,34 +25,62 @@ export type NavPhysicsState = {
   vy: number;
 };
 
-function orbitTargetPx(i: number, t: number, scrollPhase: number, scrollInf: number) {
+function clamp(n: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, n));
+}
+
+/** Mirrors portal-app navOrbitSpeed input (DOM tab; metaball uses same default when hidden). */
+function readNavOrbitSpeed(): number {
+  if (typeof document === 'undefined') return 1;
+  const el = document.getElementById('navOrbitSpeed') as HTMLInputElement | null;
+  const v = parseFloat(el?.value ?? '1');
+  return Number.isFinite(v) ? clamp(v, 0, 2) : 1;
+}
+
+/** Bubble anchor in CSS px — mirrors DOM placeBubble() scroll + wobble terms. */
+function orbitTargetPx(i: number, tSec: number, scrollInf: number) {
   const base = NAV_ITEMS[i];
   const center = getErrlCenterPx();
-  const rad = (base.angle * Math.PI) / 180;
-  const dist = getOrbitDistPx(base.dist);
+  const navOrbitSpeed = readNavOrbitSpeed();
+  const viewportScale = getViewportScale();
+
+  const scroll =
+    typeof window !== 'undefined' && window.errlSceneScroll
+      ? window.errlSceneScroll.getState()
+      : null;
+  const scrollAngle = (scroll?.angleOffsetDeg ?? 0) * scrollInf;
+  const scrollRadius = (scroll?.radiusOffset ?? 0) * scrollInf;
+
+  const speedDegPerSec = 12 * navOrbitSpeed;
+  const wobbleAmpDeg = 3.5 * clamp(navOrbitSpeed, 0, 2);
+  const radiusWobble = 10 * viewportScale * clamp(navOrbitSpeed, 0, 2);
+
+  const angleDeg =
+    base.angle +
+    tSec * speedDegPerSec +
+    Math.sin(tSec * 0.65 + i * 1.7) * wobbleAmpDeg +
+    scrollAngle;
+  const rad = (angleDeg * Math.PI) / 180;
+
+  let dist =
+    getOrbitDistPx(base.dist) +
+    Math.sin(tSec * 0.9 + i * 1.3) * radiusWobble +
+    scrollRadius;
+
+  const minDist = getMinOrbitDistPx();
+  dist = Math.max(dist, minDist);
+
   const raw = {
-    x: center.cx + Math.cos(rad + t * 0.1) * dist + Math.cos(scrollPhase + i * 0.4) * 8 * scrollInf,
-    y: center.cy + Math.sin(rad + t * 0.1) * dist + Math.sin(scrollPhase + i * 0.35) * 6 * scrollInf,
+    x: center.cx + Math.cos(rad) * dist,
+    y: center.cy + Math.sin(rad) * dist,
   };
   const pushed = pushScreenPointOutsideErrl(raw.x, raw.y, getScene3dBubbleRadiusPx());
   return { x: pushed.left, y: pushed.top };
 }
 
-function readScrollOrbit() {
-  const scroll =
-    typeof window !== 'undefined' && window.errlSceneScroll
-      ? window.errlSceneScroll.getState()
-      : null;
-  return {
-    scrollPhase: scroll ? scroll.progress * Math.PI * 2 : 0,
-    scrollInf: 1,
-  };
-}
-
-function snapStateToOrbit(i: number, t = 0, scrollPhase?: number, scrollInf = 1): NavPhysicsState {
+function snapStateToOrbit(i: number, tSec = 0, scrollInf = 1): NavPhysicsState {
   const item = NAV_ITEMS[i];
-  const phase = scrollPhase ?? readScrollOrbit().scrollPhase;
-  const target = orbitTargetPx(i, t, phase, scrollInf);
+  const target = orbitTargetPx(i, tSec, scrollInf);
   return {
     key: item.key,
     x: target.x,
@@ -57,8 +91,12 @@ function snapStateToOrbit(i: number, t = 0, scrollPhase?: number, scrollInf = 1)
   };
 }
 
+function readScrollInfluence(): number {
+  return DEFAULT_SCENE_SETTINGS.sculpture.scrollInfluence;
+}
+
 function buildInitialStates(initial?: Partial<Record<NavKey, { x: number; y: number; z: number }>>) {
-  const { scrollPhase, scrollInf } = readScrollOrbit();
+  const scrollInf = readScrollInfluence();
   if (typeof window !== 'undefined' && !isErrlLayoutReady()) {
     return NAV_ITEMS.map((item) => ({
       key: item.key,
@@ -81,7 +119,7 @@ function buildInitialStates(initial?: Partial<Record<NavKey, { x: number; y: num
         vy: 0,
       };
     }
-    return snapStateToOrbit(i, 0, scrollPhase, scrollInf);
+    return snapStateToOrbit(i, 0, scrollInf);
   });
 }
 
@@ -92,6 +130,7 @@ export type NavPhysicsApi = {
     dt: number,
     pointer?: { x: number; y: number; active: boolean },
     getSculpture?: () => SceneSculptureSettings,
+    getMetaball?: () => SceneMetaballSettings,
   ) => void;
 };
 
@@ -106,33 +145,30 @@ export function useNavPhysics(initial?: Partial<Record<NavKey, { x: number; y: n
     () => ({
       getStates: () => stateRef.current,
       reanchor,
-      step(dt, pointer, getSculpture) {
+      step(dt, pointer, getSculpture, getMetaball) {
         const cfg = getSculpture?.() ?? DEFAULT_SCENE_SETTINGS.sculpture;
+        const mb = getMetaball?.() ?? DEFAULT_SCENE_SETTINGS.metaball;
         const bubblePx = getScene3dBubbleRadiusPx();
         const minSep = cfg.separation * bubblePx * 2.2;
         const magneticRadius = cfg.magneticRadius * bubblePx * 3;
         const floatMul = cfg.floatSpeed;
         const scrollInf = cfg.scrollInfluence ?? 1;
-        const scroll =
-          typeof window !== 'undefined' && window.errlSceneScroll
-            ? window.errlSceneScroll.getState()
-            : null;
-        const scrollPhase = scroll ? scroll.progress * Math.PI * 2 : 0;
+        const pointerPull = mb.pointerPull ?? DEFAULT_SCENE_SETTINGS.metaball.pointerPull;
 
         const states = stateRef.current;
-        const t = performance.now() * 0.001 * floatMul;
+        const tSec = (performance.now() * 0.001) * floatMul;
         states.forEach((s, i) => {
-          const target = orbitTargetPx(i, t, scrollPhase, scrollInf);
+          const target = orbitTargetPx(i, tSec, scrollInf);
           s.vx += (target.x - s.x) * 2.5 * dt;
           s.vy += (target.y - s.y) * 2.5 * dt;
-          if (pointer?.active) {
+          if (pointer?.active && pointerPull > 0) {
             const ptrX = (pointer.x * 0.5 + 0.5) * window.innerWidth;
             const ptrY = (-pointer.y * 0.5 + 0.5) * window.innerHeight;
             const dx = ptrX - s.x;
             const dy = ptrY - s.y;
             const d2 = dx * dx + dy * dy;
             if (d2 < magneticRadius * magneticRadius) {
-              const pull = (1 - Math.sqrt(d2) / magneticRadius) * 0.25;
+              const pull = (1 - Math.sqrt(d2) / magneticRadius) * 0.25 * pointerPull;
               s.vx += dx * pull * dt * 3;
               s.vy += dy * pull * dt * 3;
             }
@@ -144,7 +180,7 @@ export function useNavPhysics(initial?: Partial<Record<NavKey, { x: number; y: n
           const clamped = clampBubblePositionPx(s.x, s.y, bubblePx);
           s.x = clamped.x;
           s.y = clamped.y;
-          s.z = Math.sin(t * 0.8 + i) * 0.08;
+          s.z = Math.sin(tSec * 0.8 + i) * 0.08;
         });
         for (let a = 0; a < states.length; a++) {
           for (let b = a + 1; b < states.length; b++) {

@@ -1,34 +1,29 @@
 import Lenis from 'lenis';
-import { getScrollNavState, subscribeScrollNav } from './scrollBridge';
+import { setScrollProgress } from './scrollBridge';
 
 export type ScrollDirectorOptions = {
   wrapper?: HTMLElement;
+  content?: HTMLElement;
   onProgress?: (progress: number) => void;
-  /** When true, Lenis progress also feeds the nav scroll bus (future runway scroll). */
+  /** When true, Lenis progress feeds the nav scroll bus. */
   syncNavBus?: boolean;
 };
 
 /**
- * Smooth scroll driver (Lenis). Nav bubble motion uses {@link scrollBridge} wheel bus on the landing page.
+ * Smooth scroll driver (Lenis). When syncNavBus is on, drives {@link scrollBridge} from page scroll.
  */
 export class ScrollDirector {
   private lenis: Lenis | null = null;
   private progress = 0;
-
-  private unsubNav: (() => void) | null = null;
+  private rafId = 0;
 
   constructor(private options: ScrollDirectorOptions = {}) {}
 
   mount() {
     if (this.lenis) return;
-    if (this.options.syncNavBus) {
-      this.unsubNav = subscribeScrollNav((s) => {
-        this.progress = s.progress;
-        this.options.onProgress?.(s.progress);
-      });
-    }
     this.lenis = new Lenis({
       wrapper: this.options.wrapper,
+      content: this.options.content,
       smoothWheel: true,
       lerp: 0.08,
     });
@@ -38,22 +33,19 @@ export class ScrollDirector {
       this.progress = limit > 0 ? scroll / limit : 0;
       this.options.onProgress?.(this.progress);
       if (this.options.syncNavBus) {
-        const nav = getScrollNavState();
-        if (Math.abs(nav.progress - this.progress) > 0.02) {
-          /* Lenis runway can drive bus in a later pass */
-        }
+        setScrollProgress(this.progress, 0);
       }
     });
     const raf = (time: number) => {
       this.lenis?.raf(time);
-      requestAnimationFrame(raf);
+      this.rafId = requestAnimationFrame(raf);
     };
-    requestAnimationFrame(raf);
+    this.rafId = requestAnimationFrame(raf);
   }
 
   destroy() {
-    this.unsubNav?.();
-    this.unsubNav = null;
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.rafId = 0;
     this.lenis?.destroy();
     this.lenis = null;
   }

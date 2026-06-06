@@ -11,13 +11,15 @@
 
 | URL / action | What you should see |
 |--------------|---------------------|
-| `/` | Arrival overlay + **ENTER** (first visit); DOM nav after enter |
-| `/?skipIntro=1` | Skip arrival; main scene |
+| `/` | Arrival overlay + **ENTER** (first visit); **metaball nav** after enter (default) |
+| `/?skipIntro=1` | Skip arrival; main scene with metaball nav |
+| `/?skipIntro=1&dom=1` | Legacy DOM bubble nav |
 | `/?dev=1&skipIntro=1` | Above + Errl Phone available |
-| `/?dev=1&skipIntro=1&scene3d=1` | **DOM metaball nav** (colored CSS orbs + labels on Errl); Scene tab; Nav DOM controls disabled |
-| `/?dev=1&skipIntro=1` + scroll wheel | Nav bubbles carousel around Errl (after ENTER or skipIntro) |
+| `/?dev=1&skipIntro=1&scene3d=1` | Same as default metaball (alias) |
+| `/?dev=1&skipIntro=1` + scroll wheel | Nav orbit carousel around Errl (wheel bus + Lenis runway) |
 | `/?scrollNav=0` | Scroll does not drive nav |
 | `/fx/metaball-lab/` | Isolated metaball shader (no labels) |
+| `/gallery/` | Floating hall R3F spike (manifest-driven frames) |
 | `/about/` | Lenis smooth scroll (if `about-scroll.mjs` loaded on that page) |
 | Long-press Errl (~2s) | Phone unlock without `?dev=1` |
 
@@ -41,12 +43,12 @@
 | **Scene3d nav `?scene3d=1`** | Done | `MainPhase` → `NavSculptures` → **`MetaballNavLinks`** (DOM orbs) |
 | **Quality tiers** (low/med/high, DPR cap) | Done | `scene/quality.ts` |
 | **Lenis on About** | Done | `src/shared/scripts/about-scroll.mjs` |
-| **ScrollDirector stub** | Partial | `ScrollDirector.ts` — Lenis wrapper; homepage runway not wired |
+| **ScrollDirector stub** | Done | Lenis + 300vh runway feeds `scrollBridge`; RB ambient scroll drift |
 | **About lore copy** | Done | `about-content.mjs` |
-| **Gallery immersive plan** | Doc only | `docs/gallery-immersive-architecture.md` |
-| **Homepage virtual scroll + ScrollTrigger** | Not started | Scroll → bubbles is wheel bus, not GSAP scroll |
-| **Retire Pixi nav mirror orbs** | Not started | GL orbs still sync with DOM |
-| **Bundle Three in `rise-bubbles-three.js`** | Not started | Still CDN import |
+| **Gallery immersive plan** | Spike | Floating hall at `/gallery/` (R3F); full rooms still planned |
+| **Homepage virtual scroll + ScrollTrigger** | Partial | Lenis runway wired; GSAP chapters deferred |
+| **Retire Pixi nav mirror orbs** | Partial | Hidden in metaball mode; guards + tests |
+| **Bundle Three in `rise-bubbles-three.js`** | Done | Vite `import('three')` replaces CDN |
 | **`Atmosphere.tsx` / `PostFX.tsx` split** | Not started | PostFX inline in `MetaballNavCanvas` |
 | **Theatre.js** | Not started | — |
 
@@ -66,7 +68,7 @@
 
 ```json
 {
-  "navRenderMode": "dom" | "metaball",
+  "navRenderMode": "metaball" | "dom",
   "preset": "portal" | "metaball" | "atmospheric",
   "metaball": { "steps", "bloomIntensity", "bloomThreshold", "vignetteDarkness", "glow", "mergeK", "pointerPull" },
   "sculpture": { "magneticRadius", "separation", "floatSpeed", "scrollInfluence" }

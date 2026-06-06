@@ -9,14 +9,14 @@
   <link rel="stylesheet" href="../../../../shared/styles/errlStaticPage.css" />
   <link rel="stylesheet" href="../../../../shared/styles/errlPortalHeader.css" />
 </head>
-<body class="errl-static-page">
+<body class="errl-static-page errl-gallery-page">
   <header class="errl-header">
     <div class="errl-header-content">
       <a class="errl-home-btn" href="/">
         <span class="chevron">◀</span>
         <span>Back to Portal</span>
       </a>
-            <nav class="errl-nav" aria-label="Portal sections">
+      <nav class="errl-nav" aria-label="Portal sections">
         <a class="errl-bubble-btn" href="https://forum.errl.wtf">Forum</a>
         <a class="errl-bubble-btn" href="/about/" data-portal-link="about/">About</a>
         <a class="errl-bubble-btn active" href="/gallery/" data-portal-link="gallery/" aria-current="page">Gallery</a>
@@ -24,18 +24,15 @@
       </nav>
     </div>
   </header>
-  <main class="container errl-static-main errl-static-main--center">
-    <h1>Art Gallery</h1>
-    <section class="coming-soon" aria-live="polite">
-      <h2>Coming Soon</h2>
-      <p>The gallery is being rebuilt. Check back for new drops.</p>
-    </section>
+  <main class="errl-static-main errl-gallery-main">
+    <h1 class="errl-gallery-title">Floating Hall</h1>
+    <p class="errl-gallery-sub">Curated renders &amp; photography — scroll to drift through the room.</p>
+    <div id="gallery-root"></div>
   </main>
 
   <script type="module">
     const env = (import.meta && import.meta.env) ? import.meta.env : {};
     const baseUrl = typeof env.BASE_URL === "string" ? env.BASE_URL : "/";
-    const trimmed = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
     function resolvePortalUrl(pagePath) {
       let clean = pagePath.replace(/^pages\//, '');
       clean = clean.replace(/^\//, '');
@@ -47,60 +44,10 @@
 
     document.querySelectorAll("[data-portal-link]").forEach((el) => {
       const target = el.getAttribute("data-portal-link");
-      if (target) {
-        const url = resolvePortalUrl(target);
-        el.setAttribute("href", url);
-      }
+      if (target) el.setAttribute("href", resolvePortalUrl(target));
     });
-
-    // Disabled links (Design): prevent navigation and show “Coming soon”.
-    (() => {
-      const TOAST_ID = 'errl-coming-soon-toast';
-      let hideTimer = null;
-      function showToast(message) {
-        let el = document.getElementById(TOAST_ID);
-        if (!el) {
-          el = document.createElement('div');
-          el.id = TOAST_ID;
-          el.style.position = 'fixed';
-          el.style.left = '50%';
-          el.style.bottom = '18px';
-          el.style.transform = 'translateX(-50%)';
-          el.style.zIndex = '9999';
-          el.style.maxWidth = Math.min(window.innerWidth * 0.92, 520) + 'px';
-          el.style.padding = '10px 14px';
-          el.style.borderRadius = '999px';
-          el.style.border = '1px solid rgba(255,255,255,0.22)';
-          el.style.background = 'rgba(10, 14, 24, 0.88)';
-          el.style.backdropFilter = 'blur(10px)';
-          el.style.color = 'rgba(240, 245, 255, 0.96)';
-          el.style.font = "600 12px/1.2 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif";
-          el.style.letterSpacing = '0.04em';
-          el.style.textTransform = 'uppercase';
-          el.style.boxShadow = '0 10px 24px rgba(0,0,0,0.45)';
-          el.style.opacity = '0';
-          el.style.transition = 'opacity 140ms ease, transform 140ms ease';
-          document.body.appendChild(el);
-        }
-        el.textContent = message;
-        el.style.opacity = '1';
-        el.style.transform = 'translateX(-50%) translateY(0)';
-        if (hideTimer) window.clearTimeout(hideTimer);
-        hideTimer = window.setTimeout(() => {
-          el.style.opacity = '0';
-          el.style.transform = 'translateX(-50%) translateY(6px)';
-        }, 1400);
-      }
-
-      document.querySelectorAll('[data-disabled-link="design"]').forEach((el) => {
-        el.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          showToast('Design — coming soon');
-        });
-      });
-    })();
   </script>
   <script type="module" src="../../../../shared/scripts/portal-nav-visibility.mjs"></script>
+  <script type="module" src="./main.tsx"></script>
 </body>
 </html>

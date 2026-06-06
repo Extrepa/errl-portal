@@ -20,7 +20,13 @@ test.describe('Performance Tests', () => {
     
     // Wait for interactive elements
     await page.waitForSelector('#errl', { state: 'visible' });
-    await page.waitForSelector('#navOrbit', { state: 'visible' });
+    await page.waitForFunction(
+      () =>
+        document.body.classList.contains('errl-layout-ready') ||
+        document.querySelectorAll('#navOrbit .bubble').length >= 4,
+      undefined,
+      { timeout: 10000 },
+    );
     
     const interactiveTime = Date.now() - startTime;
     

@@ -9,7 +9,7 @@
   } catch(_) {}
 
   // Import Three.js
-  import('https://esm.run/three').then((THREE) => {
+  import('three').then((THREE) => {
     const T = THREE.default || THREE;
     
     let scene, camera, renderer;
@@ -317,7 +317,8 @@
       attractIntensity: 1.0,
       ripples: false,
       rippleIntensity: 1.2,
-      interactionMode: 'ambient'
+      interactionMode: 'ambient',
+      scrollDrift: 0,
     };
 
     let classicPlayEngaged = false;
@@ -1153,6 +1154,12 @@
         }
       });
 
+      if (controls.interactionMode === 'ambient' && controls.scrollDrift > 0) {
+        scene.rotation.z = Math.sin(controls.scrollDrift * Math.PI * 2) * 0.025;
+      } else {
+        scene.rotation.z = 0;
+      }
+
       renderer.render(scene, camera);
     }
 
@@ -1245,7 +1252,6 @@
         else if (v === 'collect') controls.interactionMode = 'collect';
         else if (v === 'classic') controls.interactionMode = 'classic';
         else controls.interactionMode = 'ambient';
-        // Clear interaction leftovers so classic starts in a clean throw-ready state.
         grabState.active = false;
         grabState.pointerId = null;
         grabState.bubble = null;
@@ -1257,6 +1263,9 @@
         updateBubbleVisibility();
         emitCollectScore();
         syncClassicGoalEdges();
+      },
+      setScrollDrift(value) {
+        controls.scrollDrift = clamp(safeNum(value, 0), 0, 1);
       },
       getCollectScore() {
         return collectScore;

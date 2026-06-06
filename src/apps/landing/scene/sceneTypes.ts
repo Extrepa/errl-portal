@@ -26,7 +26,7 @@ export type SceneSettings = {
 };
 
 export const DEFAULT_SCENE_SETTINGS: SceneSettings = {
-  navRenderMode: 'dom',
+  navRenderMode: 'metaball',
   metaball: {
     steps: 48,
     bloomIntensity: 0.4,

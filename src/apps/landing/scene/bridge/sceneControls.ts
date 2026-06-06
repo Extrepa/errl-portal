@@ -74,7 +74,9 @@ export function getSceneSettings(): SceneSettings {
 
 export function getNavRenderMode(): NavRenderMode {
   try {
-    if (new URLSearchParams(window.location.search).get('scene3d') === '1') return 'metaball';
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dom') === '1' || params.get('scene3d') === '0') return 'dom';
+    if (params.get('scene3d') === '1') return 'metaball';
   } catch (_) {}
   return cached.navRenderMode;
 }

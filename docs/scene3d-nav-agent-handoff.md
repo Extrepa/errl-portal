@@ -13,8 +13,8 @@ A **cinematic Errl Portal landing** with two nav render modes:
 
 | Mode | Trigger | Experience |
 |------|---------|------------|
-| **DOM nav** (default) | Normal landing after ENTER | Four iridescent `menuOrb` bubbles orbit Errl via `portal-app.js`; Pixi GL orbs can mirror them |
-| **Metaball / scene3d nav** | `?scene3d=1`, Scene preset “Metaball”, or `bundle.scene.navRenderMode: "metaball"` | Four **colored glowing orbs** orbit Errl with **labels centered on the balls**; legacy DOM bubbles hidden |
+| **DOM nav** (legacy) | `?dom=1`, Scene preset “Portal”, or saved `bundle.scene.navRenderMode: "dom"` | Four iridescent `menuOrb` bubbles orbit Errl via `portal-app.js`; Pixi GL orbs can mirror them |
+| **Metaball / scene3d nav** (default) | Normal landing, `?scene3d=1`, Scene preset “Metaball”, or `bundle.scene.navRenderMode: "metaball"` | Four **colored glowing orbs** orbit Errl with **labels centered on the balls**; legacy DOM bubbles hidden |
 
 Both modes share:
 
@@ -23,7 +23,7 @@ Both modes share:
 - Same **scroll → orbit** bus (`window.errlSceneScroll`) after main phase
 - **Intro flow preserved**: Arrival → ENTER → Main (or `?skipIntro=1`)
 
-Subpages (About, Gallery, Studio) use static layouts that fill the viewport; gallery immersive 3D is **future work** (`docs/gallery-immersive-architecture.md`).
+Subpages (About, Gallery, Studio) use static layouts; Gallery has a **floating hall R3F spike** at `/gallery/`; remaining rooms are **future work** (`docs/gallery-immersive-architecture.md`).
 
 ---
 

@@ -17,6 +17,7 @@
 
   const dev = params.get('dev') === '1';
   const scene3d = params.get('scene3d') === '1';
+  const domOverride = params.get('dom') === '1' || params.get('scene3d') === '0';
   const skipIntro = params.get('skipIntro') === '1';
 
   let unlocked = dev;
@@ -26,17 +27,19 @@
     } catch (_) {}
   }
 
-  let navMode = 'dom';
-  if (scene3d) {
-    navMode = 'metaball';
+  let navMode = 'metaball';
+  if (domOverride) {
+    navMode = 'dom';
   } else {
     try {
       const raw = localStorage.getItem(SETTINGS_KEY);
       if (raw) {
         const bundle = JSON.parse(raw);
-        if (bundle.scene && bundle.scene.navRenderMode === 'metaball') navMode = 'metaball';
+        if (bundle.scene && bundle.scene.navRenderMode === 'dom') navMode = 'dom';
+        else if (bundle.scene && bundle.scene.navRenderMode === 'metaball') navMode = 'metaball';
       }
     } catch (_) {}
+    if (scene3d) navMode = 'metaball';
   }
 
   let entered = skipIntro;
@@ -72,6 +75,7 @@
   window.__errlBootShell = {
     dev: dev,
     scene3d: scene3d,
+    domOverride: domOverride,
     skipIntro: skipIntro,
     unlocked: unlocked,
     navMode: navMode,

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { getMetaball, getSculpture, subscribeSceneControls } from '../bridge/sceneControls';
-import type { SceneSculptureSettings } from '../sceneTypes';
+import type { SceneMetaballSettings, SceneSculptureSettings } from '../sceneTypes';
 import { getScene3dBubbleRadiusPx, isErrlLayoutReady } from './orbitLayout';
 import { NAV_ITEMS } from './navConfig';
 import { useNavPhysics } from './useNavPhysics';
@@ -8,6 +8,8 @@ import { useNavPhysics } from './useNavPhysics';
 export type MetaballNavLinksProps = {
   className?: string;
 };
+
+type PointerNdc = { x: number; y: number; active: boolean };
 
 /**
  * Scene3d nav built from the ground up: each link is one DOM node
@@ -18,7 +20,10 @@ export default function MetaballNavLinks({ className = 'errl-metaball-nav' }: Me
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const readyRef = useRef(false);
   const sculptureRef = useRef<SceneSculptureSettings>(getSculpture());
+  const metaballRef = useRef<SceneMetaballSettings>(getMetaball());
+  const pointerRef = useRef<PointerNdc>({ x: 0, y: 0, active: false });
   const [orbGlow, setOrbGlow] = useState(() => getMetaball().glow);
+  const [orbMerge, setOrbMerge] = useState(() => getMetaball().mergeK);
   const [viewportWidth, setViewportWidth] = useState(
     () => (typeof window !== 'undefined' ? window.innerWidth : 1440),
   );
@@ -28,10 +33,31 @@ export default function MetaballNavLinks({ className = 'errl-metaball-nav' }: Me
   useEffect(() => {
     const unsub = subscribeSceneControls((s) => {
       sculptureRef.current = s.sculpture;
+      metaballRef.current = s.metaball;
       setOrbGlow(s.metaball.glow);
+      setOrbMerge(s.metaball.mergeK);
     });
     return () => {
       unsub();
+    };
+  }, []);
+
+  useEffect(() => {
+    const onMove = (ev: PointerEvent) => {
+      pointerRef.current = {
+        x: (ev.clientX / window.innerWidth) * 2 - 1,
+        y: -((ev.clientY / window.innerHeight) * 2 - 1),
+        active: true,
+      };
+    };
+    const onLeave = () => {
+      pointerRef.current = { ...pointerRef.current, active: false };
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerleave', onLeave);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerleave', onLeave);
     };
   }, []);
 
@@ -59,7 +85,12 @@ export default function MetaballNavLinks({ className = 'errl-metaball-nav' }: Me
           readyRef.current = true;
           document.body.classList.add('errl-layout-ready');
         }
-        physics.step(dt, undefined, () => sculptureRef.current);
+        physics.step(
+          dt,
+          pointerRef.current,
+          () => sculptureRef.current,
+          () => metaballRef.current,
+        );
         const states = physics.getStates();
         states.forEach((s, i) => {
           const el = linkRefs.current[i];
@@ -82,7 +113,12 @@ export default function MetaballNavLinks({ className = 'errl-metaball-nav' }: Me
       <div
         className="errl-scene-3d-labels errl-metaball-nav__links"
         aria-hidden={false}
-        style={{ '--nav-orb-glow': String(orbGlow) } as CSSProperties}
+        style={
+          {
+            '--nav-orb-glow': String(orbGlow),
+            '--nav-orb-merge': String(orbMerge),
+          } as CSSProperties
+        }
       >
         {NAV_ITEMS.map((item, i) => (
           <a

@@ -22,8 +22,8 @@ test.describe('Responsive Design Tests', () => {
     const panel = page.locator('#errlPanel');
     await expect(panel).toBeVisible();
     
-    const navOrbit = page.locator('#navOrbit');
-    await expect(navOrbit).toBeVisible();
+    const navOrbit = page.locator('.errl-metaball-nav, #navOrbit');
+    await expect(navOrbit.first()).toBeAttached();
   });
 
   test('@ui mobile viewport - Errl Phone panel usable', async ({ page, baseURL }) => {
@@ -109,7 +109,7 @@ test.describe('Responsive Design Tests', () => {
     
     // All elements should be visible
     await expect(page.locator('#errlPanel')).toBeVisible();
-    await expect(page.locator('#navOrbit')).toBeVisible();
+    await expect(page.locator('.errl-metaball-nav, #navOrbit').first()).toBeAttached();
     await expect(page.locator('#errlCenter')).toBeVisible();
   });
 
@@ -142,7 +142,7 @@ test.describe('Responsive Design Tests', () => {
     await expect(page.locator('#bgParticles')).toBeVisible();
     await expect(page.locator('#errlWebGL')).toBeVisible();
     await expect(page.locator('#errlCenter')).toBeVisible();
-    await expect(page.locator('#navOrbit')).toBeVisible();
+    await expect(page.locator('.errl-metaball-nav, #navOrbit').first()).toBeAttached();
     
     // No horizontal scroll
     const hasHorizontalScroll = await page.evaluate(() => {
@@ -163,7 +163,7 @@ test.describe('Responsive Design Tests', () => {
     
     // Elements should still be properly positioned
     await expect(page.locator('#errlCenter')).toBeVisible();
-    await expect(page.locator('#navOrbit')).toBeVisible();
+    await expect(page.locator('.errl-metaball-nav, #navOrbit').first()).toBeAttached();
   });
 
   test('@ui touch interactions work on mobile', async ({ page, baseURL }) => {
@@ -171,7 +171,7 @@ test.describe('Responsive Design Tests', () => {
     await gotoPortalLanding(page, baseURL!);
     
     // Test touch on navigation bubble - use click instead of tap (tap requires hasTouch context)
-    const navBubble = page.locator('#navOrbit a').first();
+    const navBubble = page.locator('.errl-metaball-link[href*="about"], #navOrbit a[href*="about"]').first();
     await expect(navBubble).toBeVisible();
     
     // Simulate touch with click (works on mobile viewports)

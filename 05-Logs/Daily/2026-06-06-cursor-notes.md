@@ -98,3 +98,53 @@
 - Added `errl-layout-ready` gating so nav only shows after Errl has measurable layout
 - Mobile menuOrb labels: slightly larger bubbles, no ellipsis truncation on `.menuOrb .label`
 - Committed `9036ca3` and pushed `main` → Cloudflare Pages deploy
+
+## Complete local work plan (2026-06-06 session 2)
+
+### Phase 1 — Nav parity
+- `useNavPhysics.ts`: DOM-matched scroll (`angleOffsetDeg`, `radiusOffset`), wobble, pointer pull scaling
+- `MetaballNavLinks.tsx`: pointer tracking, `--nav-orb-merge` CSS var
+- `arrival.css`: merge/glow on metaball orbs
+- `tests/metaball-scroll-parity.spec.ts`
+
+### Phase 2 — Metaball default
+- Defaults: `scene-defaults.json`, `sceneTypes.ts`, `portal-app.js`, `boot-shell.js`, `sceneControls.ts`
+- Escape hatch: `?dom=1` / `scene3d=0`
+- Tests: live-visual-audit, responsive, performance, scene-phone-controls
+
+### Phase 3 — Cinematic scroll
+- `scrollBridge.setScrollProgress`, Lenis `ScrollDirector` sync, 300vh runway on `body`
+- RB ambient `setScrollDrift` in `rise-bubbles-three.js`
+
+### Phase 4 — Gallery spike
+- `src/apps/gallery/` + `src/apps/static/pages/gallery/main.tsx` — Floating Hall R3F room
+- `tests/gallery-floating-hall.spec.ts`
+
+### Phase 5 — Bundle cleanup
+- `rise-bubbles-three.js`: bundled `import('three')` (no CDN)
+- `metaball-lab/main.tsx`: lazy-load `MetaballNavCanvas`
+- `portal-app.js`: dead score HUD body removed
+
+### Docs
+- Updated `cinematic-scene-master-plan.md`, `scene3d-nav-agent-handoff.md`
+
+## Repo cleanup (full plan)
+
+### Phase 1 — Hygiene
+- `.gitignore`: drive-download, chatgptnotes, large archive paths
+- `doctor-structure.sh` updated for current layout
+- README/PURPOSE: R3F/Lenis stack, doc links
+
+### Phase 2 — Archive
+- git rm small duplicate/temp archive folders
+- git rm site-trim-20251222, docs-site-20251031, snapshot zips (~500+ files)
+- Large backups gitignored for local/external storage
+
+### Phase 3 — Docs
+- New `docs/PROJECT_STATUS.md`, `docs/reference/static-experiments.md`
+- Moved internal verification/deployment/testing → `docs/archive/`
+- Updated active/README, archive READMEs
+
+### Tests
+- `scene-phone-controls.spec.ts`: 8/8 pass post-cleanup
+
