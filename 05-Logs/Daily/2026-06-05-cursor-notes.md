@@ -17,3 +17,4 @@
 ### Verification
 - `npm run typecheck` + `npm run portal:build` OK; `dist/fx/metaball-lab/index.html` present
 - Playwright: build-output + live-visual-audit (7/7), visual regression snapshots (3/3)
+- Deployed **`02ef59f`** to errl.wtf; production re-audit: `/fx/metaball-lab/` title "Metaball Lab | Errl FX", `#metaball-lab-root` present
