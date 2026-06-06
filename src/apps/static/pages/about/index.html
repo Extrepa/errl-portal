@@ -23,9 +23,12 @@
       letter-spacing: -0.02em;
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
     }
-    .about-shell { max-width: 76rem; margin: 0 auto; padding: 0 0 5rem; padding-top: 0.5rem; }
-    .about-hero { min-height: calc(100vh - 5.5rem); min-height: calc(100dvh - 5.5rem); display: flex; flex-direction: column; justify-content: center; }
+    .about-shell { flex: 1; max-width: 76rem; margin: 0 auto; padding: 0 0 5rem; width: 100%; box-sizing: border-box; }
+    .about-hero { min-height: min(72vh, 100%); padding: 2rem 1.5rem 3rem; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
     .about-hero.fade-in { opacity: 1; transform: none; filter: none; }
     .drip-section { position: relative; padding: 3.5rem 1.5rem 4rem; margin: 0 auto; max-width: 75rem; }
     .drip-section::before { content: ""; position: absolute; inset: 0; border-radius: 2rem; background: radial-gradient(circle at 50% 0%, rgba(var(--errl-neon-cyan-rgb), 0.08) 0%, rgba(var(--errl-neon-purple-rgb), 0.05) 40%, rgba(0,0,0,0) 70%); filter: blur(28px); opacity: 0.5; pointer-events: none; }

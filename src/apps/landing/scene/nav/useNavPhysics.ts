@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { DEFAULT_SCENE_SETTINGS, type SceneSculptureSettings } from '../sceneTypes';
 import { NAV_ITEMS, type NavKey } from './navConfig';
+import { ORBIT_CENTER, anchorPosition, getOrbitAnchors, getOrbitDistNormScale } from './orbitLayout';
 
 export type NavPhysicsState = {
   key: NavKey;
@@ -11,7 +12,7 @@ export type NavPhysicsState = {
   vy: number;
 };
 
-const ORBIT_CENTER = { x: 0, y: 0.1 };
+const ORBIT_CENTER_REF = ORBIT_CENTER;
 
 export type NavPhysicsApi = {
   getStates: () => NavPhysicsState[];
@@ -24,14 +25,14 @@ export type NavPhysicsApi = {
 
 export function useNavPhysics(initial?: Partial<Record<NavKey, { x: number; y: number; z: number }>>): NavPhysicsApi {
   const stateRef = useRef<NavPhysicsState[]>(
-    NAV_ITEMS.map((item, i) => {
-      const rad = (item.angle * Math.PI) / 180;
-      const r = item.dist / 220;
+    getOrbitAnchors().map((anchor, i) => {
+      const item = NAV_ITEMS[i];
+      const pos = anchorPosition(anchor.angleRad, anchor.distNorm);
       const custom = initial?.[item.key];
       return {
         key: item.key,
-        x: custom?.x ?? ORBIT_CENTER.x + Math.cos(rad) * r,
-        y: custom?.y ?? ORBIT_CENTER.y + Math.sin(rad) * r * 0.85,
+        x: custom?.x ?? pos.x,
+        y: custom?.y ?? pos.y,
         z: custom?.z ?? 0,
         vx: 0,
         vy: 0,
@@ -56,16 +57,17 @@ export function useNavPhysics(initial?: Partial<Record<NavKey, { x: number; y: n
 
         const states = stateRef.current;
         const t = performance.now() * 0.001 * floatMul;
+        const tier = getOrbitDistNormScale();
         states.forEach((s, i) => {
           const base = NAV_ITEMS[i];
           const rad = (base.angle * Math.PI) / 180;
-          const r = base.dist / 220;
+          const r = (base.dist / 220) * tier;
           const ax =
-            ORBIT_CENTER.x +
+            ORBIT_CENTER_REF.x +
             Math.cos(rad + t * 0.15) * r +
             Math.cos(scrollPhase + i * 0.4) * 0.14 * scrollInf;
           const ay =
-            ORBIT_CENTER.y +
+            ORBIT_CENTER_REF.y +
             Math.sin(rad + t * 0.12) * r * 0.85 +
             Math.sin(scrollPhase + i * 0.35) * 0.12 * scrollInf;
           s.vx += (ax - s.x) * 1.2 * dt;

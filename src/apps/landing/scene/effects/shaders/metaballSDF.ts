@@ -100,6 +100,12 @@ void main() {
 export type BallUniform = { x: number; y: number; z: number; w: number };
 
 /** Map nav physics position to shader ball center (vec4 xyz + radius w). */
-export function physicsToBall(x: number, y: number, z: number, radius = 0.2): BallUniform {
-  return { x: x * 2.2, y: y * 2.2, z, w: radius };
+export function physicsToBall(
+  x: number,
+  y: number,
+  z: number,
+  radius = 0.2,
+  scale = 2.2,
+): BallUniform {
+  return { x: x * scale, y: y * scale, z, w: radius };
 }

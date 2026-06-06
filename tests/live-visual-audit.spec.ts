@@ -1,25 +1,72 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { gotoPortalLanding, ensurePhonePanelOpen } from './helpers/test-helpers';
 
-const MOBILE = { width: 390, height: 844 };
+const VIEWPORTS = [
+  { name: 'iphone-se', width: 375, height: 812 },
+  { name: 'iphone-14', width: 390, height: 844 },
+  { name: 'pixel-7', width: 411, height: 731 },
+  { name: 'ipad', width: 768, height: 1024 },
+  { name: 'desktop', width: 1440, height: 900 },
+] as const;
+
+async function assertBubblesOutsideErrlCore(page: Page) {
+  const result = await page.evaluate(() => {
+    const errl = document.getElementById('errl');
+    if (!errl) return { ok: false, reason: 'no-errl', count: 0, inside: 0 };
+    const er = errl.getBoundingClientRect();
+    const coreL = er.left + er.width * 0.2;
+    const coreR = er.right - er.width * 0.2;
+    const coreT = er.top + er.height * 0.2;
+    const coreB = er.bottom - er.height * 0.2;
+    const bubbles = Array.from(
+      document.querySelectorAll('#navOrbit .bubble, #navOrbitBehind .bubble'),
+    );
+    const inside = bubbles.filter((b) => {
+      const br = b.getBoundingClientRect();
+      const cx = br.left + br.width / 2;
+      const cy = br.top + br.height / 2;
+      return cx >= coreL && cx <= coreR && cy >= coreT && cy <= coreB;
+    }).length;
+    const labels = bubbles.map((b) => (b.querySelector('.label')?.textContent || '').trim()).filter(Boolean);
+    return { ok: inside === 0 && bubbles.length === 4, count: bubbles.length, inside, labels };
+  });
+  expect(result.count).toBe(4);
+  expect(result.inside).toBe(0);
+  expect(result.labels).toEqual(expect.arrayContaining(['Forum', 'About', 'Gallery', 'Studio']));
+}
 
 test.describe('Live visual audit routes', () => {
-  test('@ui landing mobile shows four labeled nav bubbles', async ({ page, baseURL }) => {
-    await page.setViewportSize(MOBILE);
-    await gotoPortalLanding(page, baseURL!);
-    await page.waitForTimeout(800);
+  for (const vp of VIEWPORTS) {
+    test(`@ui DOM nav bubbles outside Errl core (${vp.name})`, async ({ page, baseURL }) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await gotoPortalLanding(page, baseURL!);
+      await page.waitForTimeout(1000);
+      await assertBubblesOutsideErrlCore(page);
+    });
+  }
 
-    const labels = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('#navOrbit .bubble .label')).map((el) =>
-        (el.textContent || '').trim(),
-      ),
+  test('@ui intro enter reveals bubbles outside errl core', async ({ page, baseURL }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${baseURL!}/`, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+      sessionStorage.removeItem('errl_entered_v1');
+      localStorage.setItem('errl_dev_unlock_v1', 'true');
+    });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    const enter = page.locator('.errl-arrival__enter');
+    await enter.waitFor({ state: 'visible', timeout: 12000 });
+    await enter.click();
+    await page.waitForFunction(
+      () => document.body.classList.contains('errl-scene-main'),
+      undefined,
+      { timeout: 12000 },
     );
-    expect(labels.length).toBe(4);
-    expect(labels).toEqual(expect.arrayContaining(['Forum', 'About', 'Gallery', 'Studio']));
+    await page.waitForTimeout(1800);
+    await assertBubblesOutsideErrlCore(page);
   });
 
   test('@ui scene3d mobile shows four 3d nav labels', async ({ page, baseURL }) => {
-    await page.setViewportSize(MOBILE);
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${baseURL!}/?dev=1&skipIntro=1&scene3d=1`, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load').catch(() => {});
     await page.waitForFunction(
@@ -45,7 +92,7 @@ test.describe('Live visual audit routes', () => {
   });
 
   test('@ui phone unlock hint visible before unlock', async ({ page, baseURL }) => {
-    await page.setViewportSize(MOBILE);
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${baseURL!}/?skipIntro=1`, { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => {
       localStorage.removeItem('errl_dev_unlock_v1');
@@ -60,7 +107,7 @@ test.describe('Live visual audit routes', () => {
   });
 
   test('@ui about hero visible on mobile without scroll', async ({ page, baseURL }) => {
-    await page.setViewportSize(MOBILE);
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${baseURL!}/about/`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(400);
 
@@ -71,8 +118,20 @@ test.describe('Live visual audit routes', () => {
     expect(box!.y).toBeLessThan(600);
   });
 
+  test('@ui gallery coming soon fills viewport without extra scroll', async ({ page, baseURL }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${baseURL!}/gallery/`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(300);
+    const metrics = await page.evaluate(() => ({
+      scrollHeight: document.documentElement.scrollHeight,
+      innerHeight: window.innerHeight,
+    }));
+    expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.innerHeight + 80);
+    await expect(page.locator('.coming-soon')).toBeVisible();
+  });
+
   test('@ui dev mode skips phone unlock hint', async ({ page, baseURL }) => {
-    await page.setViewportSize(MOBILE);
+    await page.setViewportSize({ width: 390, height: 844 });
     await gotoPortalLanding(page, baseURL!);
     await page.waitForTimeout(500);
     await expect(page.locator('#errlPhoneCtaHint')).toBeHidden();

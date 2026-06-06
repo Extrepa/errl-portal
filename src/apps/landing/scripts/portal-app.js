@@ -636,10 +636,10 @@
     navOrbScale = clamp(Number(value), min, max);
     if (syncInput && navOrbSizeInput) navOrbSizeInput.value = String(navOrbScale);
     if (window.errlGLSetOrbScale) window.errlGLSetOrbScale(navOrbScale);
-    // Use CSS variable so animation (wobble) can compose with scale.
+    const effective = getEffectiveNavOrbScale();
     const orbits = Array.from(document.querySelectorAll('.nav-orbit'));
     orbits.forEach((orbit) => {
-      if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(navOrbScale));
+      if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(effective));
     });
     window.errlGLSyncOrbs && window.errlGLSyncOrbs();
     return navOrbScale;
@@ -699,7 +699,8 @@
     // Apply initial scale via CSS variable so it's visible immediately.
     const orbits = Array.from(document.querySelectorAll('.nav-orbit'));
     orbits.forEach((orbit) => {
-      if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(navOrbScale));
+      const effective = window.innerWidth <= 480 ? Math.min(navOrbScale, 0.95) : navOrbScale;
+      if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(effective));
     });
     
     // Attach event listeners
@@ -742,11 +743,68 @@
       return 16;
     }
   }
-  function getEstimatedBubbleRadiusPx(navOrbScaleValue){
-    // Bubble size is: clamp(67px, 9.6vw, 118px) * --navOrbScale
-    const base = clamp(window.innerWidth * 0.096, 67, 118);
-    const scale = (typeof navOrbScaleValue === 'number' && Number.isFinite(navOrbScaleValue)) ? navOrbScaleValue : 1;
-    return 0.5 * base * scale;
+  function getOrbitDistTierScale(){
+    const w = window.innerWidth;
+    const minVp = Math.min(window.innerWidth, window.innerHeight);
+    if (w <= 480) return clamp(minVp / 520, 0.88, 1.0);
+    if (w <= 768) return clamp(w / 720, 0.95, 1.05);
+    return 1;
+  }
+  function getEffectiveNavOrbScale(){
+    const mobile = window.innerWidth <= 480;
+    return mobile ? Math.min(navOrbScale, 0.95) : navOrbScale;
+  }
+  function getBubbleRadiusPx(){
+    const sample = document.querySelector('#navOrbit .bubble, #navOrbitBehind .bubble');
+    if (sample) {
+      const w = sample.getBoundingClientRect().width;
+      if (w > 0) return w * 0.5;
+    }
+    const mobile = window.innerWidth <= 480;
+    const base = mobile
+      ? clamp(window.innerWidth * 0.14, 52, 72)
+      : clamp(window.innerWidth * 0.096, 67, 118);
+    return 0.5 * base * getEffectiveNavOrbScale();
+  }
+  function getMinOrbitDistPx(errlRect){
+    const errlR = Math.max(errlRect.width, errlRect.height) * 0.5;
+    const bubbleR = getBubbleRadiusPx();
+    const gap = window.innerWidth <= 480 ? 14 : 18;
+    return errlR + bubbleR + gap;
+  }
+  function getPhonePanelDeadZone(){
+    const panel = document.getElementById('errlPanel');
+    if (!panel) return null;
+    const pr = panel.getBoundingClientRect();
+    if (pr.width <= 0 || pr.height <= 0) return null;
+    const pad = 12;
+    return {
+      left: Math.max(0, pr.left - pad),
+      top: Math.max(0, pr.top - pad),
+      right: Math.min(window.innerWidth, pr.right + pad),
+      bottom: Math.min(window.innerHeight, pr.bottom + pad),
+    };
+  }
+  function clampBubblePosition(x, y, bubbleRadiusPx, pad){
+    let minX = pad + bubbleRadiusPx;
+    let minY = pad + bubbleRadiusPx;
+    let maxX = window.innerWidth - pad - bubbleRadiusPx;
+    let maxY = window.innerHeight - pad - bubbleRadiusPx;
+    const dead = getPhonePanelDeadZone();
+    if (dead && x >= dead.left && y >= dead.top) {
+      const toLeft = x - dead.left;
+      const toTop = y - dead.top;
+      if (toLeft <= toTop) x = dead.left - bubbleRadiusPx - 6;
+      else y = dead.top - bubbleRadiusPx - 6;
+    }
+    if (dead) {
+      maxX = Math.min(maxX, dead.left - bubbleRadiusPx);
+      maxY = Math.min(maxY, dead.top - bubbleRadiusPx);
+    }
+    return {
+      x: clamp(x, minX, maxX),
+      y: clamp(y, minY, maxY),
+    };
   }
   function updateBubbles(ts){
     // Ensure initialization before updating
@@ -779,8 +837,7 @@
     const cy = rect.top + rect.height/2 + (scrollNav ? scrollNav.centerOffsetY : 0);
     const minViewport = Math.min(window.innerWidth, window.innerHeight);
     const viewportScale = clamp(minViewport / 900, 0.55, 1.05);
-    const mobileNav = window.innerWidth <= 480;
-    const orbitDistScale = mobileNav ? clamp(minViewport / 520, 0.62, 0.88) : 1;
+    const orbitDistScale = getOrbitDistTierScale();
 
     // Orbit layout: bubbles orbit around Errl using their data-angle/data-dist.
     // As they orbit, bubbles above Errl render in front; below Errl render behind.
@@ -811,7 +868,8 @@
     const speedDegPerSec = 12 * navOrbitSpeed; // baseline orbit rate (slower default)
     const wobbleAmpDeg = 3.5 * clamp(navOrbitSpeed, 0, 2);
     const radiusWobble = 10 * viewportScale * clamp(navOrbitSpeed, 0, 2);
-    const bubbleRadiusPx = getEstimatedBubbleRadiusPx(navOrbScale);
+    const bubbleRadiusPx = getBubbleRadiusPx();
+    const minOrbitDist = getMinOrbitDistPx(rect);
 
     function placeBubble(el, index, count){
       // Check if this bubble is hovered - if so, use frozen position
@@ -822,11 +880,9 @@
 
         const hysteresis = 10;
         const currentlyBehind = el.parentElement === orbitBehind;
-        let shouldBeBehind = mobileNav ? false : currentlyBehind;
-        if (!mobileNav) {
-          if (y > cy + hysteresis) shouldBeBehind = true;
-          else if (y < cy - hysteresis) shouldBeBehind = false;
-        }
+        let shouldBeBehind = currentlyBehind;
+        if (y > cy + hysteresis) shouldBeBehind = true;
+        else if (y < cy - hysteresis) shouldBeBehind = false;
 
         const targetParent = shouldBeBehind ? orbitBehind : orbitFront;
         if (targetParent && el.parentElement !== targetParent) {
@@ -853,25 +909,25 @@
         + Math.sin(tSec * 0.65 + index * 1.7) * wobbleAmpDeg
         + scrollAngle;
       const rad = angleDeg * Math.PI / 180;
-      const dist = (Number.isFinite(baseDist) ? baseDist : 160) * navRadius * viewportScale * orbitDistScale
+      let dist = (Number.isFinite(baseDist) ? baseDist : 160) * navRadius * viewportScale * orbitDistScale
         + Math.sin(tSec * 0.9 + index * 1.3) * radiusWobble
         + scrollRadius;
+      dist = Math.max(dist, minOrbitDist);
 
       const rawX = cx + Math.cos(rad) * dist;
       const rawY = cy + Math.sin(rad) * dist;
 
       if (!Number.isFinite(rawX) || !Number.isFinite(rawY)) return;
 
-      const x = clamp(rawX, pad + bubbleRadiusPx, window.innerWidth - pad - bubbleRadiusPx);
-      const y = clamp(rawY, pad + bubbleRadiusPx, window.innerHeight - pad - bubbleRadiusPx);
+      const clamped = clampBubblePosition(rawX, rawY, bubbleRadiusPx, pad);
+      const x = clamped.x;
+      const y = clamped.y;
 
       const hysteresis = 10;
       const currentlyBehind = el.parentElement === orbitBehind;
-      let shouldBeBehind = mobileNav ? false : currentlyBehind;
-      if (!mobileNav) {
-        if (y > cy + hysteresis) shouldBeBehind = true;
-        else if (y < cy - hysteresis) shouldBeBehind = false;
-      }
+      let shouldBeBehind = currentlyBehind;
+      if (y > cy + hysteresis) shouldBeBehind = true;
+      else if (y < cy - hysteresis) shouldBeBehind = false;
 
       const targetParent = shouldBeBehind ? orbitBehind : orbitFront;
       if (targetParent && el.parentElement !== targetParent) {

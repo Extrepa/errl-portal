@@ -655,6 +655,15 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 .bubble--behind {
   z-index: 0;
 }
+.bubble--behind .label,
+.bubble--behind span {
+  opacity: 1 !important;
+  animation: none !important;
+  text-shadow:
+    0 0 8px rgba(0, 0, 0, 0.95),
+    0 0 14px rgba(120, 200, 255, 0.55),
+    0 1px 2px rgba(0, 0, 0, 0.9);
+}
 .bubble--focus,
 .bubble:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.85);
@@ -790,8 +799,8 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 
 @media (max-width: 480px) {
   .errl-wrapper {
-    width: clamp(220px, 64vw, 420px);
-    height: clamp(220px, 64vw, 420px);
+    width: clamp(200px, 52vw, 340px);
+    height: clamp(200px, 52vw, 340px);
   }
   .nav-orbit {
     --navOrbScale: 0.82;
@@ -809,9 +818,15 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   .bubble .label,
   .bubble span {
     font-size: clamp(9px, 2.4vw, 12px);
-    opacity: 1 !important;
-    animation: none !important;
+    animation: labelFadeMobile 4s ease-in-out infinite;
+    animation-duration: calc(4s * var(--motionMultiplier, 1));
   }
+}
+
+@keyframes labelFadeMobile {
+  0%, 18% { opacity: 0.75; }
+  35%, 65% { opacity: 1; }
+  82%, 100% { opacity: 0.75; }
 }
 
 /* Accessibility helpers */

@@ -8,6 +8,7 @@ import type { SceneMetaballSettings, SceneSculptureSettings } from '../sceneType
 import { detectQualityTier, maxDpr, sdfMarchSteps } from '../quality';
 import { metaballFragmentShader, metaballVertexShader, physicsToBall } from './shaders/metaballSDF';
 import { NAV_ITEMS } from '../nav/navConfig';
+import { clampNormToViewport, getOrbitWorldScale } from '../nav/orbitLayout';
 import { useNavPhysics, type NavPhysicsApi } from '../nav/useNavPhysics';
 
 function vec4Uniform(ball: { x: number; y: number; z: number; w: number }) {
@@ -17,9 +18,10 @@ function vec4Uniform(ball: { x: number; y: number; z: number; w: number }) {
 type MetaballQuadProps = {
   steps: number;
   physics: NavPhysicsApi;
+  worldScale: number;
 };
 
-function MetaballQuad({ steps, physics }: MetaballQuadProps) {
+function MetaballQuad({ steps, physics, worldScale }: MetaballQuadProps) {
   const matRef = useRef<THREE.ShaderMaterial>(null);
   const { size, pointer } = useThree();
   const metaballRef = useRef<SceneMetaballSettings>(getMetaball());
@@ -43,15 +45,15 @@ function MetaballQuad({ steps, physics }: MetaballQuadProps) {
       uPointer: { value: new THREE.Vector2(0.5, 0.5) },
       uPointerActive: { value: 0 },
       uSteps: { value: steps },
-      uBall0: { value: vec4Uniform(physicsToBall(0, 0.1, 0)) },
-      uBall1: { value: vec4Uniform(physicsToBall(0.5, 0.2, 0)) },
-      uBall2: { value: vec4Uniform(physicsToBall(-0.5, 0.2, 0)) },
-      uBall3: { value: vec4Uniform(physicsToBall(0, -0.4, 0)) },
+      uBall0: { value: vec4Uniform(physicsToBall(0, 0.1, 0, 0.2, worldScale)) },
+      uBall1: { value: vec4Uniform(physicsToBall(0.5, 0.2, 0, 0.2, worldScale)) },
+      uBall2: { value: vec4Uniform(physicsToBall(-0.5, 0.2, 0, 0.2, worldScale)) },
+      uBall3: { value: vec4Uniform(physicsToBall(0, -0.4, 0, 0.2, worldScale)) },
       uMergeK: { value: metaballRef.current.mergeK },
       uGlow: { value: metaballRef.current.glow },
       uPointerPull: { value: metaballRef.current.pointerPull },
     }),
-    [steps],
+    [steps, worldScale],
   );
 
   useFrame((state) => {
@@ -70,7 +72,7 @@ function MetaballQuad({ steps, physics }: MetaballQuadProps) {
     const balls = [u.uBall0, u.uBall1, u.uBall2, u.uBall3];
     states.forEach((s, i) => {
       if (!balls[i]) return;
-      const b = physicsToBall(s.x, s.y, s.z, 0.2);
+      const b = physicsToBall(s.x, s.y, s.z, 0.2, worldScale);
       balls[i].value.set(b.x, b.y, b.z, b.w);
     });
   });
@@ -91,9 +93,10 @@ function MetaballQuad({ steps, physics }: MetaballQuadProps) {
 type NavLabelsProps = {
   physics: NavPhysicsApi;
   getSculpture: () => SceneSculptureSettings;
+  worldScale: number;
 };
 
-function NavLabels({ physics, getSculpture }: NavLabelsProps) {
+function NavLabels({ physics, getSculpture, worldScale }: NavLabelsProps) {
   const [, tick] = useState(0);
   const sculptureRef = useRef(getSculpture());
 
@@ -117,10 +120,11 @@ function NavLabels({ physics, getSculpture }: NavLabelsProps) {
     <>
       {states.map((s, i) => {
         const item = NAV_ITEMS[i];
+        const clamped = clampNormToViewport(s.x, s.y, worldScale);
         return (
           <Html
             key={item.key}
-            position={[s.x * (typeof window !== 'undefined' && window.innerWidth <= 480 ? 1.85 : 2.2), s.y * (typeof window !== 'undefined' && window.innerWidth <= 480 ? 1.85 : 2.2), s.z]}
+            position={[clamped.x * worldScale, clamped.y * worldScale, s.z]}
             center
             style={{ pointerEvents: 'auto' }}
           >
@@ -155,6 +159,7 @@ export default function MetaballNavCanvas({
   const steps = sdfMarchSteps(tier);
   const dpr = maxDpr(tier);
   const physics = useNavPhysics();
+  const worldScale = getOrbitWorldScale(typeof window !== 'undefined' ? window.innerWidth : 1440);
   const [post, setPost] = useState({ bloomIntensity: 0.4, bloomThreshold: 0.6, vignetteDarkness: 0.7 });
 
   useEffect(() => {
@@ -176,11 +181,10 @@ export default function MetaballNavCanvas({
         dpr={dpr}
         camera={{ position: [0, 0, 2.2], fov: 50 }}
         gl={{ alpha: true, antialias: tier !== 'low' }}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', background: 'transparent' }}
       >
-        <color attach="background" args={['#000000']} />
-        <MetaballQuad steps={steps} physics={physics} />
-        {showLabels ? <NavLabels physics={physics} getSculpture={getSculpture} /> : null}
+        <MetaballQuad steps={steps} physics={physics} worldScale={worldScale} />
+        {showLabels ? <NavLabels physics={physics} getSculpture={getSculpture} worldScale={worldScale} /> : null}
         {showPost && tier !== 'low' ? (
           <EffectComposer>
             <Bloom luminanceThreshold={post.bloomThreshold} intensity={post.bloomIntensity} />
