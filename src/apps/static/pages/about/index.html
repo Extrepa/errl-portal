@@ -24,7 +24,9 @@
       margin: 0;
       min-height: 100vh;
     }
-    .about-shell { max-width: 76rem; margin: 0 auto; padding-bottom: 5rem; }
+    .about-shell { max-width: 76rem; margin: 0 auto; padding: 0 0 5rem; padding-top: 0.5rem; }
+    .about-hero { min-height: calc(100vh - 5.5rem); min-height: calc(100dvh - 5.5rem); display: flex; flex-direction: column; justify-content: center; }
+    .about-hero.fade-in { opacity: 1; transform: none; filter: none; }
     .drip-section { position: relative; padding: 3.5rem 1.5rem 4rem; margin: 0 auto; max-width: 75rem; }
     .drip-section::before { content: ""; position: absolute; inset: 0; border-radius: 2rem; background: radial-gradient(circle at 50% 0%, rgba(var(--errl-neon-cyan-rgb), 0.08) 0%, rgba(var(--errl-neon-purple-rgb), 0.05) 40%, rgba(0,0,0,0) 70%); filter: blur(28px); opacity: 0.5; pointer-events: none; }
     .section-title { margin: 0; font-size: clamp(1.05rem, 0.5vw + 1rem, 1.25rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--errl-text); }
@@ -76,6 +78,7 @@
     const root = document.getElementById("about-root");
     mountAboutPage(root, aboutPageContent);
     setupFadeInSections(root);
+    root.querySelector('.about-hero')?.classList.add('is-visible');
     initAboutSmoothScroll();
 
     const drips = document.querySelectorAll(".drip-divider");

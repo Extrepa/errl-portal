@@ -256,14 +256,13 @@ const reorganizeBuildOutputPlugin = () => ({
       renameSync(chatSource, chatDest);
     }
     
-    // Move fx from apps/landing/fx to fx
+    // Merge landing/fx into dist/fx (do not wipe static pages fx e.g. metaball-lab)
     const fxSource = resolve(appsDir, 'landing/fx');
     const fxDest = resolve(distDir, 'fx');
     if (existsSync(fxSource)) {
-      if (existsSync(fxDest)) {
-        rmSync(fxDest, { recursive: true, force: true });
+      if (!existsSync(fxDest)) {
+        mkdirSync(fxDest, { recursive: true });
       }
-      // Use cpSync for directory, then remove source
       cpSync(fxSource, fxDest, { recursive: true });
       try {
         rmSync(resolve(appsDir, 'landing'), { recursive: true, force: true });

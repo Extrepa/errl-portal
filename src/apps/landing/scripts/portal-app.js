@@ -779,6 +779,8 @@
     const cy = rect.top + rect.height/2 + (scrollNav ? scrollNav.centerOffsetY : 0);
     const minViewport = Math.min(window.innerWidth, window.innerHeight);
     const viewportScale = clamp(minViewport / 900, 0.55, 1.05);
+    const mobileNav = window.innerWidth <= 480;
+    const orbitDistScale = mobileNav ? clamp(minViewport / 520, 0.62, 0.88) : 1;
 
     // Orbit layout: bubbles orbit around Errl using their data-angle/data-dist.
     // As they orbit, bubbles above Errl render in front; below Errl render behind.
@@ -815,17 +817,16 @@
       // Check if this bubble is hovered - if so, use frozen position
       const hoveredPos = hoveredBubbles.get(el);
       if (hoveredPos && Number.isFinite(hoveredPos.x) && Number.isFinite(hoveredPos.y)) {
-        // Use frozen position, but still update layering
         const x = hoveredPos.x;
         const y = hoveredPos.y;
-        
-        // Dynamic layering based on orbit position:
-        // above center => front; below center => behind. Use a small band to avoid jitter.
+
         const hysteresis = 10;
         const currentlyBehind = el.parentElement === orbitBehind;
-        let shouldBeBehind = currentlyBehind;
-        if (y > cy + hysteresis) shouldBeBehind = true;
-        else if (y < cy - hysteresis) shouldBeBehind = false;
+        let shouldBeBehind = mobileNav ? false : currentlyBehind;
+        if (!mobileNav) {
+          if (y > cy + hysteresis) shouldBeBehind = true;
+          else if (y < cy - hysteresis) shouldBeBehind = false;
+        }
 
         const targetParent = shouldBeBehind ? orbitBehind : orbitFront;
         if (targetParent && el.parentElement !== targetParent) {
@@ -840,7 +841,7 @@
         if (shouldBeBehind) el.classList.add('bubble--behind');
         else el.classList.remove('bubble--behind');
 
-        return; // Skip normal movement calculation
+        return;
       }
 
       const baseAngleDeg = parseFloat((el.dataset && el.dataset.angle) || '');
@@ -852,27 +853,25 @@
         + Math.sin(tSec * 0.65 + index * 1.7) * wobbleAmpDeg
         + scrollAngle;
       const rad = angleDeg * Math.PI / 180;
-      const dist = (Number.isFinite(baseDist) ? baseDist : 160) * navRadius * viewportScale
+      const dist = (Number.isFinite(baseDist) ? baseDist : 160) * navRadius * viewportScale * orbitDistScale
         + Math.sin(tSec * 0.9 + index * 1.3) * radiusWobble
         + scrollRadius;
 
       const rawX = cx + Math.cos(rad) * dist;
       const rawY = cy + Math.sin(rad) * dist;
 
-      // Validate before touching the DOM (avoid writing "NaNpx" / invalid values).
       if (!Number.isFinite(rawX) || !Number.isFinite(rawY)) return;
 
-      // Soft clamp to viewport without forcing layout reads (prevents jitter/choppiness).
       const x = clamp(rawX, pad + bubbleRadiusPx, window.innerWidth - pad - bubbleRadiusPx);
       const y = clamp(rawY, pad + bubbleRadiusPx, window.innerHeight - pad - bubbleRadiusPx);
 
-      // Dynamic layering based on orbit position:
-      // above center => front; below center => behind. Use a small band to avoid jitter.
       const hysteresis = 10;
       const currentlyBehind = el.parentElement === orbitBehind;
-      let shouldBeBehind = currentlyBehind;
-      if (y > cy + hysteresis) shouldBeBehind = true;
-      else if (y < cy - hysteresis) shouldBeBehind = false;
+      let shouldBeBehind = mobileNav ? false : currentlyBehind;
+      if (!mobileNav) {
+        if (y > cy + hysteresis) shouldBeBehind = true;
+        else if (y < cy - hysteresis) shouldBeBehind = false;
+      }
 
       const targetParent = shouldBeBehind ? orbitBehind : orbitFront;
       if (targetParent && el.parentElement !== targetParent) {
@@ -880,15 +879,12 @@
       }
 
       el.style.position = 'absolute';
-      // Keep subpixel precision for smoother motion (avoid Math.round stutter).
       el.style.left = x.toFixed(2) + 'px';
       el.style.top = y.toFixed(2) + 'px';
       el.style.pointerEvents = 'auto';
 
       if (shouldBeBehind) el.classList.add('bubble--behind');
       else el.classList.remove('bubble--behind');
-
-      // NOTE: transform is owned by CSS wobble animation; do not set it here.
     }
 
     for (let i = 0; i < active.length; i++) {
@@ -3074,7 +3070,13 @@
     }
     function maybeShowPhoneCta() {
       if (!ctaHint) return;
-      if (!panel.classList.contains('minimized')) return;
+      if (document.body.classList.contains('errl-phone-unlocked')) return;
+      try {
+        if (new URLSearchParams(window.location.search).get('dev') === '1') return;
+      } catch (_) {}
+      if (!document.body.classList.contains('errl-phone-hidden')) {
+        if (!panel.classList.contains('minimized')) return;
+      }
       if (phoneCtaReducedMotion()) return;
       let dismissed = false;
       try { dismissed = localStorage.getItem(CTA_HINT_KEY) === '1'; } catch (_) {}

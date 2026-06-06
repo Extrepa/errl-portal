@@ -120,7 +120,7 @@ function NavLabels({ physics, getSculpture }: NavLabelsProps) {
         return (
           <Html
             key={item.key}
-            position={[s.x * 2.2, s.y * 2.2, s.z]}
+            position={[s.x * (typeof window !== 'undefined' && window.innerWidth <= 480 ? 1.85 : 2.2), s.y * (typeof window !== 'undefined' && window.innerWidth <= 480 ? 1.85 : 2.2), s.z]}
             center
             style={{ pointerEvents: 'auto' }}
           >

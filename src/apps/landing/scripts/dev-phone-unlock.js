@@ -24,15 +24,35 @@
     } catch (_) {}
     document.body.classList.remove('errl-phone-hidden');
     document.body.classList.add('errl-phone-unlocked');
+    hideUnlockHint();
     window.dispatchEvent(new CustomEvent('errl:dev-phone-unlocked'));
   }
 
   function applyHiddenState() {
     if (isUnlocked()) {
+      document.body.classList.remove('errl-phone-hidden');
       document.body.classList.add('errl-phone-unlocked');
       return;
     }
     document.body.classList.add('errl-phone-hidden');
+    document.body.classList.remove('errl-phone-unlocked');
+    showUnlockHint();
+  }
+
+  function showUnlockHint() {
+    const hint = document.getElementById('errlPhoneCtaHint');
+    if (!hint || isUnlocked()) return;
+    let dismissed = false;
+    try {
+      dismissed = localStorage.getItem('errl_phone_cta_dismissed_v1') === '1';
+    } catch (_) {}
+    if (dismissed) return;
+    hint.hidden = false;
+  }
+
+  function hideUnlockHint() {
+    const hint = document.getElementById('errlPhoneCtaHint');
+    if (hint) hint.hidden = true;
   }
 
   if (isDevUrl()) unlock();
