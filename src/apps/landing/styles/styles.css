@@ -896,7 +896,7 @@ body.perf-safe *::after {
   );
   box-sizing: border-box;
 }
-.errl-panel:not(.expanded) {
+.errl-panel:not(.expanded):not(.minimized) {
   left: auto !important;
   top: auto !important;
   right: calc(10px + env(safe-area-inset-right, 0px)) !important;
@@ -905,8 +905,13 @@ body.perf-safe *::after {
 .errl-panel .panel-minimized-label {
   display: none;
 }
-/* Minimize to a small floating icon - Errl Club style */
+/* Minimize to a small floating icon - dock bottom-left (away from nav orbit) */
 .errl-panel.minimized {
+  left: calc(10px + env(safe-area-inset-left, 0px)) !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 16;
   width: 52px !important;
   height: 52px !important;
   margin-bottom: calc(18px * var(--panel-scale, 1)) !important; /* room for label below glow */
@@ -975,10 +980,12 @@ body.perf-safe *::after {
 /* First-visit nudge: points users at the minimize affordance (see portal-app) */
 .errl-phone-cta-hint {
   position: fixed;
-  z-index: 9;
-  right: calc(10px + env(safe-area-inset-right, 0));
-  bottom: calc(80px + env(safe-area-inset-bottom, 0));
-  max-width: min(220px, 90vw);
+  z-index: 16;
+  left: calc(10px + env(safe-area-inset-left, 0));
+  right: auto;
+  bottom: calc(78px + env(safe-area-inset-bottom, 0));
+  max-width: min(240px, 88vw);
+  pointer-events: auto;
   padding: 10px 12px;
   border-radius: 10px;
   background: linear-gradient(145deg, rgba(20, 12, 32, 0.94), rgba(10, 8, 20, 0.92));

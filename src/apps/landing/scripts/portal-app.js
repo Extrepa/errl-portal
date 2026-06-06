@@ -3164,16 +3164,16 @@
     }
     setTimeout(() => { maybeShowPhoneCta(); }, 500);
     
-    // Initialize: ALWAYS start minimized and docked in the bottom-right corner.
+    // Initialize: ALWAYS start minimized and docked in the bottom-left corner (clear of nav orbit).
     // Clear stale inline position/scale from previous sessions before first paint.
     try { localStorage.removeItem('errl_phone_min'); } catch(_) {}
     panel.classList.remove('expanded');
     panel.classList.add('minimized');
     panel.setAttribute('aria-expanded', 'false');
     panel.style.removeProperty('--phone-user-scale');
-    panel.style.left = 'auto';
+    panel.style.left = 'calc(10px + env(safe-area-inset-left, 0px))';
     panel.style.top = 'auto';
-    panel.style.right = 'calc(10px + env(safe-area-inset-right, 0px))';
+    panel.style.right = 'auto';
     panel.style.bottom = 'calc(10px + env(safe-area-inset-bottom, 0px))';
     
     const header = document.getElementById('errlPhoneHeader');
@@ -3287,9 +3287,9 @@
 
     function lockPanelToCorner() {
       panel.classList.remove('expanded');
-      panel.style.left = 'auto';
+      panel.style.left = 'calc(10px + env(safe-area-inset-left, 0px))';
       panel.style.top = 'auto';
-      panel.style.right = 'calc(10px + env(safe-area-inset-right, 0px))';
+      panel.style.right = 'auto';
       panel.style.bottom = 'calc(10px + env(safe-area-inset-bottom, 0px))';
     }
 

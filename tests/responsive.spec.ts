@@ -58,11 +58,10 @@ test.describe('Responsive Design Tests', () => {
       const p = document.getElementById('errlPanel');
       if (!p) return false;
       const r = p.getBoundingClientRect();
-      const vw = window.innerWidth;
       const vh = window.innerHeight;
-      const rightGap = Math.abs(vw - r.right);
+      const leftGap = Math.abs(r.left);
       const bottomGap = Math.abs(vh - r.bottom);
-      return rightGap <= 24 && bottomGap <= 32;
+      return leftGap <= 24 && bottomGap <= 32;
     });
     expect(cornerDocked).toBeTruthy();
     const isMinimized = await panel.evaluate((el) => el.classList.contains('minimized'));

@@ -50,6 +50,7 @@ body.errl-phone-hidden #errlPanel {
 body.errl-phone-hidden #errlPhoneCtaHint {
   display: block;
   visibility: visible;
+  z-index: 16;
 }
 
 body.errl-phone-unlocked #errlPhoneCtaHint {
