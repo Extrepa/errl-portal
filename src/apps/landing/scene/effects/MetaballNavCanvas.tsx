@@ -8,10 +8,9 @@ import { detectQualityTier, maxDpr, sdfMarchSteps } from '../quality';
 import { metaballFragmentShader, metaballVertexShader, physicsToBall } from './shaders/metaballSDF';
 import { NAV_ITEMS } from '../nav/navConfig';
 import {
-  clampNormToViewport,
   getMetaballBallRadius,
   getOrbitWorldScale,
-  orbitNormToScreen,
+  resolveOrbitScreenPosition,
 } from '../nav/orbitLayout';
 import { useNavPhysics, type NavPhysicsApi } from '../nav/useNavPhysics';
 
@@ -77,7 +76,12 @@ function MetaballQuad({ steps, physics, worldScale, ballRadius }: MetaballQuadPr
     const balls = [u.uBall0, u.uBall1, u.uBall2, u.uBall3];
     states.forEach((s, i) => {
       if (!balls[i]) return;
-      const b = physicsToBall(s.x, s.y, s.z, ballRadius, worldScale);
+      const bubbleR = ballRadius;
+      const resolved =
+        typeof window !== 'undefined'
+          ? resolveOrbitScreenPosition(s.x, s.y, Math.round(bubbleR * worldScale * 28))
+          : { x: s.x, y: s.y, left: 0, top: 0 };
+      const b = physicsToBall(resolved.x, resolved.y, s.z, ballRadius, worldScale);
       balls[i].value.set(b.x, b.y, b.z, b.w);
     });
   });
@@ -129,13 +133,16 @@ type NavLabelOverlayProps = {
 function NavLabelOverlay({ physics, tick }: NavLabelOverlayProps) {
   void tick;
   const states = physics.getStates();
+  const bubbleRadiusPx =
+    typeof window !== 'undefined'
+      ? Math.round(getMetaballBallRadius(window.innerWidth) * getOrbitWorldScale(window.innerWidth) * 28)
+      : 34;
 
   return (
     <div className="errl-scene-3d-labels" aria-hidden={false}>
       {states.map((s, i) => {
         const item = NAV_ITEMS[i];
-        const clamped = clampNormToViewport(s.x, s.y);
-        const { left, top } = orbitNormToScreen(clamped.x, clamped.y);
+        const { left, top } = resolveOrbitScreenPosition(s.x, s.y, bubbleRadiusPx);
         return (
           <a
             key={item.key}

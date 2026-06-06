@@ -20,12 +20,12 @@ function orbitTarget(i: number, t: number, scrollPhase: number, scrollInf: numbe
   return {
     x:
       center.x +
-      Math.cos(rad + t * 0.15) * r +
-      Math.cos(scrollPhase + i * 0.4) * 0.14 * scrollInf,
+      Math.cos(rad + t * 0.1) * r +
+      Math.cos(scrollPhase + i * 0.4) * 0.06 * scrollInf,
     y:
       center.y +
-      Math.sin(rad + t * 0.12) * r * 0.85 +
-      Math.sin(scrollPhase + i * 0.35) * 0.12 * scrollInf,
+      Math.sin(rad + t * 0.1) * r * 0.85 +
+      Math.sin(scrollPhase + i * 0.35) * 0.05 * scrollInf,
   };
 }
 

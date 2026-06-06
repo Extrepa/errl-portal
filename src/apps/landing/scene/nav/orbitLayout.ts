@@ -123,8 +123,65 @@ export function clampScreenBubblePosition(left: number, top: number, bubbleRadiu
 export function orbitNormToScreen(x: number, y: number): { left: number; top: number } {
   if (typeof window === 'undefined') return { left: 0, top: 0 };
   const minDim = Math.min(window.innerWidth, window.innerHeight);
-  return clampScreenBubblePosition(
-    window.innerWidth * 0.5 + x * minDim,
-    window.innerHeight * 0.5 - y * minDim,
-  );
+  return {
+    left: window.innerWidth * 0.5 + x * minDim,
+    top: window.innerHeight * 0.5 - y * minDim,
+  };
+}
+
+export function screenToOrbitNorm(left: number, top: number): { x: number; y: number } {
+  if (typeof window === 'undefined') return { x: 0, y: 0 };
+  const minDim = Math.min(window.innerWidth, window.innerHeight);
+  return {
+    x: (left - window.innerWidth * 0.5) / minDim,
+    y: (window.innerHeight * 0.5 - top) / minDim,
+  };
+}
+
+/** Push a screen point outside Errl silhouette + bubble gap (mirrors DOM min-orbit). */
+export function pushScreenPointOutsideErrl(left: number, top: number, bubbleRadiusPx = 34): { left: number; top: number } {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return { left, top };
+  const errl = document.getElementById('errl');
+  if (!errl) return { left, top };
+  const er = errl.getBoundingClientRect();
+  if (er.width <= 0 || er.height <= 0) return { left, top };
+
+  const gap = 14;
+  const cx = er.left + er.width * 0.5;
+  const cy = er.top + er.height * 0.5;
+  const minDist = Math.max(er.width, er.height) * 0.5 + bubbleRadiusPx + gap;
+
+  const dx = left - cx;
+  const dy = top - cy;
+  const dist = Math.hypot(dx, dy) || 1;
+
+  let x = left;
+  let y = top;
+  if (dist < minDist) {
+    x = cx + (dx / dist) * minDist;
+    y = cy + (dy / dist) * minDist;
+  }
+
+  const coreL = er.left - gap - bubbleRadiusPx;
+  const coreR = er.right + gap + bubbleRadiusPx;
+  const coreT = er.top - gap - bubbleRadiusPx;
+  const coreB = er.bottom + gap + bubbleRadiusPx;
+  if (x >= coreL && x <= coreR && y >= coreT && y <= coreB) {
+    x = cx + (dx / dist) * minDist;
+    y = cy + (dy / dist) * minDist;
+  }
+
+  return clampScreenBubblePosition(x, y, bubbleRadiusPx);
+}
+
+/** Resolve label/ball screen position outside Errl with viewport clamp. */
+export function resolveOrbitScreenPosition(
+  x: number,
+  y: number,
+  bubbleRadiusPx = 34,
+): { left: number; top: number; x: number; y: number } {
+  const raw = orbitNormToScreen(x, y);
+  const pushed = pushScreenPointOutsideErrl(raw.left, raw.top, bubbleRadiusPx);
+  const norm = screenToOrbitNorm(pushed.left, pushed.top);
+  return { ...pushed, ...norm };
 }

@@ -190,12 +190,12 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
   pointer-events: auto;
   z-index: 6;
   position: relative;
-  width: clamp(56px, 16vw, 96px) !important;
-  height: clamp(56px, 16vw, 96px) !important;
-  min-width: clamp(56px, 16vw, 96px) !important;
-  min-height: clamp(56px, 16vw, 96px) !important;
-  max-width: clamp(56px, 16vw, 96px) !important;
-  max-height: clamp(56px, 16vw, 96px) !important;
+  width: clamp(64px, 17vw, 96px) !important;
+  height: clamp(64px, 17vw, 96px) !important;
+  min-width: clamp(64px, 17vw, 96px) !important;
+  min-height: clamp(64px, 17vw, 96px) !important;
+  max-width: clamp(64px, 17vw, 96px) !important;
+  max-height: clamp(64px, 17vw, 96px) !important;
   opacity: 1 !important;
   box-shadow: 0 0 18px rgba(120, 200, 255, 0.45);
 }
@@ -203,7 +203,12 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
 .errl-scene-3d-label.bubble.menuOrb .label {
   opacity: 1 !important;
   animation: none !important;
-  font-size: clamp(9px, 2.2vw, 13px);
+  font-size: clamp(8px, 2vw, 12px) !important;
+  letter-spacing: 0.05em !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
   text-shadow:
     0 0 8px rgba(0, 0, 0, 0.95),
     0 0 14px rgba(120, 200, 255, 0.55);
@@ -211,11 +216,16 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
 
 @media (max-width: 480px) {
   .errl-scene-3d-label.bubble.menuOrb {
-    width: clamp(48px, 13vw, 68px) !important;
-    height: clamp(48px, 13vw, 68px) !important;
-    min-width: clamp(48px, 13vw, 68px) !important;
-    min-height: clamp(48px, 13vw, 68px) !important;
-    max-width: clamp(48px, 13vw, 68px) !important;
-    max-height: clamp(48px, 13vw, 68px) !important;
+    width: clamp(58px, 15vw, 72px) !important;
+    height: clamp(58px, 15vw, 72px) !important;
+    min-width: clamp(58px, 15vw, 72px) !important;
+    min-height: clamp(58px, 15vw, 72px) !important;
+    max-width: clamp(58px, 15vw, 72px) !important;
+    max-height: clamp(58px, 15vw, 72px) !important;
+  }
+
+  .errl-scene-3d-label.bubble.menuOrb .label {
+    font-size: clamp(7px, 1.85vw, 10px) !important;
+    letter-spacing: 0.04em !important;
   }
 }

@@ -641,10 +641,13 @@
     orbits.forEach((orbit) => {
       if (orbit && orbit.style) orbit.style.setProperty('--navOrbScale', String(effective));
     });
-    window.errlGLSyncOrbs && window.errlGLSyncOrbs();
+    syncGLNavOrbsIfDom();
     return navOrbScale;
   }
-  function getActiveBubbles(){
+  function syncGLNavOrbsIfDom(){
+    if (document.body && document.body.classList.contains('errl-nav-mode-metaball')) return;
+    syncGLNavOrbsIfDom();
+  }
     return bubbles.filter((el)=> isErrlNavBubbleVisible(el));
   }
   function focusKeyboardBubble(nextIndex){
@@ -843,7 +846,7 @@
     // As they orbit, bubbles above Errl render in front; below Errl render behind.
     const active = bubbles.filter((el)=> isErrlNavBubbleVisible(el));
     if (!active.length) {
-      window.errlGLSyncOrbs && window.errlGLSyncOrbs();
+      syncGLNavOrbsIfDom();
       return requestAnimationFrame(updateBubbles);
     }
 
@@ -947,7 +950,7 @@
       placeBubble(active[i], i, active.length);
     }
 
-    window.errlGLSyncOrbs && window.errlGLSyncOrbs();
+    syncGLNavOrbsIfDom();
     requestAnimationFrame(updateBubbles);
   }
   
@@ -1190,7 +1193,7 @@
       wrap.style.zoom = '';
       wrap.style.setProperty('--errlScale', v.toString());
     }
-    window.errlGLSyncOrbs && window.errlGLSyncOrbs();
+    syncGLNavOrbsIfDom();
   });
 
   // Nav Goo (UI filter)

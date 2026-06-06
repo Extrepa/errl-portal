@@ -31,8 +31,18 @@ export function applyNavRenderModeToDocument(mode?: NavRenderMode) {
   body.classList.remove('errl-nav-mode-dom', 'errl-nav-mode-metaball', 'errl-scene-3d-nav');
   if (m === 'metaball') {
     body.classList.add('errl-nav-mode-metaball', 'errl-scene-3d-nav');
+    try {
+      const w = window as Window & { enableErrlGL?: () => void; errlGLShowOrbs?: (show: boolean) => void };
+      w.enableErrlGL?.();
+      w.errlGLShowOrbs?.(false);
+    } catch (_) {}
   } else {
     body.classList.add('errl-nav-mode-dom');
+    try {
+      const toggle = document.getElementById('glOrbsToggle') as HTMLInputElement | null;
+      const w = window as Window & { errlGLShowOrbs?: (show: boolean) => void };
+      w.errlGLShowOrbs?.(toggle ? toggle.checked : true);
+    } catch (_) {}
   }
   try {
     window.dispatchEvent(new CustomEvent(NAV_RENDER_MODE_EVENT, { detail: { mode: m, settings: getSceneSettings() } }));
