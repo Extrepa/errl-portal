@@ -17,3 +17,7 @@
 ### Tests
 - `live-visual-audit.spec.ts`: 5 viewports + intro enter overlap + gallery scroll check (12/12 local)
 - Visual regression snapshots updated
+
+### Build fix
+- `vite.config.ts`: copy `apps/landing/scripts|styles|config|fx` to dist (was deleted by reorganize plugin)
+- `build-output.spec.ts`: assert `portal-app.js` + orbit helpers in dist

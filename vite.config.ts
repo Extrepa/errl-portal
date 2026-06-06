@@ -256,16 +256,36 @@ const reorganizeBuildOutputPlugin = () => ({
       renameSync(chatSource, chatDest);
     }
     
-    // Merge landing/fx into dist/fx (do not wipe static pages fx e.g. metaball-lab)
-    const fxSource = resolve(appsDir, 'landing/fx');
-    const fxDest = resolve(distDir, 'fx');
-    if (existsSync(fxSource)) {
+    const srcLandingDir = resolve(process.cwd(), 'src/apps/landing');
+    const landingDest = resolve(distDir, 'apps/landing');
+    const viteLandingDir = resolve(appsDir, 'landing');
+
+    mkdirSync(landingDest, { recursive: true });
+    for (const sub of ['scripts', 'styles', 'config', 'fx'] as const) {
+      const source = resolve(srcLandingDir, sub);
+      if (!existsSync(source)) continue;
+      const dest = resolve(landingDest, sub);
+      rmSync(dest, { recursive: true, force: true });
+      cpSync(source, dest, { recursive: true });
+    }
+
+    const viteFx = resolve(viteLandingDir, 'fx');
+    if (existsSync(viteFx) && resolve(viteFx) !== resolve(landingDest, 'fx')) {
+      cpSync(viteFx, resolve(landingDest, 'fx'), { recursive: true });
+    }
+
+    const fxMerged = resolve(landingDest, 'fx');
+    if (existsSync(fxMerged)) {
+      const fxDest = resolve(distDir, 'fx');
       if (!existsSync(fxDest)) {
         mkdirSync(fxDest, { recursive: true });
       }
-      cpSync(fxSource, fxDest, { recursive: true });
+      cpSync(fxMerged, fxDest, { recursive: true });
+    }
+
+    if (existsSync(viteLandingDir) && resolve(viteLandingDir) !== resolve(landingDest)) {
       try {
-        rmSync(resolve(appsDir, 'landing'), { recursive: true, force: true });
+        rmSync(viteLandingDir, { recursive: true, force: true });
       } catch (e) {
         // Ignore errors
       }
