@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Games | Errl</title>
+  <link rel="stylesheet" href="../../../../shared/styles/errlDesignSystem.css" />
+  <link rel="stylesheet" href="../../../../shared/styles/errlPortalHeader.css" />
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--errl-bg-gradient), var(--errl-bg);
+      color: var(--errl-text);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+    .games-shell {
+      max-width: 56rem;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+    .games-hero h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(2rem, 4vw, 3rem);
+      text-shadow: 0 0 16px var(--errl-glow-teal), 0 0 40px var(--errl-glow-violet);
+    }
+    .games-hero p {
+      margin: 0 0 2rem;
+      color: var(--errl-text-soft);
+      max-width: 48ch;
+    }
+    .games-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .game-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 1rem;
+      border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.28);
+      background: linear-gradient(145deg, rgba(18, 24, 38, 0.92), rgba(8, 12, 22, 0.9));
+      padding: 1.2rem;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .game-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(var(--errl-neon-cyan-rgb), 0.55);
+    }
+    .game-card h2 {
+      margin: 0 0 0.45rem;
+      font-size: 1.25rem;
+    }
+    .game-card p {
+      margin: 0 0 0.8rem;
+      color: var(--errl-text-soft);
+      font-size: 0.95rem;
+    }
+    .game-card span {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.72rem;
+      color: rgba(var(--errl-neon-cyan-rgb), 0.95);
+    }
+  </style>
+</head>
+<body>
+  <header class="errl-portal-header">
+    <a class="errl-home-btn" href="/index.html">← Errl Portal</a>
+  </header>
+  <main class="games-shell">
+    <section class="games-hero">
+      <h1>Games &amp; Toys</h1>
+      <p>Unity WebGL experiences hosted as sublinks on errl.wtf. Each opens in its own canvas with a back link to this hub.</p>
+    </section>
+    <div class="games-grid">
+      <a class="game-card" href="/games/rainbowrider/?back=/games/">
+        <h2>Rainbow Rider</h2>
+        <p>Line Rider-style neon track toy. Draw lines, place the Errl blob, press play.</p>
+        <span>Unity WebGL</span>
+      </a>
+      <a class="game-card" href="/games/liquid-light/?back=/games/">
+        <h2>Liquid Light Show</h2>
+        <p>Paint oil and water on a virtual overhead projector. Presets, symmetry, and trippy post FX.</p>
+        <span>Unity WebGL</span>
+      </a>
+    </div>
+  </main>
+</body>
+</html>

@@ -41,12 +41,13 @@
   <link rel="stylesheet" href="./apps/landing/fx/errl-bg.css" />
   <link rel="stylesheet" href="./apps/landing/styles/arrival.css" />
   <link rel="stylesheet" href="./shared/styles/errlPortalHeader.css" />
-  <script src="./apps/landing/scripts/dev-phone-unlock.js"></script>
   <script type="module" src="./apps/landing/scripts/assets.js"></script>
   <!-- Debug harness: runtime layer toggles (safe no-op unless used) -->
   <script type="module" src="./apps/static/dev/debug.ts"></script>
 </head>
 <body data-errlMode="stable" class="errl-dark">
+  <script src="./apps/landing/scripts/boot-shell.js"></script>
+  <script src="./apps/landing/scripts/dev-phone-unlock.js"></script>
   <div id="errl-scene-root" aria-hidden="true"></div>
   <div id="errlCustomBaseBg" class="errl-custom-base-bg" aria-hidden="true"></div>
   <!-- Background shimmer via ErrlBG -->

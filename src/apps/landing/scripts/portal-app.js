@@ -644,10 +644,16 @@
     syncGLNavOrbsIfDom();
     return navOrbScale;
   }
-  function syncGLNavOrbsIfDom(){
-    if (document.body && document.body.classList.contains('errl-nav-mode-metaball')) return;
-    syncGLNavOrbsIfDom();
+  function isMetaballNavModeActive(){
+    try {
+      return document.body && document.body.classList.contains('errl-nav-mode-metaball');
+    } catch (_) { return false; }
   }
+  function syncGLNavOrbsIfDom(){
+    if (isMetaballNavModeActive()) return;
+    window.errlGLSyncOrbs && window.errlGLSyncOrbs();
+  }
+  function getActiveBubbles(){
     return bubbles.filter((el)=> isErrlNavBubbleVisible(el));
   }
   function focusKeyboardBubble(nextIndex){
@@ -821,6 +827,11 @@
       bubblesInitialized = false;
       return requestAnimationFrame(updateBubbles);
     }
+
+    // Scene3d metaball nav owns orbit layout; skip DOM bubble placement + GL orb sync.
+    if (isMetaballNavModeActive()) {
+      return requestAnimationFrame(updateBubbles);
+    }
     
     const orbitIntervalMs = getOrbitIntervalMs();
     if (ts - lastOrbitUpdate < orbitIntervalMs){
@@ -831,8 +842,10 @@
     const rect = errl.getBoundingClientRect();
     // Ensure we have valid dimensions before calculating center
     if (rect.width === 0 || rect.height === 0) {
+      document.body.classList.remove('errl-layout-ready');
       return requestAnimationFrame(updateBubbles);
     }
+    document.body.classList.add('errl-layout-ready');
     const scrollNav = window.errlSceneScroll && typeof window.errlSceneScroll.getState === 'function'
       ? window.errlSceneScroll.getState()
       : null;
@@ -1133,7 +1146,8 @@
   // GL Orbs toggle
   on($("glOrbsToggle"), 'change', ()=>{
     const el = $("glOrbsToggle");
-    if (!el) return; window.errlGLShowOrbs && window.errlGLShowOrbs(!!el.checked);
+    if (!el || isMetaballNavModeActive()) return;
+    window.errlGLShowOrbs && window.errlGLShowOrbs(!!el.checked);
   });
 
   // Burst button - stop propagation so it doesn't trigger canvas click
@@ -3176,6 +3190,7 @@
       errl: 'Character size and goo behavior.',
       pin: 'Pin widget editing and inject tools.',
       nav: 'Orbit menu bubbles and skins.',
+      scene: 'Nav mode, presets, and orbit physics.',
       rb: 'Rising bubble field controls.',
       glb: 'Background WebGL particle layer.',
       bg: 'Backdrop, shimmer, and overlay.',
@@ -3786,6 +3801,10 @@
     }
 
     function setOrbsEnabled(enabled) {
+      if (document.body && document.body.classList.contains('errl-nav-mode-metaball')) {
+        withGL(() => window.errlGLShowOrbs && window.errlGLShowOrbs(false));
+        return;
+      }
       if (!enabled) {
         withGL(() => window.errlGLShowOrbs && window.errlGLShowOrbs(false));
         return;

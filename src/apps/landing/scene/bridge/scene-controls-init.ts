@@ -1,3 +1,4 @@
+import { applyNavRenderModeToDocument } from '../navRenderMode';
 import { mountSceneControlsGlobal } from './sceneControls';
 import { applyScenePreset, type ScenePresetId } from './scene-presets';
 
@@ -12,4 +13,5 @@ export function hydrateScenePresetFromUrl(): void {
 }
 
 mountSceneControlsGlobal();
+applyNavRenderModeToDocument();
 hydrateScenePresetFromUrl();

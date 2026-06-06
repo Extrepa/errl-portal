@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { gotoPortalLanding } from './helpers/test-helpers';
 
 test.describe('Performance Tests', () => {
   test('@ui initial page load time', async ({ page, baseURL }) => {
     const startTime = Date.now();
-    await page.goto(baseURL! + '/index.html', { waitUntil: 'domcontentloaded' });
+    await gotoPortalLanding(page, baseURL!);
     // Wait for essential elements instead of networkidle (may timeout)
-    await page.waitForSelector('#errlPanel', { state: 'visible', timeout: 10000 }).catch(() => {});
+    await page.waitForSelector('#errl', { state: 'visible', timeout: 10000 }).catch(() => {});
     await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
     const loadTime = Date.now() - startTime;
     
@@ -15,10 +16,10 @@ test.describe('Performance Tests', () => {
 
   test('@ui time to interactive', async ({ page, baseURL }) => {
     const startTime = Date.now();
-    await page.goto(baseURL! + '/index.html');
+    await gotoPortalLanding(page, baseURL!);
     
     // Wait for interactive elements
-    await page.waitForSelector('#errlPanel', { state: 'visible' });
+    await page.waitForSelector('#errl', { state: 'visible' });
     await page.waitForSelector('#navOrbit', { state: 'visible' });
     
     const interactiveTime = Date.now() - startTime;

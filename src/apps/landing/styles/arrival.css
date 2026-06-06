@@ -1,3 +1,26 @@
+/* Boot shell safe defaults — hide legacy chrome until boot classes apply */
+#navOrbit,
+#navOrbitBehind {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.errl-scene-main.errl-nav-mode-dom.errl-layout-ready #navOrbit,
+body.errl-scene-main.errl-nav-mode-dom.errl-layout-ready #navOrbitBehind {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+#errlPanel {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+body.errl-phone-unlocked #errlPanel {
+  display: flex !important;
+  visibility: visible !important;
+}
+
 /* Cinematic arrival + scene phases */
 body.errl-scene-arrival .scene-layer {
   opacity: 0;
@@ -145,12 +168,96 @@ body.reduced-motion .errl-arrival__enter {
   pointer-events: none;
 }
 
+body.errl-nav-mode-metaball #riseBubbles,
+body.errl-scene-3d-nav #riseBubbles {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.errl-metaball-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.errl-metaball-nav__links {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.errl-metaball-link {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  visibility: hidden;
+  opacity: 0;
+  width: var(--nav-ball-diam, 72px);
+  height: var(--nav-ball-diam, 72px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  text-decoration: none;
+  z-index: 6;
+}
+
+.errl-metaball-link.errl-metaball-link--ready {
+  visibility: visible;
+  opacity: 1;
+}
+
+.errl-metaball-link__orb {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 32% 28%,
+      color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 35%, #fff) 0%,
+      var(--nav-ball-color, #7ec8ff) 42%,
+      color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 55%, #000) 100%
+    );
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 70%, transparent),
+    0 0 36px color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 35%, transparent),
+    inset 0 -5px 14px rgba(0, 0, 0, 0.45),
+    inset 0 4px 10px rgba(255, 255, 255, 0.18);
+}
+
+.errl-metaball-link__label {
+  position: relative;
+  z-index: 1;
+}
+
+.errl-metaball-link:hover .errl-metaball-link__orb,
+.errl-metaball-link:focus-visible .errl-metaball-link__orb {
+  filter: brightness(1.12);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 85%, transparent),
+    0 0 48px color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 45%, transparent),
+    inset 0 -5px 14px rgba(0, 0, 0, 0.45),
+    inset 0 4px 10px rgba(255, 255, 255, 0.22);
+}
+
+body.errl-nav-mode-metaball #navOrbit,
+body.errl-nav-mode-metaball #navOrbitBehind,
+body.errl-scene-3d-nav #navOrbit,
+body.errl-scene-3d-nav #navOrbitBehind {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 body.errl-nav-mode-metaball #navOrbit .bubble,
 body.errl-nav-mode-metaball #navOrbitBehind .bubble,
 body.errl-scene-3d-nav #navOrbit .bubble,
 body.errl-scene-3d-nav #navOrbitBehind .bubble {
-  opacity: 0;
-  pointer-events: none;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .nav-metaball-notice {
@@ -186,46 +293,45 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
   opacity: 0.9;
 }
 
-.errl-scene-3d-label.bubble.menuOrb {
+.errl-scene-3d-label {
   pointer-events: auto;
   z-index: 6;
-  position: relative;
-  width: clamp(64px, 17vw, 96px) !important;
-  height: clamp(64px, 17vw, 96px) !important;
-  min-width: clamp(64px, 17vw, 96px) !important;
-  min-height: clamp(64px, 17vw, 96px) !important;
-  max-width: clamp(64px, 17vw, 96px) !important;
-  max-height: clamp(64px, 17vw, 96px) !important;
+  padding: 0;
+  margin: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  animation: none !important;
   opacity: 1 !important;
-  box-shadow: 0 0 18px rgba(120, 200, 255, 0.45);
 }
 
-.errl-scene-3d-label.bubble.menuOrb .label {
+.errl-scene-3d-label::before {
+  display: none !important;
+}
+
+.errl-scene-3d-label .label,
+.errl-metaball-link__label {
   opacity: 1 !important;
   animation: none !important;
-  font-size: clamp(8px, 2vw, 12px) !important;
-  letter-spacing: 0.05em !important;
+  font-size: clamp(8px, 2.2vw, 11px) !important;
+  font-weight: 700;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
   max-width: none !important;
   overflow: visible !important;
   text-overflow: clip !important;
   white-space: nowrap !important;
+  color: rgba(255, 255, 255, 0.96) !important;
   text-shadow:
-    0 0 8px rgba(0, 0, 0, 0.95),
-    0 0 14px rgba(120, 200, 255, 0.55);
+    0 0 6px rgba(0, 0, 0, 0.95),
+    0 0 12px rgba(0, 0, 0, 0.85),
+    0 0 18px rgba(120, 200, 255, 0.65);
 }
 
 @media (max-width: 480px) {
-  .errl-scene-3d-label.bubble.menuOrb {
-    width: clamp(58px, 15vw, 72px) !important;
-    height: clamp(58px, 15vw, 72px) !important;
-    min-width: clamp(58px, 15vw, 72px) !important;
-    min-height: clamp(58px, 15vw, 72px) !important;
-    max-width: clamp(58px, 15vw, 72px) !important;
-    max-height: clamp(58px, 15vw, 72px) !important;
-  }
-
-  .errl-scene-3d-label.bubble.menuOrb .label {
-    font-size: clamp(7px, 1.85vw, 10px) !important;
-    letter-spacing: 0.04em !important;
+  .errl-scene-3d-label .label {
+    font-size: clamp(7px, 2vw, 10px) !important;
+    letter-spacing: 0.06em !important;
   }
 }

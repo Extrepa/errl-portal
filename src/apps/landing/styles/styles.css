@@ -724,6 +724,14 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
 .nav-orbit.goo-on { filter: url(#uiGoo); }
 
 /* Iridescent / oil-slick color cycling */
+.menuOrb .label {
+  max-width: 96%;
+  overflow: visible;
+  text-overflow: clip;
+  letter-spacing: 0.05em;
+  font-size: clamp(8px, 1.85vw, 12px);
+}
+
 .menuOrb {
   background:
     radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 20%, rgba(255,255,255,0.3) 45%, transparent 70%),
@@ -807,13 +815,17 @@ body[data-errlMode="errl"] #errlCenter { opacity: 1; transition: opacity .2s eas
   }
   .bubble {
     font-size: clamp(11px, 3vw, 14px);
-    width: clamp(52px, 14vw, 72px) !important;
-    height: clamp(52px, 14vw, 72px) !important;
-    min-width: clamp(52px, 14vw, 72px) !important;
-    min-height: clamp(52px, 14vw, 72px) !important;
-    max-width: clamp(52px, 14vw, 72px) !important;
-    max-height: clamp(52px, 14vw, 72px) !important;
-    line-height: clamp(52px, 14vw, 72px);
+    width: clamp(58px, 15vw, 80px) !important;
+    height: clamp(58px, 15vw, 80px) !important;
+    min-width: clamp(58px, 15vw, 80px) !important;
+    min-height: clamp(58px, 15vw, 80px) !important;
+    max-width: clamp(58px, 15vw, 80px) !important;
+    max-height: clamp(58px, 15vw, 80px) !important;
+    line-height: clamp(58px, 15vw, 80px);
+  }
+  .bubble.menuOrb .label {
+    font-size: clamp(7px, 2vw, 10px);
+    letter-spacing: 0.04em;
   }
   .bubble .label,
   .bubble span {

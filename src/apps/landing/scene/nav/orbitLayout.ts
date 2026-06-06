@@ -1,145 +1,149 @@
 import { NAV_ITEMS } from './navConfig';
 
-/** Shared world-space scale for metaball Html labels and shader balls. */
-export function getOrbitWorldScale(viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440): number {
-  if (viewportWidth <= 480) return 1.85;
-  if (viewportWidth <= 768) return 2.0;
-  return 2.2;
+/** Errl center in CSS pixels (matches DOM placeBubble). */
+export function getErrlCenterPx(): { cx: number; cy: number } {
+  if (typeof document === 'undefined' || typeof window === 'undefined') {
+    return { cx: 0, cy: 0 };
+  }
+  const errl = document.getElementById('errl');
+  if (!errl) {
+    return { cx: window.innerWidth * 0.5, cy: window.innerHeight * 0.5 };
+  }
+  const r = errl.getBoundingClientRect();
+  const scroll =
+    typeof window.errlSceneScroll?.getState === 'function' ? window.errlSceneScroll.getState() : null;
+  const offsetY = scroll?.centerOffsetY ?? 0;
+  return { cx: r.left + r.width * 0.5, cy: r.top + r.height * 0.5 + offsetY };
 }
 
-/** Normalized orbit radius multiplier aligned with DOM tier scales. */
-export function getOrbitDistNormScale(viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440): number {
+/** True once #errl has a measurable layout (avoids corner-clamped nav on first frames). */
+export function isErrlLayoutReady(): boolean {
+  if (typeof document === 'undefined') return false;
+  const errl = document.getElementById('errl');
+  if (!errl) return false;
+  const r = errl.getBoundingClientRect();
+  return r.width > 24 && r.height > 24;
+}
+
+function clamp(n: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, n));
+}
+
+/** Mirrors portal-app getOrbitDistTierScale. */
+export function getOrbitDistTierScale(viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440): number {
   const minVp = typeof window !== 'undefined' ? Math.min(window.innerWidth, window.innerHeight) : viewportWidth;
-  if (viewportWidth <= 480) return Math.min(1, Math.max(0.88, minVp / 520));
-  if (viewportWidth <= 768) return Math.min(1.05, Math.max(0.95, viewportWidth / 720));
+  if (viewportWidth <= 480) return clamp(minVp / 520, 0.88, 1.0);
+  if (viewportWidth <= 768) return clamp(viewportWidth / 720, 0.95, 1.05);
   return 1;
 }
 
-export type OrbitAnchor = {
+export function getViewportScale(): number {
+  if (typeof window === 'undefined') return 1;
+  const minVp = Math.min(window.innerWidth, window.innerHeight);
+  return clamp(minVp / 900, 0.55, 1.05);
+}
+
+export function getScene3dBubbleRadiusPx(viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440): number {
+  const mobile = viewportWidth <= 480;
+  return mobile
+    ? clamp(viewportWidth * 0.14 * 0.5, 26, 36)
+    : clamp(viewportWidth * 0.096 * 0.5, 33, 59);
+}
+
+/** Orbit distance in px — same formula as DOM placeBubble. */
+export function getOrbitDistPx(baseDist: number, navRadius = 1, viewportWidth?: number): number {
+  const w = viewportWidth ?? (typeof window !== 'undefined' ? window.innerWidth : 1440);
+  const dist = baseDist * navRadius * getViewportScale() * getOrbitDistTierScale(w);
+  return Math.max(dist, getMinOrbitDistPx());
+}
+
+export function getMinOrbitDistPx(): number {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return 120;
+  const errl = document.getElementById('errl');
+  if (!errl) return 120;
+  const er = errl.getBoundingClientRect();
+  if (er.width <= 0 || er.height <= 0) return 120;
+  const bubbleR = getScene3dBubbleRadiusPx();
+  const gap = window.innerWidth <= 480 ? 14 : 18;
+  return Math.max(er.width, er.height) * 0.5 + bubbleR + gap;
+}
+
+export type OrbitAnchorPx = {
   key: string;
   angleRad: number;
-  distNorm: number;
+  distPx: number;
 };
 
-/** Base orbit anchors from navConfig (matches DOM data-angle / data-dist). */
-export function getMinOrbitDistNorm(): number {
-  if (typeof document === 'undefined' || typeof window === 'undefined') return 0.58;
-  const errl = document.getElementById('errl');
-  const minDim = Math.min(window.innerWidth, window.innerHeight);
-  if (!errl || minDim <= 0) return 0.58;
-  const er = errl.getBoundingClientRect();
-  if (er.width <= 0 || er.height <= 0) return 0.58;
-  const mobile = window.innerWidth <= 480;
-  const bubbleR = mobile
-    ? Math.min(Math.max(window.innerWidth * 0.14 * 0.5, 26), 36)
-    : Math.min(Math.max(window.innerWidth * 0.096 * 0.5, 33), 59);
-  const gap = mobile ? 14 : 18;
-  const minDistPx = Math.max(er.width, er.height) * 0.5 + bubbleR + gap;
-  return minDistPx / minDim;
-}
-
-export function getMaxOrbitDistNorm(): number {
-  if (typeof window === 'undefined') return 0.95;
-  const minDim = Math.min(window.innerWidth, window.innerHeight);
-  if (minDim <= 0) return 0.95;
-  const pad = 44;
-  const center = getErrlOrbitCenterNorm();
-  const cxPx = Math.abs(center.x * minDim);
-  const cyPx = Math.abs(center.y * minDim);
-  const maxX = (window.innerWidth * 0.5 - pad - cxPx) / minDim;
-  const maxY = (window.innerHeight * 0.5 - pad - cyPx) / minDim;
-  return Math.max(getMinOrbitDistNorm(), Math.min(maxX, maxY, 0.95));
-}
-
-export function getOrbitRadiusNorm(baseDist: number, viewportWidth?: number): number {
-  const w = viewportWidth ?? (typeof window !== 'undefined' ? window.innerWidth : 1440);
-  const tier = getOrbitDistNormScale(w);
-  const raw = (baseDist / 220) * tier;
-  return Math.min(Math.max(raw, getMinOrbitDistNorm()), getMaxOrbitDistNorm());
-}
-
-export function getOrbitAnchors(viewportWidth?: number): OrbitAnchor[] {
-  const w = viewportWidth ?? (typeof window !== 'undefined' ? window.innerWidth : 1440);
+export function getOrbitAnchorsPx(viewportWidth?: number): OrbitAnchorPx[] {
   return NAV_ITEMS.map((item) => ({
     key: item.key,
     angleRad: (item.angle * Math.PI) / 180,
-    distNorm: getOrbitRadiusNorm(item.dist, w),
+    distPx: getOrbitDistPx(item.dist, 1, viewportWidth),
   }));
 }
 
-export const ORBIT_CENTER = { x: 0, y: 0.08 } as const;
+/** Bubble anchor in CSS px around Errl center. */
+export function anchorPositionPx(angleRad: number, distPx: number, center = getErrlCenterPx()) {
+  return {
+    x: center.cx + Math.cos(angleRad) * distPx,
+    y: center.cy + Math.sin(angleRad) * distPx,
+  };
+}
 
-/** Map #errl viewport center into physics orbit space (y up, ~1.0 ≈ ring radius). */
-export function getErrlOrbitCenterNorm(): { x: number; y: number } {
-  if (typeof document === 'undefined' || typeof window === 'undefined') return ORBIT_CENTER;
+/** Map CSS screen coords to shader UV space. */
+export function screenToShaderUv(
+  left: number,
+  top: number,
+  width = typeof window !== 'undefined' ? window.innerWidth : 1440,
+  height = typeof window !== 'undefined' ? window.innerHeight : 900,
+): { x: number; y: number } {
+  const aspect = width / height;
+  return {
+    x: ((left / width) * 2 - 1) * aspect,
+    y: 1 - (top / height) * 2,
+  };
+}
+
+/** Errl silhouette cutout for metaball shader. */
+export function getErrlShaderCutout(): { center: { x: number; y: number }; radius: number } {
+  if (typeof document === 'undefined' || typeof window === 'undefined') {
+    return { center: { x: 0, y: 0.08 }, radius: 0.38 };
+  }
   const errl = document.getElementById('errl');
-  if (!errl) return ORBIT_CENTER;
+  if (!errl) return { center: { x: 0, y: 0.08 }, radius: 0.38 };
   const r = errl.getBoundingClientRect();
-  if (r.width <= 0 || r.height <= 0) return ORBIT_CENTER;
+  if (r.width <= 0 || r.height <= 0) return { center: { x: 0, y: 0.08 }, radius: 0.38 };
+  const center = screenToShaderUv(r.left + r.width * 0.5, r.top + r.height * 0.5);
   const minDim = Math.min(window.innerWidth, window.innerHeight);
-  if (minDim <= 0) return ORBIT_CENTER;
+  const aspect = window.innerWidth / window.innerHeight;
+  const radius = ((Math.max(r.width, r.height) * 0.5 + 12) / minDim) * aspect;
+  return { center, radius };
+}
+
+/** Clamp bubble center inside viewport (mirrors DOM clampBubblePosition). */
+export function clampBubblePositionPx(
+  x: number,
+  y: number,
+  bubbleRadiusPx = getScene3dBubbleRadiusPx(),
+  pad = 10,
+): { x: number; y: number } {
+  if (typeof window === 'undefined') return { x, y };
+  const minX = pad + bubbleRadiusPx;
+  const minY = pad + bubbleRadiusPx;
+  const maxX = window.innerWidth - pad - bubbleRadiusPx;
+  const maxY = window.innerHeight - pad - bubbleRadiusPx;
   return {
-    x: (r.left + r.width * 0.5 - window.innerWidth * 0.5) / minDim,
-    y: (window.innerHeight * 0.5 - (r.top + r.height * 0.5)) / minDim,
+    x: clamp(x, minX, maxX),
+    y: clamp(y, minY, maxY),
   };
 }
 
-export function anchorPosition(
-  angleRad: number,
-  distNorm: number,
-  center: { x: number; y: number } = getErrlOrbitCenterNorm(),
-) {
-  return {
-    x: center.x + Math.cos(angleRad) * distNorm,
-    y: center.y + Math.sin(angleRad) * distNorm * 0.85,
-  };
-}
-
-/** Clamp normalized label position to stay inside viewport projection bounds. */
-export function clampNormToViewport(x: number, y: number, _scale?: number, margin = 1.05) {
-  const limit = margin;
-  return {
-    x: Math.max(-limit, Math.min(limit, x)),
-    y: Math.max(-limit, Math.min(limit, y)),
-  };
-}
-
-export function getMetaballBallRadius(viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440): number {
-  if (viewportWidth <= 480) return 0.28;
-  if (viewportWidth <= 768) return 0.26;
-  return 0.24;
-}
-
-/** Clamp screen-space bubble center inside viewport (mirrors DOM edge clamp). */
-export function clampScreenBubblePosition(left: number, top: number, bubbleRadiusPx = 32): { left: number; top: number } {
-  if (typeof window === 'undefined') return { left, top };
-  const pad = bubbleRadiusPx + 12;
-  return {
-    left: Math.max(pad, Math.min(window.innerWidth - pad, left)),
-    top: Math.max(pad, Math.min(window.innerHeight - pad, top)),
-  };
-}
-/** Map physics orbit coords to viewport pixels (same space as DOM bubble placement). */
-export function orbitNormToScreen(x: number, y: number): { left: number; top: number } {
-  if (typeof window === 'undefined') return { left: 0, top: 0 };
-  const minDim = Math.min(window.innerWidth, window.innerHeight);
-  return {
-    left: window.innerWidth * 0.5 + x * minDim,
-    top: window.innerHeight * 0.5 - y * minDim,
-  };
-}
-
-export function screenToOrbitNorm(left: number, top: number): { x: number; y: number } {
-  if (typeof window === 'undefined') return { x: 0, y: 0 };
-  const minDim = Math.min(window.innerWidth, window.innerHeight);
-  return {
-    x: (left - window.innerWidth * 0.5) / minDim,
-    y: (window.innerHeight * 0.5 - top) / minDim,
-  };
-}
-
-/** Push a screen point outside Errl silhouette + bubble gap (mirrors DOM min-orbit). */
-export function pushScreenPointOutsideErrl(left: number, top: number, bubbleRadiusPx = 34): { left: number; top: number } {
+/** Push screen point outside Errl + gap. */
+export function pushScreenPointOutsideErrl(
+  left: number,
+  top: number,
+  bubbleRadiusPx = getScene3dBubbleRadiusPx(),
+): { left: number; top: number } {
   if (typeof document === 'undefined' || typeof window === 'undefined') return { left, top };
   const errl = document.getElementById('errl');
   if (!errl) return { left, top };
@@ -162,26 +166,6 @@ export function pushScreenPointOutsideErrl(left: number, top: number, bubbleRadi
     y = cy + (dy / dist) * minDist;
   }
 
-  const coreL = er.left - gap - bubbleRadiusPx;
-  const coreR = er.right + gap + bubbleRadiusPx;
-  const coreT = er.top - gap - bubbleRadiusPx;
-  const coreB = er.bottom + gap + bubbleRadiusPx;
-  if (x >= coreL && x <= coreR && y >= coreT && y <= coreB) {
-    x = cx + (dx / dist) * minDist;
-    y = cy + (dy / dist) * minDist;
-  }
-
-  return clampScreenBubblePosition(x, y, bubbleRadiusPx);
-}
-
-/** Resolve label/ball screen position outside Errl with viewport clamp. */
-export function resolveOrbitScreenPosition(
-  x: number,
-  y: number,
-  bubbleRadiusPx = 34,
-): { left: number; top: number; x: number; y: number } {
-  const raw = orbitNormToScreen(x, y);
-  const pushed = pushScreenPointOutsideErrl(raw.left, raw.top, bubbleRadiusPx);
-  const norm = screenToOrbitNorm(pushed.left, pushed.top);
-  return { ...pushed, ...norm };
+  const clamped = clampBubblePositionPx(x, y, bubbleRadiusPx);
+  return { left: clamped.x, top: clamped.y };
 }

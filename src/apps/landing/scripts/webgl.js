@@ -557,7 +557,7 @@
       }
     }
     if (typeof pendingShowOrbs === 'boolean' && orbContainer) {
-      orbContainer.visible = pendingShowOrbs;
+      orbContainer.visible = isMetaballNavMode() ? false : pendingShowOrbs;
       pendingShowOrbs = null;
     }
     while (pendingBursts.length) {
@@ -624,6 +624,12 @@
     }
   }
 
+  function isMetaballNavMode(){
+    try {
+      return document.body && document.body.classList.contains('errl-nav-mode-metaball');
+    } catch (_) { return false; }
+  }
+
   function getNavOrbitDomElements(){
     const all = Array.from(document.querySelectorAll('.nav-orbit .bubble'));
     if (typeof W.__errlGetVisibleNavBubbles === 'function') {
@@ -639,6 +645,10 @@
   function buildOrbs(tex){
     // one orb per visible nav bubble (must match __errlGetVisibleNavBubbles)
     orbBaseTexture = tex;
+    if (isMetaballNavMode()) {
+      if (orbContainer) orbContainer.visible = false;
+      return;
+    }
     const doms = getNavOrbitDomElements();
     orbs.forEach(s=>s.destroy({texture:false, baseTexture:false}));
     orbs = doms.map((_b,i)=>{
@@ -656,6 +666,10 @@
   }
 
   function syncOrbsPositions(){
+    if (isMetaballNavMode()) {
+      if (orbContainer) orbContainer.visible = false;
+      return;
+    }
     if (!orbs.length) return;
     const doms = getNavOrbitDomElements();
     if (!doms.length || orbs.length !== doms.length) {
@@ -728,6 +742,10 @@
   };
   W.errlGLSyncOrbs = function(){ if (!started) return; syncOrbsPositions(); };
   W.errlGLRebuildNavOrbs = function(){
+    if (isMetaballNavMode()) {
+      if (orbContainer) orbContainer.visible = false;
+      return;
+    }
     if (!started || !orbBaseTexture) return;
     buildOrbs(orbBaseTexture);
   };
@@ -735,7 +753,7 @@
   W.errlGLSetOrbScale = function(scale){ if(!started||!orbs.length) return; const s = Math.max(0.2, Math.min(2.5, scale||1)); orbs.forEach(o=> o && o.scale && o.scale.set(0.72*s)); };
   W.errlGLShowOrbs = function(show){
     if (!started) init();
-    const on = !!show;
+    const on = isMetaballNavMode() ? false : !!show;
     if (!orbContainer) {
       pendingShowOrbs = on;
       return;

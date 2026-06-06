@@ -34,7 +34,9 @@ export function applyNavRenderModeToDocument(mode?: NavRenderMode) {
     try {
       const w = window as Window & { enableErrlGL?: () => void; errlGLShowOrbs?: (show: boolean) => void };
       w.enableErrlGL?.();
-      w.errlGLShowOrbs?.(false);
+      const hideOrbs = () => w.errlGLShowOrbs?.(false);
+      hideOrbs();
+      window.addEventListener('errl:webgl-ready', hideOrbs, { once: true });
     } catch (_) {}
   } else {
     body.classList.add('errl-nav-mode-dom');

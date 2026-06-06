@@ -7,6 +7,6 @@ mountSceneControlsGlobal();
 const mount = document.getElementById('metaball-lab-root');
 if (mount) {
   createRoot(mount).render(
-    <MetaballNavCanvas showLabels={false} showPost className="metaball-lab-canvas" />,
+    <MetaballNavCanvas showPost className="metaball-lab-canvas" />,
   );
 }

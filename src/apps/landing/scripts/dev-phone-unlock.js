@@ -1,3 +1,7 @@
+/**
+ * Errl Phone discoverability: long-press Errl (~2s) to unlock customize panel.
+ * Initial lock/unlock classes are set by boot-shell.js before first paint.
+ */
 (function errlDevPhoneUnlock() {
   const DEV_KEY = 'errl_dev_unlock_v1';
   const LONG_PRESS_MS = 2000;
@@ -28,17 +32,6 @@
     window.dispatchEvent(new CustomEvent('errl:dev-phone-unlocked'));
   }
 
-  function applyHiddenState() {
-    if (isUnlocked()) {
-      document.body.classList.remove('errl-phone-hidden');
-      document.body.classList.add('errl-phone-unlocked');
-      return;
-    }
-    document.body.classList.add('errl-phone-hidden');
-    document.body.classList.remove('errl-phone-unlocked');
-    showUnlockHint();
-  }
-
   function showUnlockHint() {
     const hint = document.getElementById('errlPhoneCtaHint');
     if (!hint || isUnlocked()) return;
@@ -55,8 +48,11 @@
     if (hint) hint.hidden = true;
   }
 
-  if (isDevUrl()) unlock();
-  else applyHiddenState();
+  if (isUnlocked()) {
+    hideUnlockHint();
+  } else {
+    showUnlockHint();
+  }
 
   function bindErrlLongPress() {
     const errl = document.getElementById('errl');
@@ -88,5 +84,5 @@
     bindErrlLongPress();
   }
 
-  window.errlDevPhoneUnlock = { isUnlocked, unlock };
+  window.errlDevPhoneUnlock = { isUnlocked: isUnlocked, unlock: unlock };
 })();

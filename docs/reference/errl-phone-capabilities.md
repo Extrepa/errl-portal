@@ -38,7 +38,7 @@ When adding features, name which layer in UI copy to avoid “nothing happens”
 
 | Concern | Behavior |
 |---------|----------|
-| **Nav render mode** | `dom` (default DOM bubbles) vs `metaball` (R3F SDF overlay). Metaball enables `?scene3d=1` and reloads. URL flag wins over stored bundle. |
+| **Nav render mode** | `dom` (default DOM bubbles) vs `metaball` (CSS orb nav via `MetaballNavLinks`). Metaball enables `?scene3d=1` and reloads. URL flag wins over stored bundle. |
 | **Nav tab (DOM)** | Orbit/radius/skins disabled while metaball is active; notice points to Scene tab. |
 | **`window.errlSceneControls`** | Read/write `bundle.scene` (metaball shader + sculpture physics). Event: `errl:scene-controls-changed`. |
 | **Scene presets** | **Portal** (DOM + ambient RB), **Metaball** (SDF nav + stronger merge/bloom), **Atmospheric** (slow drift + vignette). Confirm dialog; panel **Back** can undo via history. |
@@ -47,6 +47,8 @@ When adding features, name which layer in UI copy to avoid “nothing happens”
 **Body classes:** `errl-nav-mode-dom` | `errl-nav-mode-metaball` (+ `errl-scene-3d-nav` when metaball).
 
 **Shareable URLs (partial):** `buildSceneQuery()` emits `scene3d=1` and `scenePreset=` when set. Full slider encoding is future work.
+
+**Agent handoff:** [`docs/scene3d-nav-agent-handoff.md`](../scene3d-nav-agent-handoff.md)
 
 **Do not** duplicate metaball sliders on the Nav tab; Nav stays DOM/GL goo only.
 

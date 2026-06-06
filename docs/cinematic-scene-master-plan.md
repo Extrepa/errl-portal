@@ -1,7 +1,7 @@
 # ERRL cinematic + Scene controls — master plan & audit
 
-**Last updated:** 2026-06-05  
-**Deployed:** `1f8ce18` on [https://errl.wtf](https://errl.wtf) (2026-06-05)
+**Last updated:** 2026-06-06  
+**Agent handoff (scene3d nav):** `docs/scene3d-nav-agent-handoff.md`
 **Purpose:** Single checklist for everything built across the cinematic redesign and Scene/Phone control work. Use this to verify behavior, finish gaps, and pick next tasks.  
 **Session log:** `05-Logs/Daily/2026-05-28-cursor-notes.md`
 
@@ -14,7 +14,7 @@
 | `/` | Arrival overlay + **ENTER** (first visit); DOM nav after enter |
 | `/?skipIntro=1` | Skip arrival; main scene |
 | `/?dev=1&skipIntro=1` | Above + Errl Phone available |
-| `/?dev=1&skipIntro=1&scene3d=1` | Metaball SDF nav + Scene tab; Nav DOM controls disabled |
+| `/?dev=1&skipIntro=1&scene3d=1` | **DOM metaball nav** (colored CSS orbs + labels on Errl); Scene tab; Nav DOM controls disabled |
 | `/?dev=1&skipIntro=1` + scroll wheel | Nav bubbles carousel around Errl (after ENTER or skipIntro) |
 | `/?scrollNav=0` | Scroll does not drive nav |
 | `/fx/metaball-lab/` | Isolated metaball shader (no labels) |
@@ -37,8 +37,8 @@
 | **React scene island** (arrival → entering → main) | Done | `src/apps/landing/scene/` |
 | **ENTER + GSAP transition** | Done | `ArrivalPhase`, `TransitionPhase`; reduced-motion path |
 | **`?skipIntro=1` / session `errl_entered_v1`** | Done | `App.tsx` |
-| **Metaball lab** `/fx/metaball-lab/` | Done | Shared `MetaballNavCanvas` |
-| **R3F nav `?scene3d=1`** | Done | `MainPhase` → `NavSculptures` |
+| **Metaball lab** `/fx/metaball-lab/` | Done | WebGL `MetaballNavCanvas` + SDF shader |
+| **Scene3d nav `?scene3d=1`** | Done | `MainPhase` → `NavSculptures` → **`MetaballNavLinks`** (DOM orbs) |
 | **Quality tiers** (low/med/high, DPR cap) | Done | `scene/quality.ts` |
 | **Lenis on About** | Done | `src/shared/scripts/about-scroll.mjs` |
 | **ScrollDirector stub** | Partial | `ScrollDirector.ts` — Lenis wrapper; homepage runway not wired |
@@ -100,8 +100,8 @@ src/apps/landing/scene/
   App.tsx, main.tsx
   navRenderMode.ts, sceneTypes.ts, quality.ts
   phases/          ArrivalPhase, TransitionPhase, MainPhase
-  nav/             navConfig, NavSculptures, useNavPhysics
-  effects/         MetaballNavCanvas.tsx, shaders/metaballSDF.ts
+  nav/             navConfig, NavSculptures, MetaballNavLinks, useNavPhysics, orbitLayout
+  effects/         MetaballNavCanvas.tsx (lab), shaders/metaballSDF.ts
   bridge/          sceneControls.ts, scene-presets.ts, scene-controls-init.ts, legacyBridge.ts
   scroll/          scrollBridge.ts, ScrollNavDrive.tsx, ScrollDirector.ts
 
@@ -114,6 +114,7 @@ src/apps/landing/scripts/
 src/apps/static/pages/fx/metaball-lab/main.tsx
 
 docs/
+  scene3d-nav-agent-handoff.md     ★ Agent handoff for metaball nav work
   cinematic-scene-master-plan.md   (this file)
   gallery-immersive-architecture.md
   reference/errl-phone-capabilities.md
@@ -156,9 +157,10 @@ Use this before calling the work “done” on main.
 
 ### Landing — Metaball
 
-- [ ] `?scene3d=1` loads R3F overlay; DOM bubble links hidden but 3D labels clickable
+- [ ] `?scene3d=1` shows **four colored CSS orbs** with labels centered on balls, orbiting Errl
+- [ ] No visible `#riseBubbles` or Pixi GL nav orbs in metaball mode
 - [ ] Nav tab shows metaball notice; DOM controls disabled
-- [ ] Scene sliders affect shader live
+- [ ] Scene **sculpture** sliders affect orbit feel; metaball shader sliders affect lab only
 - [ ] Metaball preset reloads with `scene3d=1`
 
 ### Lab & About
@@ -183,7 +185,7 @@ Use this before calling the work “done” on main.
 5. **Metaball + DOM** — switching modes requires reload; expected.
 6. **`buildSceneQuery` / `scenePreset` URL** — query built but not applied on page load.
 7. **Large JS chunk** — `MetaballNavCanvas` ~1.1MB minified; consider lazy load when `scene3d=1`.
-8. **Pixi GL orbs** — redundant when metaball active; still running.
+8. **Pixi GL orbs** — guarded when metaball active; DOM-first nav does not use them.
 9. **Gallery immersive** — architecture doc only.
 
 ---
@@ -253,17 +255,19 @@ flowchart TB
 
   subgraph render [Render]
     DOM[portal-app DOM orbit]
-    R3F[MetaballNavCanvas + physics labels]
+    MB[MetaballNavLinks CSS orbs]
   end
 
   Phone --> SC
   URL --> SC
   Wheel --> SS
-  SC --> R3F
+  SC --> MB
   SS --> DOM
-  SS --> R3F
+  SS --> MB
   SC --> DOM
 ```
+
+> **2026-06-06:** Landing metaball nav uses `MetaballNavLinks`, not R3F `MetaballNavCanvas`. See `docs/scene3d-nav-agent-handoff.md`.
 
 ---
 

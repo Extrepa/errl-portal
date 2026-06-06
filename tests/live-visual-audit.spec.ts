@@ -91,6 +91,45 @@ test.describe('Live visual audit routes', () => {
     await expect(page.locator('#errl-scene-root')).toHaveCount(0);
   });
 
+  test('@ui boot shell hides phone panel before unlock', async ({ page, baseURL }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${baseURL!}/?skipIntro=1`, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+      localStorage.removeItem('errl_dev_unlock_v1');
+      localStorage.removeItem('errl_phone_cta_dismissed_v1');
+    });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+
+    const boot = await page.evaluate(() => ({
+      bootReady: document.body.classList.contains('errl-boot-ready'),
+      phoneHidden: document.body.classList.contains('errl-phone-hidden'),
+      panelDisplay: document.getElementById('errlPanel')
+        ? getComputedStyle(document.getElementById('errlPanel')!).display
+        : 'missing',
+    }));
+    expect(boot.bootReady).toBe(true);
+    expect(boot.phoneHidden).toBe(true);
+    expect(boot.panelDisplay).toBe('none');
+    await expect(page.locator('#errlPanel')).toBeHidden();
+  });
+
+  test('@ui boot shell hides legacy DOM nav in scene3d on load', async ({ page, baseURL }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${baseURL!}/?skipIntro=1&scene3d=1`, { waitUntil: 'domcontentloaded' });
+
+    const nav = await page.evaluate(() => {
+      const bubble = document.querySelector('#navOrbit .bubble') as HTMLElement | null;
+      return {
+        metaballClass: document.body.classList.contains('errl-nav-mode-metaball'),
+        bubbleVisibility: bubble ? getComputedStyle(bubble).visibility : 'missing',
+        bubbleOpacity: bubble ? getComputedStyle(bubble).opacity : 'missing',
+      };
+    });
+    expect(nav.metaballClass).toBe(true);
+    expect(nav.bubbleVisibility).toBe('hidden');
+    expect(parseFloat(String(nav.bubbleOpacity))).toBe(0);
+  });
+
   test('@ui phone unlock hint visible before unlock', async ({ page, baseURL }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${baseURL!}/?skipIntro=1`, { waitUntil: 'domcontentloaded' });

@@ -50,6 +50,30 @@ const copyShapeMadnessContentPlugin = () => ({
   },
 });
 
+const copyUnityGamesPlugin = () => ({
+  name: 'unity-games-copy',
+  apply: 'build',
+  closeBundle() {
+    const gameSources = [
+      {
+        src: resolve(process.cwd(), '../rainbowrider/deploy/web'),
+        dest: resolve(process.cwd(), 'dist/games/rainbowrider'),
+      },
+      {
+        src: resolve(process.cwd(), '../errl-liquid-light/deploy/web'),
+        dest: resolve(process.cwd(), 'dist/games/liquid-light'),
+      },
+    ];
+
+    for (const { src, dest } of gameSources) {
+      if (!existsSync(src)) continue;
+      rmSync(dest, { recursive: true, force: true });
+      mkdirSync(dest, { recursive: true });
+      cpSync(src, dest, { recursive: true });
+    }
+  },
+});
+
 const copySharedAssetsPlugin = () => ({
   name: 'shared-assets-copy',
   apply: 'build',
@@ -312,6 +336,7 @@ export default defineConfig(({ command }) => ({
     react(),
     portalPagesRewritePlugin(), 
     copyShapeMadnessContentPlugin(),
+    copyUnityGamesPlugin(),
     copySharedAssetsPlugin(), 
     copySharedStylesPlugin(), 
     copyRedirectsPlugin(), 
@@ -367,6 +392,7 @@ export default defineConfig(({ command }) => ({
         'assets/walking-errl/index': resolve(process.cwd(), 'src/apps/static/pages/assets/walking-errl/index.html'),
         'assets/errl-loader-original-parts/index': resolve(process.cwd(), 'src/apps/static/pages/assets/errl-loader-original-parts/index.html'),
         'design/index': resolve(process.cwd(), 'src/apps/static/pages/design/index.html'),
+        'games/index': resolve(process.cwd(), 'src/apps/static/pages/games/index.html'),
         'studio/index': resolve(process.cwd(), 'src/apps/static/pages/studio/index.html'),
         'studio/pin-widget/ErrlPin.Widget/designer': resolve(process.cwd(), 'src/apps/static/pages/studio/pin-widget/ErrlPin.Widget/designer.html'),
         'studio/svg-colorer/index': resolve(process.cwd(), 'src/apps/static/pages/studio/svg-colorer/index.html'),
