@@ -592,7 +592,9 @@
 
 ## Agent handoff — nav polish + deploy (2026-06-07 evening)
 
-**Branch:** `main` → `origin/main` after this session’s commit.
+**Branch:** `main` → `origin/main` at **`1d281c8`** (pushed 2026-06-07).
+
+**Deploy:** GitHub Actions run `27078973506` — build OK, Cloudflare step **failed** `Authentication failed (400)` / code `9106`. Same blocker as earlier today; prod still on last successful Pages deploy until secrets rotated.
 
 ### Shipped this session (landing nav)
 

@@ -28,7 +28,7 @@ Subpages (About, Gallery, Studio) use static layouts; Gallery has a **floating h
 
 ---
 
-## 2. Current architecture (2026-06-06)
+## 2. Current architecture (2026-06-07)
 
 ### Scene React island
 
@@ -42,10 +42,11 @@ src/apps/landing/scene/
     MainPhase.tsx      — renders NavSculptures when metaball mode active
   nav/
     NavSculptures.tsx  — applies metaball body classes; renders MetaballNavLinks
-    MetaballNavLinks.tsx  ★ LANDING NAV (DOM orb + label per link)
+    MetaballNavLinks.tsx  ★ LANDING NAV (goo layer + label/hit layer)
+    navOrbColor.ts     — per-orb hue drift + merge color blend (RAF)
     navConfig.ts       — angles, dists, colors, hrefs
-    orbitLayout.ts     — pixel orbit math shared with DOM
-    useNavPhysics.ts   — spring physics in CSS px around Errl
+    orbitLayout.ts     — pixel orbit math + `getNavBubbleDiameterPx()`
+    useNavPhysics.ts   — spring physics; `orbitClockRef`; merge-aware repulsion
   effects/
     MetaballNavCanvas.tsx  — WebGL SDF shader (metaball lab ONLY)
     shaders/metaballSDF.ts
@@ -73,7 +74,9 @@ Each nav item is one anchor:
 
 - **Physics:** `useNavPhysics` + `requestAnimationFrame` in `MetaballNavLinks.tsx`
 - **Position:** `left` / `top` in CSS px, `transform: translate(-50%, -50%)`
-- **Style:** `arrival.css` — radial gradient orb + glow per `--nav-ball-color`
+- **Goo merge:** `#uiGoo` SVG filter field; orbs are `.errl-metaball-goo-orb` children (not `__orb` pseudo-blobs)
+- **Color:** `navOrbColor.ts` sets `--nav-ball-hue`, `--nav-merge-hue`, `--nav-goo-blur`; `arrival.css` conic iridescent fill + specular
+- **Sizing:** `getNavBubbleDiameterPx()` mirrors legacy `.bubble` tiers; labels scale via `--label-scale` on small viewports
 
 ### Legacy layers (must stay isolated in metaball mode)
 
@@ -251,7 +254,7 @@ CSS: `src/apps/landing/styles/arrival.css`
 
 - [ ] Wire Scene tab **metaball sliders** to CSS orb appearance (glow, merge visual) on landing
 - [ ] Deeper GSAP ScrollTrigger chapters (3–5) beyond approach/orbit
-- [ ] Optional: merge SDF goo between CSS orbs (SVG filter or canvas) for “metaball merge” aesthetic on landing
+- [x] Merge goo between CSS orbs via `#uiGoo` SVG filter + `useGooField` (shipped 2026-06-07)
 - [ ] Visual regression snapshot update for DOM metaball look
 
 ### Recently completed (2026-06-06)
