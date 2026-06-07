@@ -52,7 +52,10 @@ body.errl-scene-entering .scene-layer {
 body.errl-scene-main .scene-layer {
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 1.2s ease;
+}
+
+body.errl-scene-main.errl-nav-intro-done .scene-layer {
+  transition: opacity 0.4s ease;
 }
 
 body.errl-scene-main #errl {
@@ -234,7 +237,14 @@ body.errl-scene-3d-nav #riseBubbles {
 
 .errl-metaball-link.errl-metaball-link--ready {
   visibility: visible;
+}
+
+body.errl-nav-intro-done .errl-metaball-link.errl-metaball-link--ready {
   opacity: 1;
+}
+
+body.errl-scene-entering .errl-metaball-link.errl-metaball-link--ready {
+  will-change: opacity, transform;
 }
 
 .errl-metaball-nav__links {
@@ -252,7 +262,9 @@ body.errl-scene-3d-nav #riseBubbles {
 }
 
 .errl-metaball-nav--flat .errl-metaball-link__orb {
-  transform: scale(calc(1 + var(--nav-orb-merge, 0.35) * 0.06));
+  transform: scale(
+    calc(1 + (var(--nav-orb-merge, 0.35) + var(--nav-orb-merge-local, 0) * 0.55) * 0.06)
+  );
   transform-style: flat;
   box-shadow:
     0 0 calc(14px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 55%, transparent),
@@ -270,15 +282,19 @@ body.errl-scene-3d-nav #riseBubbles {
   position: relative;
   z-index: 2;
   display: block;
-  width: 94%;
-  max-width: 94%;
+  width: 88%;
+  max-width: 88%;
   text-align: center;
   font-family: 'Meltdown MF', 'Baloo 2', ui-rounded, system-ui, sans-serif;
-  font-size: clamp(13px, calc(var(--nav-ball-diam, 72px) * 0.32), 22px);
-  letter-spacing: 0.02em;
+  font-size: clamp(
+    7px,
+    calc(var(--nav-ball-diam, 72px) * var(--label-scale, 1) * 0.24),
+    20px
+  );
+  letter-spacing: 0.015em;
   line-height: 1;
   color: #fff;
-  -webkit-text-stroke: 0.55px rgba(0, 0, 0, 0.92);
+  -webkit-text-stroke: 0.45px rgba(0, 0, 0, 0.92);
   paint-order: stroke fill;
   text-shadow:
     0 0 1px rgba(0, 0, 0, 1),
@@ -286,6 +302,134 @@ body.errl-scene-3d-nav #riseBubbles {
     0 1px 0 rgba(0, 0, 0, 0.9),
     0 2px 8px rgba(0, 0, 0, 0.88),
     0 0 14px rgba(0, 0, 0, 0.65);
+}
+
+/* Goo merge field — orb visuals only; labels stay on hit layer above */
+.errl-metaball-nav__goo-field {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  filter: url(#uiGoo);
+}
+
+.errl-metaball-goo-orb {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  visibility: hidden;
+  width: var(--nav-ball-diam, 72px);
+  height: var(--nav-ball-diam, 72px);
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  pointer-events: none;
+}
+
+/* Goo-layer orbs must not inherit anchor `inset: 0` sizing */
+.errl-metaball-nav__goo-field .errl-metaball-link__orb {
+  position: fixed;
+  inset: auto;
+  width: var(--nav-ball-diam, 72px);
+  height: var(--nav-ball-diam, 72px);
+}
+
+.errl-metaball-goo-orb.errl-metaball-goo-orb--ready {
+  visibility: visible;
+}
+
+body.errl-scene-entering .errl-metaball-goo-orb.errl-metaball-goo-orb--ready {
+  will-change: opacity, transform;
+}
+
+.errl-metaball-nav--goo .errl-metaball-nav__links > .errl-metaball-link > .errl-metaball-link__orb {
+  display: none;
+}
+
+/* Iridescent goo orbs — conic oil-slick + merge neighbor bleed */
+.errl-metaball-nav__goo-field .errl-metaball-link__orb {
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      circle at 26% 22%,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(255, 255, 255, 0.55) 14%,
+      rgba(255, 255, 255, 0.12) 32%,
+      transparent 52%
+    ),
+    radial-gradient(
+      circle at 74% 76%,
+      color-mix(
+        in srgb,
+        var(--nav-ball-color-merge, var(--nav-ball-color, #7ec8ff))
+          calc(35% + var(--nav-orb-merge-mix, 0) * 55%),
+        transparent
+      )
+      0%,
+      transparent 58%
+    ),
+    conic-gradient(
+      from var(--nav-orb-iridescent-spin, 0deg) at 50% 50%,
+      var(--nav-ball-color, #7ec8ff) 0deg,
+      var(--nav-ball-color-3, #ff9ed8) 55deg,
+      var(--nav-ball-color-merge, var(--nav-ball-color-2, #c9a7ff)) 110deg,
+      var(--nav-ball-color-2, #8dffb5) 180deg,
+      var(--nav-ball-color, #7ec8ff) 250deg,
+      var(--nav-ball-color-3, #ff9ed8) 310deg,
+      var(--nav-ball-color, #7ec8ff) 360deg
+    );
+  box-shadow:
+    0 0 calc(16px * var(--nav-orb-glow, 1))
+      color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 65%, var(--nav-ball-color-merge, #c9a7ff) 35%),
+    0 0 calc(32px * var(--nav-orb-glow, 1))
+      color-mix(in srgb, var(--nav-ball-color-2, #7ec8ff) 40%, transparent),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.42),
+    inset 0 3px 9px rgba(255, 255, 255, 0.28);
+}
+
+.errl-metaball-nav__goo-field .errl-metaball-link__orb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      ellipse at 32% 24%,
+      rgba(255, 255, 255, 0.82) 0%,
+      rgba(255, 255, 255, 0.28) 28%,
+      transparent 54%
+    ),
+    radial-gradient(
+      ellipse at 68% 78%,
+      rgba(0, 0, 0, 0.14) 0%,
+      transparent 48%
+    );
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: screen;
+}
+
+.errl-metaball-nav__goo-field .errl-metaball-link__orb::after {
+  content: "";
+  position: absolute;
+  inset: -8%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(
+      in srgb,
+      var(--nav-ball-color-merge, var(--nav-ball-color, #7ec8ff))
+        calc(var(--nav-orb-merge-mix, 0) * 70%),
+      transparent
+    )
+    0%,
+    transparent 72%
+  );
+  opacity: calc(0.15 + var(--nav-orb-merge-mix, 0) * 0.75);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(6px);
 }
 
 .errl-metaball-nav-canvas {
@@ -699,19 +843,23 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
   opacity: 1 !important;
   animation: none !important;
   display: block;
-  width: 94%;
-  max-width: 94% !important;
+  width: 88%;
+  max-width: 88% !important;
   text-align: center;
   font-family: 'Meltdown MF', 'Baloo 2', ui-rounded, system-ui, sans-serif !important;
-  font-size: clamp(13px, calc(var(--nav-ball-diam, 72px) * 0.32), 22px) !important;
+  font-size: clamp(
+    7px,
+    calc(var(--nav-ball-diam, 72px) * var(--label-scale, 1) * 0.24),
+    20px
+  ) !important;
   font-weight: 400;
-  letter-spacing: 0.02em !important;
+  letter-spacing: 0.015em !important;
   text-transform: uppercase;
   overflow: visible !important;
   text-overflow: clip !important;
   white-space: nowrap !important;
   color: #fff !important;
-  -webkit-text-stroke: 0.55px rgba(0, 0, 0, 0.92);
+  -webkit-text-stroke: 0.45px rgba(0, 0, 0, 0.92);
   paint-order: stroke fill;
   text-shadow:
     0 0 1px rgba(0, 0, 0, 1),
@@ -724,10 +872,14 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
 @media (max-width: 480px) {
   .errl-metaball-nav--flat .errl-metaball-link__label--flat,
   .errl-scene-3d-label .label {
-    width: 90%;
-    max-width: 90% !important;
-    font-size: clamp(12px, calc(var(--nav-ball-diam, 72px) * 0.28), 18px) !important;
-    letter-spacing: 0.015em !important;
+    width: 84%;
+    max-width: 84% !important;
+    font-size: clamp(
+      6px,
+      calc(var(--nav-ball-diam, 72px) * var(--label-scale, 1) * 0.2),
+      13px
+    ) !important;
+    letter-spacing: 0.01em !important;
   }
 }
 

@@ -126,6 +126,8 @@ function buildInitialStates(initial?: Partial<Record<NavKey, { x: number; y: num
 export type NavPhysicsApi = {
   getStates: () => NavPhysicsState[];
   reanchor: () => void;
+  /** Snap to orbit at `tSec`, or keep current orbit phase when omitted */
+  snapToOrbit: (tSec?: number) => void;
   step: (
     dt: number,
     pointer?: { x: number; y: number; active: boolean },
@@ -136,27 +138,41 @@ export type NavPhysicsApi = {
 
 export function useNavPhysics(initial?: Partial<Record<NavKey, { x: number; y: number; z: number }>>): NavPhysicsApi {
   const stateRef = useRef<NavPhysicsState[]>(buildInitialStates(initial));
+  /** Orbit phase clock — must not use wall time or intro snap (t=0) jumps when motion starts. */
+  const orbitClockRef = useRef(0);
 
   const reanchor = useCallback(() => {
+    orbitClockRef.current = 0;
     stateRef.current = buildInitialStates(initial);
   }, [initial]);
+
+  const snapToOrbit = useCallback((tSec?: number) => {
+    const t = tSec ?? orbitClockRef.current;
+    orbitClockRef.current = t;
+    const scrollInf = readScrollInfluence();
+    stateRef.current = NAV_ITEMS.map((_, i) => snapStateToOrbit(i, t, scrollInf));
+  }, []);
 
   const api = useMemo<NavPhysicsApi>(
     () => ({
       getStates: () => stateRef.current,
       reanchor,
+      snapToOrbit,
       step(dt, pointer, getSculpture, getMetaball) {
         const cfg = getSculpture?.() ?? DEFAULT_SCENE_SETTINGS.sculpture;
         const mb = getMetaball?.() ?? DEFAULT_SCENE_SETTINGS.metaball;
         const bubblePx = getScene3dBubbleRadiusPx();
-        const minSep = cfg.separation * bubblePx * 2.2;
+        const mergeFactor = clamp(mb.mergeK, 0, 1);
+        const minSep = cfg.separation * bubblePx * 2.2 * (1 - mergeFactor * 0.45);
+        const repulsionStrength = 1 - mergeFactor * 0.72;
         const magneticRadius = cfg.magneticRadius * bubblePx * 3;
         const floatMul = cfg.floatSpeed;
         const scrollInf = cfg.scrollInfluence ?? 1;
         const pointerPull = mb.pointerPull ?? DEFAULT_SCENE_SETTINGS.metaball.pointerPull;
 
         const states = stateRef.current;
-        const tSec = (performance.now() * 0.001) * floatMul;
+        orbitClockRef.current += dt * floatMul;
+        const tSec = orbitClockRef.current;
         states.forEach((s, i) => {
           const target = orbitTargetPx(i, tSec, scrollInf);
           s.vx += (target.x - s.x) * 2.5 * dt;
@@ -190,7 +206,7 @@ export function useNavPhysics(initial?: Partial<Record<NavKey, { x: number; y: n
             const dy = sb.y - sa.y;
             const d = Math.sqrt(dx * dx + dy * dy) || 0.001;
             if (d < minSep) {
-              const push = ((minSep - d) / d) * 0.5;
+              const push = ((minSep - d) / d) * 0.5 * repulsionStrength;
               sa.vx -= dx * push;
               sa.vy -= dy * push;
               sb.vx += dx * push;
@@ -200,7 +216,7 @@ export function useNavPhysics(initial?: Partial<Record<NavKey, { x: number; y: n
         }
       },
     }),
-    [reanchor],
+    [reanchor, snapToOrbit],
   );
 
   return api;

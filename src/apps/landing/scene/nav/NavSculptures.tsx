@@ -18,7 +18,7 @@ export default function NavSculptures({ showPost = true }: Props) {
   void showPost;
   return (
     <NavPhysicsProvider>
-      <MetaballNavLinks flatLabels />
+      <MetaballNavLinks flatLabels useGooField />
     </NavPhysicsProvider>
   );
 }

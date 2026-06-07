@@ -39,6 +39,10 @@ export default function App() {
   useEffect(() => {
     applyNavRenderModeToDocument();
     mountWarpNavGlobal();
+    if (readSkipArrival()) {
+      document.body.classList.add('errl-nav-intro-done');
+      window.dispatchEvent(new CustomEvent('errl:nav-intro-done'));
+    }
   }, []);
 
   useEffect(() => {
@@ -83,7 +87,7 @@ export default function App() {
     <>
       {phase === 'arrival' ? <ArrivalPhase onEnter={handleEnter} /> : null}
       {phase === 'entering' ? <TransitionPhase onComplete={handleTransitionComplete} /> : null}
-      {phase === 'main' ? <MainPhase /> : null}
+      {phase === 'entering' || phase === 'main' ? <MainPhase /> : null}
       {phase === 'main' ? <ScrollNavDrive active /> : null}
       {phase === 'main' ? <WarpOverlay /> : null}
     </>,

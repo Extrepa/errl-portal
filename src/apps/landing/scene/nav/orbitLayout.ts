@@ -43,11 +43,23 @@ export function getViewportScale(): number {
   return clamp(minVp / 900, 0.55, 1.05);
 }
 
+/** Bubble diameter in px — mirrors legacy `.bubble` / `getBubbleRadiusPx` tiers. */
+export function getNavBubbleDiameterPx(viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440): number {
+  const w = viewportWidth;
+  const minDim = typeof window !== 'undefined' ? Math.min(window.innerWidth, window.innerHeight) : 900;
+
+  if (minDim <= 480) {
+    return clamp(w * 0.15, 58, 80);
+  }
+  if (w <= 768) {
+    return clamp(w * 0.096, 67, 96);
+  }
+  return clamp(w * 0.096, 67, 118);
+}
+
+/** Bubble radius in px — half of {@link getNavBubbleDiameterPx}. */
 export function getScene3dBubbleRadiusPx(viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440): number {
-  const mobile = viewportWidth <= 480;
-  return mobile
-    ? clamp(viewportWidth * 0.14 * 0.5, 26, 36)
-    : clamp(viewportWidth * 0.096 * 0.5, 33, 59);
+  return getNavBubbleDiameterPx(viewportWidth) * 0.5;
 }
 
 /** Orbit distance in px — same formula as DOM placeBubble. */

@@ -435,7 +435,11 @@
 - **Albums** → compact `Collection` dropdown (random album each page load)
 - **Downloads** — per-image in lightbox; full-album ZIP from collection menu (`galleryDownload.ts` + jszip)
 
-### Gallery orbit viewport lock (2026-06-06)
+### Face outline stroke default (2026-06-06)
+- Face/eye/mouth SVG stroke-width 6 → 2.5 in `errl-body-with-limbs.svg` + `errl-face-2.svg`
+- Outlines slider min 1 → 0.5; init applies slider value instead of syncing back to fat SVG strokes
+- Default `errlOutlineThickness` remains 2.5 (matches outer silhouette weight better)
+
 - Removed page scroll track — orbit fits in `100dvh`, body overflow hidden in orbit mode
 - Wheel / swipe / arrow keys drive carousel inside the stage (no document scroll)
 - Ring layout — frames evenly on a circle facing center (replaces messy diagonal stack)
@@ -550,10 +554,92 @@
 - `errl_gallery_view` — `circles` \| `orbit` \| `grid` (legacy `scroll` → `grid`)
 - `errl_gallery_density_circles` / `errl_gallery_density_grid`
 
+### Nav iridescent merge colors (2026-06-07)
+- Conic oil-slick orb fill + specular `::before`; merge ring `::after` bleeds neighbor hue
+- `navOrbVisualVars` — oscillating hue swap when `--nav-orb-merge-local` high; goo blur pumps on touch
+
+### Nav rainbow color drift (2026-06-07)
+- `navOrbColor.ts` — per-orb hue start on rainbow wheel; `--nav-ball-color` cycles every ~40s
+- Respects reduced motion; Scene **Float speed** scales drift rate
+
+### Nav double-orbs + frozen orbit fix (2026-06-07)
+- **Double draw** — removed landing WebGL overlay; goo `::after` blob + dual box-shadow stripped
+- **No rotation** — `skipIntro`/return visits never fired `errl:nav-intro-done` → physics stayed at snap t=0; scroll-only motion
+
+### Nav full audit — sizing, labels, goo merge (2026-06-07)
+- **Sizing** — `getNavBubbleDiameterPx` mirrors legacy `.bubble` tiers (mobile `clamp(58,15vw,80)`)
+- **Labels** — `--label-scale` per word length; font ratio 0.24→0.2 on ≤480px (Gallery/Studio shrink)
+- **Merge** — merge-aware physics (`mergeK` lowers repulsion); `#uiGoo` field for CSS metaball mesh
+- **Architecture** — goo orbs in separate layer; labels/hits above; WebGL additive on `high` tier only (never hides CSS)
+- **Fixes** — goo orb `inset:0` + `display:none` selector bugs caused invisible orbs; intro animates goo layer
+
+### Nav bubble sizing + enter transition (2026-06-07)
+- **Sizing** — `getScene3dBubbleRadiusPx` uses `min(w,h)` + tablet/desktop tiers (fixes short/wide viewports)
+- **Enter glitch** — `TransitionPhase` targets `.errl-metaball-link`; snap orbit at t=0 before fade; no elastic stagger
+- **Motion gate** — nav mounts during `entering`; frozen snap until `errl:nav-intro-done`; then physics runs
+- **Orbit clock** — physics `step()` now advances `orbitClockRef` (was wall `performance.now()`, caused post-intro jump)
+- **Breakpoints** — size tiers keyed on `minDim` not width (landscape phones)
+- **Handoff** — GSAP clears inline transform/opacity on intro complete; resize keeps orbit phase via `snapToOrbit()`
+
 ### Deploy to main (2026-06-07)
 
 - **Commit** `d32f1aa` on `chore/repo-cleanup` → merged + pushed to `origin/main`
 - **CI build:** passes (typecheck + `portal:build`)
 - **Cloudflare deploy:** fails — `Authentication failed (status: 400)` on `cloudflare/pages-action@v1` (GitHub secrets `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` likely expired or revoked)
 - **Fix:** rotate Cloudflare API token in repo Settings → Secrets, then re-run workflow `Deploy to Cloudflare Pages` on main (or `gh workflow run deploy-cloudflare.yml`)
+
+---
+
+## Agent handoff — nav polish + deploy (2026-06-07 evening)
+
+**Branch:** `main` → `origin/main` after this session’s commit.
+
+### Shipped this session (landing nav)
+
+| Area | What |
+|------|------|
+| **Sizing** | `getNavBubbleDiameterPx()` — legacy `clamp(58,15vw,80)` mobile; labels shrink via `--label-scale` |
+| **Enter intro** | `TransitionPhase` → `.errl-metaball-link` + goo orbs; `orbitClockRef` (no wall-time jump) |
+| **Motion** | `errl:nav-intro-done` on `skipIntro`; default orbit drift without scroll |
+| **Goo merge** | `NavSculptures` → `useGooField`; `#uiGoo` filter; merge-aware physics (`mergeK`) |
+| **Rainbow drift** | `navOrbColor.ts` — per-orb hue wheel, ~40s cycle, Float speed multiplier |
+| **Iridescent** | Conic oil-slick + specular; neighbor hue swap + blur pump when orbs touch |
+
+### Key files
+
+- `src/apps/landing/scene/nav/navOrbColor.ts` — **new** hue drift + merge blend
+- `src/apps/landing/scene/nav/MetaballNavLinks.tsx` — goo layer, color RAF, physics step
+- `src/apps/landing/scene/nav/orbitLayout.ts`, `useNavPhysics.ts`
+- `src/apps/landing/scene/phases/TransitionPhase.tsx`, `App.tsx`
+- `src/apps/landing/styles/arrival.css` — goo + iridescent orb CSS
+- `docs/scene3d-nav-agent-handoff.md` — status updated
+
+### Also in diff (minor)
+
+- `src/index.html` — outline slider min 0.5; safer `syncSliderWithSVG` retry
+- `errl-body-with-limbs.svg`, `errl-face-2.svg`, `errl-path-swapper.js` — outline path sync
+
+### Gallery (prior commits on main — still current)
+
+- Default view **Grid**; Circles + Orbit modes; collection watermark; ZIP download
+- See checkpoint above (~line 520) for orbit WIP + manual QA list
+
+### Verify after deploy
+
+1. `https://errl.wtf/` or prod URL — Enter flow + `?skipIntro=1`
+2. Bubbles: one orb each, auto-orbit, iridescent + slow color drift
+3. Let two orbs touch — color bleed / goo bridge
+4. Viewports: 390 / 768 / 1440
+5. `/gallery/` — grid default, dock mode switcher
+
+### Deploy steps
+
+```bash
+npm run typecheck && npm run portal:build   # local gate
+git push origin main                        # triggers deploy-cloudflare.yml
+gh workflow run deploy-cloudflare.yml       # manual re-run if needed
+gh run list --workflow=deploy-cloudflare.yml --limit 3
+```
+
+**If Cloudflare auth 400:** refresh `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` in GitHub repo secrets (Pages deploy token, Account → Workers & Pages read).
 

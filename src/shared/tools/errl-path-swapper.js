@@ -182,7 +182,7 @@ export class ErrlPathSwapper {
     svg.setAttribute("viewBox", this.opts.viewBox);
     svg.innerHTML = `
       <g id="region-body"><path d="${this.tokens['@@ERRL_BODY@@'] || ""}" fill="#000" stroke="#e5eef7" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/></g>
-      <g id="region-face"><path d="${this.tokens['@@ERRL_FACE@@'] || ""}" fill="#000" stroke="#e5eef7" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/></g>
+      <g id="region-face"><path d="${this.tokens['@@ERRL_FACE@@'] || ""}" fill="#000" stroke="#e5eef7" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></g>
       <g id="region-eyeL"><path d="${this.tokens['@@ERRL_EYE_L@@'] || ""}" fill="#000" stroke="#e5eef7" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/></g>
       <g id="region-eyeR"><path d="${this.tokens['@@ERRL_EYE_R@@'] || ""}" fill="#000" stroke="#e5eef7" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/></g>
       <g id="region-mouth"><path d="${this.tokens['@@ERRL_MOUTH@@'] || ""}" fill="#000" stroke="#e5eef7" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/></g>

@@ -21,10 +21,11 @@ type NavSimProps = {
   physics: NavPhysicsApi;
   bubbleRadiusPx: number;
   stepSimulation?: boolean;
+  ownsPhysics?: boolean;
   onReady?: () => void;
 };
 
-function NavSimulation({ physics, bubbleRadiusPx, stepSimulation = true, onReady }: NavSimProps) {
+function NavSimulation({ physics, bubbleRadiusPx, stepSimulation = true, ownsPhysics = false, onReady }: NavSimProps) {
   const matRef = useRef<THREE.ShaderMaterial>(null);
   const { gl } = useThree();
   const metaballRef = useRef<SceneMetaballSettings>(getMetaball());
@@ -79,7 +80,7 @@ function NavSimulation({ physics, bubbleRadiusPx, stepSimulation = true, onReady
     if (!isErrlLayoutReady()) return;
 
     if (!readyRef.current) {
-      physics.reanchor();
+      if (ownsPhysics) physics.reanchor();
       readyRef.current = true;
     }
 
@@ -167,6 +168,7 @@ export default function MetaballNavCanvas({
   const dpr = maxDpr(tier);
   const internalPhysics = useNavPhysics();
   const physics = physicsProp ?? internalPhysics;
+  const ownsPhysics = !physicsProp;
   const shouldStep = physicsProp ? stepSimulation : true;
   const bubbleRadiusPx = getScene3dBubbleRadiusPx(
     typeof window !== 'undefined' ? window.innerWidth : 1440,
@@ -187,6 +189,7 @@ export default function MetaballNavCanvas({
           physics={physics}
           bubbleRadiusPx={bubbleRadiusPx}
           stepSimulation={shouldStep}
+          ownsPhysics={ownsPhysics}
           onReady={onReady}
         />
       </Canvas>

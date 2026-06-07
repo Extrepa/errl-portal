@@ -1,8 +1,8 @@
 # Scene3d / Metaball Nav — Agent Handoff
 
-**Last updated:** 2026-06-06  
-**Status:** Landing metaball nav **works** (flat CSS billboard orbs + Meltdown labels). WebGL on landing **retired**; lab only.  
-**Next planned:** [nav bubble color animation](./active/nav-bubble-color-animation.md) (CSS drift/pulse on `--nav-ball-color`).  
+**Last updated:** 2026-06-07  
+**Status:** Landing metaball nav **shipped** — `#uiGoo` merge field, iridescent conic orbs, rainbow hue drift, merge color swap on touch. WebGL on landing **retired**; lab only (`/fx/metaball-lab/`).  
+**Next planned:** Orbit gallery polish; optional landing WebGL only with visual gate (see [metaball-nav-merge-and-color-plan.md](./active/metaball-nav-merge-and-color-plan.md)).  
 **Session logs:** `05-Logs/Daily/2026-06-06-cursor-notes.md`, `05-Logs/Daily/2026-05-28-cursor-notes.md`  
 **Related:** `docs/cinematic-scene-master-plan.md`, `docs/reference/errl-phone-capabilities.md`
 
