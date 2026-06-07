@@ -550,3 +550,10 @@
 - `errl_gallery_view` — `circles` \| `orbit` \| `grid` (legacy `scroll` → `grid`)
 - `errl_gallery_density_circles` / `errl_gallery_density_grid`
 
+### Deploy to main (2026-06-07)
+
+- **Commit** `d32f1aa` on `chore/repo-cleanup` → merged + pushed to `origin/main`
+- **CI build:** passes (typecheck + `portal:build`)
+- **Cloudflare deploy:** fails — `Authentication failed (status: 400)` on `cloudflare/pages-action@v1` (GitHub secrets `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` likely expired or revoked)
+- **Fix:** rotate Cloudflare API token in repo Settings → Secrets, then re-run workflow `Deploy to Cloudflare Pages` on main (or `gh workflow run deploy-cloudflare.yml`)
+
