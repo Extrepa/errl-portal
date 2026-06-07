@@ -21,6 +21,19 @@ body.errl-phone-unlocked #errlPanel {
   visibility: visible !important;
 }
 
+body.errl-phone-unlocked .errl-panel.minimized {
+  pointer-events: auto !important;
+  z-index: 30;
+}
+
+@font-face {
+  font-family: 'Meltdown MF';
+  src: url('../../../shared/assets/portal/L5_UI/fonts/Meltdownmf-OEyd.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Cinematic arrival + scene phases */
 body.errl-scene-arrival .scene-layer {
   opacity: 0;
@@ -42,18 +55,27 @@ body.errl-scene-main .scene-layer {
   transition: opacity 1.2s ease;
 }
 
+body.errl-scene-main #errl {
+  pointer-events: auto;
+  touch-action: none;
+}
+
+body.errl-scene-main #errl.errl-long-press-active {
+  filter: drop-shadow(0 0 14px rgba(120, 220, 255, 0.55));
+  transition: filter 0.25s ease;
+}
+
+body.reduced-motion.errl-scene-main #errl.errl-long-press-active {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.errl-scene-main #errl.errl-long-press-active {
+    filter: none;
+  }
+}
+
 body.errl-phone-hidden #errlPanel {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-body.errl-phone-hidden #errlPhoneCtaHint {
-  display: block;
-  visibility: visible;
-  z-index: 16;
-}
-
-body.errl-phone-unlocked #errlPhoneCtaHint {
   display: none !important;
   visibility: hidden !important;
 }
@@ -158,8 +180,9 @@ body.reduced-motion .errl-arrival__enter {
   background: transparent;
 }
 
-.errl-scene-3d-nav canvas {
-  pointer-events: auto;
+.errl-scene-3d-nav canvas,
+.errl-metaball-nav-canvas canvas {
+  pointer-events: none;
 }
 
 .errl-scene-3d-labels {
@@ -188,6 +211,7 @@ body.errl-scene-3d-nav #riseBubbles {
   inset: 0;
   z-index: 6;
   pointer-events: none;
+  perspective: 900px;
 }
 
 .errl-metaball-link {
@@ -195,6 +219,7 @@ body.errl-scene-3d-nav #riseBubbles {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
   visibility: hidden;
   opacity: 0;
   width: var(--nav-ball-diam, 72px);
@@ -217,11 +242,82 @@ body.errl-scene-3d-nav #riseBubbles {
   --nav-orb-merge: 0.35;
 }
 
+/* Flat billboard nav — no 3D spin, no WebGL double-draw */
+.errl-metaball-nav--flat .errl-metaball-nav__links {
+  perspective: none;
+}
+
+.errl-metaball-nav--flat .errl-metaball-link {
+  transform-style: flat;
+}
+
+.errl-metaball-nav--flat .errl-metaball-link__orb {
+  transform: scale(calc(1 + var(--nav-orb-merge, 0.35) * 0.06));
+  transform-style: flat;
+  box-shadow:
+    0 0 calc(14px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 55%, transparent),
+    0 0 calc(28px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 28%, transparent),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.38),
+    inset 0 3px 8px rgba(255, 255, 255, 0.2);
+}
+
+.errl-metaball-nav--flat .errl-metaball-link__orb::after {
+  filter: blur(8px);
+  opacity: 0.65;
+}
+
+.errl-metaball-nav--flat .errl-metaball-link__label--flat {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 94%;
+  max-width: 94%;
+  text-align: center;
+  font-family: 'Meltdown MF', 'Baloo 2', ui-rounded, system-ui, sans-serif;
+  font-size: clamp(13px, calc(var(--nav-ball-diam, 72px) * 0.32), 22px);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: #fff;
+  -webkit-text-stroke: 0.55px rgba(0, 0, 0, 0.92);
+  paint-order: stroke fill;
+  text-shadow:
+    0 0 1px rgba(0, 0, 0, 1),
+    0 0 4px rgba(0, 0, 0, 0.95),
+    0 1px 0 rgba(0, 0, 0, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.88),
+    0 0 14px rgba(0, 0, 0, 0.65);
+}
+
+.errl-metaball-nav-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.errl-metaball-nav-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.errl-metaball-nav--hybrid .errl-metaball-link {
+  transform-style: flat;
+}
+
+.errl-metaball-nav--hybrid .errl-metaball-link__label--flat {
+  font-size: clamp(11px, 2.8vw, 16px);
+  letter-spacing: 0.04em;
+}
+
 .errl-metaball-link__orb {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  transform: scale(calc(1 + var(--nav-orb-merge, 0.35) * 0.08));
+  transform: scale(calc(1 + var(--nav-orb-merge, 0.35) * 0.08)) rotateY(var(--orb-spin, 0rad));
+  transform-style: preserve-3d;
   background:
     radial-gradient(
       circle at 32% 28%,
@@ -236,9 +332,102 @@ body.errl-scene-3d-nav #riseBubbles {
     inset 0 4px 10px rgba(255, 255, 255, 0.18);
 }
 
+.errl-metaball-link__orb::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -8%;
+  height: 42%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 62%, transparent) 0%,
+    color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 28%, transparent) 42%,
+    transparent 78%
+  );
+  filter: blur(11px);
+  opacity: 0.82;
+  pointer-events: none;
+  z-index: -1;
+}
+
 .errl-metaball-link__label {
   position: relative;
   z-index: 1;
+  pointer-events: none;
+}
+
+.errl-metaball-link__label--flat {
+  position: relative;
+  z-index: 1;
+}
+
+.errl-metaball-link__label--arc {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.errl-metaball-link__label-ring {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--ring-spin, 0rad));
+  transform-style: preserve-3d;
+}
+
+.errl-metaball-link__letter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.1em;
+  margin-left: -0.55em;
+  text-align: center;
+  font-family: 'Meltdown MF', 'Baloo 2', ui-rounded, system-ui, sans-serif;
+  font-size: clamp(11px, 3vw, 17px);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.97);
+  text-shadow:
+    0 0 6px rgba(0, 0, 0, 0.95),
+    0 0 12px rgba(0, 0, 0, 0.85),
+    0 0 18px rgba(120, 200, 255, 0.65);
+  transform: rotate(calc(var(--arc-start, -36deg) + var(--i, 0) * var(--arc-step, 18deg)))
+    translateY(calc(var(--orb-r, 36px) * -0.78))
+    rotate(calc(-1 * (var(--arc-start, -36deg) + var(--i, 0) * var(--arc-step, 18deg))))
+    rotate(calc(-1 * var(--ring-spin, 0rad)));
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.errl-metaball-link__label--flat {
+  font-family: 'Meltdown MF', 'Baloo 2', ui-rounded, system-ui, sans-serif;
+  font-size: clamp(11px, 3vw, 17px);
+  font-weight: 400;
+}
+
+@media (max-width: 480px) {
+  .errl-metaball-link__letter,
+  .errl-metaball-link__label--flat {
+    font-size: clamp(10px, 2.65vw, 14px);
+    letter-spacing: 0.03em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .errl-metaball-nav__links {
+    perspective: none;
+  }
+
+  .errl-metaball-link {
+    transform-style: flat;
+  }
+
+  .errl-metaball-link__orb {
+    transform: scale(calc(1 + var(--nav-orb-merge, 0.35) * 0.08));
+  }
 }
 
 .errl-metaball-link:hover .errl-metaball-link__orb,
@@ -249,6 +438,194 @@ body.errl-scene-3d-nav #riseBubbles {
     0 0 calc(48px * var(--nav-orb-glow, 1)) color-mix(in srgb, var(--nav-ball-color, #7ec8ff) 45%, transparent),
     inset 0 -5px 14px rgba(0, 0, 0, 0.45),
     inset 0 4px 10px rgba(255, 255, 255, 0.22);
+}
+
+body[data-errl-warp-stage='OUT'] .scene-layer,
+body[data-errl-warp-stage='OUT'] #errl-scene-root {
+  opacity: 0;
+  transition: opacity 0.22s ease-out;
+  pointer-events: none;
+}
+
+body.errl-warp-landing-arrival .scene-layer {
+  animation: errlWarpLandingArrive 0.55s ease-out both;
+}
+
+@keyframes errlWarpLandingArrive {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.errl-warp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 13;
+  pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  animation: errlWarpOverlayIn 0.26s ease-out both;
+}
+
+@keyframes errlWarpOverlayIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.errl-walking-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cfd0ff;
+}
+
+/* Uniform scale — limbs are laid out for a 220px box; never stretch the container alone. */
+.errl-walking-loader__scale {
+  transform: scale(min(2.65, calc(78vmin / 220px)));
+  transform-origin: center center;
+}
+
+.errl-walking-loader__figure {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  transform: translateY(-20px) scale(0.9);
+}
+
+.errl-walking-loader__head {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  left: 40%;
+  top: 20px;
+  transform-origin: 50% 70%;
+  translate: -72px 0;
+  z-index: 5;
+  animation: errlWalkHeadBob 1s infinite ease-in-out;
+}
+
+.errl-walking-loader__body {
+  position: absolute;
+  width: 150px;
+  height: 250px;
+  left: 48%;
+  top: 40px;
+  translate: -75px 0;
+  z-index: 4;
+  transform-origin: 50% 20%;
+  animation: errlWalkBodyBob 1s infinite ease-in-out;
+  animation-delay: 0.1s;
+}
+
+.errl-walking-loader__arm {
+  position: absolute;
+  width: 32px;
+  height: 180px;
+  top: 70px;
+  z-index: 3;
+  transform-origin: 10px 20px;
+  animation: errlWalkArmSwing 2s infinite ease-in-out;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.6));
+}
+
+.errl-walking-loader__arm svg,
+.errl-walking-loader__leg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.errl-walking-loader__arm--left {
+  left: 47px;
+  transform-origin: 10px 15px;
+  animation-delay: 1s;
+  height: 200px;
+}
+
+.errl-walking-loader__arm--right {
+  right: 50px;
+  transform-origin: 20px 20px;
+}
+
+.errl-walking-loader__leg {
+  position: absolute;
+  width: 42px;
+  height: 100px;
+  top: 142px;
+  z-index: 2;
+  transform-origin: 20px 15px;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.8));
+}
+
+.errl-walking-loader__leg--left {
+  left: 55px;
+  animation: errlWalkLegStepL 1s infinite ease-in;
+}
+
+.errl-walking-loader__leg--right {
+  right: 55px;
+  animation: errlWalkLegStepR 1s infinite ease-in;
+  animation-delay: 0.5s;
+}
+
+@keyframes errlWalkHeadBob {
+  0% { transform: translateY(0) rotate(3deg); }
+  25% { transform: translateY(2px) rotate(0deg); }
+  50% { transform: translateY(0) rotate(-3deg); }
+  75% { transform: translateY(4px) rotate(0deg); }
+  100% { transform: translateY(0) rotate(3deg); }
+}
+
+@keyframes errlWalkBodyBob {
+  0% { transform: translateY(0) rotate(1deg); }
+  25% { transform: translateY(3px) rotate(0deg); }
+  50% { transform: translateY(0) rotate(-1deg); }
+  75% { transform: translateY(3px) rotate(0deg); }
+  100% { transform: translateY(0) rotate(1deg); }
+}
+
+@keyframes errlWalkArmSwing {
+  0% { transform: rotate(20deg) translateY(0); }
+  25% { transform: rotate(0deg) translateY(-4px); }
+  50% { transform: rotate(-10deg) translateY(0); }
+  75% { transform: rotate(-20deg) translateY(2px); }
+  100% { transform: rotate(20deg) translateY(0); }
+}
+
+@keyframes errlWalkLegStepL {
+  0% { transform: rotate(-10deg) translate(0, 0); }
+  20% { transform: rotate(25deg) translate(10px, -12px); }
+  40% { transform: rotate(0deg) translate(5px, 0); }
+  60% { transform: rotate(-20deg) translate(-5px, 2px); }
+  100% { transform: rotate(-10deg) translate(0, 0); }
+}
+
+@keyframes errlWalkLegStepR {
+  0% { transform: rotate(10deg) translate(0, 0); }
+  20% { transform: rotate(-25deg) translate(-10px, -10px); }
+  40% { transform: rotate(0deg) translate(-5px, 0); }
+  60% { transform: rotate(20deg) translate(5px, 2px); }
+  100% { transform: rotate(10deg) translate(0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .errl-warp-overlay {
+    display: none;
+  }
 }
 
 body.errl-nav-mode-metaball #navOrbit,
@@ -321,25 +698,36 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
 .errl-metaball-link__label {
   opacity: 1 !important;
   animation: none !important;
-  font-size: clamp(8px, 2.2vw, 11px) !important;
-  font-weight: 700;
-  letter-spacing: 0.08em !important;
+  display: block;
+  width: 94%;
+  max-width: 94% !important;
+  text-align: center;
+  font-family: 'Meltdown MF', 'Baloo 2', ui-rounded, system-ui, sans-serif !important;
+  font-size: clamp(13px, calc(var(--nav-ball-diam, 72px) * 0.32), 22px) !important;
+  font-weight: 400;
+  letter-spacing: 0.02em !important;
   text-transform: uppercase;
-  max-width: none !important;
   overflow: visible !important;
   text-overflow: clip !important;
   white-space: nowrap !important;
-  color: rgba(255, 255, 255, 0.96) !important;
+  color: #fff !important;
+  -webkit-text-stroke: 0.55px rgba(0, 0, 0, 0.92);
+  paint-order: stroke fill;
   text-shadow:
-    0 0 6px rgba(0, 0, 0, 0.95),
-    0 0 12px rgba(0, 0, 0, 0.85),
-    0 0 18px rgba(120, 200, 255, 0.65);
+    0 0 1px rgba(0, 0, 0, 1),
+    0 0 4px rgba(0, 0, 0, 0.95),
+    0 1px 0 rgba(0, 0, 0, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.88),
+    0 0 14px rgba(0, 0, 0, 0.65);
 }
 
 @media (max-width: 480px) {
+  .errl-metaball-nav--flat .errl-metaball-link__label--flat,
   .errl-scene-3d-label .label {
-    font-size: clamp(7px, 2vw, 10px) !important;
-    letter-spacing: 0.06em !important;
+    width: 90%;
+    max-width: 90% !important;
+    font-size: clamp(12px, calc(var(--nav-ball-diam, 72px) * 0.28), 18px) !important;
+    letter-spacing: 0.015em !important;
   }
 }
 
@@ -357,4 +745,9 @@ body.errl-scene-3d-nav #navOrbitBehind .bubble {
   .errl-scroll-runway {
     display: none;
   }
+}
+
+body.errl-scroll-easter-egg #errl {
+  filter: drop-shadow(0 0 18px rgba(120, 220, 255, 0.55));
+  transition: filter 1.2s ease;
 }

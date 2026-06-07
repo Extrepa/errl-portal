@@ -7,6 +7,7 @@ import {
   unmountScrollNavDrive,
 } from './scrollBridge';
 import { ScrollDirector } from './ScrollDirector';
+import { applyScrollChapter } from './scrollChapters';
 
 type Props = {
   active: boolean;
@@ -48,7 +49,10 @@ export default function ScrollNavDrive({ active }: Props) {
 
     let director: ScrollDirector | null = null;
     if (useRunway) {
-      director = new ScrollDirector({ syncNavBus: true });
+      director = new ScrollDirector({
+        syncNavBus: true,
+        onProgress: (p) => applyScrollChapter(p),
+      });
       director.mount();
     }
 

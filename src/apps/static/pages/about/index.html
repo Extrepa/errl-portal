@@ -12,20 +12,29 @@
       --errl-drip-shadow: rgba(0, 0, 0, 0.6);
     }
     body.errl-about-bg {
-      background-color: var(--errl-bg);
-      background-image: var(--errl-bg-gradient);
-      background-repeat: no-repeat;
-      background-size: 120% 120%;
-      background-attachment: fixed;
+      background: none;
+      position: relative;
       color: var(--errl-text);
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Roboto", sans-serif;
       line-height: 1.55;
       letter-spacing: -0.02em;
       margin: 0;
-      min-height: 100vh;
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
+      overflow-x: clip;
+    }
+    body.errl-about-bg::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-color: var(--errl-bg);
+      background-image: var(--errl-bg-gradient);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
     }
     .about-shell { flex: 1; max-width: 76rem; margin: 0 auto; padding: 0 0 5rem; width: 100%; box-sizing: border-box; }
     .about-hero { min-height: min(72vh, 100%); padding: 2rem 1.5rem 3rem; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
@@ -61,7 +70,7 @@
 <body class="errl-about-bg">
   <header class="errl-header">
     <div class="errl-header-content">
-      <a class="errl-home-btn" href="/"><span class="chevron">◀</span><span>Back to Portal</span></a>
+      <a class="errl-home-btn" href="/"><span class="chevron">◀</span><span>Portal</span></a>
             <nav class="errl-nav" aria-label="Portal sections">
         <a class="errl-bubble-btn" href="https://forum.errl.wtf">Forum</a>
         <a class="errl-bubble-btn active" href="/about/" data-portal-link="about/" aria-current="page">About</a>

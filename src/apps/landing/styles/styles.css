@@ -862,8 +862,8 @@ body.perf-safe *::after {
   bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   right: calc(10px + env(safe-area-inset-right, 0px));
   top: auto;
-  width: calc(180px * var(--panel-scale) * var(--phone-user-scale, 1));
-  height: calc(280px * var(--panel-scale) * var(--phone-user-scale, 1));
+  width: calc(200px * var(--panel-scale) * var(--phone-user-scale, 1));
+  height: calc(320px * var(--panel-scale) * var(--phone-user-scale, 1));
   overflow: hidden; /* let content wrapper handle scrolling */
   background: var(--errl-panel-gradient);
   scrollbar-width: thin; /* Firefox */
@@ -883,6 +883,10 @@ body.perf-safe *::after {
   display: flex;
   flex-direction: column;
   filter: none; /* Ensure sharp rendering, no blur */
+}
+body.errl-phone-unlocked .errl-panel:not(.minimized) {
+  z-index: 30;
+  pointer-events: auto;
 }
 /* Caps scale with --phone-user-scale so the HUD size slider has room to grow (still bounded by viewport). */
 .errl-panel:not(.minimized) {
@@ -905,10 +909,10 @@ body.perf-safe *::after {
 .errl-panel .panel-minimized-label {
   display: none;
 }
-/* Minimize to a small floating icon - dock bottom-left (away from nav orbit) */
+/* Minimize to a small floating icon - dock bottom-right */
 .errl-panel.minimized {
-  left: calc(10px + env(safe-area-inset-left, 0px)) !important;
-  right: auto !important;
+  left: auto !important;
+  right: calc(10px + env(safe-area-inset-right, 0px)) !important;
   top: auto !important;
   bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
   z-index: 16;
@@ -976,71 +980,6 @@ body.perf-safe *::after {
     0 0 1px rgba(0, 0, 0, 0.9);
   pointer-events: none;
   text-align: center;
-}
-/* First-visit nudge: points users at the minimize affordance (see portal-app) */
-.errl-phone-cta-hint {
-  position: fixed;
-  z-index: 16;
-  left: calc(10px + env(safe-area-inset-left, 0));
-  right: auto;
-  bottom: calc(78px + env(safe-area-inset-bottom, 0));
-  max-width: min(240px, 88vw);
-  pointer-events: auto;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: linear-gradient(145deg, rgba(20, 12, 32, 0.94), rgba(10, 8, 20, 0.92));
-  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.45);
-  box-shadow: 0 0 20px rgba(var(--errl-neon-purple-rgb), 0.45);
-  font-size: 11px;
-  line-height: 1.35;
-  color: var(--errl-text);
-  animation: errlPhoneCtaIn 0.5s ease-out;
-}
-body.reduced-motion .errl-phone-cta-hint {
-  animation: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .errl-phone-cta-hint {
-    animation: none;
-  }
-}
-.errl-phone-cta-hint__text {
-  margin: 0 0 8px 0;
-  opacity: 0.95;
-}
-.errl-phone-cta-hint__text strong {
-  color: rgba(var(--errl-neon-cyan-rgb), 0.98);
-  font-weight: 600;
-}
-.errl-phone-cta-hint__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-.errl-phone-cta-hint__btn {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  background: var(--errl-surface);
-  color: var(--errl-text);
-  border: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.5);
-}
-.errl-phone-cta-hint__btn:hover,
-.errl-phone-cta-hint__btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--errl-neon-cyan-rgb), 0.35);
-}
-@keyframes errlPhoneCtaIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 .errl-panel.minimized .panel-header,
 .errl-panel.minimized .panel-tabs,
@@ -1223,11 +1162,11 @@ body.reduced-motion .errl-panel.minimized::after {
 /* Tabs at top - Errl Club style */
 .panel-tabs{ 
   display: grid !important;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   width: 100%; 
   height: auto;
-  min-height: calc(80px * var(--panel-scale));
+  min-height: calc(56px * var(--panel-scale));
   border-bottom: 1px solid rgba(var(--errl-neon-cyan-rgb), 0.3);
   background: rgba(var(--errl-bg-rgb), 0.5);
   padding: calc(4px * var(--panel-scale)) calc(2px * var(--panel-scale));
@@ -1243,7 +1182,7 @@ body.reduced-motion .errl-panel.minimized::after {
   padding: calc(1px * var(--panel-scale)) calc(1px * var(--panel-scale)); 
   font-size: 0; 
   cursor: pointer; 
-  min-height: calc(26px * var(--panel-scale)) !important;
+  min-height: calc(22px * var(--panel-scale)) !important;
   height: auto !important;
   max-height: none !important;
   width: auto !important;
@@ -1280,15 +1219,15 @@ body.reduced-motion .errl-panel.minimized::after {
   transform: none;
   display: block;
   width: 100%;
-  font-size: calc(7px * var(--panel-scale));
+  font-size: calc(8.5px * var(--panel-scale));
   text-transform: uppercase;
   opacity: 0.8;
   text-align: center;
   z-index: 2;
   color: var(--errl-text);
-  line-height: 1.15;
+  line-height: 1.1;
   font-weight: 500;
-  white-space: normal;
+  white-space: nowrap;
   pointer-events: none;
 }
 .panel-tabs .tab .tab__line {
@@ -1503,6 +1442,9 @@ body.reduced-motion .errl-panel.minimized::after {
   overflow-x: hidden;
   padding: calc(10px * var(--panel-scale)) 0;
   min-height: 0;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .panel-section {
@@ -1757,12 +1699,13 @@ body.reduced-motion .errl-panel.minimized::after {
   }
 }
 
-/* Ensure minimized state is never scaled */
+/* Ensure minimized state is never scaled; stay bottom-right (matches dock above) */
 .errl-panel.minimized {
   --panel-scale: 1;
   --phone-user-scale: 1;
-  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  left: auto !important;
   right: calc(10px + env(safe-area-inset-right, 0px)) !important;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
 }
 @media (max-width: 520px) {
   /* Let base width/height calc(...) drive size; constrain with scaled max-* so --phone-user-scale works (no fixed width/height override). */

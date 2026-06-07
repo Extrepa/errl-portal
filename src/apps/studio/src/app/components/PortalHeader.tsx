@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+// @ts-expect-error — shared scroll helper ships as .mjs
+import { bindHeaderScroll } from '../../../../../shared/scripts/portal-header-scroll.mjs';
 import { resolvePortalPageUrl } from '../utils/portalPaths';
 import './portal-header.css';
 
@@ -64,14 +66,16 @@ export default function PortalHeader({ activeKey }: PortalHeaderProps) {
   ];
   const visibleNavItems = navItems;
 
+  useEffect(() => bindHeaderScroll(), []);
+
   return (
     <header className="errl-header">
       <div className="errl-header-content">
-        <a className="errl-home-btn" href={portalHome}>
+        <a className="errl-home-btn" href={portalHome} aria-label="Back to portal">
           <span className="chevron" aria-hidden>
             ←
           </span>
-          Back to Portal
+          <span className="errl-home-btn__label">Portal</span>
         </a>
 
         <nav className="errl-nav" aria-label="Errl primary">

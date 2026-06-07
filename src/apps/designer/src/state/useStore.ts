@@ -1106,3 +1106,7 @@ export const useStore = create<ProjectStore>()(
     { name: 'ProjectStore' }
   )
 );
+
+if (typeof window !== 'undefined') {
+  (window as any).errlDesignerStore = useStore;
+}

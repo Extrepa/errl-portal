@@ -63,6 +63,13 @@
   body.classList.remove('errl-nav-mode-dom', 'errl-nav-mode-metaball', 'errl-scene-3d-nav');
   if (navMode === 'metaball') {
     body.classList.add('errl-nav-mode-metaball', 'errl-scene-3d-nav');
+    try {
+      const style = document.createElement('style');
+      style.id = 'errl-boot-hide-legacy-nav';
+      style.textContent =
+        '#navOrbit,#navOrbitBehind,.nav-orbit .bubble{visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
+      document.head.appendChild(style);
+    } catch (_) {}
   } else {
     body.classList.add('errl-nav-mode-dom');
   }
@@ -71,6 +78,20 @@
   body.classList.add(entered ? 'errl-scene-main' : 'errl-scene-arrival');
 
   body.classList.add('errl-boot-ready');
+
+  try {
+    if (sessionStorage.getItem('errl_warp_handoff') === '1') {
+      sessionStorage.removeItem('errl_warp_handoff');
+      body.classList.add('errl-warp-landing-arrival');
+      const boost = () => {
+        try {
+          window.errlBgParticlesBoost?.({ amount: 1.1, durationMs: 1400 });
+        } catch (_) {}
+      };
+      if (typeof window.errlBgParticlesBoost === 'function') boost();
+      else window.addEventListener('load', boost, { once: true });
+    }
+  } catch (_) {}
 
   window.__errlBootShell = {
     dev: dev,

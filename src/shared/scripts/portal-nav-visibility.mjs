@@ -1,3 +1,6 @@
+import './warp-portal-nav.mjs';
+import { bindHeaderScroll } from './portal-header-scroll.mjs';
+
 /**
  * Syncs Design nav visibility with localStorage (errl_portal_show_design_nav).
  * Same key as the Errl Phone "Show Design in navigation" toggle on the landing page.
@@ -120,7 +123,17 @@ function bindForumWarning() {
   });
 }
 
+function enhanceHomeButton() {
+  document.querySelectorAll('.errl-home-btn').forEach((btn) => {
+    if (!btn.getAttribute('aria-label')) {
+      btn.setAttribute('aria-label', 'Back to portal');
+    }
+  });
+}
+
 apply();
+enhanceHomeButton();
+bindHeaderScroll();
 bindForumWarning();
 
 window.addEventListener('storage', (e) => {

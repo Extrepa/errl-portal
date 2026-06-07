@@ -2,9 +2,41 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve, dirname, dirname as pathDirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { cpSync, existsSync, mkdirSync, rmSync, renameSync, readdirSync, statSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, renameSync, readdirSync, statSync } from 'node:fs';
+import { extname } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const LEGACY_ASSET_MIME: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+};
+
+const legacyGalleryAssetsPlugin = () => ({
+  name: 'legacy-gallery-assets',
+  configureServer(server: import('vite').ViteDevServer) {
+    const legacyRoot = resolve(process.cwd(), 'src/shared/assets/legacy');
+    server.middlewares.use((req, res, next) => {
+      const url = req.url?.split('?')[0] ?? '';
+      if (!url.startsWith('/assets/legacy/')) return next();
+      const rel = decodeURIComponent(url.slice('/assets/legacy/'.length));
+      const filePath = resolve(legacyRoot, rel);
+      if (!filePath.startsWith(legacyRoot) || !existsSync(filePath) || !statSync(filePath).isFile()) {
+        return next();
+      }
+      try {
+        const ext = extname(filePath).toLowerCase();
+        res.setHeader('Content-Type', LEGACY_ASSET_MIME[ext] ?? 'application/octet-stream');
+        res.end(readFileSync(filePath));
+      } catch {
+        next();
+      }
+    });
+  },
+});
 
 const portalPagesRewritePlugin = () => ({
   name: 'errl-portal-pages-rewrite',
@@ -13,6 +45,11 @@ const portalPagesRewritePlugin = () => ({
     // e.g., /about/ -> /apps/static/pages/about/
     server.middlewares.use((req, res, next) => {
       if (req.url && req.method === 'GET') {
+        const pathOnly = req.url.split('?')[0] ?? '';
+        // Gallery images live under src/shared/assets/legacy (handled by legacyGalleryAssetsPlugin)
+        if (pathOnly.startsWith('/assets/legacy/')) {
+          return next();
+        }
         // Rewrite root-level portal pages to source location
         // Match paths like /about/, /gallery/, /assets/errl-head-coin/, etc.
         if (req.url.match(/^\/(about|gallery|assets|games|studio|design|pin-designer|pin-designer-face-only|fx)(\/|$)/)) {
@@ -346,6 +383,7 @@ export default defineConfig(({ command }) => ({
   publicDir: resolve(__dirname, 'public'),
   plugins: [
     react(),
+    legacyGalleryAssetsPlugin(),
     portalPagesRewritePlugin(), 
     copyShapeMadnessContentPlugin(),
     copyUnityGamesPlugin(),

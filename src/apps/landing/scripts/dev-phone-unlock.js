@@ -5,6 +5,7 @@
 (function errlDevPhoneUnlock() {
   const DEV_KEY = 'errl_dev_unlock_v1';
   const LONG_PRESS_MS = 2000;
+  const MOVE_CANCEL_PX = 12;
 
   function isDevUrl() {
     try {
@@ -22,59 +23,82 @@
     }
   }
 
+  function isMainScene() {
+    return document.body && document.body.classList.contains('errl-scene-main');
+  }
+
+  function isNavBubbleTarget(target) {
+    if (!(target instanceof Element)) return false;
+    return !!target.closest('.errl-metaball-link, #navOrbit .bubble, #navOrbitBehind .bubble');
+  }
+
+  function pointInErrl(clientX, clientY) {
+    const errl = document.getElementById('errl');
+    if (!errl) return false;
+    const r = errl.getBoundingClientRect();
+    return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
+  }
+
   function unlock() {
     try {
       localStorage.setItem(DEV_KEY, 'true');
     } catch (_) {}
     document.body.classList.remove('errl-phone-hidden');
     document.body.classList.add('errl-phone-unlocked');
-    hideUnlockHint();
+    const errl = document.getElementById('errl');
+    if (errl) errl.classList.remove('errl-long-press-active');
     window.dispatchEvent(new CustomEvent('errl:dev-phone-unlocked'));
   }
 
-  function showUnlockHint() {
-    const hint = document.getElementById('errlPhoneCtaHint');
-    if (!hint || isUnlocked()) return;
-    let dismissed = false;
-    try {
-      dismissed = localStorage.getItem('errl_phone_cta_dismissed_v1') === '1';
-    } catch (_) {}
-    if (dismissed) return;
-    hint.hidden = false;
-  }
-
-  function hideUnlockHint() {
-    const hint = document.getElementById('errlPhoneCtaHint');
-    if (hint) hint.hidden = true;
-  }
-
-  if (isUnlocked()) {
-    hideUnlockHint();
-  } else {
-    showUnlockHint();
-  }
-
   function bindErrlLongPress() {
-    const errl = document.getElementById('errl');
-    if (!errl || errl.dataset.devUnlockBound === '1') return;
-    errl.dataset.devUnlockBound = '1';
+    if (document.documentElement.dataset.devUnlockBound === '1') return;
+    document.documentElement.dataset.devUnlockBound = '1';
+
     let timer = null;
+    let startX = 0;
+    let startY = 0;
+
     const clear = () => {
       if (timer) {
         clearTimeout(timer);
         timer = null;
       }
+      const errl = document.getElementById('errl');
+      if (errl) errl.classList.remove('errl-long-press-active');
     };
-    errl.addEventListener('pointerdown', () => {
-      if (isUnlocked()) return;
-      clear();
-      timer = setTimeout(() => {
-        timer = null;
-        unlock();
-      }, LONG_PRESS_MS);
-    });
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => {
-      errl.addEventListener(ev, clear);
+
+    document.addEventListener(
+      'pointerdown',
+      (ev) => {
+        if (isUnlocked() || !isMainScene()) return;
+        if (isNavBubbleTarget(ev.target)) return;
+        if (!pointInErrl(ev.clientX, ev.clientY)) return;
+        clear();
+        startX = ev.clientX;
+        startY = ev.clientY;
+        const errl = document.getElementById('errl');
+        if (errl) errl.classList.add('errl-long-press-active');
+        timer = setTimeout(() => {
+          timer = null;
+          unlock();
+        }, LONG_PRESS_MS);
+      },
+      { capture: true },
+    );
+
+    document.addEventListener(
+      'pointermove',
+      (ev) => {
+        if (!timer) return;
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        if (Math.hypot(dx, dy) > MOVE_CANCEL_PX) clear();
+      },
+      { capture: true },
+    );
+
+    ['pointerup', 'pointercancel'].forEach((evName) => {
+      document.addEventListener(evName, clear, { capture: true });
     });
   }
 

@@ -26,15 +26,19 @@ export class ScrollDirector {
       content: this.options.content,
       smoothWheel: true,
       lerp: 0.08,
+      prevent: (node) => {
+        if (!(node instanceof Element)) return false;
+        return !!node.closest('#errlPanel');
+      },
     });
     this.lenis.on('scroll', () => {
       const limit = this.lenis?.limit ?? 1;
       const scroll = this.lenis?.scroll ?? 0;
       this.progress = limit > 0 ? scroll / limit : 0;
-      this.options.onProgress?.(this.progress);
       if (this.options.syncNavBus) {
         setScrollProgress(this.progress, 0);
       }
+      this.options.onProgress?.(this.progress);
     });
     const raf = (time: number) => {
       this.lenis?.raf(time);

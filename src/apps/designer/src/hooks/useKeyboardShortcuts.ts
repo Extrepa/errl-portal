@@ -9,13 +9,36 @@ import { useKeyboardShortcutsSimple } from '@shared/hooks';
  * - Standard commands: Uses shared hook for undo/redo/delete/deselect
  */
 export const useKeyboardShortcuts = () => {
-  const { mode, setMode, clearSelection, undo, redo, canUndo, canRedo, setActiveTool } = useStore();
+  const {
+    mode,
+    setMode,
+    clearSelection,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    setActiveTool,
+    selection,
+    removeSceneObject,
+  } = useStore();
 
   // Use shared hook for basic operations (undo/redo/delete/deselect)
   useKeyboardShortcutsSimple({
     onUndo: canUndo() ? undo : undefined,
     onRedo: canRedo() ? redo : undefined,
-    onDelete: undefined, // Delete handled by project-specific logic if needed
+    onDelete: () => {
+      if (selection.layerId) {
+        if (selection.sceneObjectId) {
+          removeSceneObject(selection.layerId, selection.sceneObjectId);
+          clearSelection();
+        } else if (selection.selectedObjectIds && selection.selectedObjectIds.length > 0) {
+          selection.selectedObjectIds.forEach((id) => {
+            removeSceneObject(selection.layerId!, id);
+          });
+          clearSelection();
+        }
+      }
+    },
     onDeselect: () => {
       clearSelection();
       setActiveTool(null);

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import MetaballNavLinks from './MetaballNavLinks';
+import { NavPhysicsProvider } from './NavPhysicsContext';
 import { applyNavRenderModeToDocument } from '../navRenderMode';
 
 type Props = {
@@ -15,5 +16,9 @@ export default function NavSculptures({ showPost = true }: Props) {
   }, []);
 
   void showPost;
-  return <MetaballNavLinks />;
+  return (
+    <NavPhysicsProvider>
+      <MetaballNavLinks flatLabels />
+    </NavPhysicsProvider>
+  );
 }

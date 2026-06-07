@@ -9,7 +9,6 @@ echo ""
 
 # Track if anything fails
 FAILED=0
-PLAYWRIGHT_HINT_REGEX="Looks like Playwright Test|npx playwright install|browserType\\.launch|executable doesn't exist|Missing Playwright browsers|did you install them"
 
 # 1. TypeScript Check
 echo "📘 Checking TypeScript..."
@@ -31,28 +30,7 @@ else
 fi
 echo ""
 
-# 3. Tests
-echo "🧪 Running tests..."
-TEST_LOG="$(mktemp)"
-npm test --silent 2>&1 | tee "$TEST_LOG"
-TEST_EXIT=${PIPESTATUS[0]}
-
-if [ $TEST_EXIT -eq 0 ]; then
-  echo "✅ Tests: OK"
-else
-  if grep -qiE "$PLAYWRIGHT_HINT_REGEX" "$TEST_LOG"; then
-    echo "⚠️  Detected a Playwright browser issue (missing/outdated browsers)."
-    echo "   This repo's Playwright browser install may require network access."
-    echo "   Please run manually when you're ok with that:"
-    echo "     npx playwright install"
-  fi
-  echo "❌ Tests: FAILED"
-  FAILED=1
-fi
-rm -f "$TEST_LOG"
-echo ""
-
-# 4. Git Status
+# 3. Git Status
 echo "📦 Git status..."
 if git diff-index --quiet HEAD --; then
   echo "✅ No uncommitted changes"

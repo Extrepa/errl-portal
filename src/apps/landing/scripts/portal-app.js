@@ -161,6 +161,7 @@
     inputs.forEach((el) => {
       if (!el || !el.id) return;
       if (el.tagName === 'INPUT' && el.type === 'button') return;
+      if (el.id.startsWith('scene')) return;
       if (el.type === 'checkbox') ui[el.id] = !!el.checked;
       else ui[el.id] = el.value;
     });
@@ -3133,52 +3134,18 @@
   (function phoneUI(){
     const panel = document.getElementById('errlPanel');
     if (!panel) return;
-    const ctaHint = document.getElementById('errlPhoneCtaHint');
-    const ctaDismiss = document.getElementById('errlPhoneCtaDismiss');
-    const CTA_HINT_KEY = 'errl_phone_cta_dismissed_v1';
-    function phoneCtaReducedMotion() {
-      try {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
-      } catch (_) {}
-      return document.body && document.body.classList.contains('reduced-motion');
-    }
-    function dismissPhoneCta() {
-      if (ctaHint) ctaHint.hidden = true;
-      try { localStorage.setItem(CTA_HINT_KEY, '1'); } catch (_) {}
-    }
-    function maybeShowPhoneCta() {
-      if (!ctaHint) return;
-      if (document.body.classList.contains('errl-phone-unlocked')) return;
-      try {
-        if (new URLSearchParams(window.location.search).get('dev') === '1') return;
-      } catch (_) {}
-      if (!document.body.classList.contains('errl-phone-hidden')) {
-        if (!panel.classList.contains('minimized')) return;
-      }
-      if (phoneCtaReducedMotion()) return;
-      let dismissed = false;
-      try { dismissed = localStorage.getItem(CTA_HINT_KEY) === '1'; } catch (_) {}
-      if (dismissed) return;
-      ctaHint.hidden = false;
-    }
-    if (ctaDismiss) {
-      ctaDismiss.addEventListener('click', (e) => { e.stopPropagation(); dismissPhoneCta(); });
-    }
-    if (ctaHint) {
-      ctaHint.addEventListener('click', (e) => e.stopPropagation());
-    }
-    setTimeout(() => { maybeShowPhoneCta(); }, 500);
-    
-    // Initialize: ALWAYS start minimized and docked in the bottom-left corner (clear of nav orbit).
+    // Initialize: ALWAYS start minimized and docked in the bottom-right corner.
     // Clear stale inline position/scale from previous sessions before first paint.
     try { localStorage.removeItem('errl_phone_min'); } catch(_) {}
     panel.classList.remove('expanded');
     panel.classList.add('minimized');
     panel.setAttribute('aria-expanded', 'false');
+    panel.setAttribute('role', 'button');
+    panel.setAttribute('tabindex', '0');
     panel.style.removeProperty('--phone-user-scale');
-    panel.style.left = 'calc(10px + env(safe-area-inset-left, 0px))';
+    panel.style.left = 'auto';
     panel.style.top = 'auto';
-    panel.style.right = 'auto';
+    panel.style.right = 'calc(10px + env(safe-area-inset-right, 0px))';
     panel.style.bottom = 'calc(10px + env(safe-area-inset-bottom, 0px))';
     
     const header = document.getElementById('errlPhoneHeader');
@@ -3216,6 +3183,31 @@
       const n = parseFloat(t);
       if (!Number.isFinite(n)) return '1';
       return String(clamp(n, PHONE_SCALE_MIN, PHONE_SCALE_MAX));
+    }
+
+    function computeDefaultPhoneScale() {
+      const vw = window.innerWidth || document.documentElement.clientWidth || 1200;
+      const vh = window.innerHeight || document.documentElement.clientHeight || 800;
+      const baseW = 200;
+      const baseH = 320;
+      const byW = (vw * 0.42) / baseW;
+      const byH = (vh * 0.52) / baseH;
+      let s = Math.min(byW, byH);
+      s = clamp(s, 1, 1.35);
+      if (vw < 768) s = Math.min(s, 1.15);
+      return String(clamp(s, PHONE_SCALE_MIN, PHONE_SCALE_MAX));
+    }
+
+    function applyDefaultPhoneScaleIfNeeded() {
+      if (!sizeInput || !panel || panel.classList.contains('minimized')) return;
+      try {
+        const b = getBundle();
+        if (b && b.ui && b.ui.errlPhonePanelSize !== undefined && b.ui.errlPhonePanelSize !== '') return;
+        if (localStorage.getItem(PHONE_SIZE_KEY) != null) return;
+      } catch (_) {}
+      const def = computeDefaultPhoneScale();
+      sizeInput.value = def;
+      syncPhoneUserScale();
     }
 
     function syncPhoneUserScale() {
@@ -3290,11 +3282,11 @@
       localStorage.removeItem(POS_KEY);
     } catch (_) {}
 
-    function lockPanelToCorner() {
+    function lockPanelToBottomRight() {
       panel.classList.remove('expanded');
-      panel.style.left = 'calc(10px + env(safe-area-inset-left, 0px))';
+      panel.style.left = 'auto';
       panel.style.top = 'auto';
-      panel.style.right = 'auto';
+      panel.style.right = 'calc(10px + env(safe-area-inset-right, 0px))';
       panel.style.bottom = 'calc(10px + env(safe-area-inset-bottom, 0px))';
     }
 
@@ -3330,7 +3322,7 @@
       if (!expanded) {
         // Back to docked behavior.
         try { localStorage.setItem(EXPANDED_KEY, '0'); } catch(_) {}
-        lockPanelToCorner();
+        lockPanelToBottomRight();
         return;
       }
       try { localStorage.setItem(EXPANDED_KEY, '1'); } catch(_) {}
@@ -3493,7 +3485,7 @@
         sizeInput.value = '1';
         syncPhoneUserScale();
       }
-      lockPanelToCorner();
+      lockPanelToBottomRight();
       if (reloadOnFailure) {
         window.location.reload();
         return true;
@@ -3544,9 +3536,11 @@
       try { localStorage.setItem(EXPANDED_KEY, '0'); } catch(_) {}
       panel.classList.add('minimized');
       panel.setAttribute('aria-expanded', 'false');
+      panel.setAttribute('role', 'button');
+      panel.setAttribute('tabindex', '0');
       try { panel.style.removeProperty('--phone-user-scale'); } catch (_) {}
       clearMinimizedInlineStyles();
-      lockPanelToCorner();
+      lockPanelToBottomRight();
       if (toTop) toTop.style.display = 'none';
       try { localStorage.setItem('errl_phone_min', '1'); } catch(_) {}
       try { window.dispatchEvent(new CustomEvent('errl:score-hud-sync')); } catch (_) {}
@@ -3554,11 +3548,13 @@
 
     // Helper function to restore the panel
     function restorePanel() {
-      dismissPhoneCta();
       panel.classList.remove('minimized');
       panel.setAttribute('aria-expanded', 'true');
+      panel.removeAttribute('role');
+      panel.removeAttribute('tabindex');
       clearMinimizedInlineStyles();
-      if (!expanded) lockPanelToCorner();
+      applyDefaultPhoneScaleIfNeeded();
+      if (!expanded) lockPanelToBottomRight();
       // Show content again (CSS handles layout)
       const headerEl = panel.querySelector('.panel-header');
       const tabsEl = panel.querySelector('.panel-tabs');
@@ -3571,7 +3567,7 @@
         activateTab(curTab);
         syncPhoneUserScale();
         recoverCorruptedPanelSize(false);
-        if (!expanded) lockPanelToCorner();
+        if (!expanded) lockPanelToBottomRight();
       }, 0);
       try { localStorage.setItem('errl_phone_min', '0'); } catch(_) {}
       try { window.dispatchEvent(new CustomEvent('errl:score-hud-sync')); } catch (_) {}
@@ -3613,10 +3609,21 @@
       });
     }
     // restore from minimized when interacting with the bubble
-    panel.addEventListener('click', (e)=>{
+    function openMinimizedPanel(e) {
       if (!panel.classList.contains('minimized')) return;
-      const target = e.target && e.target.closest ? e.target.closest('#errlPanel') : null;
-      if (target === panel) restorePanel();
+      if (!document.body.classList.contains('errl-phone-unlocked')) return;
+      const hit = e.target && e.target.closest ? e.target.closest('#errlPanel') : null;
+      if (!hit) return;
+      e.preventDefault();
+      e.stopPropagation();
+      restorePanel();
+    }
+    panel.addEventListener('click', openMinimizedPanel);
+    panel.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openMinimizedPanel(e);
+      }
     });
 
     // Keep the main phone panel locked to the corner.
@@ -3627,7 +3634,7 @@
       try { localStorage.setItem(EXPANDED_KEY, '0'); } catch(_) {}
     }
     applyExpandedState();
-    if (!expanded) lockPanelToCorner();
+    if (!expanded) lockPanelToBottomRight();
     function selfHealPhoneIfTiny() {
       if (panel.classList.contains('minimized')) return;
       const r = panel.getBoundingClientRect();
@@ -3653,7 +3660,7 @@
       expanded = false;
       try { localStorage.setItem(EXPANDED_KEY, '0'); } catch (_) {}
       applyExpandedState();
-      lockPanelToCorner();
+      lockPanelToBottomRight();
     }
     function syncCoarsePointerClass() {
       try {
@@ -3667,10 +3674,10 @@
     window.addEventListener('resize', () => {
       syncCoarsePointerClass();
       if (expanded) enforcePanelInViewport(10);
-      else lockPanelToCorner();
+      else lockPanelToBottomRight();
     });
     requestAnimationFrame(() => {
-      if (panel.classList.contains('minimized') || !expanded) lockPanelToCorner();
+      if (panel.classList.contains('minimized') || !expanded) lockPanelToBottomRight();
       selfHealPhoneIfTiny();
     });
     setTimeout(selfHealPhoneIfTiny, 500);
@@ -3725,6 +3732,17 @@
     }
 
     // scroll-to-top button - use content wrapper for scrolling
+    function isolatePanelScroll(el) {
+      if (!el) return;
+      const stop = (e) => {
+        e.stopPropagation();
+      };
+      el.addEventListener('wheel', stop, { passive: false, capture: true });
+      el.addEventListener('touchmove', stop, { passive: false, capture: true });
+    }
+    isolatePanelScroll(panel);
+    isolatePanelScroll(contentWrapper);
+
     if (contentWrapper) {
       contentWrapper.addEventListener('scroll', ()=>{
         if (!toTop) return;
@@ -3973,139 +3991,7 @@
   })();
 
   (function errlSettingsChromeAndResets(){
-    const SCORE_STATE_KEY = 'errl_rb_score_state_v3';
-    const LEGACY_MODE_KEY = 'errl_rb_mode_scores_v2';
-    const LEGACY_HI_KEY = 'errl_rb_mode_high_v2';
-    const LEGACY_COLLECT_HI = 'errl_rb_collect_high_v1';
-    const SCORE_MODES = ['classic', 'pop', 'collect'];
-    function nowMs() {
-      return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-    }
-    function emptyBuckets() {
-      return { classic: 0, pop: 0, collect: 0, total: 0 };
-    }
-    function makeDefaultScoreState() {
-      return {
-        version: 3,
-        lifetime: emptyBuckets(),
-        session: emptyBuckets(),
-        high: { classic: 0, pop: 0, collect: 0 },
-        meta: { classicComboCount: 0, classicComboAt: 0, popCadence: 0, collectStreak: 0, collectLastAt: 0 }
-      };
-    }
-    function normalizeBuckets(obj) {
-      const src = obj || {};
-      return {
-        classic: Math.max(0, src.classic | 0),
-        pop: Math.max(0, src.pop | 0),
-        collect: Math.max(0, src.collect | 0),
-        total: 0,
-      };
-    }
-    function normalizeHigh(obj) {
-      const src = obj || {};
-      return {
-        classic: Math.max(0, src.classic | 0),
-        pop: Math.max(0, src.pop | 0),
-        collect: Math.max(0, src.collect | 0),
-      };
-    }
-    function recomputeTotals(state) {
-      state.session.total = Math.max(0, (state.session.classic | 0) + (state.session.pop | 0) + (state.session.collect | 0));
-      state.lifetime.total = Math.max(0, (state.lifetime.classic | 0) + (state.lifetime.pop | 0) + (state.lifetime.collect | 0));
-      return state;
-    }
-    function migrateScoreState(raw) {
-      if (raw && raw.version === 3) {
-        const state = makeDefaultScoreState();
-        state.lifetime = normalizeBuckets(raw.lifetime);
-        state.session = normalizeBuckets(raw.session);
-        state.high = normalizeHigh(raw.high);
-        state.meta = { ...state.meta, ...(raw.meta || {}) };
-        return recomputeTotals(state);
-      }
-      const state = makeDefaultScoreState();
-      try {
-        const legacyMode = JSON.parse(localStorage.getItem(LEGACY_MODE_KEY) || '{}');
-        const legacyHigh = JSON.parse(localStorage.getItem(LEGACY_HI_KEY) || '{}');
-        const legacyCollectHi = parseInt(localStorage.getItem(LEGACY_COLLECT_HI) || '0', 10) || 0;
-        state.lifetime = normalizeBuckets(legacyMode);
-        state.session = normalizeBuckets(legacyMode);
-        state.high = normalizeHigh({ ...legacyHigh, collect: Math.max(legacyCollectHi, legacyHigh.collect || 0) });
-      } catch (_) {}
-      return recomputeTotals(state);
-    }
-    function createScoreStore() {
-      return {
-        loadScores() {
-          try {
-            const raw = localStorage.getItem(SCORE_STATE_KEY);
-            return migrateScoreState(raw ? JSON.parse(raw) : null);
-          } catch (_) {
-            return migrateScoreState(null);
-          }
-        },
-        saveScores(snapshot) {
-          try { localStorage.setItem(SCORE_STATE_KEY, JSON.stringify(snapshot)); } catch (_) {}
-        }
-      };
-    }
-    const scoreStore = createScoreStore();
-    let scoreState = scoreStore.loadScores();
-    let rbScoreHudUnlocked = false;
-    let persistTimer = null;
-    function scheduleScorePersist() {
-      if (persistTimer) clearTimeout(persistTimer);
-      persistTimer = setTimeout(() => {
-        persistTimer = null;
-        scoreStore.saveScores(scoreState);
-      }, 120);
-    }
-    function clampScoreMode(mode) {
-      return SCORE_MODES.includes(mode) ? mode : 'classic';
-    }
-    function getCurrentMode() {
-      const m = document.getElementById('rbInteractionMode');
-      return clampScoreMode((m && m.value) || 'classic');
-    }
-    function errlPhoneExpandedForScoreHud() {
-      const el = document.getElementById('errlPanel');
-      return el && !el.classList.contains('minimized');
-    }
-    function renderScoreHud() {}
-    function applyScoreEvent(payload) {
-      const mode = clampScoreMode(payload.mode);
-      const base = Math.max(0, Number(payload.basePoints || payload.pointsAwarded || 0));
-      const multiplier = Math.max(0, Number(payload.multiplier || 1));
-      const pointsAwarded = Math.max(0, Math.round(base * multiplier));
-      if (!pointsAwarded) return;
-      rbScoreHudUnlocked = true;
-      scoreState.session[mode] = Math.max(0, (scoreState.session[mode] | 0) + pointsAwarded);
-      scoreState.lifetime[mode] = Math.max(0, (scoreState.lifetime[mode] | 0) + pointsAwarded);
-      if ((scoreState.session[mode] | 0) > (scoreState.high[mode] | 0)) {
-        scoreState.high[mode] = scoreState.session[mode] | 0;
-      }
-      recomputeTotals(scoreState);
-      scheduleScorePersist();
-      renderScoreHud();
-      try {
-        window.dispatchEvent(new CustomEvent('errl:rb-score-event', {
-          detail: {
-            mode,
-            eventType: String(payload.eventType || 'score'),
-            pointsAwarded,
-            multiplier,
-            runningModeScore: scoreState.session[mode] | 0,
-            runningTotalScore: scoreState.lifetime.total | 0,
-            streakOrCombo: {
-              classicCombo: scoreState.meta.classicComboCount | 0,
-              popCadence: scoreState.meta.popCadence | 0,
-              collectStreak: scoreState.meta.collectStreak | 0,
-            }
-          }
-        }));
-      } catch (_) {}
-    }
+    /* Score HUD / reducer removed — ambient RB default (see cinematic redesign) */
     function applyCustomBaseFromBundle() {
       const u = (getBundle().ui) || {};
       const url = u.customBaseDataUrl;
@@ -4238,152 +4124,6 @@
       });
     }
     bindRepoTabResetButtons();
-    let collectRawPrev = 0;
-    let lastClassicSig = '';
-    let lastClassicAtMs = 0;
-    const popCadenceTimes = [];
-    function isReducedMotionScoreEffects() {
-      if (document.body && document.body.classList.contains('reduced-motion')) return true;
-      try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (_) { return false; }
-    }
-    function triggerScoreExcitement(detail) {
-      if (isReducedMotionScoreEffects()) return;
-      const points = Math.max(1, Number(detail && detail.pointsAwarded) || 1);
-      const bursts = Math.max(1, Math.min(7, Math.round(points / 4)));
-      const baseCount = Math.max(40, Math.min(180, 40 + Math.round(points * 10)));
-      for (let i = 0; i < bursts; i++) {
-        const x = Math.random() * window.innerWidth;
-        const y = Math.random() * window.innerHeight;
-        const count = Math.max(24, baseCount + ((Math.random() * 50) | 0));
-        try {
-          if (typeof window.errlGLBurst === 'function') window.errlGLBurst(x, y, count);
-        } catch (_) {}
-      }
-      try {
-        if (typeof window.errlBgParticlesBoost === 'function') {
-          window.errlBgParticlesBoost({
-            amount: Math.max(0.1, Math.min(1.2, 0.2 + points * 0.03)),
-            durationMs: 700 + ((Math.random() * 450) | 0)
-          });
-        }
-      } catch (_) {}
-    }
-    /* Score HUD removed — cinematic redesign uses ambient RB only */
-    if (false) window.addEventListener('errl:rb-collect-score', (ev) => {
-      const d = ev && ev.detail ? ev.detail : {};
-      const score = Math.max(0, d.score | 0);
-      if (score < collectRawPrev) {
-        collectRawPrev = score;
-        scoreState.meta.collectStreak = 0;
-        scoreState.meta.collectLastAt = 0;
-        renderScoreHud();
-        return;
-      }
-      const delta = score - collectRawPrev;
-      if (delta <= 0) return;
-      collectRawPrev = score;
-      const t = nowMs();
-      const gap = t - (scoreState.meta.collectLastAt || 0);
-      scoreState.meta.collectStreak = (gap > 1800) ? delta : ((scoreState.meta.collectStreak | 0) + delta);
-      scoreState.meta.collectLastAt = t;
-      const mult = 1 + Math.min(1.6, Math.max(0, ((scoreState.meta.collectStreak | 0) - 1) * 0.08));
-      applyScoreEvent({ mode: 'collect', eventType: 'collectSweep', basePoints: delta, multiplier: mult });
-    });
-    window.addEventListener('errl:rb-pop', (ev) => {
-      const t = nowMs();
-      popCadenceTimes.push(t);
-      while (popCadenceTimes.length && (t - popCadenceTimes[0]) > 6000) popCadenceTimes.shift();
-      scoreState.meta.popCadence = popCadenceTimes.length;
-      const mult = 1 + Math.min(1.5, Math.max(0, (scoreState.meta.popCadence - 1) * 0.12));
-      const d = ev && ev.detail ? ev.detail : {};
-      applyScoreEvent({ mode: 'pop', eventType: 'pop', basePoints: 1, multiplier: mult, t: d.t || t });
-    });
-    window.addEventListener('errl:rb-classic-flick', (ev) => {
-      const d = ev && ev.detail ? ev.detail : {};
-      const power = Math.max(0, Number(d.throwPower || 0));
-      const sig = 'flick:' + power.toFixed(3) + ':' + Number(d.t || 0).toFixed(3);
-      const t = nowMs();
-      if (sig === lastClassicSig && (t - lastClassicAtMs) < 120) return;
-      lastClassicSig = sig;
-      lastClassicAtMs = t;
-      applyScoreEvent({
-        mode: 'classic',
-        eventType: 'flickHit',
-        basePoints: 2,
-        multiplier: 1 + Math.min(0.5, power * 0.5),
-      });
-    });
-    window.addEventListener('errl:rb-classic-throw', (ev) => {
-      const d = ev && ev.detail ? ev.detail : {};
-      const power = Math.max(0, Number(d.throwPower || 0));
-      const t = nowMs();
-      const sig = 'throw:' + String(d.throwKind || 'grab') + ':' + power.toFixed(3) + ':' + t.toFixed(3);
-      if (sig === lastClassicSig && Math.abs(t - lastClassicAtMs) < 120) return;
-      lastClassicSig = sig;
-      lastClassicAtMs = t;
-      const comboWindowMs = 4000;
-      const sinceCombo = nowMs() - (scoreState.meta.classicComboAt || 0);
-      scoreState.meta.classicComboCount = (sinceCombo <= comboWindowMs)
-        ? ((scoreState.meta.classicComboCount | 0) + 1)
-        : 1;
-      scoreState.meta.classicComboAt = nowMs();
-      const comboMult = 1 + Math.min(1.5, Math.max(0, ((scoreState.meta.classicComboCount | 0) - 1) * 0.22));
-      const powerMult = Math.min(0.6, power * 0.5);
-      const base = d.throwKind === 'flick' ? 4 : 6;
-      applyScoreEvent({ mode: 'classic', eventType: 'offscreenThrow', basePoints: base, multiplier: comboMult + powerMult });
-    });
-    window.addEventListener('errl:rb-score-event', (ev) => {
-      const d = ev && ev.detail ? ev.detail : {};
-      if (!d || !d.mode) return;
-      if (d.runningModeScore !== undefined && d.runningTotalScore !== undefined) return;
-      applyScoreEvent(d);
-    });
-    window.addEventListener('errl:rb-score-event', (ev) => {
-      const d = ev && ev.detail ? ev.detail : {};
-      if (!d || d.runningModeScore === undefined || d.runningTotalScore === undefined) return;
-      triggerScoreExcitement(d);
-    });
-    const rbReset = document.getElementById('rbCollectResetBtn');
-    if (rbReset) {
-      rbReset.addEventListener('click', () => {
-        const current = getCurrentMode();
-        scoreState.session[current] = 0;
-        if (current === 'classic') {
-          scoreState.meta.classicComboCount = 0;
-          scoreState.meta.classicComboAt = 0;
-        } else if (current === 'pop') {
-          scoreState.meta.popCadence = 0;
-          popCadenceTimes.length = 0;
-        } else {
-          scoreState.meta.collectStreak = 0;
-          scoreState.meta.collectLastAt = 0;
-          collectRawPrev = 0;
-        }
-        recomputeTotals(scoreState);
-        scheduleScorePersist();
-        renderScoreHud();
-        const R = window.errlRisingBubblesThree;
-        if (current === 'collect' && R && typeof R.setCollectScore === 'function') R.setCollectScore(0);
-      });
-    }
-    const modeEl = document.getElementById('rbInteractionMode');
-    if (modeEl) modeEl.addEventListener('change', () => {
-      const label = getCurrentMode() === 'collect' ? 'Reset Collect score'
-        : (getCurrentMode() === 'pop' ? 'Reset Pop score' : 'Reset Classic score');
-      rbReset && (rbReset.textContent = label);
-      renderScoreHud();
-    });
-    const panelEl = document.getElementById('errlPanel');
-    if (panelEl && window.MutationObserver) {
-      const observer = new MutationObserver(() => { renderScoreHud(); });
-      observer.observe(panelEl, { attributes: true, attributeFilter: ['data-active-tab', 'class'] });
-    }
-    window.addEventListener('errl:score-hud-sync', () => { renderScoreHud(); });
-    window.addEventListener('errl:rb-play-engaged', () => {
-      rbScoreHudUnlocked = true;
-      renderScoreHud();
-    });
-    renderScoreHud();
     const up = document.getElementById('errlCustomBaseUpload');
     if (up) {
       on(up, 'change', (e) => {

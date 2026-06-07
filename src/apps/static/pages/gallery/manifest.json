@@ -1,1000 +1,1443 @@
 {
-  "default": "recent",
+  "default": "open-art-2025-oct",
   "albums": [
     {
-      "id": "recent",
-      "title": "Recent Generations",
-      "cover": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_1.jpg",
+      "id": "open-art-2025-oct",
+      "title": "OpenArt — October 2025",
+      "cover": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_1.jpg",
       "items": [
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_1.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_1.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 1"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_2.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_2.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 2"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_3.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_3.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 3"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_4.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_4.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 4"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_5.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_5.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 5"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_6.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_6.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 6"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_7.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_7.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 7"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_8.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_8.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 8"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_9.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_9.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 9"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_10.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_10.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 10"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_11.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_11.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 11"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_12.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_12.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 12"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_13.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_13.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 13"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_14.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_14.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 14"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_15.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_15.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 15"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_16.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_16.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 16"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_17.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_17.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 17"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_18.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_18.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 18"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_19.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_19.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 19"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_20.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_20.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 20"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_21.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_21.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 21"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_22.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_22.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 22"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_23.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_23.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 23"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_24.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_24.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 24"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_25.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_25.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 25"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_26.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_26.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 26"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_27.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_27.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 27"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_28.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_28.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 28"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_29.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_29.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 29"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_30.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_30.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 30"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_31.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_31.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 31"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_32.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_32.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 32"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_33.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_33.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 33"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_34.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_34.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 34"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_35.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_35.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 35"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_36.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_36.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 36"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_37.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_37.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 37"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_38.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_38.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 38"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_39.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_39.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 39"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_40.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_40.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 40"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_41.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_41.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 41"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_42.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_42.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 42"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_43.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_43.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 43"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_44.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_44.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 44"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_45.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_45.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 45"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_46.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_46.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 46"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_47.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_47.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 47"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_48.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_48.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 48"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_49.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_49.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 49"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_50.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_50.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 50"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_51.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_51.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 51"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_52.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_52.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 52"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_53.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_53.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 53"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_54.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_54.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 54"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_55.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_55.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 55"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_56.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_56.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 56"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_57.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_57.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 57"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_58.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_58.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 58"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_59.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_59.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 59"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_60.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_60.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 60"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_61.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_61.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 61"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_62.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_62.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 62"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_63.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_63.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 63"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_64.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_64.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 64"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_65.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_65.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 65"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_66.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_66.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 66"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_67.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_67.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 67"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_68.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_68.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 68"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_69.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_69.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 69"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_70.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_70.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 70"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_71.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_71.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 71"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_72.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_72.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 72"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_73.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_73.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 73"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_74.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_74.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 74"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_75.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_75.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 75"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_76.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_76.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 76"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_77.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_77.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 77"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_78.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_78.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 78"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_79.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_79.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 79"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_80.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_80.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 80"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_81.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_81.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 81"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_82.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_82.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 82"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_83.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_83.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 83"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_84.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_84.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 84"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_85.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_85.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 85"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_86.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_86.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 86"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_87.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_87.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 87"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_88.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_88.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 88"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_89.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_89.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 89"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_90.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_90.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 90"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_91.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_91.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 91"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_92.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_92.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 92"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_93.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_93.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 93"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_94.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_94.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 94"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_95.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_95.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 95"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_96.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_96.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 96"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_97.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_97.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 97"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_98.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_98.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 98"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_99.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_99.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 99"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_100.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_100.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 100"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_101.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_101.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 101"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_102.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_102.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 102"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_103.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_103.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 103"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_104.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_104.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 104"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_105.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_105.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 105"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_106.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_106.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 106"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_107.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_107.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 107"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_108.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_108.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 108"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_109.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_109.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 109"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_110.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_110.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 110"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_111.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_111.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 111"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_112.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_112.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 112"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_113.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_113.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 113"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_114.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_114.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 114"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_115.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_115.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 115"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_116.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_116.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 116"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_117.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_117.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 117"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_118.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_118.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 118"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_119.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_119.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 119"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_120.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_120.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 120"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_121.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_121.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 121"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_122.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_122.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 122"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_123.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_123.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 123"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_124.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_124.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 124"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_125.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_125.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 125"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_126.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_126.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 126"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_127.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_127.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 127"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_128.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_128.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 128"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_129.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_129.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 129"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_130.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_130.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 130"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_131.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_131.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 131"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_132.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_132.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 132"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_133.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_133.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 133"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_134.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_134.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 134"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_135.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_135.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 135"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_136.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_136.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 136"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_137.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_137.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 137"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_138.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_138.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 138"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_139.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_139.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 139"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_140.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_140.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 140"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_141.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_141.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 141"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_142.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_142.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 142"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_143.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_143.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 143"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_144.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_144.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 144"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_145.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_145.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 145"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_146.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_146.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 146"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_147.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_147.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 147"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_148.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_148.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 148"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_149.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_149.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 149"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_150.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_150.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 150"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_151.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_151.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 151"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_152.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_152.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 152"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_153.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_153.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 153"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_154.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_154.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 154"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_155.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_155.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 155"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_156.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_156.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 156"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_157.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_157.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 157"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_158.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_158.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 158"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_159.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_159.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 159"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_160.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_160.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 160"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_161.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_161.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 161"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_162.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_162.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 162"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_163.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_163.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 163"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_164.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_164.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 164"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_165.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_165.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 165"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_166.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_166.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 166"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_167.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_167.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 167"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_168.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_168.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 168"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_169.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_169.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 169"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_170.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_170.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 170"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_171.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_171.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 171"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_172.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_172.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 172"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_173.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_173.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 173"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_174.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_174.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 174"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_175.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_175.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 175"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_176.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_176.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 176"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_177.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_177.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 177"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_178.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_178.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 178"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_179.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_179.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 179"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_180.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_180.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 180"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_181.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_181.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 181"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_182.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_182.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 182"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_183.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_183.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 183"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_184.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_184.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 184"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_185.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_185.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 185"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_186.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_186.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 186"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_187.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_187.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 187"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_188.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_188.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 188"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_189.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_189.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 189"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_190.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_190.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 190"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_191.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_191.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 191"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_192.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_192.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 192"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_193.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_193.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 193"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_194.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_194.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 194"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_195.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_195.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 195"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_196.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_196.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 196"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_197.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_197.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 197"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_198.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_198.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 198"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_199.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_199.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 199"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_200.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_200.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 200"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_201.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_201.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 201"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_202.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_202.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 202"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_203.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_203.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 203"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_204.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_204.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 204"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_205.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_205.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 205"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_206.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_206.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 206"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_207.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_207.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 207"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_208.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_208.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 208"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_209.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_209.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 209"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_210.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_210.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 210"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_211.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_211.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 211"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_212.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_212.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 212"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_213.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_213.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 213"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_214.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_214.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 214"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_215.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_215.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 215"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_216.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_216.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 216"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_217.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_217.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 217"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_218.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_218.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 218"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_219.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_219.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 219"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_220.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_220.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 220"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_221.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_221.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 221"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_222.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_222.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 222"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_223.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_223.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 223"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_224.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_224.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 224"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_225.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_225.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 225"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_226.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_226.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 226"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_227.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_227.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 227"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_228.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_228.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 228"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_229.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_229.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 229"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_230.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_230.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 230"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_231.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_231.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 231"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_232.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_232.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 232"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_233.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_233.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 233"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_234.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_234.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 234"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_235.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_235.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 235"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_236.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_236.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 236"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_237.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_237.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 237"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_238.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_238.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 238"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_239.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_239.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 239"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_240.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_240.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 240"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_241.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_241.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 241"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_242.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_242.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 242"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_243.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_243.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 243"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_244.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_244.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 244"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_245.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_245.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 245"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_246.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_246.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 246"
         },
         {
-          "src": "%BASE_URL%assets/legacy/gallery/recent/Errl_OpenArt_2025Oct_JPEG_247.jpg",
+          "src": "%BASE_URL%assets/legacy/gallery/open-art-2025-oct/Errl_OpenArt_2025Oct_JPEG_247.jpg",
           "title": "Errl OpenArt 2025Oct JPEG 247"
         }
       ]
+    },
+    {
+      "id": "lizard-codex",
+      "title": "Lizard Codex",
+      "cover": "%BASE_URL%assets/legacy/gallery/lizard-codex/Errl_Lizard_FirstLaugh_Together.png",
+      "items": [
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/Errl_Lizard_FirstLaugh_Together.png",
+          "title": "Errl Lizard FirstLaugh Together"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/Errl_Lizard_InfiniteCaptionComet.png",
+          "title": "Errl Lizard InfiniteCaptionComet"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_.png",
+          "title": "ErrlLizard"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_AquariumOfNonsense.png",
+          "title": "ErrlLizard AquariumOfNonsense"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_CaptionCathedral.png",
+          "title": "ErrlLizard CaptionCathedral"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_CaptionChoir.png",
+          "title": "ErrlLizard CaptionChoir"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_ClockDripCollapse.png",
+          "title": "ErrlLizard ClockDripCollapse"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_DripCathedral.png",
+          "title": "ErrlLizard DripCathedral"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_DripResurrection.png",
+          "title": "ErrlLizard DripResurrection"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_Driptalker Circle.png",
+          "title": "ErrlLizard Driptalker Circle"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_DripTalkerFinale.png",
+          "title": "ErrlLizard DripTalkerFinale"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_Driptalkers_Circle_Part2.png",
+          "title": "ErrlLizard Driptalkers Circle Part2"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_ErrlANDLizard.png",
+          "title": "ErrlLizard ErrlANDLizard"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_GlyphStorm_Remastered.png",
+          "title": "ErrlLizard GlyphStorm Remastered"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_GlyphTabletCodex.png",
+          "title": "ErrlLizard GlyphTabletCodex"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_GooSpring.png",
+          "title": "ErrlLizard GooSpring"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_MemeEclipse.png",
+          "title": "ErrlLizard MemeEclipse"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_MuralBraid.png",
+          "title": "ErrlLizard MuralBraid"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_Resin.png",
+          "title": "ErrlLizard Resin"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_ResinApocolypse.png",
+          "title": "ErrlLizard ResinApocolypse"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_Return_tothe_Drip.png",
+          "title": "ErrlLizard Return tothe Drip"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TabletOfChoir.png",
+          "title": "ErrlLizard TabletOfChoir"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TabletofCodex.png",
+          "title": "ErrlLizard TabletofCodex"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TabletOfComet.png",
+          "title": "ErrlLizard TabletOfComet"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TabletOfEcalt.png",
+          "title": "ErrlLizard TabletOfEcalt"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TabletOfEcho.png",
+          "title": "ErrlLizard TabletOfEcho"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_The_GlyphStorm.png",
+          "title": "ErrlLizard The GlyphStorm"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_The_Resin_Court.png",
+          "title": "ErrlLizard The Resin Court"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_The_Resin_Pilgrims.png",
+          "title": "ErrlLizard The Resin Pilgrims"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TheBullshitBanner.png",
+          "title": "ErrlLizard TheBullshitBanner"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TheGlassSeahorse.png",
+          "title": "ErrlLizard TheGlassSeahorse"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TheGlyphStorm.png",
+          "title": "ErrlLizard TheGlyphStorm"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TheGlyphTheWouldnt_StopDripping.png",
+          "title": "ErrlLizard TheGlyphTheWouldnt StopDripping"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TheInfinite_Caption.png",
+          "title": "ErrlLizard TheInfinite Caption"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TheOffice_of_ Absurdity.png",
+          "title": "ErrlLizard TheOffice of Absurdity"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TheResinOracle.png",
+          "title": "ErrlLizard TheResinOracle"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_TheScaleThatMelted.png",
+          "title": "ErrlLizard TheScaleThatMelted"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizard_ThroneOfScales.png",
+          "title": "ErrlLizard ThroneOfScales"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-codex/ErrlLizarf_TabletOfScale.png",
+          "title": "ErrlLizarf TabletOfScale"
+        }
+      ]
+    },
+    {
+      "id": "lizard-cups",
+      "title": "Lizard Cups",
+      "cover": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_1.jpg",
+      "items": [
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_1.jpg",
+          "title": "Errl Lizard Cups 1"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_10.jpg",
+          "title": "Errl Lizard Cups 10"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_11.jpg",
+          "title": "Errl Lizard Cups 11"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_12.jpg",
+          "title": "Errl Lizard Cups 12"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_2.jpg",
+          "title": "Errl Lizard Cups 2"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_3.jpg",
+          "title": "Errl Lizard Cups 3"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_4.jpg",
+          "title": "Errl Lizard Cups 4"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_5.jpg",
+          "title": "Errl Lizard Cups 5"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_6.jpg",
+          "title": "Errl Lizard Cups 6"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_7.jpg",
+          "title": "Errl Lizard Cups 7"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_8.jpg",
+          "title": "Errl Lizard Cups 8"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/lizard-cups/Errl_Lizard_Cups_9.jpg",
+          "title": "Errl Lizard Cups 9"
+        }
+      ]
+    },
+    {
+      "id": "mushroom-forest",
+      "title": "Mushroom Forest",
+      "cover": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_Bloom.png",
+      "items": [
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_Bloom.png",
+          "title": "Errl MushroomForest Bloom"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_Cap.png",
+          "title": "Errl MushroomForest Cap"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_GreenGoo.png",
+          "title": "Errl MushroomForest GreenGoo"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_Gummy.png",
+          "title": "Errl MushroomForest Gummy"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_HeadCap.png",
+          "title": "Errl MushroomForest HeadCap"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_Iridescent.png",
+          "title": "Errl MushroomForest Iridescent"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_NeonWorm.png",
+          "title": "Errl MushroomForest NeonWorm"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_Shiny.png",
+          "title": "Errl MushroomForest Shiny"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_Snail_TOON.png",
+          "title": "Errl MushroomForest Snail TOON"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/mushroom-forest/Errl_MushroomForest_Snail.png",
+          "title": "Errl MushroomForest Snail"
+        }
+      ]
+    },
+    {
+      "id": "extrepa-logos",
+      "title": "Extrepa Logos",
+      "cover": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_1.png",
+      "items": [
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_1.png",
+          "title": "Extrepa Errl Logo 1"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_2.png",
+          "title": "Extrepa Errl Logo 2"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_3.png",
+          "title": "Extrepa Errl Logo 3"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_4.png",
+          "title": "Extrepa Errl Logo 4"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_5.png",
+          "title": "Extrepa Errl Logo 5"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_6.png",
+          "title": "Extrepa Errl Logo 6"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_7.png",
+          "title": "Extrepa Errl Logo 7"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_9.png",
+          "title": "Extrepa Errl Logo 9"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_Basic_Black-2.png",
+          "title": "Extrepa Errl Logo Basic Black-2"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/extrepa-logos/Extrepa_Errl_Logo_Basic_Black.png",
+          "title": "Extrepa Errl Logo Basic Black"
+        }
+      ]
+    },
+    {
+      "id": "errls-world",
+      "title": "Errl's World",
+      "cover": "%BASE_URL%assets/legacy/gallery/errls-world/Errl's_World_Archway Entry.png",
+      "items": [
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errls-world/Errl's_World_Archway Entry.png",
+          "title": "Errl's World Archway Entry"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errls-world/Errl's_World_Coaster_2.png",
+          "title": "Errl's World Coaster 2"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errls-world/Errl's_World_Coaster_3.png",
+          "title": "Errl's World Coaster 3"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errls-world/Errl's_World_Coaster.png",
+          "title": "Errl's World Coaster"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errls-world/Errl's_World_Entrance.png",
+          "title": "Errl's World Entrance"
+        }
+      ]
+    },
+    {
+      "id": "renders-3d",
+      "title": "3D Renders",
+      "cover": "%BASE_URL%assets/legacy/gallery/renders-3d/3D Errl Based on OG-28b708800712f48a.jpg",
+      "items": [
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/renders-3d/3D Errl Based on OG-28b708800712f48a.jpg",
+          "title": "3D Errl Based on OG-28b708800712f48a"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/renders-3d/3D Errl Based on OG.png",
+          "title": "3D Errl Based on OG"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/renders-3d/Errl_3DRender_3Examples.png",
+          "title": "Errl 3DRender 3Examples"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/renders-3d/Errl_3DRender_FullOfStars.png",
+          "title": "Errl 3DRender FullOfStars"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/renders-3d/Errl_3DRender_GlassPlatform.png",
+          "title": "Errl 3DRender GlassPlatform"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/renders-3d/Errl_3DRender_RaindbowVeins.png",
+          "title": "Errl 3DRender RaindbowVeins"
+        }
+      ]
+    },
+    {
+      "id": "errl-one-offs",
+      "title": "Errl One-Offs",
+      "cover": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl Face For Token-2025-02-07 231115.png",
+      "items": [
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl Face For Token-2025-02-07 231115.png",
+          "title": "Errl Face For Token-2025-02-07 231115"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl Poster.jpg",
+          "title": "Errl Poster"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl Stonehendge.jpg",
+          "title": "Errl Stonehendge"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl_DJMayday_CloseFocus.png.png",
+          "title": "Errl DJMayday CloseFocus.png"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl_DJMayday_FarFocus.png",
+          "title": "Errl DJMayday FarFocus"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl_Front_ForTheNomads_HighRes.png",
+          "title": "Errl Front ForTheNomads HighRes"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl_Portal_ByeColor_1.png",
+          "title": "Errl Portal ByeColor 1"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl_Portal_ByeColor_2.png",
+          "title": "Errl Portal ByeColor 2"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl_Portal_ByeColor_3.png",
+          "title": "Errl Portal ByeColor 3"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl_Portal_ByeColor_4.png",
+          "title": "Errl Portal ByeColor 4"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl_Totem_Drippy Heads.png",
+          "title": "Errl Totem Drippy Heads"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/Errl_Totem_Drippy Sands.png",
+          "title": "Errl Totem Drippy Sands"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/ErrlCompilation_1.png",
+          "title": "ErrlCompilation 1"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/ErrlCompilation_2.png",
+          "title": "ErrlCompilation 2"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/ErrlCompilation.png",
+          "title": "ErrlCompilation"
+        },
+        {
+          "src": "%BASE_URL%assets/legacy/gallery/errl-one-offs/NomadPosterJustErrl.png",
+          "title": "NomadPosterJustErrl"
+        }
+      ]
     }
-  ]
+  ],
+  "_generated": "2026-06-07T00:19:10.112Z",
+  "_source": "/Users/extrepa/Errl/Photos/Projects/Errl"
 }

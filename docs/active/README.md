@@ -8,7 +8,10 @@
 ## Start here
 
 - **[../PROJECT_STATUS.md](../PROJECT_STATUS.md)** — North star: routes, active work, legacy, gaps
+- **[../upgrade-merge-handoff.md](../upgrade-merge-handoff.md)** — `errl-portal-upgrade` merge map (metaball = merge layer)
 - **[../cinematic-scene-master-plan.md](../cinematic-scene-master-plan.md)** — Landing scene audit and roadmap
+- **[nav-bubble-color-animation.md](./nav-bubble-color-animation.md)** — pointer to merge+color plan
+- **[metaball-nav-merge-and-color-plan.md](./metaball-nav-merge-and-color-plan.md)** — **Next agent:** metaball merge goo + animated colors (full plan)
 - **[../reference/errl-phone-capabilities.md](../reference/errl-phone-capabilities.md)** — Errl Phone
 - **[../reference/static-experiments.md](../reference/static-experiments.md)** — Static HTML labs vs core product
 

@@ -4,12 +4,14 @@ import ArrivalPhase from './phases/ArrivalPhase';
 import TransitionPhase from './phases/TransitionPhase';
 import MainPhase from './phases/MainPhase';
 import ScrollNavDrive from './scroll/ScrollNavDrive';
+import WarpOverlay from './nav/WarpOverlay';
 import {
   dispatchSceneReady,
   setBodyScenePhase,
   setRbAmbientMode,
 } from './bridge/legacyBridge';
 import { applyNavRenderModeToDocument } from './navRenderMode';
+import { mountWarpNavGlobal } from './nav/warpNav';
 
 export type ScenePhase = 'arrival' | 'entering' | 'main';
 
@@ -36,6 +38,7 @@ export default function App() {
 
   useEffect(() => {
     applyNavRenderModeToDocument();
+    mountWarpNavGlobal();
   }, []);
 
   useEffect(() => {
@@ -82,6 +85,7 @@ export default function App() {
       {phase === 'entering' ? <TransitionPhase onComplete={handleTransitionComplete} /> : null}
       {phase === 'main' ? <MainPhase /> : null}
       {phase === 'main' ? <ScrollNavDrive active /> : null}
+      {phase === 'main' ? <WarpOverlay /> : null}
     </>,
     root,
   );

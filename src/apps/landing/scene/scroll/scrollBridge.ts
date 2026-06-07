@@ -108,8 +108,13 @@ function tick(ts: number) {
   rafId = requestAnimationFrame(tick);
 }
 
+function isInsideErrlPanel(target: EventTarget | null): boolean {
+  return target instanceof Element && !!target.closest('#errlPanel');
+}
+
 function onWheel(ev: WheelEvent) {
   if (!enabled) return;
+  if (isInsideErrlPanel(ev.target)) return;
   ingestDelta(ev.deltaY);
   if (Math.abs(ev.deltaY) > 2) ev.preventDefault();
 }
@@ -120,6 +125,7 @@ function onTouchStart(ev: TouchEvent) {
 
 function onTouchMove(ev: TouchEvent) {
   if (!enabled) return;
+  if (isInsideErrlPanel(ev.target)) return;
   const lastY = (onTouchStart as { lastY?: number }).lastY;
   const y = ev.touches[0]?.clientY;
   if (lastY == null || y == null) return;

@@ -32,6 +32,13 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
     }
 
+    html.errl-walking-embed,
+    html.errl-walking-embed body {
+      min-height: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+
     /* Main loader container: provides relative positioning for all parts */
     .errl-loader {
       position: relative;
@@ -174,6 +181,13 @@
   </style>
 </head>
 <body>
+  <script>
+    try {
+      if (new URLSearchParams(location.search).get('embed') === '1') {
+        document.documentElement.classList.add('errl-walking-embed');
+      }
+    } catch (_) {}
+  </script>
   <div class="errl-loader">
     <!-- Head: white skull silhouette with dark face patch and authentic facial features -->
     <div class="errl-head">

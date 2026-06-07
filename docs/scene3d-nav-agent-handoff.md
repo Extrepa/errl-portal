@@ -1,7 +1,8 @@
 # Scene3d / Metaball Nav — Agent Handoff
 
 **Last updated:** 2026-06-06  
-**Status:** Landing metaball nav **works** (DOM-first). WebGL SDF nav on landing **retired**; lab only.  
+**Status:** Landing metaball nav **works** (flat CSS billboard orbs + Meltdown labels). WebGL on landing **retired**; lab only.  
+**Next planned:** [nav bubble color animation](./active/nav-bubble-color-animation.md) (CSS drift/pulse on `--nav-ball-color`).  
 **Session logs:** `05-Logs/Daily/2026-06-06-cursor-notes.md`, `05-Logs/Daily/2026-05-28-cursor-notes.md`  
 **Related:** `docs/cinematic-scene-master-plan.md`, `docs/reference/errl-phone-capabilities.md`
 
@@ -104,16 +105,47 @@ npm run portal:dev -- --host 127.0.0.1 --port 5173 --strictPort
 
 | URL | Purpose |
 |-----|---------|
-| `http://127.0.0.1:5173/?skipIntro=1` | DOM nav, no intro |
-| `http://127.0.0.1:5173/?dev=1&skipIntro=1&scene3d=1` | **Metaball nav** + Errl Phone |
+| `http://127.0.0.1:5173/?skipIntro=1` | **Metaball nav default**, no intro |
+| `http://127.0.0.1:5173/?skipIntro=1&dom=1` | Legacy DOM bubble nav |
+| `http://127.0.0.1:5173/?dev=1&skipIntro=1` | Metaball + Errl Phone |
 | `http://127.0.0.1:5173/fx/metaball-lab/` | Shader lab |
+| `http://127.0.0.1:5173/gallery/` | Floating Hall gallery |
 | `http://127.0.0.1:5173/?scrollNav=0` | Disable scroll-driven orbit |
 
 ### Tests (local-first)
 
+**Daily / low CPU (~8 tests, ~30s after build):**
+
 ```bash
-PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npm run test:local:audit   # 12 tests
-npm run test:local                                                  # audit + visual + build-output
+npm run portal:build && npm run test:gate
+```
+
+**Pre-ship full Tier A (~40 tests, run before deploy only):**
+
+```bash
+PLAYWRIGHT_FULL=1 npm run test:tier-a
+npm run test:prod:tier-a               # against https://errl.wtf
+```
+
+Gate: `build-output`, `warp-nav`, `metaball-scroll-parity`, `errl-phone-panel-size`.  
+Full Tier A adds: `live-visual-audit`, `scene-phone-controls`, `gallery-floating-hall`, `dom-metaball-parity`.
+
+Local Playwright defaults: no retries, no video (see `playwright.config.ts`).
+
+### Deploy checklist (Cloudflare Pages via push to `main`)
+
+1. `npm run portal:build` && `npm run test:gate` locally (full `PLAYWRIGHT_FULL=1 npm run test:tier-a` before deploy)
+2. Commit; push `main`
+3. Wait ~2 minutes for Cloudflare deploy
+4. `curl -s -o /dev/null -w "%{http_code} %{content_type}" https://errl.wtf/gallery/manifest.json` — expect `200 application/json`
+5. `npm run test:prod:tier-a`
+6. Log result in `05-Logs/Daily/<date>-cursor-notes.md`
+
+### Tests (local-first)
+
+```bash
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npm run test:local:audit
+npm run test:local
 npm run build
 node --check src/apps/landing/scripts/portal-app.js
 ```
@@ -170,7 +202,7 @@ Attempted: R3F Canvas with screen-space SDF shader + separate DOM labels driven 
 - **Presets:** `scene-presets.ts` — portal / metaball / atmospheric
 - **Nav tab:** DOM controls disabled when metaball notice shown (`nav-render-mode-phone.ts`)
 
-Sculpture sliders affect metaball **physics** (separation, magnetic, float, scroll pull). Metaball sliders (glow, mergeK) affect **lab shader** only unless re-wired to CSS orbs.
+Sculpture sliders affect metaball **physics** (separation, magnetic, float, scroll pull). Metaball sliders (glow, mergeK) affect **lab shader** today; **planned:** also drive CSS orb glow/pulse animation — see `docs/active/nav-bubble-color-animation.md`.
 
 ---
 
@@ -217,15 +249,30 @@ CSS: `src/apps/landing/styles/arrival.css`
 
 ### Not done / future
 
-- [ ] **Lazy-load** Three/R3F only for metaball lab (reduce main chunk if lab code bleeds into landing bundle)
 - [ ] Wire Scene tab **metaball sliders** to CSS orb appearance (glow, merge visual) on landing
-- [ ] **Homepage Lenis runway** + ScrollTrigger chapters (`ScrollDirector.ts` stub exists)
-- [ ] **Gallery immersive** 3D room (`docs/gallery-immersive-architecture.md`)
-- [ ] Retire dead **score HUD** reducer code in `portal-app.js`
-- [ ] Bundle **Three** in `rise-bubbles-three.js` (still CDN)
-- [ ] Visual regression snapshot update for new DOM metaball look
-- [ ] Deploy + prod audit after merge
+- [ ] Deeper GSAP ScrollTrigger chapters (3–5) beyond approach/orbit
 - [ ] Optional: merge SDF goo between CSS orbs (SVG filter or canvas) for “metaball merge” aesthetic on landing
+- [ ] Visual regression snapshot update for DOM metaball look
+
+### Recently completed (2026-06-06)
+
+- [x] Homepage Lenis runway + scroll chapters 1–2
+- [x] Bundled Three in `rise-bubbles-three.js`
+- [x] Score reducer removed from `portal-app.js`
+- [x] Gallery Floating Hall + CRT / vitrine / pin shelf spikes
+- [x] Tier A test script + deploy checklist
+- [x] `docs/runtime-global-api.md`
+
+---
+
+### Orbit change checklist
+
+When changing nav orbit geometry:
+
+1. Update `navConfig.ts` angles/dists
+2. Mirror in `src/apps/landing/scripts/portal-app.js` (`placeBubble`, `#navOrbit` data attributes)
+3. Verify `orbitLayout.ts` helpers still match DOM tier scales
+4. Run `npm run test:tier-a` (includes `dom-metaball-parity.spec.ts`)
 
 ---
 
@@ -298,8 +345,10 @@ Work described here was **local WIP** as of 2026-06-06 — verify `git status` b
 | Document | Use |
 |----------|-----|
 | **This file** | Agent handoff for scene3d / metaball nav |
+| `docs/upgrade-merge-handoff.md` | **Upgrade repo merge map** — metaball as merge layer, P1–P6 tasks |
 | `docs/cinematic-scene-master-plan.md` | Broader cinematic + Scene controls roadmap |
 | `docs/reference/errl-phone-capabilities.md` | Phone tabs API |
 | `docs/gallery-immersive-architecture.md` | Future gallery |
 | `.cursor/plans/scene3d-nav-handoff.md` | Short pointer for Cursor agents |
+| `.cursor/plans/upgrade-merge-handoff.md` | Short pointer for upgrade merge work |
 | `05-Logs/Daily/2026-06-06-cursor-notes.md` | Latest session changelog |

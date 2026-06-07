@@ -81,7 +81,6 @@ When adding features, name which layer in UI copy to avoid “nothing happens”
 
 | Key | Purpose |
 |-----|--------|
-| `errl_phone_cta_dismissed_v1` | First-visit “Customize” chip dismissed or cleared by opening the phone. |
 | `errl_pin_tour_dismissed_v2` | Pin tab tour banner dismissed; **`v2`** re-shows the expanded copy once for users who only had `v1` stored. |
 | `errl_phone_expanded_v1`, `errl_phone_expanded_pos_v1`, `errl_phone_min` | Phone expand/minimize/position (existing). |
 | `errl_rb_score_state_v3` | Rising Bubbles scoring state (`session`, `lifetime`, `high`, mode meta). |
@@ -96,7 +95,6 @@ When changing tour or CTA copy, bump a version in the key if you need a one-time
 | Id / class | Role |
 |------------|------|
 | `#errlGlHint` | Short WebGL status / error line under Burst (HUD). |
-| `#errlPhoneCtaHint` | One-time CTA; **Got it**; hidden when the panel opens. |
 | `#errlIdleStreak` + `.errl-idle-streak__line` | Rare horizontal streak; disabled for `reduced-motion` / `prefers-reduced-motion`. |
 | `.sliderRow--a11y` | Accessibility rows: full text labels, no ellipsis. |
 | `.panel-minimized-label` | “Customize” under the minimized fab (not centered *inside* the 52px circle). |

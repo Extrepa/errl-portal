@@ -4,28 +4,53 @@
  */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
+html {
+  overflow-x: clip;
+}
+
 body.errl-static-page {
   margin: 0;
-  min-height: 100vh;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: var(--errl-bg);
-  background-image: var(--errl-bg-gradient);
-  background-repeat: no-repeat;
-  background-size: 120% 120%;
-  background-attachment: fixed;
+  background: none;
+  position: relative;
   color: var(--errl-text);
   line-height: 1.5;
   letter-spacing: -0.02em;
+  overflow-x: clip;
+}
+
+body.errl-static-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--errl-bg);
+  background-image: var(--errl-bg-gradient);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.errl-static-page .errl-header {
+  flex: 0 0 auto;
+  margin-bottom: -0.15rem;
+}
+
+body.errl-gallery-page .errl-header {
+  margin-bottom: 0;
 }
 
 .errl-static-main {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow-x: clip;
 }
 
 .errl-static-main--center {
@@ -38,6 +63,7 @@ body.errl-static-page {
   margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
+  width: 100%;
 }
 
 .errl-static-page h1 {
@@ -94,4 +120,23 @@ body.errl-static-page {
 .errl-static-page .coming-soon p {
   margin: 0;
   opacity: 0.75;
+}
+
+html.errl-warp-arriving body {
+  opacity: 0;
+}
+
+html.errl-warp-arrived body {
+  animation: errlWarpPageIn 0.42s ease-out both;
+}
+
+@keyframes errlWarpPageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

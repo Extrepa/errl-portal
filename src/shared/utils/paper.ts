@@ -237,39 +237,99 @@ export async function simplifySvgPaths(svg: string, tolerance?: number): Promise
 export async function expandStrokeToFill(svg: string, width?: number): Promise<string> {
   await loadPaperJS();
   
-  const strokeWidth = width || 1;
-  
   if (!paperCanvas) {
     console.warn('Paper.js canvas not available');
     return svg;
   }
   
   try {
-    // Parse SVG to extract path elements with strokes
     const parser = new DOMParser();
     const doc = parser.parseFromString(svg, 'image/svg+xml');
-    const pathElements = doc.querySelectorAll('path[stroke]');
+    const pathElements = doc.querySelectorAll('path');
     
     if (pathElements.length === 0) {
       return svg;
     }
     
-    // Paper.js doesn't have a built-in Path.offset() method
-    // This requires a path offset algorithm or the paperjs-offset library
-    // For now, this is a placeholder that documents the limitation
-    // Full implementation would require:
-    // 1. Install paperjs-offset library, OR
-    // 2. Implement custom path offset algorithm using:
-    //    - Path.getLocationAt() to sample points
-    //    - Path.getNormalAt() to get normals
-    //    - Offset points by normal * width
-    //    - Rebuild path with proper joins/caps
+    const tempProject = new paper.Project(paperCanvas);
     
-    console.warn('expandStrokeToFill: Full implementation requires path offset algorithm. Paper.js does not have built-in Path.offset(). Consider using paperjs-offset library or implementing custom algorithm.');
+    pathElements.forEach((pathEl) => {
+      const strokeVal = pathEl.getAttribute('stroke');
+      if (!strokeVal || strokeVal === 'none') return;
+      
+      const strokeWidthStr = pathEl.getAttribute('stroke-width') || String(width || 1);
+      const strokeWidth = parseFloat(strokeWidthStr) || 1;
+      const pathData = pathEl.getAttribute('d');
+      if (!pathData) return;
+      
+      try {
+        const originalPath = new paper.Path(pathData);
+        if (!originalPath || !originalPath.segments || originalPath.length === 0) return;
+        
+        const halfWidth = strokeWidth / 2;
+        const length = originalPath.length;
+        // Sample every 2 pixels (minimum 10 steps, maximum 200 steps for performance)
+        const stepSize = 2;
+        const steps = Math.max(10, Math.min(200, Math.ceil(length / stepSize)));
+        
+        const leftPoints: paper.Point[] = [];
+        const rightPoints: paper.Point[] = [];
+        
+        for (let i = 0; i <= steps; i++) {
+          const offset = (i / steps) * length;
+          const point = originalPath.getPointAt(offset);
+          const normal = originalPath.getNormalAt(offset);
+          if (point && normal) {
+            const scaledNormal = normal.normalize().multiply(halfWidth);
+            leftPoints.push(point.add(scaledNormal));
+            rightPoints.push(point.subtract(scaledNormal));
+          }
+        }
+        
+        let outlinePath: paper.PathItem | null = null;
+        
+        if (originalPath.closed) {
+          // Closed path: Subtract inner path from outer path
+          const outer = new paper.Path();
+          leftPoints.forEach(p => outer.add(p));
+          outer.closed = true;
+          
+          const inner = new paper.Path();
+          rightPoints.forEach(p => inner.add(p));
+          inner.closed = true;
+          
+          outlinePath = outer.subtract(inner);
+          outer.remove();
+          inner.remove();
+        } else {
+          // Open path: build outline wrapping around caps
+          const outline = new paper.Path();
+          leftPoints.forEach(p => outline.add(p));
+          // Wrap around end cap and add right points in reverse order
+          for (let i = rightPoints.length - 1; i >= 0; i--) {
+            outline.add(rightPoints[i]);
+          }
+          outline.closed = true;
+          outlinePath = outline;
+        }
+        
+        if (outlinePath && outlinePath.pathData) {
+          pathEl.setAttribute('d', outlinePath.pathData);
+          pathEl.removeAttribute('stroke');
+          pathEl.removeAttribute('stroke-width');
+          pathEl.setAttribute('fill', strokeVal);
+        }
+        
+        originalPath.remove();
+        if (outlinePath) outlinePath.remove();
+        
+      } catch (err) {
+        console.warn('Failed to offset path:', err);
+      }
+    });
     
-    // Return SVG unchanged for now
-    // This matches the original placeholder behavior
-    return svg;
+    tempProject.remove();
+    return new XMLSerializer().serializeToString(doc);
   } catch (error) {
     console.warn('Stroke to fill expansion failed:', error);
     return svg;

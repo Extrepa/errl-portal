@@ -12,6 +12,13 @@ export default function ArrivalPhase({ onEnter }: Props) {
   const enterRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    try {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setErrlVisible(true);
+        setEnterVisible(true);
+        return;
+      }
+    } catch (_) {}
     const t1 = window.setTimeout(() => setErrlVisible(true), 400);
     const t2 = window.setTimeout(() => setEnterVisible(true), 1200);
     return () => {

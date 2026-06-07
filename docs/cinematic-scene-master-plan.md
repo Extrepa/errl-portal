@@ -46,8 +46,8 @@
 | **ScrollDirector stub** | Done | Lenis + 300vh runway feeds `scrollBridge`; RB ambient scroll drift |
 | **About lore copy** | Done | `about-content.mjs` |
 | **Gallery immersive plan** | Spike | Floating hall at `/gallery/` (R3F); full rooms still planned |
-| **Homepage virtual scroll + ScrollTrigger** | Partial | Lenis runway wired; GSAP chapters deferred |
-| **Retire Pixi nav mirror orbs** | Partial | Hidden in metaball mode; guards + tests |
+| **Homepage virtual scroll + ScrollTrigger** | Partial | Lenis + chapters 1–2 shipped; deeper GSAP deferred |
+| **Retire Pixi nav mirror orbs** | Done | Guarded in metaball mode; GL orbs hidden |
 | **Bundle Three in `rise-bubbles-three.js`** | Done | Vite `import('three')` replaces CDN |
 | **`Atmosphere.tsx` / `PostFX.tsx` split** | Not started | PostFX inline in `MetaballNavCanvas` |
 | **Theatre.js** | Not started | — |
@@ -91,7 +91,7 @@
 | Scene tab **Scroll pull** | Done | `sceneSculptureScroll` |
 | `?scrollNav=0` | Done | Disables driver |
 | `prefers-reduced-motion` | Done | Driver does not accumulate |
-| Lenis runway on homepage | Not started | Future: feed same bus from `ScrollDirector` |
+| Lenis runway on homepage | Done | `ScrollNavDrive` + 300vh runway; chapters 1–2 via `scrollChapters.ts` |
 
 ---
 
@@ -233,9 +233,11 @@ Use this before calling the work “done” on main.
 | Doc | Role |
 |-----|------|
 | `docs/cinematic-scene-master-plan.md` | This audit + roadmap |
+| `docs/upgrade-merge-handoff.md` | `errl-portal-upgrade` merge map + agent tasks (metaball = merge layer) |
 | `05-Logs/Daily/2026-05-28-cursor-notes.md` | Session changelog |
 | `docs/reference/errl-phone-capabilities.md` | Phone tabs, Scene tab, scroll nav |
 | `docs/gallery-immersive-architecture.md` | Future gallery work |
+| `.cursor/plans/upgrade-merge-handoff.md` | Short Cursor pointer for upgrade merge |
 | `.cursor/plans/errl-phone-panel-ux.md` | Phone stuck-small bug + UX (parallel) |
 
 ---

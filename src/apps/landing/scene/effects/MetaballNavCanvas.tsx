@@ -15,19 +15,22 @@ import { NAV_ITEMS } from '../nav/navConfig';
 import { getErrlShaderCutout, getScene3dBubbleRadiusPx, isErrlLayoutReady } from '../nav/orbitLayout';
 import { useNavPhysics, type NavPhysicsApi } from '../nav/useNavPhysics';
 
-/** WebGL SDF preview — used by metaball lab only. Landing nav uses MetaballNavLinks. */
+/** WebGL SDF metaball layer — landing hybrid nav + metaball lab. */
 
 type NavSimProps = {
   physics: NavPhysicsApi;
   bubbleRadiusPx: number;
+  stepSimulation?: boolean;
+  onReady?: () => void;
 };
 
-function NavSimulation({ physics, bubbleRadiusPx }: NavSimProps) {
+function NavSimulation({ physics, bubbleRadiusPx, stepSimulation = true, onReady }: NavSimProps) {
   const matRef = useRef<THREE.ShaderMaterial>(null);
   const { gl } = useThree();
   const metaballRef = useRef<SceneMetaballSettings>(getMetaball());
   const sculptureRef = useRef<SceneSculptureSettings>(getSculpture());
   const readyRef = useRef(false);
+  const reportedReadyRef = useRef(false);
   const ballRadiusPx = bubbleRadiusPx * 1.35;
 
   useEffect(() => {
@@ -80,7 +83,17 @@ function NavSimulation({ physics, bubbleRadiusPx }: NavSimProps) {
       readyRef.current = true;
     }
 
-    physics.step(Math.min(dt, 0.05), state.pointer, () => sculptureRef.current);
+    if (stepSimulation) {
+      physics.step(
+        Math.min(dt, 0.05),
+        {
+          x: state.pointer.x,
+          y: state.pointer.y,
+          active: Math.abs(state.pointer.x) > 0.02 || Math.abs(state.pointer.y) > 0.02,
+        },
+        () => sculptureRef.current,
+      );
+    }
 
     if (!matRef.current) return;
     const mb = metaballRef.current;
@@ -91,7 +104,9 @@ function NavSimulation({ physics, bubbleRadiusPx }: NavSimProps) {
     if (vw <= 0 || vh <= 0) return;
 
     u.uTime.value = state.clock.elapsedTime;
-    u.uResolution.value.set(gl.drawingBufferWidth, gl.drawingBufferHeight);
+    const dbSize = new THREE.Vector2();
+    gl.getDrawingBufferSize(dbSize);
+    u.uResolution.value.copy(dbSize);
     u.uPointer.value.set((state.pointer.x + 1) * 0.5, (state.pointer.y + 1) * 0.5);
     u.uPointerActive.value = state.pointer.x !== 0 || state.pointer.y !== 0 ? 1 : 0;
     u.uMergeK.value = mb.mergeK * 0.012;
@@ -109,6 +124,11 @@ function NavSimulation({ physics, bubbleRadiusPx }: NavSimProps) {
       const ball = screenPxToBallUniform(s.x, s.y, ballRadiusPx, vw, vh);
       balls[i].value.set(ball.x, ball.y, ball.z, ball.w);
     });
+
+    if (!reportedReadyRef.current && onReady) {
+      reportedReadyRef.current = true;
+      onReady();
+    }
   });
 
   return (
@@ -129,16 +149,25 @@ function NavSimulation({ physics, bubbleRadiusPx }: NavSimProps) {
 export type MetaballNavCanvasProps = {
   showPost?: boolean;
   className?: string;
+  physics?: NavPhysicsApi;
+  /** When physics is shared with MetaballNavLinks, set false so only one loop steps. */
+  stepSimulation?: boolean;
+  onReady?: () => void;
 };
 
 export default function MetaballNavCanvas({
   showPost: _showPost = true,
   className = 'metaball-lab-canvas',
+  physics: physicsProp,
+  stepSimulation = true,
+  onReady,
 }: MetaballNavCanvasProps) {
   void _showPost;
   const tier = detectQualityTier();
   const dpr = maxDpr(tier);
-  const physics = useNavPhysics();
+  const internalPhysics = useNavPhysics();
+  const physics = physicsProp ?? internalPhysics;
+  const shouldStep = physicsProp ? stepSimulation : true;
   const bubbleRadiusPx = getScene3dBubbleRadiusPx(
     typeof window !== 'undefined' ? window.innerWidth : 1440,
   );
@@ -154,7 +183,12 @@ export default function MetaballNavCanvas({
         }}
         style={{ width: '100%', height: '100%', background: 'transparent' }}
       >
-        <NavSimulation physics={physics} bubbleRadiusPx={bubbleRadiusPx} />
+        <NavSimulation
+          physics={physics}
+          bubbleRadiusPx={bubbleRadiusPx}
+          stepSimulation={shouldStep}
+          onReady={onReady}
+        />
       </Canvas>
     </div>
   );
